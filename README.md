@@ -85,13 +85,15 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
    npm install
    ```
 
+   This will install dependencies for both frontend and backend.
+
 3. **Environment Setup**
 
    ```bash
    cp .env.example .env
    ```
 
-   Configure the following environment variables:
+   Configure the following environment variables in `.env`:
 
    ```env
    # Database
@@ -113,22 +115,25 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
    # App Configuration
    NODE_ENV=development
-   PORT=3000
+   PORT=5000
+   FRONTEND_URL=http://localhost:5173
    ```
 
-4. **Database Setup**
+4. **Database Setup** (Optional - requires MongoDB running)
 
    ```bash
    npm run db:setup
    ```
 
-5. **Start Development Server**
+5. **Start Development Servers**
 
    ```bash
    npm run dev
    ```
 
-   The application will be available at `http://localhost:3000`
+   This will start both frontend and backend concurrently:
+   - Frontend: `http://localhost:5173`
+   - Backend API: `http://localhost:5000/api`
 
 ### Building for Production
 
@@ -152,37 +157,61 @@ MaBar is built as a Progressive Web App with the following capabilities:
 
 ```text
 mabar/
-├── src/
-│   ├── components/          # Reusable UI components
-│   ├── pages/              # Page components
-│   ├── services/           # API services and utilities
-│   ├── hooks/              # Custom React hooks
-│   ├── context/            # React context providers
-│   ├── utils/              # Utility functions
-│   └── styles/             # Global styles and themes
-├── server/
+├── frontend/               # React.js frontend (Vite)
+│   ├── src/
+│   │   ├── components/     # Reusable UI components
+│   │   ├── pages/          # Page components
+│   │   ├── services/       # API services and utilities
+│   │   ├── hooks/          # Custom React hooks
+│   │   ├── context/        # React context providers
+│   │   ├── utils/          # Utility functions
+│   │   └── assets/         # Static assets
+│   ├── public/             # Public assets
+│   └── package.json        # Frontend dependencies
+├── backend/                # Node.js + Express backend
 │   ├── controllers/        # Route controllers
-│   ├── models/             # Database models
+│   ├── models/             # Database models (Mongoose)
 │   ├── middleware/         # Express middleware
 │   ├── routes/             # API routes
 │   ├── services/           # Business logic services
-│   └── utils/              # Server utilities
-├── public/                 # Static assets
-└── docs/                   # Documentation
+│   ├── utils/              # Server utilities
+│   ├── config/             # Configuration files
+│   ├── server.js           # Main server file
+│   └── package.json        # Backend dependencies
+├── scripts/                # Setup and utility scripts
+├── .taskmaster/            # Task Master AI configuration
+├── .env                    # Environment variables
+├── .env.example            # Environment template
+├── package.json            # Root package.json (workspace)
+└── README.md               # This file
 ```
 
 ### Available Scripts
 
-- `npm run dev` - Start development server
+**Root Level:**
+- `npm run dev` - Start both frontend and backend development servers
+- `npm run build` - Build frontend for production
+- `npm run start` - Start production backend server
+- `npm run test` - Run tests for both frontend and backend
+- `npm run db:setup` - Setup MongoDB database with collections and indexes
+
+**Frontend (cd frontend):**
+- `npm run dev` - Start Vite development server (http://localhost:5173)
 - `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run test` - Run tests
 - `npm run lint` - Run ESLint
+- `npm run lint:fix` - Run ESLint with auto-fix
 - `npm run format` - Format code with Prettier
+- `npm run format:check` - Check code formatting
+
+**Backend (cd backend):**
+- `npm run dev` - Start backend with nodemon (http://localhost:5000)
+- `npm start` - Start production backend server
 
 ### API Documentation
 
-API documentation is available at `/api/docs` when running the development server.
+API endpoints are available at:
+- Health check: `http://localhost:5000/api/health`
+- API info: `http://localhost:5000/api`
 
 ## 🎮 User Journey
 
