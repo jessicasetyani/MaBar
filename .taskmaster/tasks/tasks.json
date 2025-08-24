@@ -1,0 +1,513 @@
+{
+  "master": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Project Repository and Development Environment",
+        "description": "Initialize the project repository with proper structure for frontend (React.js) and backend (Node.js + Express.js). Setup MongoDB connection and environment configuration for development and production.",
+        "details": "Use React 18+ with Vite or Create React App for frontend setup. Backend with Node.js 18+ and Express 4.x. Use Mongoose 6.x for MongoDB ODM. Setup environment variables for OAuth credentials, Google Gemini API keys, and database URIs. Configure ESLint and Prettier for code quality. Setup GitHub repository with branch protections.",
+        "testStrategy": "Verify repository initialization by running frontend and backend servers locally. Test MongoDB connection with a simple query. Validate environment variables loading. Run lint and format checks.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Initialize Project Repository",
+            "description": "Create a new GitHub repository for the project and set up branch protections.",
+            "dependencies": [],
+            "details": "Use GitHub to create a new repository and configure branch protections for main and development branches.",
+            "status": "pending",
+            "testStrategy": "Verify repository creation and branch protection settings."
+          },
+          {
+            "id": 2,
+            "title": "Setup Frontend with React 18+ and Vite",
+            "description": "Create a new React project using Vite for faster development.",
+            "dependencies": [],
+            "details": "Use `npm create vite@latest` to initialize a React project with Vite.",
+            "status": "pending",
+            "testStrategy": "Run the development server to ensure the frontend is working."
+          },
+          {
+            "id": 3,
+            "title": "Configure Backend with Node.js 18+ and Express 4.x",
+            "description": "Set up a new Node.js project with Express.js for the backend.",
+            "dependencies": [],
+            "details": "Install Node.js and Express.js using npm or yarn.",
+            "status": "pending",
+            "testStrategy": "Verify the backend server is running and responding to requests."
+          },
+          {
+            "id": 4,
+            "title": "Setup MongoDB Connection with Mongoose 6.x",
+            "description": "Configure MongoDB connection using Mongoose for data modeling.",
+            "dependencies": [],
+            "details": "Install Mongoose and connect to a MongoDB database.",
+            "status": "pending",
+            "testStrategy": "Test MongoDB connection with a simple query."
+          },
+          {
+            "id": 5,
+            "title": "Configure Environment Variables",
+            "description": "Set up environment variables for OAuth credentials, Google Gemini API keys, and database URIs.",
+            "dependencies": [],
+            "details": "Use .env files to manage environment variables for development and production.",
+            "status": "pending",
+            "testStrategy": "Verify environment variables are loaded correctly."
+          },
+          {
+            "id": 6,
+            "title": "Configure ESLint and Prettier for Code Quality",
+            "description": "Set up ESLint and Prettier for maintaining code quality and consistency.",
+            "dependencies": [],
+            "details": "Install ESLint and Prettier, and configure their settings.",
+            "status": "pending",
+            "testStrategy": "Run lint and format checks to ensure code quality."
+          },
+          {
+            "id": 7,
+            "title": "Implement Development and Production Configurations",
+            "description": "Configure different environments for development and production.",
+            "dependencies": [],
+            "details": "Set up different configurations for development and production environments.",
+            "status": "pending",
+            "testStrategy": "Test the application in both development and production environments."
+          },
+          {
+            "id": 8,
+            "title": "Verify Project Setup",
+            "description": "Verify that the project setup is complete and functional.",
+            "dependencies": [],
+            "details": "Run both frontend and backend servers, test MongoDB connection, and validate environment variables.",
+            "status": "pending",
+            "testStrategy": "Run a full test suite to ensure all components are working together."
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "title": "Implement User Authentication with OAuth 2.0 SSO",
+        "description": "Implement secure user authentication for Players and Venue Owners using OAuth 2.0 with Google, Facebook, and Apple sign-in providers.",
+        "details": "Use Passport.js with passport-google-oauth20, passport-facebook, and passport-apple strategies. Store user profiles in MongoDB with roles (Player, Venue Owner). Secure JWT or session management for frontend-backend communication. Ensure secure token storage on client side (HttpOnly cookies or secure storage).",
+        "testStrategy": "Test login flows for each provider on both iOS and Android devices. Verify user data is stored correctly and roles assigned. Test logout and token expiration handling.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Install Dependencies and Set Up Project Structure",
+            "description": "Install Passport.js, MongoDB, and required OAuth strategies (passport-google-oauth20, passport-facebook, passport-apple). Set up Express.js and MongoDB connection.",
+            "dependencies": [],
+            "details": "Use npm to install dependencies. Configure Express.js for session management and MongoDB for user data storage.",
+            "status": "pending",
+            "testStrategy": "Verify successful installation and basic server setup."
+          },
+          {
+            "id": 2,
+            "title": "Configure OAuth 2.0 Strategies with Passport.js",
+            "description": "Implement Google, Facebook, and Apple OAuth 2.0 strategies using Passport.js.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Use passport-google-oauth20, passport-facebook, and passport-apple to configure OAuth strategies.",
+            "status": "pending",
+            "testStrategy": "Test each OAuth provider's login flow."
+          },
+          {
+            "id": 3,
+            "title": "Create User Model and Store User Profiles in MongoDB",
+            "description": "Design a user model with roles (Player, Venue Owner) and store user profiles in MongoDB.",
+            "dependencies": [
+              "2.1"
+            ],
+            "details": "Use Mongoose to define the user schema and store user data.",
+            "status": "pending",
+            "testStrategy": "Verify user data is stored correctly with assigned roles."
+          },
+          {
+            "id": 4,
+            "title": "Implement Secure Token Management",
+            "description": "Use JWT or session management for frontend-backend communication. Ensure secure token storage on the client side.",
+            "dependencies": [
+              "2.3"
+            ],
+            "details": "Implement JWT with short expiry and refresh tokens, or use HttpOnly cookies for secure storage.",
+            "status": "pending",
+            "testStrategy": "Test token issuance and expiration handling."
+          },
+          {
+            "id": 5,
+            "title": "Develop Authentication Routes and Endpoints",
+            "description": "Create routes for login, logout, and user profile management.",
+            "dependencies": [
+              "2.2",
+              "2.4"
+            ],
+            "details": "Use Passport.js to authenticate requests and manage user sessions.",
+            "status": "pending",
+            "testStrategy": "Test login, logout, and profile management endpoints."
+          },
+          {
+            "id": 6,
+            "title": "Test and Validate Authentication Flows",
+            "description": "Test login flows for each OAuth provider on both iOS and Android devices. Verify user data storage and role assignment.",
+            "dependencies": [
+              "2.5"
+            ],
+            "details": "Conduct thorough testing of authentication flows, including logout and token expiration handling.",
+            "status": "pending",
+            "testStrategy": "Perform manual and automated testing across different platforms."
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "title": "Design and Implement User Profile and Onboarding Flow",
+        "description": "Create onboarding flow for new Players including self-assessment for initial skill level and profile management for Players and Venue Owners.",
+        "details": "Frontend React forms for onboarding with validation. Backend APIs to save profile data including dynamic skill level, badges, stats, and friends list. Venue Owners can register venue details (location, hours, price, photos). Use MongoDB schema design with references for badges and stats.",
+        "testStrategy": "Unit test form validations. Integration test API endpoints for profile creation and updates. Manual testing of onboarding flows on mobile devices.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Integrate Google Gemini AI for Chat-Based Matchmaking",
+        "description": "Integrate Google Gemini API to enable AI-powered conversational matchmaking that understands complex criteria and provides player and venue recommendations.",
+        "details": "Use Google Gemini API with REST or gRPC. Implement backend middleware to handle chat sessions and parse user input. Design prompt engineering to include skill level, age, location, time, gender, frequency, history, and price. Cache frequent queries for performance. Frontend chat UI with real-time updates.",
+        "testStrategy": "Test AI responses for various user queries. Validate recommendation relevance and correctness. Load test chat API for responsiveness.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Obtain and Configure Google Gemini API Access",
+            "description": "Create a Google AI Studio account, generate a Gemini API key, and configure environment variables for secure API access.",
+            "dependencies": [],
+            "details": "Sign in to Google AI Studio, create or use an existing account, generate the Gemini API key, and set it as an environment variable (e.g., GEMINI_API_KEY) for secure usage in backend services.",
+            "status": "pending",
+            "testStrategy": "Verify API key validity by making a simple test request to the Gemini API and confirming a successful response."
+          },
+          {
+            "id": 2,
+            "title": "Design Backend Middleware for Chat Session Management",
+            "description": "Implement backend middleware to handle chat sessions, manage user inputs, and maintain conversational state.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Develop middleware that manages chat session lifecycle, parses and sanitizes user inputs, and interfaces with the Gemini API to send and receive conversational data.",
+            "status": "pending",
+            "testStrategy": "Unit test session creation, input parsing, and state management; integration test middleware interaction with Gemini API."
+          },
+          {
+            "id": 3,
+            "title": "Develop Prompt Engineering Strategy for Matchmaking Criteria",
+            "description": "Design and implement prompt templates that incorporate matchmaking criteria such as skill level, age, location, time, gender, frequency, history, and price.",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Create dynamic prompt templates that effectively communicate user matchmaking preferences to the Gemini API, ensuring accurate and relevant AI responses.",
+            "status": "pending",
+            "testStrategy": "Validate prompt outputs by testing with varied input criteria and verifying that AI responses reflect the intended matchmaking parameters."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Gemini API Calls Using REST or gRPC",
+            "description": "Implement API client integration to communicate with Google Gemini API using REST or gRPC protocols.",
+            "dependencies": [
+              "4.2",
+              "4.3"
+            ],
+            "details": "Develop API client modules to send requests and handle responses from Gemini API, supporting both REST and gRPC as needed for flexibility and performance.",
+            "status": "pending",
+            "testStrategy": "Perform functional tests to ensure successful request/response cycles and error handling for both REST and gRPC implementations."
+          },
+          {
+            "id": 5,
+            "title": "Implement Caching Layer for Frequent Queries",
+            "description": "Design and implement a caching mechanism to store frequent matchmaking queries and their AI responses to improve performance.",
+            "dependencies": [
+              "4.4"
+            ],
+            "details": "Use an in-memory or distributed cache to store and retrieve frequent query results, reducing API call volume and latency.",
+            "status": "pending",
+            "testStrategy": "Test cache hit and miss scenarios, verify cache invalidation policies, and measure performance improvements."
+          },
+          {
+            "id": 6,
+            "title": "Develop Frontend Chat UI with Real-Time Updates",
+            "description": "Create a responsive chat interface that supports real-time messaging and displays AI matchmaking recommendations dynamically.",
+            "dependencies": [
+              "4.2"
+            ],
+            "details": "Implement frontend components for chat input, message display, and real-time updates using WebSockets or similar technologies to provide seamless user experience.",
+            "status": "pending",
+            "testStrategy": "Conduct UI/UX testing for responsiveness, message flow correctness, and real-time update reliability."
+          },
+          {
+            "id": 7,
+            "title": "Test and Validate AI Matchmaking Responses and System Performance",
+            "description": "Perform comprehensive testing of AI responses for accuracy, relevance, and system responsiveness under load.",
+            "dependencies": [
+              "4.5",
+              "4.6"
+            ],
+            "details": "Test AI-generated matchmaking recommendations against diverse user queries, validate correctness of player and venue suggestions, and conduct load testing on chat API endpoints.",
+            "status": "pending",
+            "testStrategy": "Use automated and manual tests to verify recommendation quality, response times, and system stability under concurrent usage."
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "title": "Develop End-to-End Booking Flow with QR Code Validation",
+        "description": "Implement booking flow from session search, booking confirmation, to check-in via QR code scanning at venue location.",
+        "details": "Backend booking APIs to create, confirm, cancel bookings with time constraints. Generate unique QR codes per booking using libraries like 'qrcode' npm package. Frontend booking UI with calendar and session details. Implement QR code scanner using React Native Web or HTML5 camera API for PWA. Update booking status on successful check-in.",
+        "testStrategy": "Test booking creation, modification, and cancellation flows. Validate QR code generation and scanning on multiple devices. Confirm status updates and notifications post check-in.",
+        "priority": "high",
+        "dependencies": [
+          3,
+          4
+        ],
+        "status": "pending",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Backend Booking APIs",
+            "description": "Create backend APIs to handle booking creation, confirmation, cancellation, and enforce time constraints.",
+            "dependencies": [],
+            "details": "Develop RESTful APIs to manage bookings with validation for time constraints and status updates. Ensure APIs support create, confirm, and cancel operations with proper error handling.",
+            "status": "pending",
+            "testStrategy": "Unit test API endpoints for correct booking lifecycle management and time constraint enforcement."
+          },
+          {
+            "id": 2,
+            "title": "Implement Unique QR Code Generation",
+            "description": "Generate unique QR codes for each booking using a suitable library.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Integrate 'qrcode' npm package or equivalent to generate unique QR codes tied to booking IDs. Store QR codes securely and associate them with booking records.",
+            "status": "pending",
+            "testStrategy": "Validate QR code uniqueness and correctness by scanning generated codes and verifying booking data."
+          },
+          {
+            "id": 3,
+            "title": "Develop Frontend Booking UI",
+            "description": "Create a user interface for booking sessions with calendar and session details.",
+            "dependencies": [],
+            "details": "Build React or React Native components to display available sessions, calendar views, and booking forms. Include session search and selection features.",
+            "status": "pending",
+            "testStrategy": "Perform UI/UX testing for usability, responsiveness, and correct data display."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Booking APIs with Frontend",
+            "description": "Connect frontend booking UI with backend APIs for booking operations.",
+            "dependencies": [
+              "5.1",
+              "5.3"
+            ],
+            "details": "Implement API calls from frontend to backend for creating, confirming, and cancelling bookings. Handle API responses and update UI accordingly.",
+            "status": "pending",
+            "testStrategy": "Integration testing of frontend-backend communication and booking flow correctness."
+          },
+          {
+            "id": 5,
+            "title": "Implement QR Code Scanner for Check-In",
+            "description": "Develop QR code scanning functionality for check-in at venue using React Native Web or HTML5 camera API.",
+            "dependencies": [
+              "5.2",
+              "5.3"
+            ],
+            "details": "Use React Native Web or HTML5 camera API to scan QR codes on multiple devices. Decode QR data and verify booking status for check-in.",
+            "status": "pending",
+            "testStrategy": "Test QR code scanning accuracy and performance on various devices and browsers."
+          },
+          {
+            "id": 6,
+            "title": "Update Booking Status on Successful Check-In",
+            "description": "Update booking status in backend upon successful QR code validation at check-in.",
+            "dependencies": [
+              "5.5"
+            ],
+            "details": "Implement backend logic to update booking status to 'checked-in' after QR code validation. Notify frontend and relevant systems of status change.",
+            "status": "pending",
+            "testStrategy": "Verify status updates and notifications after check-in through end-to-end testing."
+          },
+          {
+            "id": 7,
+            "title": "Implement Booking Flow Time Constraints and Validation",
+            "description": "Enforce time constraints and validate booking eligibility throughout the booking flow.",
+            "dependencies": [
+              "5.1",
+              "5.4"
+            ],
+            "details": "Add validation rules to prevent bookings outside allowed time windows and handle cancellations within policy. Provide user feedback on invalid actions.",
+            "status": "pending",
+            "testStrategy": "Test booking attempts outside allowed times and cancellation policies for correct handling."
+          },
+          {
+            "id": 8,
+            "title": "Test and Refine End-to-End Booking Flow",
+            "description": "Conduct comprehensive testing of the entire booking flow including session search, booking, QR code generation, scanning, and status updates.",
+            "dependencies": [
+              "5.6",
+              "5.7"
+            ],
+            "details": "Perform functional, integration, and user acceptance testing to identify and fix issues. Optimize flow for usability and reliability across devices.",
+            "status": "pending",
+            "testStrategy": "Execute test cases covering all booking scenarios, QR code validation, and check-in processes; gather feedback for improvements."
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "title": "Implement Manual Session Management Features",
+        "description": "Allow Players to create and manage game sessions manually with options for public, private, and invite-only sessions.",
+        "details": "Design session schema with access control flags. APIs for creating, searching, joining sessions with approval workflows for private sessions. Invite-only sessions via unique links or codes. Frontend UI for session management and search filters.",
+        "testStrategy": "Unit test session creation and access control logic. Integration test join requests and approval flows. Manual testing of invite link generation and usage.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Build Dynamic Reputation System and Badge Management",
+        "description": "Develop a dynamic reputation system that calculates skill levels, assigns badges for no-shows and frequent cancellations, and updates player rankings.",
+        "details": "Implement backend logic to aggregate ratings, check-in hours, and reports. Use MongoDB aggregation pipelines for recalculations. Badge assignment rules for no-show and cancellation frequency. Update AI matchmaking priority based on reputation. Frontend display of badges and skill levels on profiles.",
+        "testStrategy": "Test rating submissions and aggregation accuracy. Simulate no-show and cancellation events to verify badge assignment. Validate UI updates for reputation changes.",
+        "priority": "high",
+        "dependencies": [
+          5,
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Enable Player-to-Player Rating and Venue Review System",
+        "description": "Allow Players to rate each other after sessions and review venues based on cleanliness, comfort, and value.",
+        "details": "Create rating and review schemas linked to sessions and venues. APIs for submitting and retrieving ratings and reviews. Frontend UI for rating submission post-session and venue review pages. Implement moderation flags for inappropriate content.",
+        "testStrategy": "Test rating and review submission and retrieval. Validate average rating calculations. Manual testing of UI flows and moderation triggers.",
+        "priority": "medium",
+        "dependencies": [
+          5,
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Social Features: Contact Sync, Follow, and Chat",
+        "description": "Develop social interaction features including contact synchronization, following players, personal chat, and group chat restricted to co-players.",
+        "details": "Use React Native Contacts API or Web Contacts API for contact sync with user consent. Backend APIs for follow/unfollow and chat messaging using WebSocket or Socket.IO for real-time communication. Group chat creation restricted to players who have played together, verified via session history. Store chat history in MongoDB.",
+        "testStrategy": "Test contact sync with sample contacts. Validate follow/unfollow flows. Test real-time chat messaging and group chat creation restrictions.",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Create Leaderboard Feature Based on Skill Level and Location",
+        "description": "Implement a leaderboard showing player rankings filtered by skill level and location to motivate users.",
+        "details": "Backend aggregation queries to rank players by skill level and filter by location. Cache leaderboard results for performance. Frontend UI with pagination and filters. Consider geospatial queries in MongoDB for location filtering.",
+        "testStrategy": "Test leaderboard accuracy and filtering. Load test leaderboard API. Manual UI testing for responsiveness and usability.",
+        "priority": "medium",
+        "dependencies": [
+          7
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Develop Venue Owner Dashboard for Reviews and Statistics",
+        "description": "Build a dashboard for Venue Owners to view player reviews, ratings, occupancy rates, and peak hours.",
+        "details": "Create backend APIs to aggregate venue reviews, occupancy stats, and booking data. Use charting libraries like Chart.js or Recharts in React for visualization. Secure dashboard access with role-based authorization.",
+        "testStrategy": "Test data aggregation accuracy. Validate dashboard UI rendering and responsiveness. Verify access control for Venue Owners.",
+        "priority": "medium",
+        "dependencies": [
+          8
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Build Operations Team BI Dashboard for Platform Metrics",
+        "description": "Implement a BI dashboard for Operations Team to monitor key metrics such as active users, daily bookings, and trends.",
+        "details": "Aggregate platform-wide data using MongoDB aggregation and possibly a data warehouse if scale grows. Use React with advanced charting libraries (e.g., D3.js or Apache ECharts). Implement secure access with multi-factor authentication for Operations Team.",
+        "testStrategy": "Validate data accuracy and refresh intervals. Test dashboard performance under load. Verify security and access restrictions.",
+        "priority": "medium",
+        "dependencies": [
+          11
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Booking Cancellation Policy and Notifications",
+        "description": "Allow Players to cancel bookings up to 1 hour before the session and send notifications to other session members.",
+        "details": "Backend logic to enforce cancellation deadline. Trigger notifications via push or in-app messaging to session participants. Update reputation system for frequent cancellations. Use libraries like Firebase Cloud Messaging or OneSignal for notifications.",
+        "testStrategy": "Test cancellation within and outside allowed time. Verify notification delivery and content. Check reputation badge updates after cancellations.",
+        "priority": "high",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Ensure PWA Responsiveness and Cross-Platform Compatibility",
+        "description": "Optimize the application UI/UX for responsiveness and seamless operation on iOS, Android, and various screen sizes including foldable devices.",
+        "details": "Use CSS3 Flexbox/Grid and media queries for responsive design. Test with Chrome DevTools device emulation and real devices. Implement service workers for offline support and fast loading. Ensure PWA installability and compliance with Lighthouse PWA audits.",
+        "testStrategy": "Run Lighthouse audits for PWA compliance. Manual testing on multiple devices and screen sizes. Validate offline functionality and UI adaptability.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Implement Security Best Practices and Data Protection",
+        "description": "Apply security measures including secure authentication, data encryption, input validation, and protection against common web vulnerabilities.",
+        "details": "Use HTTPS everywhere, secure cookies, JWT with short expiry, and refresh tokens. Sanitize inputs to prevent XSS and injection attacks. Implement rate limiting and logging for suspicious activities. Comply with data protection regulations (e.g., GDPR). Conduct security audits and penetration testing.",
+        "testStrategy": "Perform automated security scans. Conduct manual penetration tests. Verify encryption and secure storage of sensitive data. Test authentication flows for vulnerabilities.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-24T12:44:30.317Z",
+      "updated": "2025-08-24T12:44:30.317Z",
+      "description": "Tasks for master context"
+    }
+  }
+}

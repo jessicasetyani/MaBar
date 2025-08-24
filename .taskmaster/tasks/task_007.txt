@@ -1,0 +1,11 @@
+# Task ID: 7
+# Title: Build Dynamic Reputation System and Badge Management
+# Status: pending
+# Dependencies: 5, 6
+# Priority: high
+# Description: Develop a dynamic reputation system that calculates skill levels, assigns badges for no-shows and frequent cancellations, and updates player rankings.
+# Details:
+Implement backend logic to aggregate ratings, check-in hours, and reports. Use MongoDB aggregation pipelines for recalculations. Badge assignment rules for no-show and cancellation frequency. Update AI matchmaking priority based on reputation. Frontend display of badges and skill levels on profiles.
+
+# Test Strategy:
+Test rating submissions and aggregation accuracy. Simulate no-show and cancellation events to verify badge assignment. Validate UI updates for reputation changes.

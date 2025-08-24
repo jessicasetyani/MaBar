@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Design and Implement User Profile and Onboarding Flow
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Create onboarding flow for new Players including self-assessment for initial skill level and profile management for Players and Venue Owners.
+# Details:
+Frontend React forms for onboarding with validation. Backend APIs to save profile data including dynamic skill level, badges, stats, and friends list. Venue Owners can register venue details (location, hours, price, photos). Use MongoDB schema design with references for badges and stats.
+
+# Test Strategy:
+Unit test form validations. Integration test API endpoints for profile creation and updates. Manual testing of onboarding flows on mobile devices.

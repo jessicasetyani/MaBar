@@ -1,0 +1,11 @@
+# Task ID: 9
+# Title: Implement Social Features: Contact Sync, Follow, and Chat
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Develop social interaction features including contact synchronization, following players, personal chat, and group chat restricted to co-players.
+# Details:
+Use React Native Contacts API or Web Contacts API for contact sync with user consent. Backend APIs for follow/unfollow and chat messaging using WebSocket or Socket.IO for real-time communication. Group chat creation restricted to players who have played together, verified via session history. Store chat history in MongoDB.
+
+# Test Strategy:
+Test contact sync with sample contacts. Validate follow/unfollow flows. Test real-time chat messaging and group chat creation restrictions.

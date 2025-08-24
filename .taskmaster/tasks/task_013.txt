@@ -1,0 +1,11 @@
+# Task ID: 13
+# Title: Implement Booking Cancellation Policy and Notifications
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Allow Players to cancel bookings up to 1 hour before the session and send notifications to other session members.
+# Details:
+Backend logic to enforce cancellation deadline. Trigger notifications via push or in-app messaging to session participants. Update reputation system for frequent cancellations. Use libraries like Firebase Cloud Messaging or OneSignal for notifications.
+
+# Test Strategy:
+Test cancellation within and outside allowed time. Verify notification delivery and content. Check reputation badge updates after cancellations.

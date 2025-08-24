@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement Manual Session Management Features
+# Status: pending
+# Dependencies: 3
+# Priority: medium
+# Description: Allow Players to create and manage game sessions manually with options for public, private, and invite-only sessions.
+# Details:
+Design session schema with access control flags. APIs for creating, searching, joining sessions with approval workflows for private sessions. Invite-only sessions via unique links or codes. Frontend UI for session management and search filters.
+
+# Test Strategy:
+Unit test session creation and access control logic. Integration test join requests and approval flows. Manual testing of invite link generation and usage.
