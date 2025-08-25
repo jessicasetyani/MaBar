@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import LocationSelect from '../common/LocationSelect';
 
 const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep, user }) => {
   const { updateProfile } = useAuth();
@@ -189,14 +190,13 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep, user }) 
 
           <div className="form-group">
             <label htmlFor="city">Where do you play? *</label>
-            <input
-              type="text"
+            <LocationSelect
               id="city"
               name="city"
               value={formData.city}
               onChange={handleInputChange}
-              className={errors.city ? 'error' : ''}
-              placeholder="Your city (e.g., New York, London)"
+              error={!!errors.city}
+              placeholder="Select your location in Jakarta"
             />
             {errors.city && <span className="error-message">{errors.city}</span>}
           </div>

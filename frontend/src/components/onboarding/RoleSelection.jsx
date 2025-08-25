@@ -1,15 +1,31 @@
 import { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
 
 const RoleSelection = ({ data, onNext, onStepData, isFirstStep }) => {
+  const { updateProfile } = useAuth();
   const [selectedRole, setSelectedRole] = useState(data || '');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleRoleSelect = (role) => {
+  const handleRoleSelect = async (role) => {
     setSelectedRole(role);
-    onStepData(role);
+    setError('');
+
+    // Immediately save the role to the backend
+    setLoading(true);
+    try {
+      await updateProfile({ role });
+      onStepData(role);
+    } catch (error) {
+      console.error('Failed to save role:', error);
+      setError('Failed to save role selection. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNext = () => {
-    if (selectedRole) {
+    if (selectedRole && !loading) {
       onNext();
     }
   };
@@ -21,9 +37,9 @@ const RoleSelection = ({ data, onNext, onStepData, isFirstStep }) => {
         <p>Choose your role to customize your experience</p>
 
         <div className="role-options">
-          <div 
-            className={`role-card ${selectedRole === 'player' ? 'selected' : ''}`}
-            onClick={() => handleRoleSelect('player')}
+          <div
+            className={`role-card ${selectedRole === 'player' ? 'selected' : ''} ${loading ? 'loading' : ''}`}
+            onClick={() => !loading && handleRoleSelect('player')}
           >
             <div className="role-icon">🏓</div>
             <h3>Player</h3>
@@ -34,11 +50,14 @@ const RoleSelection = ({ data, onNext, onStepData, isFirstStep }) => {
               <li>Track your progress and stats</li>
               <li>Join tournaments and events</li>
             </ul>
+            {loading && selectedRole === 'player' && (
+              <div className="loading-overlay">Saving...</div>
+            )}
           </div>
 
-          <div 
-            className={`role-card ${selectedRole === 'venue_owner' ? 'selected' : ''}`}
-            onClick={() => handleRoleSelect('venue_owner')}
+          <div
+            className={`role-card ${selectedRole === 'venue_owner' ? 'selected' : ''} ${loading ? 'loading' : ''}`}
+            onClick={() => !loading && handleRoleSelect('venue_owner')}
           >
             <div className="role-icon">🏢</div>
             <h3>Venue Owner</h3>
@@ -49,17 +68,24 @@ const RoleSelection = ({ data, onNext, onStepData, isFirstStep }) => {
               <li>View analytics and insights</li>
               <li>Connect with the padel community</li>
             </ul>
+            {loading && selectedRole === 'venue_owner' && (
+              <div className="loading-overlay">Saving...</div>
+            )}
           </div>
         </div>
+
+        {error && (
+          <div className="error-message role-error">{error}</div>
+        )}
       </div>
 
       <div className="step-navigation">
-        <button 
+        <button
           className="btn btn-primary"
           onClick={handleNext}
-          disabled={!selectedRole}
+          disabled={!selectedRole || loading}
         >
-          Continue
+          {loading ? 'Saving...' : 'Continue'}
         </button>
       </div>
     </div>

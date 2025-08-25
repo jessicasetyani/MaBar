@@ -56,7 +56,9 @@ const OnboardingPage = () => {
   }, [user, isAuthenticated, navigate]);
 
   const getStepsForRole = (role) => {
+    console.log('getStepsForRole called with role:', role);
     if (role === 'venue_owner') {
+      console.log('Returning venue owner steps');
       // Optimized Venue Owner Flow: Essential setup only
       return [
         { number: 1, title: 'Role Selection', component: RoleSelection },
@@ -64,6 +66,7 @@ const OnboardingPage = () => {
         { number: 3, title: 'Complete', component: OnboardingComplete }
       ];
     } else {
+      console.log('Returning player steps for role:', role);
       // Optimized Player Flow: Minimal friction to first booking
       return [
         { number: 1, title: 'Role Selection', component: RoleSelection },
@@ -73,7 +76,23 @@ const OnboardingPage = () => {
     }
   };
 
-  const steps = getStepsForRole(formData.role || user?.role);
+  // Use useMemo to ensure steps update when role changes
+  const steps = useMemo(() => {
+    const currentRole = formData.role || user?.role;
+    console.log('Calculating steps for role:', currentRole);
+    return getStepsForRole(currentRole);
+  }, [formData.role, user?.role]);
+
+  // Sync formData.role with user.role when user role is updated
+  useEffect(() => {
+    if (user?.role && formData.role !== user.role) {
+      console.log('Syncing formData role with user role:', user.role);
+      setFormData(prev => ({
+        ...prev,
+        role: user.role
+      }));
+    }
+  }, [user?.role, formData.role]);
 
   const handleNext = () => {
     if (currentStep < steps.length) {

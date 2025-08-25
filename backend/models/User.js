@@ -21,8 +21,12 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: function() {
+      // Email is required unless user is using OAuth without email access
+      return !this.googleId && !this.facebookId;
+    },
     unique: true,
+    sparse: true, // Allow null values to be non-unique
     lowercase: true,
     trim: true
   },
@@ -107,6 +111,7 @@ const userSchema = new mongoose.Schema({
     venueAddress: { type: String, default: null },
     venuePhone: { type: String, default: null },
     pricePerHour: { type: Number, default: null },
+    numberOfCourts: { type: Number, default: 1, min: 1, max: 50 },
     amenities: [{ type: String }],
     operatingHours: {
       type: Map,

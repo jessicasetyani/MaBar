@@ -73,7 +73,7 @@ passport.use(
       clientID: process.env.FACEBOOK_APP_ID,
       clientSecret: process.env.FACEBOOK_APP_SECRET,
       callbackURL: '/auth/facebook/callback',
-      profileFields: ['id', 'emails', 'name', 'picture.type(large)']
+      profileFields: ['id', 'name', 'picture.type(large)']
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -84,14 +84,15 @@ passport.use(
           return done(null, existingUser);
         }
 
-        // Check if user exists with same email
-        const email = profile.emails && profile.emails[0] ? profile.emails[0].value : null;
+        // Check if user exists with same email (if email is available)
+        const email = profile.emails?.[0]?.value || profile.email || null;
         if (email) {
           existingUser = await User.findOne({ email: email });
 
           if (existingUser) {
             // Link Facebook account to existing user
             existingUser.facebookId = profile.id;
+            existingUser.provider = 'facebook';
             await existingUser.save();
             return done(null, existingUser);
           }
@@ -100,13 +101,13 @@ passport.use(
         // Create new user
         const newUser = new User({
           facebookId: profile.id,
-          email: email,
-          firstName: profile.name.givenName,
-          lastName: profile.name.familyName,
-          profilePicture: profile.photos && profile.photos[0] ? profile.photos[0].value : null,
+          email: email || null, // Email might not be available from Facebook
+          firstName: profile.name?.givenName || profile.displayName?.split(' ')[0] || 'User',
+          lastName: profile.name?.familyName || profile.displayName?.split(' ')[1] || '',
+          profilePicture: profile.photos?.[0]?.value || null,
           provider: 'facebook',
           role: 'player', // Default role, can be changed during onboarding
-          isEmailVerified: email ? true : false
+          isEmailVerified: Boolean(email)
         });
 
         await newUser.save();

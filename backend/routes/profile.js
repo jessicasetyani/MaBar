@@ -54,7 +54,8 @@ router.put('/basic', [
   body('gender').optional().isIn(['male', 'female', 'other', 'prefer_not_to_say']),
   body('location.city').optional().trim().isLength({ min: 1, max: 100 }),
   body('location.coordinates').optional().isArray({ min: 2, max: 2 }),
-  body('skillLevel').optional().isInt({ min: 1, max: 10 })
+  body('skillLevel').optional().isInt({ min: 1, max: 10 }),
+  body('role').optional().isIn(['player', 'venue_owner'])
 ], async (req, res) => {
   try {
     if (handleValidationErrors(req, res)) {
@@ -120,12 +121,26 @@ router.put('/venue-details', [
     const result = await profileService.updateVenueDetails(req.user.id, req.body);
     res.json(result);
   } catch (error) {
+    console.error('Venue details update error:', error);
+    console.error('Request body:', req.body);
+    console.error('User ID:', req.user.id);
+
     if (error.message === 'User not found') {
       return res.status(HTTP_STATUS.NOT_FOUND).json({ message: error.message });
     }
     if (error.message === 'Venue details are only for venue owners') {
       return res.status(HTTP_STATUS.BAD_REQUEST).json({ message: error.message });
     }
+
+    // Check for validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        message: 'Validation failed',
+        errors: validationErrors
+      });
+    }
+
     handleServerError(error, res, 'Update venue details');
   }
 });

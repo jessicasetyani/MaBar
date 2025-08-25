@@ -56,7 +56,15 @@ class ProfileService {
       throw new Error('User not found');
     }
 
+    console.log('Updating basic profile for user:', {
+      userId: user._id,
+      currentRole: user.role,
+      profileData: profileData
+    });
+
     this.updateBasicFields(user, profileData);
+
+    console.log('After updating basic fields, user role is:', user.role);
 
     // For optimized onboarding flow, advance to step 3 (Complete) after basic info
     // This allows the simplified Player flow: Role → Quick Start → Complete
@@ -119,7 +127,19 @@ class ProfileService {
       throw new Error('User not found');
     }
 
+    console.log('User found for venue details update:', {
+      userId: user._id,
+      role: user.role,
+      email: user.email,
+      firstName: user.firstName
+    });
+
     if (user.role !== 'venue_owner') {
+      console.error('Role mismatch for venue details update:', {
+        expectedRole: 'venue_owner',
+        actualRole: user.role,
+        userId: user._id
+      });
       throw new Error('Venue details are only for venue owners');
     }
 
@@ -189,12 +209,13 @@ class ProfileService {
 
   // Private helper methods
   updateBasicFields(user, data) {
-    const { firstName, lastName, dateOfBirth, gender, location, skillLevel } = data;
+    const { firstName, lastName, dateOfBirth, gender, location, skillLevel, role } = data;
 
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
     if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
     if (gender !== undefined) user.gender = gender;
+    if (role !== undefined) user.role = role;
     if (location !== undefined) {
       user.location = { ...user.location, ...location };
     }
