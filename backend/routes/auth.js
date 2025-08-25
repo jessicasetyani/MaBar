@@ -95,7 +95,8 @@ router.get(
       setTokenCookie(res, token);
 
       // Redirect to frontend with success
-      res.redirect(`${process.env.FRONTEND_URL}/?auth=success&new_user=${req.user.createdAt > Date.now() - 60000}`);
+      const isNewUser = req.user.createdAt > Date.now() - 60000;
+      res.redirect(`${process.env.FRONTEND_URL}/?auth=success&new_user=${isNewUser}`);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_callback_failed`);
@@ -131,7 +132,8 @@ router.get(
       setTokenCookie(res, token);
 
       // Redirect to frontend with success
-      res.redirect(`${process.env.FRONTEND_URL}/?auth=success&new_user=${req.user.createdAt > Date.now() - 60000}`);
+      const isNewUser = req.user.createdAt > Date.now() - 60000;
+      res.redirect(`${process.env.FRONTEND_URL}/?auth=success&new_user=${isNewUser}`);
     } catch (error) {
       console.error('Facebook OAuth callback error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_callback_failed`);

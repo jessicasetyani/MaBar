@@ -183,8 +183,72 @@
         "dependencies": [
           2
         ],
-        "status": "pending",
-        "subtasks": []
+        "status": "done",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design User Profile Schema and Database Models",
+            "description": "Extend the existing User model to include comprehensive profile fields for both Players and Venue Owners, including skill assessment, preferences, and venue-specific data.",
+            "details": "Add fields for skill level assessment, playing preferences, location, venue details (for venue owners), and profile completion tracking.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 2,
+            "title": "Create Backend APIs for Profile Management",
+            "description": "Implement RESTful APIs for creating, reading, updating profile data, including skill assessment endpoints and profile completion tracking.",
+            "details": "Create routes for profile CRUD operations, skill assessment submission, and profile completion status.",
+            "status": "done",
+            "dependencies": [
+              "3.1"
+            ],
+            "parentTaskId": 3
+          },
+          {
+            "id": 3,
+            "title": "Design Frontend Onboarding Flow UI/UX",
+            "description": "Create wireframes and design the multi-step onboarding flow for both Players and Venue Owners with responsive design for mobile and desktop.",
+            "details": "Design step-by-step onboarding forms with progress indicators, role selection, skill assessment, and profile completion.",
+            "status": "done",
+            "dependencies": [],
+            "parentTaskId": 3
+          },
+          {
+            "id": 4,
+            "title": "Implement React Components for Onboarding",
+            "description": "Build React components for the onboarding flow including form validation, step navigation, and responsive design.",
+            "details": "Create reusable form components, step wizard, skill assessment forms, and profile completion tracking.",
+            "status": "done",
+            "dependencies": [
+              "3.3"
+            ],
+            "parentTaskId": 3
+          },
+          {
+            "id": 5,
+            "title": "Integrate Frontend with Backend APIs",
+            "description": "Connect the React onboarding components with the backend APIs for profile management and data persistence.",
+            "details": "Implement API calls, error handling, loading states, and data validation between frontend and backend.",
+            "status": "done",
+            "dependencies": [
+              "3.2",
+              "3.4"
+            ],
+            "parentTaskId": 3
+          },
+          {
+            "id": 6,
+            "title": "Implement Profile Management Dashboard",
+            "description": "Create user dashboard for viewing and editing profile information after onboarding completion.",
+            "details": "Build profile view/edit pages, settings management, and account preferences for both user types.",
+            "status": "done",
+            "dependencies": [
+              "3.5"
+            ],
+            "parentTaskId": 3
+          }
+        ]
       },
       {
         "id": 4,
@@ -515,7 +579,7 @@
     ],
     "metadata": {
       "created": "2025-08-24T12:44:30.317Z",
-      "updated": "2025-08-25T03:55:13.934Z",
+      "updated": "2025-08-25T04:22:16.512Z",
       "description": "Tasks for master context"
     }
   }
