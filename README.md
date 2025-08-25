@@ -107,8 +107,6 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
    GOOGLE_CLIENT_SECRET=your_google_client_secret
    FACEBOOK_APP_ID=your_facebook_app_id
    FACEBOOK_APP_SECRET=your_facebook_app_secret
-   APPLE_CLIENT_ID=your_apple_client_id
-   APPLE_PRIVATE_KEY=your_apple_private_key
 
    # JWT
    JWT_SECRET=your_jwt_secret
