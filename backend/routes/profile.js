@@ -53,7 +53,8 @@ router.put('/basic', [
   body('dateOfBirth').optional().isISO8601(),
   body('gender').optional().isIn(['male', 'female', 'other', 'prefer_not_to_say']),
   body('location.city').optional().trim().isLength({ min: 1, max: 100 }),
-  body('location.coordinates').optional().isArray({ min: 2, max: 2 })
+  body('location.coordinates').optional().isArray({ min: 2, max: 2 }),
+  body('skillLevel').optional().isInt({ min: 1, max: 10 })
 ], async (req, res) => {
   try {
     if (handleValidationErrors(req, res)) {
@@ -107,6 +108,7 @@ router.put('/venue-details', [
   body('venueAddress').trim().isLength({ min: 1, max: 200 }),
   body('venuePhone').optional().trim().isMobilePhone(),
   body('pricePerHour').isFloat({ min: 0 }),
+  body('numberOfCourts').optional().isInt({ min: 1, max: 50 }),
   body('amenities').optional().isArray(),
   body('operatingHours').optional().isObject()
 ], async (req, res) => {

@@ -1,0 +1,37 @@
+# Task ID: 20
+# Title: No-Show Reporting and Badge System
+# Status: pending
+# Dependencies: 7
+# Priority: medium
+# Description: Implementasi sistem pelaporan no-show dan badge management untuk community policies. Termasuk no-show reporting interface, badge assignment logic untuk no-show dan frequent cancellation, badge display dalam profile, dan integration dengan booking priority system.
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Create No-Show Reporting Interface [pending]
+### Dependencies: None
+### Description: Develop UI for Players to report no-show incidents with verification mechanisms and evidence collection for fair community policy enforcement.
+### Details:
+
+
+## 2. Implement Badge Assignment Logic [pending]
+### Dependencies: 20.1
+### Description: Create backend logic for automatic badge assignment based on no-show reports and frequent cancellation patterns, including badge criteria and thresholds.
+### Details:
+
+
+## 3. Design Badge Display in Profile [pending]
+### Dependencies: 20.2
+### Description: Create UI components to display reputation badges (No-Show, Frequent Cancellation, etc.) in player profiles with appropriate visual design and explanations.
+### Details:
+
+
+## 4. Integrate Badge Impact with Booking Priority [pending]
+### Dependencies: 20.3
+### Description: Implement system where reputation badges affect future booking priority and AI matchmaking recommendations to enforce community policies.
+### Details:
+
+

@@ -8,22 +8,14 @@ const LoginPage = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Check for auth success/error in URL parameters
-    const authStatus = searchParams.get('auth');
+    // Check for auth error in URL parameters
     const error = searchParams.get('error');
 
-    if (authStatus === 'success') {
-      // Authentication successful, redirect based on onboarding status
-      if (user && !user.onboardingCompleted) {
-        navigate('/onboarding');
-      } else {
-        navigate('/dashboard');
-      }
-    } else if (error) {
+    if (error) {
       console.error('Authentication error:', error);
-      // Handle authentication error
+      // Handle authentication error - could show error message to user
     }
-  }, [searchParams, navigate, user]);
+  }, [searchParams]);
 
   useEffect(() => {
     // Redirect if already authenticated

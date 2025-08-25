@@ -258,7 +258,8 @@
         "testStrategy": "Test AI responses for various user queries. Validate recommendation relevance and correctness. Load test chat API for responsiveness.",
         "priority": "high",
         "dependencies": [
-          3
+          3,
+          "16"
         ],
         "status": "pending",
         "subtasks": [
@@ -350,7 +351,9 @@
         "priority": "high",
         "dependencies": [
           3,
-          4
+          4,
+          "6",
+          "18"
         ],
         "status": "pending",
         "subtasks": [
@@ -455,7 +458,51 @@
           3
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Session Privacy Level UI",
+            "description": "Create UI components for session creators to select privacy levels: Open to Public, Private (Approval Required), or Invite-Only (via link/code) with clear explanations of each option.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 6
+          },
+          {
+            "id": 2,
+            "title": "Implement Private Session Approval Workflow",
+            "description": "Create backend and frontend systems for private session join requests, approval/rejection by session creators, and notification systems for request status updates.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "6.1"
+            ],
+            "parentTaskId": 6
+          },
+          {
+            "id": 3,
+            "title": "Create Invite-Only Mechanism",
+            "description": "Implement invite-only session functionality with unique link/code generation, sharing mechanisms, and secure access validation for invited players only.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "6.1"
+            ],
+            "parentTaskId": 6
+          },
+          {
+            "id": 4,
+            "title": "Integrate Privacy Settings with Booking System",
+            "description": "Connect session privacy level settings with the overall booking system to ensure proper access control and session visibility based on privacy configurations.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "6.2",
+              "6.3"
+            ],
+            "parentTaskId": 6
+          }
+        ]
       },
       {
         "id": 7,
@@ -496,7 +543,48 @@
           3
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Contact Synchronization",
+            "description": "Create system to sync phone contacts and find friends already using MaBar, with proper privacy controls and user consent mechanisms.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 9
+          },
+          {
+            "id": 2,
+            "title": "Create Follow/Unfollow System",
+            "description": "Develop follow/unfollow functionality allowing Players to follow other players' activities and see their game schedules and achievements.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 9
+          },
+          {
+            "id": 3,
+            "title": "Develop Personal Chat Functionality",
+            "description": "Implement one-on-one chat system between Players with message history, online status, and proper moderation tools for community safety.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "9.2"
+            ],
+            "parentTaskId": 9
+          },
+          {
+            "id": 4,
+            "title": "Implement Group Chat with Co-Player Restrictions",
+            "description": "Create group chat functionality that only allows Players who have previously played together in the same session to form group chats, ensuring community trust and relevance.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "9.3"
+            ],
+            "parentTaskId": 9
+          }
+        ]
       },
       {
         "id": 10,
@@ -548,7 +636,50 @@
           5
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement 1-Hour Cancellation Policy",
+            "description": "Create backend logic to enforce the 1-hour before session cancellation policy with proper time validation and user interface restrictions.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 13
+          },
+          {
+            "id": 2,
+            "title": "Create Cancellation Notification System",
+            "description": "Develop notification system to immediately inform all session participants when a booking is cancelled, including reason and impact on the session.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "13.1"
+            ],
+            "parentTaskId": 13
+          },
+          {
+            "id": 3,
+            "title": "Design Cancellation Impact on Reputation",
+            "description": "Implement system to track cancellation frequency and impact on player reputation, including badge assignment for frequent cancellers as per community policies.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "13.2"
+            ],
+            "parentTaskId": 13
+          },
+          {
+            "id": 4,
+            "title": "Add Cancellation Tracking and Analytics",
+            "description": "Create analytics system to track cancellation patterns, reasons, and trends for platform optimization and community policy improvements.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "13.3"
+            ],
+            "parentTaskId": 13
+          }
+        ]
       },
       {
         "id": 14,
@@ -561,7 +692,48 @@
           1
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Optimize for iOS Safari and Android Chrome",
+            "description": "Ensure optimal performance and functionality specifically for iOS Safari and Android Chrome browsers, addressing platform-specific PWA requirements and limitations.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 14
+          },
+          {
+            "id": 2,
+            "title": "Test on Foldable Devices and Tablets",
+            "description": "Comprehensive testing and optimization for foldable devices, tablets, and various screen sizes to ensure responsive design works across all form factors.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 14
+          },
+          {
+            "id": 3,
+            "title": "Implement PWA Installation Prompts",
+            "description": "Create user-friendly PWA installation prompts and onboarding to encourage users to install MaBar as a native-like app on their devices.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "14.1"
+            ],
+            "parentTaskId": 14
+          },
+          {
+            "id": 4,
+            "title": "Ensure Offline Functionality for Core Features",
+            "description": "Implement offline capabilities for essential features like viewing booked sessions, profile information, and basic navigation when internet connectivity is limited.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "14.2"
+            ],
+            "parentTaskId": 14
+          }
+        ]
       },
       {
         "id": 15,
@@ -575,11 +747,285 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Enhanced Player Profile Features",
+        "description": "Implement fitur profil lanjutan untuk Player termasuk Weekly Availability setting, detailed matchmaking preferences (Gaya Bermain, Gender/Usia, Budget IDR, Jarak Tempuh), dan Profile Strength Meter untuk motivasi kelengkapan profil. Fitur ini essential untuk AI matchmaking accuracy dan merupakan bagian dari MVP scope.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Weekly Availability System",
+            "description": "Create UI and backend for Players to set their weekly availability schedule (e.g., Monday evening, Saturday morning) for proactive AI scheduling recommendations.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 16
+          },
+          {
+            "id": 2,
+            "title": "Create Detailed Matchmaking Preferences",
+            "description": "Implement detailed preference settings including Gaya Bermain (Fun/Kompetitif), Preferensi Lawan (Gender/Usia), Budget per Sesi (IDR), dan Jarak Tempuh Maksimal for enhanced AI matching accuracy.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 16
+          },
+          {
+            "id": 3,
+            "title": "Develop Profile Strength Meter",
+            "description": "Create Profile Strength Meter UI component that shows completion percentage and motivates Players to complete all preferences for better matchmaking results.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 16
+          },
+          {
+            "id": 4,
+            "title": "Integrate Enhanced Preferences with AI Matchmaking",
+            "description": "Connect the enhanced profile preferences (availability, detailed preferences) with the Google Gemini AI system to improve matchmaking recommendation accuracy.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "16.1",
+              "16.2"
+            ],
+            "parentTaskId": 16
+          }
+        ]
+      },
+      {
+        "id": 17,
+        "title": "Venue Owner Flexible Onboarding",
+        "description": "Implementasi onboarding fleksibel untuk Venue Owner dengan progress saving mechanism dan dashboard notifications. Memungkinkan Venue Owner untuk keluar saat proses onboarding dan melanjutkannya nanti, dengan notifikasi di dashboard untuk menyelesaikan pendaftaran venue.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          2
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Progress Saving Mechanism",
+            "description": "Create backend system to automatically save Venue Owner onboarding progress, allowing them to exit and resume the process later without losing data.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 17
+          },
+          {
+            "id": 2,
+            "title": "Create Dashboard Notification System",
+            "description": "Develop dashboard notifications that remind Venue Owners to complete their venue registration when they log back in with incomplete profiles.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 17
+          },
+          {
+            "id": 3,
+            "title": "Design Resume Onboarding Flow",
+            "description": "Create UI flow that allows Venue Owners to seamlessly resume their onboarding process from where they left off, with clear progress indicators.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "17.1"
+            ],
+            "parentTaskId": 17
+          },
+          {
+            "id": 4,
+            "title": "Add Venue Completion Status Tracking",
+            "description": "Implement system to track venue profile completion status and trigger appropriate notifications and dashboard states based on completion level.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "17.2"
+            ],
+            "parentTaskId": 17
+          }
+        ]
+      },
+      {
+        "id": 18,
+        "title": "Indonesian Rupiah (IDR) Currency Integration",
+        "description": "Integrasi mata uang Indonesian Rupiah (IDR) di seluruh aplikasi MaBar untuk budget preferences, venue pricing display, dan semua nilai moneter. Termasuk formatting IDR yang proper dan integrasi dengan AI matchmaking untuk budget-based recommendations.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          3
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement IDR Formatting and Display",
+            "description": "Create utility functions and components for proper Indonesian Rupiah formatting and display throughout the application (e.g., Rp 150.000).",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 18
+          },
+          {
+            "id": 2,
+            "title": "Update Budget Preferences for IDR",
+            "description": "Modify Player profile budget preferences to use IDR currency with appropriate input validation and range selection for Indonesian market.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 18
+          },
+          {
+            "id": 3,
+            "title": "Integrate IDR in AI Matchmaking",
+            "description": "Update Google Gemini AI prompts and logic to understand and process IDR budget constraints for accurate budget-based matchmaking recommendations.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "18.1",
+              "18.2"
+            ],
+            "parentTaskId": 18
+          },
+          {
+            "id": 4,
+            "title": "Update Venue Pricing in IDR",
+            "description": "Modify venue pricing display and input systems to use IDR currency for all venue-related pricing information and booking displays.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "18.1"
+            ],
+            "parentTaskId": 18
+          }
+        ]
+      },
+      {
+        "id": 19,
+        "title": "Real-Time Notification System",
+        "description": "Implementasi sistem notifikasi real-time untuk check-in confirmations, session updates, booking changes, dan cancellations. Menggunakan WebSocket atau Server-Sent Events untuk memberikan notifikasi instant kepada semua pemain dalam sesi yang sama.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          "6"
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Setup WebSocket or Server-Sent Events",
+            "description": "Implement real-time communication infrastructure using WebSocket or Server-Sent Events for instant notification delivery to connected clients.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 19
+          },
+          {
+            "id": 2,
+            "title": "Implement Check-In Notifications",
+            "description": "Create notification system that instantly alerts all session participants when a player successfully checks in at the venue using QR code scanning.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "19.1"
+            ],
+            "parentTaskId": 19
+          },
+          {
+            "id": 3,
+            "title": "Create Session Update Notifications",
+            "description": "Implement notifications for session changes including time updates, venue changes, player joins/leaves, and other session modifications.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "19.1"
+            ],
+            "parentTaskId": 19
+          },
+          {
+            "id": 4,
+            "title": "Add Booking Cancellation Notifications",
+            "description": "Create instant notification system for booking cancellations that immediately informs all affected session participants about cancellations and changes.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "19.1"
+            ],
+            "parentTaskId": 19
+          }
+        ]
+      },
+      {
+        "id": 20,
+        "title": "No-Show Reporting and Badge System",
+        "description": "Implementasi sistem pelaporan no-show dan badge management untuk community policies. Termasuk no-show reporting interface, badge assignment logic untuk no-show dan frequent cancellation, badge display dalam profile, dan integration dengan booking priority system.",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          "8"
+        ],
+        "priority": "medium",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Create No-Show Reporting Interface",
+            "description": "Develop UI for Players to report no-show incidents with verification mechanisms and evidence collection for fair community policy enforcement.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [],
+            "parentTaskId": 20
+          },
+          {
+            "id": 2,
+            "title": "Implement Badge Assignment Logic",
+            "description": "Create backend logic for automatic badge assignment based on no-show reports and frequent cancellation patterns, including badge criteria and thresholds.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "20.1"
+            ],
+            "parentTaskId": 20
+          },
+          {
+            "id": 3,
+            "title": "Design Badge Display in Profile",
+            "description": "Create UI components to display reputation badges (No-Show, Frequent Cancellation, etc.) in player profiles with appropriate visual design and explanations.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "20.2"
+            ],
+            "parentTaskId": 20
+          },
+          {
+            "id": 4,
+            "title": "Integrate Badge Impact with Booking Priority",
+            "description": "Implement system where reputation badges affect future booking priority and AI matchmaking recommendations to enforce community policies.",
+            "details": "",
+            "status": "pending",
+            "dependencies": [
+              "20.3"
+            ],
+            "parentTaskId": 20
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-24T12:44:30.317Z",
-      "updated": "2025-08-25T04:22:16.512Z",
+      "updated": "2025-08-25T06:59:02.134Z",
       "description": "Tasks for master context"
     }
   }

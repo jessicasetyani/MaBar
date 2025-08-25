@@ -1,9 +1,16 @@
+import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 const OnboardingComplete = ({ onComplete, user }) => {
   const { loading } = useAuth();
+  const [policiesAccepted, setPoliciesAccepted] = useState(false);
+
+  const isVenueOwner = user?.role === 'venue_owner';
 
   const handleComplete = () => {
+    if (isVenueOwner && !policiesAccepted) {
+      return; // Don't proceed if venue owner hasn't accepted policies
+    }
     onComplete();
   };
 
@@ -89,11 +96,34 @@ const OnboardingComplete = ({ onComplete, user }) => {
           </ul>
         </div>
 
+        {isVenueOwner && (
+          <div className="policies-section">
+            <h3>Terms and Policies</h3>
+            <div className="policy-card">
+              <div className="policy-item">
+                <label className="policy-label">
+                  <input
+                    type="checkbox"
+                    checked={policiesAccepted}
+                    onChange={(e) => setPoliciesAccepted(e.target.checked)}
+                  />
+                  <span className="policy-text">
+                    I agree to the <strong>Terms of Service</strong>, <strong>Privacy Policy</strong>,
+                    and <strong>Venue Owner Guidelines</strong>. I understand that my venue will be
+                    listed publicly and I am responsible for managing bookings and maintaining
+                    accurate information.
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="completion-tips">
           <div className="tip-card">
             <h4>💡 Pro Tip</h4>
             <p>
-              {user?.role === 'venue_owner' 
+              {user?.role === 'venue_owner'
                 ? 'Upload photos of your venue and verify your listing to attract more bookings!'
                 : 'Complete your first match to start building your reputation and unlock more features!'
               }
@@ -103,13 +133,16 @@ const OnboardingComplete = ({ onComplete, user }) => {
       </div>
 
       <div className="step-navigation">
-        <button 
+        <button
           className="btn btn-primary btn-large"
           onClick={handleComplete}
-          disabled={loading}
+          disabled={loading || (isVenueOwner && !policiesAccepted)}
         >
           {loading ? 'Setting up...' : 'Enter MaBar Dashboard'}
         </button>
+        {isVenueOwner && !policiesAccepted && (
+          <p className="policy-warning">Please accept the terms and policies to continue</p>
+        )}
       </div>
     </div>
   );

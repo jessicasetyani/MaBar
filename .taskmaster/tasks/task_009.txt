@@ -9,3 +9,29 @@ Use React Native Contacts API or Web Contacts API for contact sync with user con
 
 # Test Strategy:
 Test contact sync with sample contacts. Validate follow/unfollow flows. Test real-time chat messaging and group chat creation restrictions.
+
+# Subtasks:
+## 1. Implement Contact Synchronization [pending]
+### Dependencies: None
+### Description: Create system to sync phone contacts and find friends already using MaBar, with proper privacy controls and user consent mechanisms.
+### Details:
+
+
+## 2. Create Follow/Unfollow System [pending]
+### Dependencies: None
+### Description: Develop follow/unfollow functionality allowing Players to follow other players' activities and see their game schedules and achievements.
+### Details:
+
+
+## 3. Develop Personal Chat Functionality [pending]
+### Dependencies: 9.2
+### Description: Implement one-on-one chat system between Players with message history, online status, and proper moderation tools for community safety.
+### Details:
+
+
+## 4. Implement Group Chat with Co-Player Restrictions [pending]
+### Dependencies: 9.3
+### Description: Create group chat functionality that only allows Players who have previously played together in the same session to form group chats, ensuring community trust and relevance.
+### Details:
+
+

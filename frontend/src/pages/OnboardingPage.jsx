@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import StepIndicator from '../components/StepIndicator';
 import RoleSelection from '../components/onboarding/RoleSelection';
 import BasicInfo from '../components/onboarding/BasicInfo';
-import SkillAssessment from '../components/onboarding/SkillAssessment';
-import VenueDetails from '../components/onboarding/VenueDetails';
-import Preferences from '../components/onboarding/Preferences';
+import BusinessContact from '../components/onboarding/BusinessContact';
 import OnboardingComplete from '../components/onboarding/OnboardingComplete';
 
 const OnboardingPage = () => {
@@ -16,9 +14,11 @@ const OnboardingPage = () => {
   const [formData, setFormData] = useState({
     role: '',
     basicInfo: {},
+    businessContact: {},
     skillAssessment: {},
     venueDetails: {},
-    preferences: {}
+    preferences: {},
+    businessPreferences: {}
   });
 
   useEffect(() => {
@@ -55,17 +55,25 @@ const OnboardingPage = () => {
     }
   }, [user, isAuthenticated, navigate]);
 
-  const steps = [
-    { number: 1, title: 'Role Selection', component: RoleSelection },
-    { number: 2, title: 'Basic Information', component: BasicInfo },
-    { 
-      number: 3, 
-      title: user?.role === 'venue_owner' ? 'Venue Details' : 'Skill Assessment',
-      component: user?.role === 'venue_owner' ? VenueDetails : SkillAssessment
-    },
-    { number: 4, title: 'Preferences', component: Preferences },
-    { number: 5, title: 'Complete', component: OnboardingComplete }
-  ];
+  const getStepsForRole = (role) => {
+    if (role === 'venue_owner') {
+      // Optimized Venue Owner Flow: Essential setup only
+      return [
+        { number: 1, title: 'Role Selection', component: RoleSelection },
+        { number: 2, title: 'Venue Setup', component: BusinessContact },
+        { number: 3, title: 'Complete', component: OnboardingComplete }
+      ];
+    } else {
+      // Optimized Player Flow: Minimal friction to first booking
+      return [
+        { number: 1, title: 'Role Selection', component: RoleSelection },
+        { number: 2, title: 'Quick Start', component: BasicInfo },
+        { number: 3, title: 'Complete', component: OnboardingComplete }
+      ];
+    }
+  };
+
+  const steps = getStepsForRole(formData.role || user?.role);
 
   const handleNext = () => {
     if (currentStep < steps.length) {
@@ -88,12 +96,21 @@ const OnboardingPage = () => {
   };
 
   const getStepKey = (step) => {
-    switch (step) {
-      case 1: return 'role';
-      case 2: return 'basicInfo';
-      case 3: return user?.role === 'venue_owner' ? 'venueDetails' : 'skillAssessment';
-      case 4: return 'preferences';
-      default: return '';
+    const currentRole = formData.role || user?.role;
+
+    if (currentRole === 'venue_owner') {
+      switch (step) {
+        case 1: return 'role';
+        case 2: return 'venueSetup';
+        default: return '';
+      }
+    } else {
+      // Optimized Player flow
+      switch (step) {
+        case 1: return 'role';
+        case 2: return 'quickStart';
+        default: return '';
+      }
     }
   };
 
@@ -105,6 +122,11 @@ const OnboardingPage = () => {
       console.error('Onboarding completion failed:', error);
     }
   };
+
+  // Memoize the step data to prevent unnecessary re-renders that cause field resets
+  const stepData = useMemo(() => {
+    return formData[getStepKey(currentStep)] || {};
+  }, [formData, currentStep]);
 
   if (!isAuthenticated || !user) {
     return (
@@ -125,15 +147,15 @@ const OnboardingPage = () => {
           <p>Let's set up your profile to get you started</p>
         </div>
 
-        <StepIndicator 
-          steps={steps} 
-          currentStep={currentStep} 
+        <StepIndicator
+          steps={steps}
+          currentStep={currentStep}
         />
 
         <div className="onboarding-content">
           {CurrentStepComponent && (
             <CurrentStepComponent
-              data={formData[getStepKey(currentStep)]}
+              data={stepData}
               onNext={handleNext}
               onPrevious={handlePrevious}
               onStepData={handleStepData}

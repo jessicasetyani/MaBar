@@ -1,25 +1,92 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
-const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep }) => {
+const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep, user }) => {
   const { updateProfile } = useAuth();
-  const [formData, setFormData] = useState({
-    firstName: data?.firstName || '',
-    lastName: data?.lastName || '',
-    dateOfBirth: data?.dateOfBirth || '',
-    gender: data?.gender || '',
-    city: data?.city || ''
+
+  // Helper function to ensure date is in correct format for HTML date input
+  const formatDateForInput = (dateValue) => {
+    if (!dateValue || dateValue === null || dateValue === undefined) return '';
+
+    try {
+      // If it's already in YYYY-MM-DD format, validate it's a real date
+      if (typeof dateValue === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+        const testDate = new Date(dateValue);
+        if (isNaN(testDate.getTime())) return '';
+
+        // Additional validation: ensure the date string represents the same date
+        // This catches cases like "2000-02-30" which becomes "2000-03-01"
+        const formatted = testDate.toISOString().split('T')[0];
+        if (formatted !== dateValue) return '';
+
+        return dateValue;
+      }
+
+      // Otherwise, convert to proper format
+      const date = new Date(dateValue);
+      if (isNaN(date.getTime())) return '';
+
+      return date.toISOString().split('T')[0];
+    } catch (error) {
+      console.error('Date formatting error:', error);
+      return '';
+    }
+  };
+
+  // Get persisted form data from localStorage
+  const getPersistedFormData = () => {
+    try {
+      const saved = localStorage.getItem('quickStartFormData');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.error('Error loading persisted form data:', error);
+    }
+    return null;
+  };
+
+  // Initialize form data with persisted data, OAuth data, or props
+  const [formData, setFormData] = useState(() => {
+    const persisted = getPersistedFormData();
+    if (persisted) {
+      return persisted;
+    }
+
+    return {
+      firstName: data?.firstName || user?.firstName || '',
+      skillLevel: data?.skillLevel || user?.skillLevel || '',
+      city: data?.city || user?.location?.city || ''
+    };
   });
+
+  // Update form data when user data becomes available (OAuth data loading)
+  useEffect(() => {
+    if (user && !getPersistedFormData()) {
+      setFormData(prev => ({
+        ...prev,
+        firstName: prev.firstName || user.firstName || '',
+        city: prev.city || user.location?.city || ''
+      }));
+    }
+  }, [user]);
+
+  // Persist form data to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('quickStartFormData', JSON.stringify(formData));
+  }, [formData]);
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-    
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -31,23 +98,15 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required';
     }
-    
-    if (!formData.lastName.trim()) {
-      newErrors.lastName = 'Last name is required';
+
+    if (!formData.skillLevel) {
+      newErrors.skillLevel = 'Skill level is required';
     }
-    
-    if (!formData.dateOfBirth) {
-      newErrors.dateOfBirth = 'Date of birth is required';
-    }
-    
-    if (!formData.gender) {
-      newErrors.gender = 'Gender selection is required';
-    }
-    
+
     if (!formData.city.trim()) {
       newErrors.city = 'City is required';
     }
@@ -63,14 +122,15 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep }) => {
 
     setLoading(true);
     try {
-      // Update profile with basic info
+      // Update profile with essential info only
       await updateProfile({
         firstName: formData.firstName,
-        lastName: formData.lastName,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
+        skillLevel: formData.skillLevel,
         location: { city: formData.city }
       });
+
+      // Clear persisted data on successful submission
+      localStorage.removeItem('quickStartFormData');
 
       onStepData(formData);
       onNext();
@@ -85,73 +145,50 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep }) => {
   return (
     <div className="basic-info">
       <div className="step-content">
-        <h2>Tell us about yourself</h2>
-        <p>Help us personalize your MaBar experience</p>
+        <h2>Quick Start</h2>
+        <p>Just 3 quick details to get you started playing!</p>
 
         <form className="basic-info-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="firstName">First Name *</label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                className={errors.firstName ? 'error' : ''}
-                placeholder="Enter your first name"
-              />
-              {errors.firstName && <span className="error-message">{errors.firstName}</span>}
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="lastName">Last Name *</label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                className={errors.lastName ? 'error' : ''}
-                placeholder="Enter your last name"
-              />
-              {errors.lastName && <span className="error-message">{errors.lastName}</span>}
-            </div>
-          </div>
-
           <div className="form-group">
-            <label htmlFor="dateOfBirth">Date of Birth *</label>
+            <label htmlFor="firstName">What should we call you? *</label>
             <input
-              type="date"
-              id="dateOfBirth"
-              name="dateOfBirth"
-              value={formData.dateOfBirth}
+              type="text"
+              id="firstName"
+              name="firstName"
+              value={formData.firstName}
               onChange={handleInputChange}
-              className={errors.dateOfBirth ? 'error' : ''}
+              className={errors.firstName ? 'error' : ''}
+              placeholder="Your first name"
             />
-            {errors.dateOfBirth && <span className="error-message">{errors.dateOfBirth}</span>}
+            {errors.firstName && <span className="error-message">{errors.firstName}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="gender">Gender *</label>
+            <label htmlFor="skillLevel">What's your skill level? *</label>
             <select
-              id="gender"
-              name="gender"
-              value={formData.gender}
+              id="skillLevel"
+              name="skillLevel"
+              value={formData.skillLevel}
               onChange={handleInputChange}
-              className={errors.gender ? 'error' : ''}
+              className={errors.skillLevel ? 'error' : ''}
             >
-              <option value="">Select your gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-              <option value="prefer_not_to_say">Prefer not to say</option>
+              <option value="">Select your skill level</option>
+              <option value="1">1 - Beginner (Just starting out)</option>
+              <option value="2">2 - Novice (Learning the basics)</option>
+              <option value="3">3 - Beginner+ (Getting comfortable)</option>
+              <option value="4">4 - Intermediate- (Developing skills)</option>
+              <option value="5">5 - Intermediate (Solid fundamentals)</option>
+              <option value="6">6 - Intermediate+ (Good technique)</option>
+              <option value="7">7 - Advanced- (Strong player)</option>
+              <option value="8">8 - Advanced (Very skilled)</option>
+              <option value="9">9 - Expert (Exceptional player)</option>
+              <option value="10">10 - Professional (Tournament level)</option>
             </select>
-            {errors.gender && <span className="error-message">{errors.gender}</span>}
+            {errors.skillLevel && <span className="error-message">{errors.skillLevel}</span>}
           </div>
 
           <div className="form-group">
-            <label htmlFor="city">City *</label>
+            <label htmlFor="city">Where do you play? *</label>
             <input
               type="text"
               id="city"
@@ -159,7 +196,7 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep }) => {
               value={formData.city}
               onChange={handleInputChange}
               className={errors.city ? 'error' : ''}
-              placeholder="Enter your city"
+              placeholder="Your city (e.g., New York, London)"
             />
             {errors.city && <span className="error-message">{errors.city}</span>}
           </div>

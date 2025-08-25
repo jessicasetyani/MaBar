@@ -1,0 +1,37 @@
+# Task ID: 18
+# Title: Indonesian Rupiah (IDR) Currency Integration
+# Status: pending
+# Dependencies: 3, 4, 5
+# Priority: high
+# Description: Integrasi mata uang Indonesian Rupiah (IDR) di seluruh aplikasi MaBar untuk budget preferences, venue pricing display, dan semua nilai moneter. Termasuk formatting IDR yang proper dan integrasi dengan AI matchmaking untuk budget-based recommendations.
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Implement IDR Formatting and Display [pending]
+### Dependencies: None
+### Description: Create utility functions and components for proper Indonesian Rupiah formatting and display throughout the application (e.g., Rp 150.000).
+### Details:
+
+
+## 2. Update Budget Preferences for IDR [pending]
+### Dependencies: None
+### Description: Modify Player profile budget preferences to use IDR currency with appropriate input validation and range selection for Indonesian market.
+### Details:
+
+
+## 3. Integrate IDR in AI Matchmaking [pending]
+### Dependencies: 18.1, 18.2
+### Description: Update Google Gemini AI prompts and logic to understand and process IDR budget constraints for accurate budget-based matchmaking recommendations.
+### Details:
+
+
+## 4. Update Venue Pricing in IDR [pending]
+### Dependencies: 18.1
+### Description: Modify venue pricing display and input systems to use IDR currency for all venue-related pricing information and booking displays.
+### Details:
+
+

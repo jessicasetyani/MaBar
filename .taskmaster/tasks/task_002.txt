@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Implement User Authentication with OAuth 2.0 SSO
-# Status: in-progress
+# Status: done
 # Dependencies: 1
 # Priority: high
 # Description: Implement secure user authentication for Players and Venue Owners using OAuth 2.0 with Google and Facebook sign-in providers.
@@ -41,7 +41,7 @@ Implement JWT with short expiry and refresh tokens, or use HttpOnly cookies for 
 ### Details:
 Use Passport.js to authenticate requests and manage user sessions.
 
-## 6. Test and Validate Authentication Flows [deferred]
+## 6. Test and Validate Authentication Flows [done]
 ### Dependencies: 2.5
 ### Description: Test login flows for each OAuth provider on both iOS and Android devices. Verify user data storage and role assignment.
 ### Details:

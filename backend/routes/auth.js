@@ -94,9 +94,9 @@ router.get(
       // Set secure cookie
       setTokenCookie(res, token);
 
-      // Redirect to frontend with success
-      const isNewUser = req.user.createdAt > Date.now() - 60000;
-      res.redirect(`${process.env.FRONTEND_URL}/?auth=success&new_user=${isNewUser}`);
+      // Redirect based on onboarding status
+      const redirectPath = req.user.onboardingCompleted ? '/dashboard' : '/onboarding';
+      res.redirect(`${process.env.FRONTEND_URL}${redirectPath}`);
     } catch (error) {
       console.error('Google OAuth callback error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_callback_failed`);
@@ -131,9 +131,9 @@ router.get(
       // Set secure cookie
       setTokenCookie(res, token);
 
-      // Redirect to frontend with success
-      const isNewUser = req.user.createdAt > Date.now() - 60000;
-      res.redirect(`${process.env.FRONTEND_URL}/?auth=success&new_user=${isNewUser}`);
+      // Redirect based on onboarding status
+      const redirectPath = req.user.onboardingCompleted ? '/dashboard' : '/onboarding';
+      res.redirect(`${process.env.FRONTEND_URL}${redirectPath}`);
     } catch (error) {
       console.error('Facebook OAuth callback error:', error);
       res.redirect(`${process.env.FRONTEND_URL}/login?error=auth_callback_failed`);
@@ -180,7 +180,7 @@ router.get('/me', async (req, res) => {
 // @access  Public
 router.get('/status', async (req, res) => {
   const token = extractToken(req);
-  const result = await verifyTokenAndGetUser(token, '_id email role firstName lastName');
+  const result = await verifyTokenAndGetUser(token, '-password');
 
   if (result.error) {
     return res.json({ isAuthenticated: false });
@@ -192,6 +192,15 @@ router.get('/status', async (req, res) => {
       id: result.user._id,
       email: result.user.email,
       role: result.user.role,
+      firstName: result.user.firstName,
+      lastName: result.user.lastName,
+      profilePicture: result.user.profilePicture,
+      onboardingCompleted: result.user.onboardingCompleted,
+      onboardingStep: result.user.onboardingStep,
+      profileCompleteness: result.user.profileCompleteness,
+      location: result.user.location,
+      skillLevel: result.user.skillLevel,
+      provider: result.user.provider,
       name: result.user.getFullName()
     }
   });

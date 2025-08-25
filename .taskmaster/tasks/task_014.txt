@@ -9,3 +9,29 @@ Use CSS3 Flexbox/Grid and media queries for responsive design. Test with Chrome 
 
 # Test Strategy:
 Run Lighthouse audits for PWA compliance. Manual testing on multiple devices and screen sizes. Validate offline functionality and UI adaptability.
+
+# Subtasks:
+## 1. Optimize for iOS Safari and Android Chrome [pending]
+### Dependencies: None
+### Description: Ensure optimal performance and functionality specifically for iOS Safari and Android Chrome browsers, addressing platform-specific PWA requirements and limitations.
+### Details:
+
+
+## 2. Test on Foldable Devices and Tablets [pending]
+### Dependencies: None
+### Description: Comprehensive testing and optimization for foldable devices, tablets, and various screen sizes to ensure responsive design works across all form factors.
+### Details:
+
+
+## 3. Implement PWA Installation Prompts [pending]
+### Dependencies: 14.1
+### Description: Create user-friendly PWA installation prompts and onboarding to encourage users to install MaBar as a native-like app on their devices.
+### Details:
+
+
+## 4. Ensure Offline Functionality for Core Features [pending]
+### Dependencies: 14.2
+### Description: Implement offline capabilities for essential features like viewing booked sessions, profile information, and basic navigation when internet connectivity is limited.
+### Details:
+
+

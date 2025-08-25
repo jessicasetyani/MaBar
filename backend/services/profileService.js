@@ -51,13 +51,20 @@ class ProfileService {
    */
   async updateBasicProfile(userId, profileData) {
     const user = await User.findById(userId);
-    
+
     if (!user) {
       throw new Error('User not found');
     }
 
     this.updateBasicFields(user, profileData);
-    this.updateOnboardingStep(user, ONBOARDING_STEPS.BASIC_INFO);
+
+    // For optimized onboarding flow, advance to step 3 (Complete) after basic info
+    // This allows the simplified Player flow: Role → Quick Start → Complete
+    if (user.role === 'player' && profileData.skillLevel) {
+      this.updateOnboardingStep(user, ONBOARDING_STEPS.SKILL_OR_VENUE);
+    } else {
+      this.updateOnboardingStep(user, ONBOARDING_STEPS.BASIC_INFO);
+    }
 
     user.calculateProfileCompleteness();
     await user.save();
@@ -107,7 +114,7 @@ class ProfileService {
    */
   async updateVenueDetails(userId, venueData) {
     const user = await User.findById(userId);
-    
+
     if (!user) {
       throw new Error('User not found');
     }
@@ -117,6 +124,9 @@ class ProfileService {
     }
 
     this.updateVenueDetailsData(user, venueData);
+
+    // For optimized onboarding flow, advance to step 3 (Complete) after venue setup
+    // This allows the simplified Venue Owner flow: Role → Venue Setup → Complete
     this.updateOnboardingStep(user, ONBOARDING_STEPS.SKILL_OR_VENUE);
 
     user.calculateProfileCompleteness();
@@ -179,14 +189,18 @@ class ProfileService {
 
   // Private helper methods
   updateBasicFields(user, data) {
-    const { firstName, lastName, dateOfBirth, gender, location } = data;
-    
+    const { firstName, lastName, dateOfBirth, gender, location, skillLevel } = data;
+
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
     if (dateOfBirth !== undefined) user.dateOfBirth = dateOfBirth;
     if (gender !== undefined) user.gender = gender;
     if (location !== undefined) {
       user.location = { ...user.location, ...location };
+    }
+    // Allow basic skillLevel setting for quick start
+    if (skillLevel !== undefined && user.role === 'player') {
+      user.skillLevel = skillLevel;
     }
   }
 
@@ -204,7 +218,7 @@ class ProfileService {
   }
 
   updateVenueDetailsData(user, data) {
-    const { venueName, venueAddress, venuePhone, pricePerHour, amenities, operatingHours } = data;
+    const { venueName, venueAddress, venuePhone, pricePerHour, numberOfCourts, amenities, operatingHours } = data;
 
     user.venueDetails = {
       ...user.venueDetails,
@@ -212,6 +226,7 @@ class ProfileService {
       venueAddress,
       venuePhone: venuePhone || user.venueDetails?.venuePhone,
       pricePerHour,
+      numberOfCourts: numberOfCourts || user.venueDetails?.numberOfCourts,
       amenities: amenities || user.venueDetails?.amenities,
       operatingHours: operatingHours || user.venueDetails?.operatingHours
     };

@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Design and Implement User Profile and Onboarding Flow
-# Status: in-progress
+# Status: done
 # Dependencies: 2
 # Priority: high
 # Description: Create onboarding flow for new Players including self-assessment for initial skill level and profile management for Players and Venue Owners.
@@ -11,37 +11,37 @@ Frontend React forms for onboarding with validation. Backend APIs to save profil
 Unit test form validations. Integration test API endpoints for profile creation and updates. Manual testing of onboarding flows on mobile devices.
 
 # Subtasks:
-## 1. Design User Profile Schema and Database Models [pending]
+## 1. Design User Profile Schema and Database Models [done]
 ### Dependencies: None
 ### Description: Extend the existing User model to include comprehensive profile fields for both Players and Venue Owners, including skill assessment, preferences, and venue-specific data.
 ### Details:
 Add fields for skill level assessment, playing preferences, location, venue details (for venue owners), and profile completion tracking.
 
-## 2. Create Backend APIs for Profile Management [pending]
+## 2. Create Backend APIs for Profile Management [done]
 ### Dependencies: 3.1
 ### Description: Implement RESTful APIs for creating, reading, updating profile data, including skill assessment endpoints and profile completion tracking.
 ### Details:
 Create routes for profile CRUD operations, skill assessment submission, and profile completion status.
 
-## 3. Design Frontend Onboarding Flow UI/UX [pending]
+## 3. Design Frontend Onboarding Flow UI/UX [done]
 ### Dependencies: None
 ### Description: Create wireframes and design the multi-step onboarding flow for both Players and Venue Owners with responsive design for mobile and desktop.
 ### Details:
 Design step-by-step onboarding forms with progress indicators, role selection, skill assessment, and profile completion.
 
-## 4. Implement React Components for Onboarding [pending]
+## 4. Implement React Components for Onboarding [done]
 ### Dependencies: 3.3
 ### Description: Build React components for the onboarding flow including form validation, step navigation, and responsive design.
 ### Details:
 Create reusable form components, step wizard, skill assessment forms, and profile completion tracking.
 
-## 5. Integrate Frontend with Backend APIs [pending]
+## 5. Integrate Frontend with Backend APIs [done]
 ### Dependencies: 3.2, 3.4
 ### Description: Connect the React onboarding components with the backend APIs for profile management and data persistence.
 ### Details:
 Implement API calls, error handling, loading states, and data validation between frontend and backend.
 
-## 6. Implement Profile Management Dashboard [pending]
+## 6. Implement Profile Management Dashboard [done]
 ### Dependencies: 3.5
 ### Description: Create user dashboard for viewing and editing profile information after onboarding completion.
 ### Details:
