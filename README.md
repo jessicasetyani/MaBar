@@ -191,9 +191,16 @@ mabar/
 **Root Level:**
 - `npm run dev` - Start both frontend and backend development servers
 - `npm run build` - Build frontend for production
+- `npm run build:prod` - Build frontend for production with NODE_ENV=production
 - `npm run start` - Start production backend server
+- `npm run start:prod` - Start production backend server with NODE_ENV=production
 - `npm run test` - Run tests for both frontend and backend
+- `npm run lint` - Run ESLint on both frontend and backend
+- `npm run lint:fix` - Auto-fix ESLint issues on both frontend and backend
+- `npm run format` - Format code with Prettier on both frontend and backend
+- `npm run format:check` - Check code formatting on both frontend and backend
 - `npm run db:setup` - Setup MongoDB database with collections and indexes
+- `npm run portfolio:demo` - Build and start the application in production-like mode for demonstration
 
 **Frontend (cd frontend):**
 - `npm run dev` - Start Vite development server (http://localhost:5173)
@@ -206,6 +213,10 @@ mabar/
 **Backend (cd backend):**
 - `npm run dev` - Start backend with nodemon (http://localhost:5000)
 - `npm start` - Start production backend server
+- `npm run lint` - Run ESLint on backend code
+- `npm run lint:fix` - Auto-fix ESLint issues on backend code
+- `npm run format` - Format backend code with Prettier
+- `npm run format:check` - Check backend code formatting
 
 ### API Documentation
 
