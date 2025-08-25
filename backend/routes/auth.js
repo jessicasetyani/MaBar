@@ -30,6 +30,43 @@ const setTokenCookie = (res, token) => {
   });
 };
 
+// Helper function to extract token from request
+const extractToken = (req) => {
+  let token = req.cookies.token;
+
+  if (!token && req.headers.authorization) {
+    token = req.headers.authorization.split(' ')[1];
+  }
+
+  return token;
+};
+
+// Helper function to verify token and get user
+const verifyTokenAndGetUser = async (token, selectFields = '-password') => {
+  if (!token) {
+    return { error: 'No token provided', status: 401 };
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select(selectFields);
+
+    if (!user) {
+      return { error: 'User not found', status: 404 };
+    }
+
+    return { user };
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError') {
+      return { error: 'Invalid token', status: 401 };
+    }
+    if (error.name === 'TokenExpiredError') {
+      return { error: 'Token expired', status: 401 };
+    }
+    return { error: 'Server error', status: 500 };
+  }
+};
+
 // @route   GET /auth/google
 // @desc    Initiate Google OAuth
 // @access  Public
@@ -123,79 +160,39 @@ router.post('/logout', (req, res) => {
 // @desc    Get current user profile
 // @access  Private
 router.get('/me', async (req, res) => {
-  try {
-    // Check for token in cookie or Authorization header
-    let token = req.cookies.token;
+  const token = extractToken(req);
+  const result = await verifyTokenAndGetUser(token);
 
-    if (!token && req.headers.authorization) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-
-    if (!token) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-
-    // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Get user from database
-    const user = await User.findById(decoded.id).select('-password');
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    res.json({
-      user: user,
-      isAuthenticated: true
-    });
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token expired' });
-    }
-
-    console.error('Auth me error:', error);
-    res.status(500).json({ message: 'Server error' });
+  if (result.error) {
+    return res.status(result.status).json({ message: result.error });
   }
+
+  res.json({
+    user: result.user,
+    isAuthenticated: true
+  });
 });
 
 // @route   GET /auth/status
 // @desc    Check authentication status
 // @access  Public
 router.get('/status', async (req, res) => {
-  try {
-    let token = req.cookies.token;
+  const token = extractToken(req);
+  const result = await verifyTokenAndGetUser(token, '_id email role firstName lastName');
 
-    if (!token && req.headers.authorization) {
-      token = req.headers.authorization.split(' ')[1];
-    }
-
-    if (!token) {
-      return res.json({ isAuthenticated: false });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.id).select('_id email role firstName lastName');
-
-    if (!user) {
-      return res.json({ isAuthenticated: false });
-    }
-
-    res.json({
-      isAuthenticated: true,
-      user: {
-        id: user._id,
-        email: user.email,
-        role: user.role,
-        name: user.getFullName()
-      }
-    });
-  } catch (error) {
-    res.json({ isAuthenticated: false });
+  if (result.error) {
+    return res.json({ isAuthenticated: false });
   }
+
+  res.json({
+    isAuthenticated: true,
+    user: {
+      id: result.user._id,
+      email: result.user.email,
+      role: result.user.role,
+      name: result.user.getFullName()
+    }
+  });
 });
 
 module.exports = router;

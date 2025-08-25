@@ -104,7 +104,7 @@
         "dependencies": [
           1
         ],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -134,7 +134,7 @@
               "2.1"
             ],
             "details": "Use Mongoose to define the user schema and store user data.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Verify user data is stored correctly with assigned roles."
           },
           {
@@ -145,7 +145,7 @@
               "2.3"
             ],
             "details": "Implement JWT with short expiry and refresh tokens, or use HttpOnly cookies for secure storage.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test token issuance and expiration handling."
           },
           {
@@ -157,7 +157,7 @@
               "2.4"
             ],
             "details": "Use Passport.js to authenticate requests and manage user sessions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test login, logout, and profile management endpoints."
           },
           {
@@ -168,7 +168,7 @@
               "2.5"
             ],
             "details": "Conduct thorough testing of authentication flows, including logout and token expiration handling.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Perform manual and automated testing across different platforms."
           }
         ]
@@ -515,7 +515,7 @@
     ],
     "metadata": {
       "created": "2025-08-24T12:44:30.317Z",
-      "updated": "2025-08-24T13:38:49.172Z",
+      "updated": "2025-08-25T03:55:13.934Z",
       "description": "Tasks for master context"
     }
   }
