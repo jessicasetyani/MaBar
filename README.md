@@ -5,6 +5,7 @@
 [![Node.js](https://img.shields.io/badge/Node.js-18.x-green)](https://nodejs.org/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-6.x-green)](https://www.mongodb.com/)
 [![Gemini AI](https://img.shields.io/badge/AI-Google%20Gemini-orange)](https://ai.google.dev/)
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/jessicasetyani/MaBar?utm_source=oss&utm_medium=github&utm_campaign=jessicasetyani%2FMaBar&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
 
 ## 🏓 Overview
 
