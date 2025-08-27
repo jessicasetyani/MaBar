@@ -119,6 +119,9 @@ Thumbs.db
 # Linux
 *~
 
+# FUSE hidden files (temporary files created when binaries are deleted while in use)
+.fuse_hidden*
+
 # Task Master generated files (keep config but exclude generated content)
 .taskmaster/state.json
 .taskmaster/reports/
