@@ -1,0 +1,11 @@
+# Task ID: 3
+# Title: Build Venue Onboarding Flow for Venue Owners
+# Status: pending
+# Dependencies: 2
+# Priority: high
+# Description: Create the onboarding process for venue owners to submit court details for verification, enabling venue data collection for the platform.
+# Details:
+Implement frontend forms for venue owners to input venue details, location (use Google Maps API for address autocomplete), operating hours, and upload images. Backend endpoints to receive and store venue data with verification status set to pending. Validate inputs on frontend and backend. Use MongoDB schema for Venue with fields as per PRD.
+
+# Test Strategy:
+Validate form input constraints and error handling. Submit venue data and verify it appears in admin verification queue. Test image upload and storage. Confirm data integrity in MongoDB.
