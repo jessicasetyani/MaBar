@@ -1,0 +1,61 @@
+# Task ID: 2
+# Title: Implement Admin Panel Foundation and Venue Verification Queue
+# Status: in-progress
+# Dependencies: 1
+# Priority: high
+# Description: Develop secure admin login and a venue verification queue to approve or reject new venue submissions, forming the foundation for venue onboarding.
+# Details:
+Use React with React Router for admin SPA. Implement backend REST endpoints for admin authentication and venue verification management. Use Passport.js with local strategy or OAuth for admin login. Store admin credentials securely in MongoDB with hashed passwords (bcrypt 5.x). Create venue verification queue UI with approve/reject actions. Ensure role-based access control (RBAC) middleware on backend routes.
+
+# Test Strategy:
+Test admin login with valid and invalid credentials. Verify venue submissions appear in the queue. Test approve/reject actions update venue status in DB. Confirm unauthorized users cannot access admin routes.
+
+# Subtasks:
+## 1. Backend - Admin User Model and Secure Credential Management [done]
+### Dependencies: None
+### Description: Define the MongoDB schema for admin users, including fields for username/email, hashed password, and role. Implement utility functions for password hashing (bcrypt) and comparison.
+### Details:
+Use Mongoose to define an `AdminUser` schema with fields like `email` (unique), `password` (hashed), and `role` (e.g., 'admin'). Implement a pre-save hook in the Mongoose schema to hash the password using `bcrypt` (version 5.x) before saving. Add a method to the schema for comparing a provided password with the stored hashed password.
+
+## 2. Backend - Admin Authentication Endpoints with Passport.js [done]
+### Dependencies: 2.1
+### Description: Implement REST API endpoints for admin login and logout. Integrate Passport.js with a local strategy to authenticate admin users against the database.
+### Details:
+Configure Passport.js with a local strategy that uses the `AdminUser` model to verify credentials. Create `/api/admin/login` and `/api/admin/logout` endpoints. The login endpoint should use Passport's authentication middleware. On successful login, establish a session (if using session-based auth) or generate and return a JWT (if using token-based auth). The logout endpoint should clear the session or invalidate the token.
+
+## 3. Backend - Role-Based Access Control (RBAC) Middleware [done]
+### Dependencies: 2.2
+### Description: Develop a middleware function to protect admin-specific backend routes, ensuring only authenticated users with the 'admin' role can access them.
+### Details:
+Create an `isAdmin` middleware function. This middleware should check if the user is authenticated (e.g., `req.isAuthenticated()` for sessions or by validating a JWT). If authenticated, it should then verify that the user's role is 'admin' (fetched from the session or JWT payload). If not authorized, return a 403 Forbidden status. Apply this middleware to all subsequent admin-specific routes.
+
+## 4. Frontend - Admin Login Page and Authentication Flow [done]
+### Dependencies: 2.2
+### Description: Create the React component for the admin login page. Implement the form submission logic to interact with the backend authentication endpoint and handle successful login (e.g., redirect, store token/session info).
+### Details:
+Develop a React component for `/admin/login`. Implement a form with input fields for email/username and password. On form submission, make an API call to the `/api/admin/login` endpoint. On successful response, store any necessary authentication tokens (e.g., in localStorage or http-only cookies) or rely on session cookies, and redirect the user to the admin dashboard (`/admin`). Handle and display login errors.
+
+## 5. Backend - Venue Verification Management Endpoints [pending]
+### Dependencies: 2.3
+### Description: Implement REST API endpoints for fetching a list of pending venue submissions, and separate endpoints for approving or rejecting a specific venue.
+### Details:
+Create a GET endpoint `/api/admin/venues/pending` (protected by `isAdmin` middleware) to retrieve all `Venue` documents with a `status` field set to 'pending'. Create a PUT/PATCH endpoint `/api/admin/venues/:id/approve` (protected by `isAdmin` middleware) to update a venue's `status` to 'approved' and potentially add an `adminNotes` field. Create another PUT/PATCH endpoint `/api/admin/venues/:id/reject` (protected by `isAdmin` middleware) to update a venue's `status` to 'rejected' and require an `adminNotes` field for the reason.
+
+## 6. Frontend - Admin Panel Layout and Protected Routes [pending]
+### Dependencies: 2.4
+### Description: Develop the basic React layout for the admin panel, including navigation. Implement client-side route protection using React Router to ensure only authenticated admins can access admin-specific pages.
+### Details:
+Create a main `AdminLayout` component that includes a header, sidebar navigation (e.g., links to 'Dashboard', 'Venue Verification', 'Users'). Use React Router to define protected routes for `/admin/*`. Implement a client-side `PrivateRoute` component or a custom hook that checks the admin's authentication status (e.g., by checking for a token or session cookie) and redirects to `/admin/login` if not authenticated or not an admin.
+
+## 7. Frontend - Venue Verification Queue UI and Actions [pending]
+### Dependencies: 2.5, 2.6
+### Description: Create a React component to display the list of pending venues fetched from the backend. Implement UI elements (buttons) for approving and rejecting venues, integrating with the respective backend endpoints.
+### Details:
+Develop a React component for the venue verification queue (e.g., at `/admin/venues`). This component should fetch the list of pending venues from `/api/admin/venues/pending` on mount. Display each venue's relevant details (name, owner, description, etc.) in a table or card layout. For each venue, include 'Approve' and 'Reject' buttons. Implement `onClick` handlers for these buttons to make API calls to `/api/admin/venues/:id/approve` or `/api/admin/venues/:id/reject`. Provide visual feedback (e.g., success/error messages, removing the venue from the list) after an action.
+
+## 8. Comprehensive Admin Panel Testing and Error Handling [pending]
+### Dependencies: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7
+### Description: Conduct thorough testing of the entire admin panel functionality, including login, logout, RBAC, and venue verification actions. Implement robust error handling for both frontend and backend.
+### Details:
+Perform end-to-end testing of the admin panel. Test admin login/logout, ensuring session/token management is secure. Verify that RBAC middleware correctly protects all admin routes. Test the venue verification queue: submit new venues (manually or via a test script), ensure they appear in the queue, and test approve/reject actions. Verify database updates for venue status. Implement comprehensive error handling on the frontend (e.g., display user-friendly messages for API failures) and backend (e.g., proper HTTP status codes and error logging).
+

@@ -48,6 +48,32 @@ export const AuthProvider = ({ children }) => {
     window.location.href = `/auth/${provider}`;
   };
 
+  const adminLogin = async (email, password) => {
+    try {
+      const response = await fetch('/auth/admin/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUser(data.user);
+        setIsAuthenticated(true);
+        return { success: true, user: data.user };
+      } else {
+        return { success: false, error: data.message || 'Login failed' };
+      }
+    } catch (error) {
+      console.error('Admin login error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch('/auth/logout', {
@@ -158,6 +184,7 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated,
     login,
+    adminLogin,
     logout,
     updateProfile,
     updateSkillAssessment,

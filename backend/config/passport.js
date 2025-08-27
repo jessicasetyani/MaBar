@@ -1,4 +1,5 @@
 const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const User = require('../models/User');
@@ -17,6 +18,45 @@ passport.deserializeUser(async (id, done) => {
     done(error, null);
   }
 });
+
+// Local Strategy for Admin Authentication
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'password'
+    },
+    async (email, password, done) => {
+      try {
+        // Find user by email
+        const user = await User.findOne({ email: email.toLowerCase() });
+
+        if (!user) {
+          return done(null, false, { message: 'Invalid email or password' });
+        }
+
+        // Check if user has admin role
+        if (user.role !== 'admin') {
+          return done(null, false, { message: 'Access denied. Admin privileges required.' });
+        }
+
+        // Check password
+        const isMatch = await user.comparePassword(password);
+
+        if (!isMatch) {
+          return done(null, false, { message: 'Invalid email or password' });
+        }
+
+        // Update last login
+        await user.updateLastLogin();
+
+        return done(null, user);
+      } catch (error) {
+        return done(error);
+      }
+    }
+  )
+);
 
 // Google OAuth Strategy
 passport.use(

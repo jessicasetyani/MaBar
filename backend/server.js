@@ -96,10 +96,14 @@ app.get('/api/health', (req, res) => {
 // Import routes
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
+const adminRoutes = require('./routes/admin');
+const venueRoutes = require('./routes/venues');
 
 // API routes
 app.use('/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/venues', venueRoutes);
 
 app.get('/api', (req, res) => {
   res.json({

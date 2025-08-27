@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 
 const router = express.Router();
@@ -66,6 +67,86 @@ const verifyTokenAndGetUser = async (token, selectFields = '-password') => {
     return { error: 'Server error', status: 500 };
   }
 };
+
+// @route   POST /auth/admin/login
+// @desc    Admin login with email and password
+// @access  Public
+router.post(
+  '/admin/login',
+  [
+    body('email')
+      .isEmail()
+      .normalizeEmail()
+      .withMessage('Please provide a valid email'),
+    body('password')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters long')
+  ],
+  async (req, res, next) => {
+    // Check for validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    passport.authenticate('local', (err, user, info) => {
+      if (err) {
+        console.error('Admin login error:', err);
+        return res.status(500).json({
+          message: 'Internal server error during authentication'
+        });
+      }
+
+      if (!user) {
+        return res.status(401).json({
+          message: info.message || 'Authentication failed'
+        });
+      }
+
+      // Generate JWT token
+      const token = generateToken(user);
+
+      // Set secure cookie
+      setTokenCookie(res, token);
+
+      res.json({
+        message: 'Admin login successful',
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          name: user.getFullName()
+        },
+        token
+      });
+    })(req, res, next);
+  }
+);
+
+// @route   POST /auth/admin/logout
+// @desc    Admin logout
+// @access  Private
+router.post('/admin/logout', (req, res) => {
+  // Clear the token cookie
+  res.clearCookie('token');
+
+  // Logout from passport session
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({
+        message: 'Logout failed',
+        error: err.message
+      });
+    }
+
+    res.json({ message: 'Admin logged out successfully' });
+  });
+});
 
 // @route   GET /auth/google
 // @desc    Initiate Google OAuth
