@@ -124,9 +124,142 @@ Thumbs.db
 .taskmaster/reports/
 !.taskmaster/tasks/
 
+# =============================================================================
+# AI TOOLS AND ASSISTANTS - EXCLUDE FROM VERSION CONTROL
+# =============================================================================
+# This section excludes all AI development tools, assistants, and related
+# infrastructure that are used locally but not needed for application deployment
+# or for other developers to run the project.
+
 # AI Agent temporary files
 *.tmp
 *.temp
+*.ai-temp
+*.ai-cache
+
+# MCP (Model Context Protocol) Tools and Configuration
+.mcp/
+mcp-tools/
+mcp-server/
+mcp-client/
+.mcp-*
+*-mcp/
+mcp_*
+mcp.json
+mcp-config.json
+.mcp.json
+
+# AI Assistant Configuration and Cache
+.augment/
+augment-*
+.cursor/
+cursor-*
+.copilot/
+copilot-*
+.codeium/
+codeium-*
+.tabnine/
+tabnine-*
+.ai-assistant/
+ai-assistant-*
+.claude/
+claude-*
+.chatgpt/
+chatgpt-*
+
+# AI Tool State and Session Files
+.ai-state/
+.ai-session/
+.ai-context/
+.ai-memory/
+ai-state.json
+ai-session.json
+ai-context.json
+ai-memory.json
+.assistant-state
+.assistant-session
+.assistant-context
+
+# AI Model Downloads and Local Services
+models/
+.models/
+ai-models/
+.ai-models/
+llm-models/
+.llm-models/
+huggingface/
+.huggingface/
+transformers_cache/
+.transformers_cache/
+ollama/
+.ollama/
+local-ai/
+.local-ai/
+
+# AI Tool Cache and Temporary Directories
+.ai-cache/
+ai-cache/
+.assistant-cache/
+assistant-cache/
+.llm-cache/
+llm-cache/
+.embedding-cache/
+embedding-cache/
+.vector-cache/
+vector-cache/
+
+# AI Configuration Files
+.aiconfig
+.ai-config
+ai-config.json
+.assistant-config
+assistant-config.json
+.llm-config
+llm-config.json
+.embedding-config
+embedding-config.json
+
+# AI Tool Logs and Debug Files
+ai-debug.log
+assistant-debug.log
+llm-debug.log
+mcp-debug.log
+.ai-logs/
+ai-logs/
+.assistant-logs/
+assistant-logs/
+
+# AI Tool Workspaces and Projects
+.ai-workspace/
+ai-workspace/
+.assistant-workspace/
+assistant-workspace/
+.ai-project/
+ai-project/
+
+# Vector Databases and Embeddings (local AI storage)
+.chroma/
+chroma/
+.pinecone/
+pinecone/
+.weaviate/
+weaviate/
+.qdrant/
+qdrant/
+.faiss/
+faiss/
+embeddings/
+.embeddings/
+vector-db/
+.vector-db/
+
+# AI Tool Plugin and Extension Directories
+.ai-plugins/
+ai-plugins/
+.ai-extensions/
+ai-extensions/
+.assistant-plugins/
+assistant-plugins/
 
 # Backup files
 *.bak
@@ -194,3 +327,11 @@ celerybeat.pid
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+.idea
+.vscode
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 
