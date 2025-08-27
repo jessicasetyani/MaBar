@@ -318,11 +318,24 @@
         ],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Generate Secure Secrets and Environment Management Script",
+        "description": "Create cryptographically secure JWT_SECRET and SESSION_SECRET using OpenSSL and implement a script to safely update environment variables, addressing security vulnerabilities from placeholder secrets.",
+        "details": "Use OpenSSL to generate cryptographically secure secrets: `openssl rand -base64 64` for JWT_SECRET (minimum 64 bytes) and `openssl rand -base64 32` for SESSION_SECRET. Create a secure-secrets.js script that:\n\n1. Generates new secrets using OpenSSL via child_process\n2. Validates secret length and complexity requirements\n3. Updates the .env file programmatically while preserving other variables\n4. Creates backup of existing .env file before modification\n5. Provides option to generate secrets without overwriting existing ones\n6. Includes proper error handling for OpenSSL execution failures\n\nImplement security best practices:\n- Ensure secrets are never logged to console\n- Validate minimum entropy requirements\n- Use proper file permissions (chmod 600 for .env)\n- Include validation that .env is gitignored\n- Add documentation for production deployment procedures\n\nThe script should be executable via npm script: `npm run generate-secrets`",
+        "testStrategy": "1. Run the script and verify new secure secrets are generated with proper length\n2. Confirm .env file is updated correctly with new secrets while preserving other variables\n3. Test backup functionality by checking .env.backup creation\n4. Verify error handling when OpenSSL is not available\n5. Test that existing secrets are not overwritten when using dry-run mode\n6. Validate script execution via npm script\n7. Confirm secrets meet minimum cryptographic strength requirements (64+ bytes for JWT, 32+ bytes for session)\n8. Test that script fails gracefully if .env file doesn't exist",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-27T09:33:35.425Z",
-      "updated": "2025-08-27T10:36:06.142Z",
+      "updated": "2025-08-27T11:41:29.919Z",
       "description": "Tasks for master context"
     }
   }

@@ -26,7 +26,7 @@ const setTokenCookie = (res, token) => {
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
+    sameSite: 'strict',
     maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
   });
 };
@@ -68,11 +68,14 @@ const verifyTokenAndGetUser = async (token, selectFields = '-password') => {
   }
 };
 
+const { authLimiter } = require('../middleware/security');
+
 // @route   POST /auth/admin/login
 // @desc    Admin login with email and password
 // @access  Public
 router.post(
   '/admin/login',
+  authLimiter,
   [
     body('email')
       .isEmail()
@@ -139,8 +142,7 @@ router.post('/admin/logout', (req, res) => {
   req.logout((err) => {
     if (err) {
       return res.status(500).json({
-        message: 'Logout failed',
-        error: err.message
+        message: 'Logout failed'
       });
     }
 
@@ -232,7 +234,7 @@ router.post('/logout', (req, res) => {
   // Logout from passport session
   req.logout((err) => {
     if (err) {
-      return res.status(500).json({ message: 'Logout failed', error: err.message });
+      return res.status(500).json({ message: 'Logout failed' });
     }
 
     res.json({ message: 'Logged out successfully' });
@@ -256,9 +258,16 @@ router.get('/me', async (req, res) => {
   });
 });
 
+// @route   GET /auth/csrf-token
+// @desc    Get CSRF token
+// @access  Public
+router.get('/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
 // @route   GET /auth/status
 // @desc    Check authentication status
-// @access  Public
+// @access  Private
 router.get('/status', async (req, res) => {
   const token = extractToken(req);
   const result = await verifyTokenAndGetUser(token, '-password');

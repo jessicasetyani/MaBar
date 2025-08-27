@@ -12,9 +12,10 @@ const AdminVenuesPage = () => {
   const fetchVenues = async () => {
     try {
       setLoading(true);
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
       const endpoint = filter === 'pending' 
-        ? '/api/admin/venues/pending' 
-        : `/api/admin/venues?status=${filter}`;
+        ? `${baseUrl}/api/admin/venues/pending` 
+        : `${baseUrl}/api/admin/venues?status=${filter}`;
       
       const response = await fetch(endpoint, {
         credentials: 'include'
@@ -44,7 +45,7 @@ const AdminVenuesPage = () => {
     try {
       setActionLoading(prev => ({ ...prev, [venueId]: 'approving' }));
       
-      const response = await fetch(`/api/admin/venues/${venueId}/approve`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/venues/${venueId}/approve`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -83,7 +84,7 @@ const AdminVenuesPage = () => {
     try {
       setActionLoading(prev => ({ ...prev, [venueId]: 'rejecting' }));
       
-      const response = await fetch(`/api/admin/venues/${venueId}/reject`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/admin/venues/${venueId}/reject`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
