@@ -6,7 +6,7 @@ mod routes;
 mod services;
 mod utils;
 
-use actix_web::{web, App, HttpServer, middleware::Logger, HttpResponse, Result};
+use actix_web::{web, App, HttpServer, middleware::Logger, HttpResponse, Result, HttpMessage};
 use actix_cors::Cors;
 use dotenv::dotenv;
 use std::env;
