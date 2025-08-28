@@ -10,14 +10,64 @@ dev-debug.log
 node_modules/
 jspm_packages/
 
-# Environment variables
+# =============================================================================
+# SECURITY: ENVIRONMENT VARIABLES AND SECRETS
+# =============================================================================
+# ALL environment files containing secrets must be excluded
+
+# Environment variables - ALL .env files and variants
 .env
+.env.*
+*.env
+*.env.*
 .env.local
+.env.development
 .env.development.local
+.env.test
 .env.test.local
+.env.production
 .env.production.local
-backend/.env
-frontend/.env
+.env.staging
+.env.staging.local
+backend/.env*
+frontend/.env*
+
+# Backup files with potential secrets
+*.backup
+*.backup.*
+.env.backup*
+*.bak
+*.orig
+*.save
+*.swp
+*.tmp
+
+# Secret management files
+.secrets/
+secrets/
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+
+# Configuration files that may contain secrets
+config.json
+config.*.json
+settings.json
+settings.*.json
+
+# API key files
+api-keys.json
+keys.json
+credentials.json
+service-account.json
+
+# Database connection files
+database.json
+db-config.json
+connection-string.txt
 
 # Runtime data
 pids
