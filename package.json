@@ -21,7 +21,21 @@
     "security:audit": "npm audit --prefix backend && npm audit --prefix frontend && node scripts/security-audit.js",
     "security:fix": "npm audit fix --prefix backend && npm audit fix --prefix frontend",
     "security:generate-secrets": "node scripts/generate-secure-secrets.js",
-    "portfolio:demo": "echo 'Starting MaBar Portfolio Demo...' && npm run build:prod && concurrently \"npm run start:prod\" \"npm run dev --prefix frontend\""
+    "portfolio:demo": "echo 'Starting MaBar Portfolio Demo...' && npm run build:prod && concurrently \"npm run start:prod\" \"npm run dev --prefix frontend\"",
+    "task:list": "npx task-master-ai get-tasks --project-root=.",
+    "task:next": "npx task-master-ai next-task --project-root=.",
+    "task:show": "npx task-master-ai get-task --project-root=. --id",
+    "task:done": "npx task-master-ai set-task-status --project-root=. --status=done --id",
+    "task:add": "npx task-master-ai add-task --project-root=. --research",
+    "task:expand": "npx task-master-ai expand-task --project-root=. --research --id",
+    "task:analyze": "npx task-master-ai analyze-project-complexity --project-root=. --research",
+    "task:report": "npx task-master-ai complexity-report --project-root=.",
+    "task:status": "npx task-master-ai set-task-status --project-root=. --id",
+    "task:update": "npx task-master-ai update-task --project-root=. --id",
+    "task:update-subtask": "npx task-master-ai update-subtask --project-root=. --id",
+    "task:generate": "npx task-master-ai generate --project-root=.",
+    "task:validate": "npx task-master-ai validate-dependencies --project-root=.",
+    "task:config": "npx task-master-ai models --project-root=."
   },
   "keywords": [
     "padel",
@@ -30,8 +44,10 @@
     "pwa",
     "react",
     "nodejs",
+    "rust",
     "mongodb",
-    "ai"
+    "ai",
+    "task-management"
   ],
   "author": "MaBar Team",
   "license": "MIT",

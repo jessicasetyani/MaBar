@@ -174,10 +174,30 @@ Thumbs.db
 # FUSE hidden files (temporary files created when binaries are deleted while in use)
 .fuse_hidden*
 
+# =============================================================================
+# RUST BACKEND SPECIFIC
+# =============================================================================
+# Rust build artifacts
+target/
+Cargo.lock
+**/*.rs.bk
+*.pdb
+
+# Rust IDE files
+.vscode/settings.json
+.idea/
+*.iml
+
+# =============================================================================
+# TASK MASTER AI - EXCLUDE GENERATED CONTENT, KEEP CONFIGURATION
+# =============================================================================
 # Task Master generated files (keep config but exclude generated content)
 .taskmaster/state.json
 .taskmaster/reports/
 !.taskmaster/tasks/
+!.taskmaster/config.json
+!.taskmaster/docs/
+!.taskmaster/templates/
 
 # =============================================================================
 # AI TOOLS AND ASSISTANTS - EXCLUDE FROM VERSION CONTROL
@@ -316,10 +336,71 @@ ai-extensions/
 .assistant-plugins/
 assistant-plugins/
 
+# =============================================================================
+# DEVELOPMENT ARTIFACTS AND BUILD OUTPUTS
+# =============================================================================
+# Build outputs
+build/
+dist/
+out/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+
 # Backup files
 *.bak
 *.backup
 *~
+*.orig
+*.rej
+
+# Lock files (keep package-lock.json but exclude others)
+yarn.lock
+pnpm-lock.yaml
+
+# Test coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Logs and debugging
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# =============================================================================
+# MABAR PROJECT SPECIFIC
+# =============================================================================
+# Upload directories
+backend/uploads/
+frontend/uploads/
+uploads/
+
+# Generated QR codes
+qr-codes/
+*.qr.png
+*.qr.jpg
+
+# Database dumps
+*.dump
+*.sql
+*.db
+*.sqlite
+*.sqlite3
+
+# Venue images and user uploads
+venue-images/
+profile-images/
+user-uploads/
 
 # Python (if any Python scripts are added)
 __pycache__/
@@ -387,6 +468,9 @@ dmypy.json
 .vscode
 # OS specific
 
-# Task files
-# tasks.json
-# tasks/ 
+# Task files - Keep task definitions but exclude temporary files
+# .taskmaster/tasks/tasks.json  # Keep this - main task database
+# .taskmaster/tasks/*.md        # Keep these - individual task files
+.taskmaster/tasks/*.tmp
+.taskmaster/tasks/*.temp
+.taskmaster/tasks/.*.swp 

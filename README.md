@@ -51,10 +51,12 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 ### Tech Stack
 
 - **Frontend:** React.js, CSS3, HTML5 (PWA)
-- **Backend:** Node.js, Express.js
+- **Backend:** Node.js, Express.js (migrating to Rust/Actix Web)
 - **Database:** MongoDB
 - **AI/LLM:** Google Gemini API
 - **Authentication:** OAuth 2.0 (Google, Facebook, Apple SSO)
+- **Task Management:** Task Master AI
+- **Development Tools:** ESLint, Prettier, Task Master AI
 
 ### User Roles
 
@@ -150,6 +152,81 @@ MaBar is built as a Progressive Web App with the following capabilities:
 - **Add to home screen** for native app-like experience
 - **Responsive design** for all device sizes (mobile, tablet, desktop)
 
+## 📋 Task Management
+
+### Task Master AI Integration
+
+This project uses **Task Master AI** for intelligent task management and development workflow automation. Task Master provides AI-powered task generation, complexity analysis, and progress tracking.
+
+#### Quick Start
+
+```bash
+# View current tasks and progress
+npm run task:list
+
+# Get next available task to work on
+npm run task:next
+
+# View specific task details
+npm run task:show <task-id>
+
+# Mark task as complete
+npm run task:done <task-id>
+```
+
+#### Task Management Workflow
+
+1. **Task Generation**: Tasks are generated from PRD documents using AI
+2. **Complexity Analysis**: AI analyzes task complexity and suggests subtask breakdown
+3. **Dependency Management**: Automatic dependency tracking and validation
+4. **Progress Tracking**: Real-time status updates and completion tracking
+5. **Research Integration**: AI-powered research for complex technical decisions
+
+#### Task Structure
+
+- **Main Tasks**: High-level features or components (e.g., Task #1, #2, #3)
+- **Subtasks**: Detailed implementation steps (e.g., Task #1.1, #1.2, #1.3)
+- **Dependencies**: Automatic dependency resolution and blocking
+- **Status Tracking**: `pending`, `in-progress`, `done`, `blocked`, `deferred`
+
+#### Available Scripts
+
+```bash
+# Task Management
+npm run task:list          # List all tasks with status
+npm run task:next          # Get next available task
+npm run task:show <id>     # Show detailed task information
+npm run task:done <id>     # Mark task as completed
+npm run task:add           # Add new task with AI assistance
+npm run task:expand <id>   # Break task into subtasks
+npm run task:analyze       # Analyze project complexity
+npm run task:report        # View complexity analysis report
+```
+
+#### Task Files Location
+
+- `.taskmaster/tasks/tasks.json` - Main task database
+- `.taskmaster/tasks/` - Individual task markdown files
+- `.taskmaster/docs/` - Project documentation and PRDs
+- `.taskmaster/reports/` - Analysis and progress reports
+
+#### For Contributors
+
+1. **Check Available Tasks**: Run `npm run task:list` to see what needs work
+2. **Pick Next Task**: Use `npm run task:next` to get the next priority task
+3. **Review Requirements**: Use `npm run task:show <id>` for detailed requirements
+4. **Update Progress**: Use task management commands to track your progress
+5. **Mark Complete**: Use `npm run task:done <id>` when finished
+
+### Current Development Status
+
+- **Total Tasks**: 13 tasks across the project
+- **Completed**: 3 tasks (23% complete)
+- **In Progress**: 1 task (Rust backend migration)
+- **Pending**: 9 tasks ready for development
+
+See `.taskmaster/tasks/tasks.json` for complete task breakdown and current status.
+
 ## 🔧 Development
 
 ### Project Structure
@@ -167,7 +244,7 @@ mabar/
 │   │   └── assets/         # Static assets
 │   ├── public/             # Public assets
 │   └── package.json        # Frontend dependencies
-├── backend/                # Node.js + Express backend
+├── backend/                # Node.js + Express backend (legacy)
 │   ├── controllers/        # Route controllers
 │   ├── models/             # Database models (Mongoose)
 │   ├── middleware/         # Express middleware
@@ -177,8 +254,25 @@ mabar/
 │   ├── config/             # Configuration files
 │   ├── server.js           # Main server file
 │   └── package.json        # Backend dependencies
+├── backend-rust/           # Rust + Actix Web backend (new)
+│   ├── src/
+│   │   ├── config/         # Database and configuration
+│   │   ├── controllers/    # Request handlers
+│   │   ├── middleware/     # Authentication and security
+│   │   ├── models/         # Data models and schemas
+│   │   ├── routes/         # API route definitions
+│   │   ├── services/       # Business logic services
+│   │   ├── utils/          # Utility functions
+│   │   └── main.rs         # Main server entry point
+│   ├── Cargo.toml          # Rust dependencies
+│   └── README.md           # Rust backend documentation
 ├── scripts/                # Setup and utility scripts
+├── docs/                   # Project documentation
 ├── .taskmaster/            # Task Master AI configuration
+│   ├── tasks/              # Task definitions and tracking
+│   ├── docs/               # PRDs and project documentation
+│   ├── reports/            # Analysis and progress reports
+│   └── config.json         # Task Master configuration
 ├── .env                    # Environment variables
 ├── .env.example            # Environment template
 ├── package.json            # Root package.json (workspace)
@@ -199,7 +293,18 @@ mabar/
 - `npm run format` - Format code with Prettier on both frontend and backend
 - `npm run format:check` - Check code formatting on both frontend and backend
 - `npm run db:setup` - Setup MongoDB database with collections and indexes
+- `npm run generate-secrets` - Generate secure JWT and session secrets
 - `npm run portfolio:demo` - Build and start the application in production-like mode for demonstration
+
+**Task Management:**
+- `npm run task:list` - List all tasks with current status
+- `npm run task:next` - Get next available task to work on
+- `npm run task:show <id>` - Show detailed task information
+- `npm run task:done <id>` - Mark task as completed
+- `npm run task:add` - Add new task with AI assistance
+- `npm run task:expand <id>` - Break task into subtasks
+- `npm run task:analyze` - Analyze project complexity
+- `npm run task:report` - View complexity analysis report
 
 **Frontend (cd frontend):**
 - `npm run dev` - Start Vite development server (http://localhost:5173)
@@ -258,7 +363,11 @@ API endpoints are available at:
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our documentation:
+
+- **[Contributing Guidelines](CONTRIBUTING.md)** - Development workflow and standards
+- **[Task Management Guide](docs/TASK_MANAGEMENT.md)** - How to work with our task system
+- **[Security Documentation](docs/SECURITY.md)** - Security practices and secret management
 
 ### Development Workflow
 
@@ -271,6 +380,13 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📚 Documentation
+
+- **[Task Management Guide](docs/TASK_MANAGEMENT.md)** - Complete guide to our AI-powered task system
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
+- **[Security Documentation](docs/SECURITY.md)** - Security practices and guidelines
+- **[Rust Backend README](backend-rust/README.md)** - Rust backend migration documentation
 
 ## 🆘 Support
 
