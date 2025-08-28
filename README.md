@@ -65,16 +65,52 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 - **Player:** Pengguna utama yang mencari lapangan dan teman bermain
 - **Venue Owner:** Pemilik/pengelola lapangan yang mendaftarkan venue
-- **Operations Team:** Tim internal untuk monitoring dan analisis
+- **Admin:** Tim internal untuk monitoring dan analisis
+
+## 🔐 Authentication System
+
+### Supported Authentication Methods
+
+- **Email/Password Registration & Login**
+- **OAuth SSO**: Google and Facebook integration
+- **JWT Token-based Authentication**
+- **Role-based Access Control**: Player, Venue Owner, Admin
+
+### Authentication Flow
+
+1. **Registration/Login**: Email/password or OAuth (Google/Facebook)
+2. **Role Selection**: Choose Player or Venue Owner role
+3. **Onboarding**: Complete profile based on selected role
+4. **Dashboard Access**: Full platform functionality
+
+### API Endpoints
+
+#### Authentication
+- `POST /auth/register` - Email registration
+- `POST /auth/login` - Email login
+- `GET /auth/google` - Google OAuth redirect
+- `GET /auth/facebook` - Facebook OAuth redirect
+- `GET /auth/google/callback` - Google OAuth callback
+- `GET /auth/facebook/callback` - Facebook OAuth callback
+- `POST /auth/role` - Set user role (requires JWT)
+- `GET /auth/status` - Check authentication status
+- `GET /auth/me` - Get current user info
+- `POST /auth/logout` - Logout
+
+#### Admin Authentication
+- `POST /auth/admin/login` - Admin login
+- `POST /auth/admin/logout` - Admin logout
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- MongoDB 6.x or higher
-- Google Gemini API key
-- OAuth credentials (Google, Facebook, Apple)
+- **Node.js 18.x or higher** - For frontend and legacy backend
+- **Rust 1.70+ and Cargo** - For primary Actix Web backend
+- **MongoDB 6.x or higher** - Database server
+- **Google Gemini API key** - For AI-powered features
+- **OAuth credentials** - Google and Facebook app credentials
+- **Task Master AI** - For project management (optional)
 
 ### Installation
 
@@ -85,15 +121,29 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
    cd mabar
    ```
 
-2. **Install dependencies**
+2. **Install Rust** (if not already installed)
+
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   source ~/.cargo/env
+   ```
+
+3. **Install dependencies**
 
    ```bash
    npm install
    ```
 
-   This will install dependencies for both frontend and backend.
+   This will install dependencies for both frontend and Node.js backend.
 
-3. **Environment Setup**
+   For Rust backend:
+   ```bash
+   cd backend-rust
+   cargo build
+   cd ..
+   ```
+
+4. **Environment Setup**
 
    ```bash
    cp .env.example .env
@@ -114,30 +164,32 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
    FACEBOOK_APP_ID=your_facebook_app_id
    FACEBOOK_APP_SECRET=your_facebook_app_secret
 
-   # JWT
+   # JWT Configuration
    JWT_SECRET=your_jwt_secret
+   JWT_EXPIRE=7d
 
    # App Configuration
    NODE_ENV=development
-   PORT=5000
-   FRONTEND_URL=http://localhost:5173
+   PORT=3001
+   FRONTEND_URL=http://localhost:5000
    ```
 
-4. **Database Setup** (Optional - requires MongoDB running)
+5. **Database Setup** (Optional - requires MongoDB running)
 
    ```bash
    npm run db:setup
    ```
 
-5. **Start Development Servers**
+6. **Start Development Servers**
 
    ```bash
    npm run dev
    ```
 
    This will start both frontend and backend concurrently:
-   - Frontend: `http://localhost:5173`
-   - Backend API: `http://localhost:5000/api`
+   - Frontend: `http://localhost:5000`
+   - Backend API: `http://localhost:3001/api`
+   - Rust Backend: `http://localhost:3001` (primary)
 
 ### Building for Production
 
@@ -224,9 +276,34 @@ npm run task:report        # View complexity analysis report
 ### Current Development Status
 
 - **Total Tasks**: 13 tasks across the project
-- **Completed**: 4 tasks (31% complete)
-- **In Progress**: 0 tasks
-- **Pending**: 9 tasks ready for development
+- **Completed**: 6 tasks (46% complete)
+  - ✅ Task #1: Project Setup and Infrastructure
+  - ✅ Task #2: Admin Panel Foundation and Venue Verification Queue
+  - ✅ Task #3: Venue Onboarding Flow for Venue Owners
+  - ✅ Task #11: Generate Secure Secrets and Environment Management
+  - ✅ Task #12: Backend Migration to Rust with Actix Web
+  - ✅ Task #13: Validate Completed Features After Rust Migration
+- **In Progress**: 1 task
+  - 🔄 Task #4: User Authentication and Profile Management (6/8 subtasks done)
+- **Pending**: 6 tasks ready for development
+  - 🔄 Task #5: Venue Dashboard with Calendar View
+  - 🔄 Task #6: Game Session Management for Players
+  - 🔄 Task #7: QR Code Generation for Bookings
+  - 🔄 Task #8: QR Code Check-in Functionality
+  - 🔄 Task #9: Reputation and Trust System
+  - 🔄 Task #10: AI Chat Interface with Google Gemini
+
+#### Recently Completed: Task #4 - User Authentication (6/8 subtasks)
+- ✅ 4.1: MongoDB User Schema with roles and profiles
+- ✅ 4.2: Email/password registration and login endpoints
+- ✅ 4.3: OAuth SSO integration (Google & Facebook)
+- ✅ 4.6: Frontend registration and login forms with React Hook Form
+- ✅ 4.7: Frontend role selection component
+- 🔄 4.4: Role selection endpoint (pending)
+- 🔄 4.5: JWT authentication middleware (pending)
+- 🔄 4.8: Player profile management (pending)
+
+#### Subtask Progress: 39/53 completed (74% subtask completion)
 
 See `.taskmaster/tasks/tasks.json` for complete task breakdown and current status.
 
@@ -310,7 +387,7 @@ mabar/
 - `npm run task:report` - View complexity analysis report
 
 **Frontend (cd frontend):**
-- `npm run dev` - Start Vite development server (http://localhost:5173)
+- `npm run dev` - Start Vite development server (http://localhost:5000)
 - `npm run build` - Build for production
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Run ESLint with auto-fix
@@ -318,12 +395,20 @@ mabar/
 - `npm run format:check` - Check code formatting
 
 **Backend (cd backend):**
-- `npm run dev` - Start backend with nodemon (http://localhost:5000)
-- `npm start` - Start production backend server
+- `npm run dev` - Start legacy Node.js backend with nodemon
+- `npm start` - Start production Node.js backend server
 - `npm run lint` - Run ESLint on backend code
 - `npm run lint:fix` - Auto-fix ESLint issues on backend code
 - `npm run format` - Format backend code with Prettier
 - `npm run format:check` - Check backend code formatting
+
+**Rust Backend (cd backend-rust):**
+- `cargo run` - Start Rust backend development server
+- `cargo build --release` - Build for production
+- `cargo check` - Check code without building
+- `cargo test` - Run tests
+- `cargo clippy` - Run linter
+- `cargo fmt` - Format code
 
 ### API Documentation
 
@@ -344,18 +429,23 @@ API endpoints are available at:
 
 ### For Players
 
-1. **Onboarding:** Register via SSO, complete skill assessment
-2. **Discovery:** Use AI chat or manual search to find sessions
-3. **Booking:** Join or create sessions, confirm booking
-4. **Play:** Check-in via QR code, play, rate experience
-5. **Social:** Follow players, join groups, track progress
+1. **Registration:** Email/password or OAuth (Google/Facebook)
+2. **Role Selection:** Choose "Player" role
+3. **Onboarding:** Complete skill assessment and preferences
+4. **Discovery:** Use AI chat or manual search to find sessions
+5. **Booking:** Join or create sessions, confirm booking
+6. **Play:** Check-in via QR code, play, rate experience
+7. **Social:** Follow players, join groups, track progress
 
 ### For Venue Owners
 
-1. **Registration:** Register venue with details and photos
-2. **Management:** Monitor bookings and generate QR codes
-3. **Analytics:** View occupancy stats and reviews
-4. **Optimization:** Adjust pricing and availability
+1. **Registration:** Email/password or OAuth (Google/Facebook)
+2. **Role Selection:** Choose "Venue Owner" role
+3. **Venue Setup:** Register venue with details and photos
+4. **Admin Review:** Wait for admin approval of venue
+5. **Management:** Monitor bookings and generate QR codes
+6. **Analytics:** View occupancy stats and reviews
+7. **Optimization:** Adjust pricing and availability
 
 ## 🔒 Security & Privacy
 
@@ -415,7 +505,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ End-to-end booking flow with QR validation
 - ✅ Venue onboarding and verification system
 - ✅ Admin panel with venue management
-- 🔄 User authentication and profile management
+- ✅ User authentication and profile management
+- ✅ Role-based access control
 - 🔄 Basic social features
 
 ### Future Releases
