@@ -247,7 +247,7 @@
         "id": 4,
         "title": "Implement User Authentication and Profile Management",
         "description": "Develop user registration (email and OAuth SSO with Google and Facebook), login, role selection (Player or Venue Owner), and editable player profile with matchmaking preferences.",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [
           1,
           12
@@ -255,7 +255,96 @@
         "priority": "high",
         "details": "Backend authentication implemented in Rust using oauth2 and jsonwebtoken crates for OAuth SSO and JWT token management. Use Actix Web or Axum framework with MongoDB integration via the official Rust driver. Store user data in MongoDB with roles and nested profile object including skill level, play style, and availability. Implement frontend registration/login forms and profile management pages with React Hook Form and validation. Secure API endpoints with JWT authentication.",
         "testStrategy": "Test registration and login flows for email and OAuth. Verify role selection persists. Edit and save profile preferences and confirm data updates in DB. Test authentication middleware protects routes. Validate Rust backend integration with MongoDB and JWT token generation/verification.",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up MongoDB User Schema with Roles and Profile Structure",
+            "description": "Define and implement the MongoDB schema for user documents, including fields for email, OAuth IDs, roles (Player or Venue Owner), and a nested profile object with matchmaking preferences (skill level, play style, availability).",
+            "dependencies": [],
+            "details": "Use the official MongoDB Rust driver to create a User collection schema in Rust structs. Include fields: id (ObjectId), email (string, unique), password_hash (optional for email auth), google_id (optional string), facebook_id (optional string), role (enum: Player or VenueOwner), profile (embedded document with skill_level: string, play_style: string, availability: array of strings). Ensure indexes on email and OAuth IDs for fast lookups.",
+            "status": "done",
+            "testStrategy": "Test schema creation and document insertion in MongoDB. Verify that all fields are stored correctly and that unique constraints on email and OAuth IDs are enforced."
+          },
+          {
+            "id": 2,
+            "title": "Implement Backend Email Registration and Login Endpoints",
+            "description": "Create Rust backend API endpoints for user registration and login using email and password, including password hashing and JWT token generation.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Using Actix Web or Axum, implement POST /api/register and POST /api/login endpoints. For registration, hash the password using a crate like bcrypt or argon2, store user in MongoDB with role set to null initially, and return a JWT token. For login, verify password hash and return JWT. Use jsonwebtoken crate for JWT generation. Validate input data (email format, password strength).",
+            "status": "done",
+            "testStrategy": "Test registration with valid and invalid emails/passwords. Verify JWT token is returned and contains correct user info. Test login with correct and incorrect credentials. Ensure passwords are hashed securely."
+          },
+          {
+            "id": 3,
+            "title": "Implement OAuth SSO Integration for Google and Facebook",
+            "description": "Integrate OAuth2 flows for Google and Facebook SSO in the Rust backend, handling authentication and user creation/lookup.",
+            "dependencies": [
+              "4.1"
+            ],
+            "details": "Use the oauth2 crate to set up OAuth clients for Google and Facebook. Implement endpoints /api/auth/google and /api/auth/facebook to redirect to OAuth providers and handle callbacks. On callback, exchange code for user info, check if user exists by OAuth ID or email, create new user if not, and issue JWT token. Store OAuth IDs in user document.",
+            "status": "done",
+            "testStrategy": "Test OAuth flow end-to-end with Google and Facebook test accounts. Verify new users are created and existing users are logged in correctly. Ensure JWT tokens are generated and contain proper user data."
+          },
+          {
+            "id": 4,
+            "title": "Add Role Selection Endpoint and Update User Schema",
+            "description": "Create an API endpoint for users to select their role (Player or Venue Owner) after registration, and update the user document accordingly.",
+            "dependencies": [
+              "4.2",
+              "4.3"
+            ],
+            "details": "Implement a POST /api/user/role endpoint that accepts a role (Player or VenueOwner) and updates the user's role in MongoDB. Secure the endpoint with JWT authentication middleware to ensure only logged-in users can access it. Validate that the role is one of the allowed values.",
+            "status": "pending",
+            "testStrategy": "Test role selection with authenticated requests. Verify role is updated in the database. Test with invalid roles and unauthorized access."
+          },
+          {
+            "id": 5,
+            "title": "Implement JWT Authentication Middleware for Backend Routes",
+            "description": "Create a reusable authentication middleware in Rust to protect API endpoints by verifying JWT tokens in incoming requests.",
+            "dependencies": [
+              "4.2",
+              "4.3"
+            ],
+            "details": "Using Actix Web or Axum middleware, implement a function that checks the Authorization header for a Bearer token, verifies it using jsonwebtoken, and attaches user info to the request context. Apply this middleware to all protected routes. Handle token expiration and invalid tokens gracefully.",
+            "status": "pending",
+            "testStrategy": "Test middleware with valid and invalid tokens. Verify that protected routes reject unauthorized requests and allow authorized ones with correct user context."
+          },
+          {
+            "id": 6,
+            "title": "Build Frontend Registration and Login Forms with React Hook Form",
+            "description": "Create React components for email registration, login, and OAuth buttons, using React Hook Form for validation and form handling.",
+            "dependencies": [],
+            "details": "Implement forms for email/password registration and login, with validation for email format and password requirements. Add buttons for Google and Facebook OAuth that redirect to backend endpoints. Use React Hook Form for form state and validation. Style forms appropriately and handle form submission with error feedback.",
+            "status": "done",
+            "testStrategy": "Test form validation and submission. Verify that successful registration/login redirects users and stores JWT token. Test OAuth redirects work correctly."
+          },
+          {
+            "id": 7,
+            "title": "Create Frontend Role Selection Component",
+            "description": "Develop a React component that allows users to choose their role (Player or Venue Owner) after logging in for the first time.",
+            "dependencies": [
+              "4.6"
+            ],
+            "details": "Build a modal or page that prompts the user to select Player or Venue Owner role. On selection, call the /api/user/role endpoint with the chosen role. Handle errors and success feedback. Redirect users based on role (e.g., to profile page for Players).",
+            "status": "done",
+            "testStrategy": "Test role selection UI and API integration. Verify that the role is set correctly and redirects occur as expected."
+          },
+          {
+            "id": 8,
+            "title": "Implement Player Profile Management Frontend and Backend",
+            "description": "Create editable profile page for Players to update their matchmaking preferences (skill level, play style, availability) and backend API to handle updates.",
+            "dependencies": [
+              "4.4",
+              "4.5",
+              "4.7"
+            ],
+            "details": "Frontend: Build a React form with fields for skill level (dropdown), play style (text input), and availability (multi-select or checkboxes). Use React Hook Form for validation. Backend: Implement PUT /api/user/profile endpoint that updates the nested profile object in the user document. Secure with JWT middleware. Validate input data on backend.",
+            "status": "pending",
+            "testStrategy": "Test profile form submission and data persistence. Verify that updates are reflected in MongoDB. Test validation and error handling on both frontend and backend."
+          }
+        ]
       },
       {
         "id": 5,
@@ -705,7 +794,7 @@
     ],
     "metadata": {
       "created": "2025-08-27T09:33:35.425Z",
-      "updated": "2025-08-28T10:34:24.082Z",
+      "updated": "2025-08-28T11:29:58.093Z",
       "description": "Tasks for master context"
     }
   }
