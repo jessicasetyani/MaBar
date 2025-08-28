@@ -58,17 +58,26 @@ pub async fn jwt_validator(req: ServiceRequest, credentials: BearerAuth) -> Resu
     }
 }
 
-pub fn auth_middleware() -> HttpAuthentication<BearerAuth, fn(ServiceRequest, BearerAuth) -> Result<ServiceRequest, (Error, ServiceRequest)>> {
-    HttpAuthentication::bearer(jwt_validator)
+pub fn auth_middleware() -> HttpAuthentication<BearerAuth, fn(ServiceRequest, BearerAuth) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ServiceRequest, (Error, ServiceRequest)>> + Send>>> {
+    fn wrapper(req: ServiceRequest, credentials: BearerAuth) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<ServiceRequest, (Error, ServiceRequest)>> + Send>> {
+        Box::pin(jwt_validator(req, credentials))
+    }
+    HttpAuthentication::bearer(wrapper)
 }
 
 pub fn require_role(allowed_roles: Vec<UserRole>) -> impl Fn(&User) -> Result<(), HttpResponse> {
     move |user: &User| {
-        if allowed_roles.contains(&user.role) {
-            Ok(())
+        if let Some(user_role) = &user.role {
+            if allowed_roles.contains(user_role) {
+                Ok(())
+            } else {
+                Err(HttpResponse::Forbidden().json(serde_json::json!({
+                    "message": "Access denied. Insufficient permissions."
+                })))
+            }
         } else {
             Err(HttpResponse::Forbidden().json(serde_json::json!({
-                "message": "Access denied. Insufficient permissions."
+                "message": "Access denied. No role assigned."
             })))
         }
     }
