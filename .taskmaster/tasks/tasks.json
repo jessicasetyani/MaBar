@@ -10,98 +10,7 @@
         "priority": "high",
         "dependencies": [],
         "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Initialize Monorepo Structure with Frontend and Backend Workspaces",
-            "description": "Create the root project directory and set up a monorepo using Yarn Workspaces (or npm workspaces) to manage 'frontend' and 'backend' sub-projects.",
-            "dependencies": [],
-            "details": "Create a root directory for the project. Initialize a `package.json` at the root using `npm init -y` or `yarn init -y`. Configure the `workspaces` array in the root `package.json` to include `['packages/*']`. Create `packages/frontend` and `packages/backend` directories within the root.",
-            "status": "done",
-            "testStrategy": "Verify the root `package.json` contains the `workspaces` configuration and that `packages/frontend` and `packages/backend` directories exist."
-          },
-          {
-            "id": 2,
-            "title": "Setup Backend Node.js/Express.js Project",
-            "description": "Initialize the `backend` workspace with Node.js, Express.js, and Mongoose. Create a basic server entry point.",
-            "dependencies": [
-              "1.1"
-            ],
-            "details": "Navigate to `packages/backend`. Run `npm init -y` or `yarn init -y` to create a `package.json`. Install `express@4.x` and `mongoose@7.x` using `npm install express mongoose` or `yarn add express mongoose`. Create a `src/server.js` file with a minimal Express application that listens on a specified port (e.g., 5000).",
-            "status": "done",
-            "testStrategy": "Navigate to `packages/backend` and run `node src/server.js` (or a similar script). Confirm the server starts without errors and listens on the configured port. Verify `node_modules` and `package.json` are correctly set up."
-          },
-          {
-            "id": 3,
-            "title": "Setup Frontend React.js Project with Vite",
-            "description": "Initialize the `frontend` workspace with React 18+ using Vite.",
-            "dependencies": [
-              "1.1"
-            ],
-            "details": "Navigate to `packages/frontend`. Use `npm create vite@latest . -- --template react` (or `react-ts` if using TypeScript) to scaffold a new React project. Clean up the default Vite boilerplate to leave a minimal `App.jsx` component. Ensure `package.json` scripts for `dev`, `build`, and `preview` are correctly configured.",
-            "status": "done",
-            "testStrategy": "Navigate to `packages/frontend` and run `npm run dev` or `yarn dev`. Confirm the React development server starts and the basic React app is accessible in the browser (e.g., http://localhost:5173)."
-          },
-          {
-            "id": 4,
-            "title": "Configure Environment Variable Management with Dotenv",
-            "description": "Install and configure `dotenv` for the backend. Create `.env` files for both frontend and backend, and ensure they are properly ignored by Git.",
-            "dependencies": [
-              "1.2",
-              "1.3"
-            ],
-            "details": "In `packages/backend`, install `dotenv` (`npm install dotenv` or `yarn add dotenv`). In `packages/backend/src/server.js` (or your main entry point), add `require('dotenv').config();` at the very top. Create `packages/backend/.env` for backend-specific variables and `packages/frontend/.env` for client-side public variables (prefixed with `VITE_` for Vite). Add `/.env` to the root `.gitignore` file to prevent environment variables from being committed.",
-            "status": "done",
-            "testStrategy": "Add a test variable (e.g., `TEST_VAR=hello`) to `packages/backend/.env`. In `src/server.js`, `console.log(process.env.TEST_VAR)`. Run the backend and verify the variable is logged. Attempt to `git add .` and confirm `.env` files are not staged."
-          },
-          {
-            "id": 5,
-            "title": "Implement MongoDB Connection using Mongoose in Backend",
-            "description": "Establish a connection to MongoDB from the backend using Mongoose.",
-            "dependencies": [
-              "1.2",
-              "1.4"
-            ],
-            "details": "In `packages/backend`, create a `src/config/db.js` file. Implement an asynchronous function `connectDB` that uses `mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })`. Call this `connectDB` function from `packages/backend/src/server.js` before starting the Express server. Add `MONGO_URI=mongodb://localhost:27017/your_database_name` to `packages/backend/.env`.",
-            "status": "done",
-            "testStrategy": "Ensure a MongoDB instance is running locally or accessible. Run the backend server. Verify console logs indicate a successful MongoDB connection or catch and log connection errors. Check MongoDB logs for incoming connections."
-          },
-          {
-            "id": 6,
-            "title": "Integrate ESLint and Prettier for Code Quality",
-            "description": "Set up ESLint and Prettier in both frontend and backend workspaces to enforce consistent code style and identify potential issues.",
-            "dependencies": [
-              "1.2",
-              "1.3"
-            ],
-            "details": "For `packages/backend`: Install `eslint`, `prettier`, `eslint-config-prettier`, `eslint-plugin-prettier` as dev dependencies. Create `.eslintrc.js` and `.prettierrc.js` with Node.js-specific rules. For `packages/frontend`: Install `eslint`, `prettier`, `eslint-config-prettier`, `eslint-plugin-prettier`, `eslint-plugin-react`, `eslint-plugin-react-hooks` as dev dependencies. Create `.eslintrc.js` and `.prettierrc.js` with React-specific configurations. Add `lint` and `format` scripts to each `package.json` (e.g., `\"lint\": \"eslint . --ext .js,.jsx,.ts,.tsx\", \"format\": \"prettier --write .\"`).",
-            "status": "done",
-            "testStrategy": "Introduce a deliberate linting error (e.g., unused variable) and a formatting error (e.g., incorrect indentation) in both frontend and backend code. Run the `lint` and `format` scripts in each workspace and verify that errors are reported and formatting is corrected."
-          },
-          {
-            "id": 7,
-            "title": "Prepare Project for SonarQube Integration",
-            "description": "Configure the project structure and add necessary files to enable future SonarQube code analysis for security and quality checks.",
-            "dependencies": [
-              "1.1"
-            ],
-            "details": "Create a `sonar-project.properties` file at the root of the monorepo. Define properties such as `sonar.projectKey`, `sonar.sources=packages/backend/src,packages/frontend/src`, `sonar.tests=packages/backend/test,packages/frontend/test`, `sonar.exclusions=**/node_modules/**,**/*.test.js`, and `sonar.javascript.lcov.reportPaths` (if coverage is planned). This file will guide the SonarQube scanner. Add a placeholder script in the root `package.json` like `\"sonar-scan\": \"sonar-scanner -Dsonar.projectKey=your_project_key -Dsonar.host.url=http://localhost:9000 -Dsonar.token=your_token\"` (replace with actual values).",
-            "status": "done",
-            "testStrategy": "Verify the `sonar-project.properties` file exists at the root and contains the necessary configuration. Ensure the `sonar-scan` script is added to the root `package.json`. (Actual SonarQube scan will be tested in CI/CD)."
-          },
-          {
-            "id": 8,
-            "title": "Install and Initialize Passport.js in Backend",
-            "description": "Install Passport.js and `express-session` in the backend and perform basic initialization to prepare for future authentication strategies.",
-            "dependencies": [
-              "1.2",
-              "1.4"
-            ],
-            "details": "In `packages/backend`, install `passport@0.6.x` and `express-session` (`npm install passport express-session` or `yarn add passport express-session`). In `packages/backend/src/server.js`, configure `express-session` middleware with a secret from `.env` (e.g., `app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));`). Then, initialize Passport using `app.use(passport.initialize());` and `app.use(passport.session());`. Add `SESSION_SECRET=your_strong_secret` to `packages/backend/.env`.",
-            "status": "done",
-            "testStrategy": "Run the backend server. Verify that Passport.js and `express-session` middleware are initialized without errors. Check server logs for any related warnings or errors during startup."
-          }
-        ]
+        "subtasks": []
       },
       {
         "id": 2,
@@ -114,133 +23,41 @@
           1
         ],
         "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Backend - Admin User Model and Secure Credential Management",
-            "description": "Define the MongoDB schema for admin users, including fields for username/email, hashed password, and role. Implement utility functions for password hashing (bcrypt) and comparison.",
-            "dependencies": [],
-            "details": "Use Mongoose to define an `AdminUser` schema with fields like `email` (unique), `password` (hashed), and `role` (e.g., 'admin'). Implement a pre-save hook in the Mongoose schema to hash the password using `bcrypt` (version 5.x) before saving. Add a method to the schema for comparing a provided password with the stored hashed password.",
-            "status": "done",
-            "testStrategy": "Unit test password hashing and comparison functions. Verify that passwords are not stored in plain text in the database."
-          },
-          {
-            "id": 2,
-            "title": "Backend - Admin Authentication Endpoints with Passport.js",
-            "description": "Implement REST API endpoints for admin login and logout. Integrate Passport.js with a local strategy to authenticate admin users against the database.",
-            "dependencies": [
-              "2.1"
-            ],
-            "details": "Configure Passport.js with a local strategy that uses the `AdminUser` model to verify credentials. Create `/api/admin/login` and `/api/admin/logout` endpoints. The login endpoint should use Passport's authentication middleware. On successful login, establish a session (if using session-based auth) or generate and return a JWT (if using token-based auth). The logout endpoint should clear the session or invalidate the token.",
-            "status": "done",
-            "testStrategy": "Test login with valid and invalid credentials. Verify successful login returns appropriate response (session/token). Test logout functionality."
-          },
-          {
-            "id": 3,
-            "title": "Backend - Role-Based Access Control (RBAC) Middleware",
-            "description": "Develop a middleware function to protect admin-specific backend routes, ensuring only authenticated users with the 'admin' role can access them.",
-            "dependencies": [
-              "2.2"
-            ],
-            "details": "Create an `isAdmin` middleware function. This middleware should check if the user is authenticated (e.g., `req.isAuthenticated()` for sessions or by validating a JWT). If authenticated, it should then verify that the user's role is 'admin' (fetched from the session or JWT payload). If not authorized, return a 403 Forbidden status. Apply this middleware to all subsequent admin-specific routes.",
-            "status": "done",
-            "testStrategy": "Test accessing protected admin routes as an authenticated admin, as an authenticated non-admin, and as an unauthenticated user. Verify correct access/denial."
-          },
-          {
-            "id": 4,
-            "title": "Frontend - Admin Login Page and Authentication Flow",
-            "description": "Create the React component for the admin login page. Implement the form submission logic to interact with the backend authentication endpoint and handle successful login (e.g., redirect, store token/session info).",
-            "dependencies": [
-              "2.2"
-            ],
-            "details": "Develop a React component for `/admin/login`. Implement a form with input fields for email/username and password. On form submission, make an API call to the `/api/admin/login` endpoint. On successful response, store any necessary authentication tokens (e.g., in localStorage or http-only cookies) or rely on session cookies, and redirect the user to the admin dashboard (`/admin`). Handle and display login errors.",
-            "status": "done",
-            "testStrategy": "Test admin login with valid and invalid credentials. Verify redirection on successful login and error messages on failure. Check if authentication state is persisted."
-          },
-          {
-            "id": 5,
-            "title": "Backend - Venue Verification Management Endpoints",
-            "description": "Implement REST API endpoints for fetching a list of pending venue submissions, and separate endpoints for approving or rejecting a specific venue.",
-            "dependencies": [
-              "2.3"
-            ],
-            "details": "Create a GET endpoint `/api/admin/venues/pending` (protected by `isAdmin` middleware) to retrieve all `Venue` documents with a `status` field set to 'pending'. Create a PUT/PATCH endpoint `/api/admin/venues/:id/approve` (protected by `isAdmin` middleware) to update a venue's `status` to 'approved' and potentially add an `adminNotes` field. Create another PUT/PATCH endpoint `/api/admin/venues/:id/reject` (protected by `isAdmin` middleware) to update a venue's `status` to 'rejected' and require an `adminNotes` field for the reason.\n<info added on 2025-08-27T10:28:48.551Z>\nSuccessfully implemented all required backend venue verification management endpoints:\n\n✅ **COMPLETED IMPLEMENTATION:**\n\n1.  **Created Venue Model** (`backend/models/Venue.js`):\n    *   Comprehensive schema with all required fields (name, description, address, owner, etc.)\n    *   Status field with enum: ['pending', 'approved', 'rejected']\n    *   AdminNotes field for rejection reasons\n    *   Built-in methods for approve() and reject() operations\n    *   Static methods for finding pending venues\n    *   Proper indexing for performance\n\n2.  **Implemented Admin Routes** (`backend/routes/admin.js`):\n    *   GET `/api/admin/venues/pending` - Fetch all pending venue submissions\n    *   PUT `/api/admin/venues/:id/approve` - Approve venue with optional admin notes\n    *   PUT `/api/admin/venues/:id/reject` - Reject venue with required admin notes\n    *   GET `/api/admin/venues/:id` - Get specific venue details\n    *   GET `/api/admin/venues` - Get all venues with optional status filter and pagination\n\n3.  **Applied RBAC Protection**:\n    *   All admin endpoints protected with `authenticateToken` and `requireAdmin` middleware\n    *   Proper 403 Forbidden responses for unauthorized access\n    *   JWT token-based authentication integration\n\n4.  **Added Validation & Error Handling**:\n    *   Input validation using express-validator\n    *   Proper error responses with appropriate HTTP status codes\n    *   Validation for MongoDB ObjectIds, admin notes requirements\n    *   Development vs production error message handling\n\n5.  **Created Supporting Venue Routes** (`backend/routes/venues.js`):\n    *   POST `/api/venues/submit` - For venue owners to submit venues for verification\n    *   GET `/api/venues/my-submissions` - For venue owners to check their submissions\n    *   GET `/api/venues/approved` - Public endpoint for approved venues\n\n6.  **Integrated with Server**:\n    *   Added admin and venue routes to main server.js\n    *   Proper route mounting at `/api/admin` and `/api/venues`\n\n7.  **Created Comprehensive Test Suite** (`backend/test/admin-venue-endpoints.test.js`):\n    *   Tests all endpoints with proper authentication\n    *   Validates RBAC protection\n    *   Tests approval and rejection workflows\n    *   Includes validation testing and error scenarios\n\n**TECHNICAL DETAILS:**\n*   All endpoints return consistent JSON responses with proper status codes\n*   Database operations use Mongoose with proper error handling\n*   Admin actions are logged with reviewedBy and reviewedAt timestamps\n*   Venue owner verification status is synchronized with User model\n*   Pagination support for venue listing endpoints\n*   Proper population of related user data in responses\n\n**NEXT STEPS:**\nReady to proceed with Subtask 2.6 (Frontend Admin Panel Layout and Protected Routes). The backend foundation is complete and fully tested.\n</info added on 2025-08-27T10:28:48.551Z>",
-            "status": "done",
-            "testStrategy": "Test fetching pending venues. Test approving and rejecting venues, verifying the `status` field in the database updates correctly. Ensure these endpoints are protected by RBAC."
-          },
-          {
-            "id": 6,
-            "title": "Frontend - Admin Panel Layout and Protected Routes",
-            "description": "Develop the basic React layout for the admin panel, including navigation. Implement client-side route protection using React Router to ensure only authenticated admins can access admin-specific pages.",
-            "dependencies": [
-              "2.4"
-            ],
-            "details": "Create a main `AdminLayout` component that includes a header, sidebar navigation (e.g., links to 'Dashboard', 'Venue Verification', 'Users'). Use React Router to define protected routes for `/admin/*`. Implement a client-side `PrivateRoute` component or a custom hook that checks the admin's authentication status (e.g., by checking for a token or session cookie) and redirects to `/admin/login` if not authenticated or not an admin.\n<info added on 2025-08-27T10:32:45.988Z>\nSuccessfully implemented the Frontend Admin Panel Layout and Protected Routes. This includes:\n\n-   **Enhanced App.jsx Routing**: Comprehensive admin routes added for all admin panel sections, including /admin/venues, /admin/users, and /admin/reports, all integrated with PrivateRoute protection.\n-   **AdminLayout Component**: Now features responsive sidebar navigation with mobile support, a header with search functionality and user info, and integrated logout functionality, all designed with Tailwind CSS.\n-   **PrivateRoute Component**: Utilizes JWT token-based authentication checking, enforces role-based access control (RBAC), automatically redirects unauthorized users to /admin/login, and handles loading states during authentication checks.\n-   **AdminVenuesPage Created**: This is the main venue verification interface, featuring a complete venue verification queue with pending/approved/rejected filters, interactive approve/reject buttons with confirmation modals, real-time API integration, comprehensive venue details display, error handling, loading states, and admin notes functionality for rejections. It is fully responsive.\n-   **Placeholder Admin Pages Created**: AdminUsersPage and AdminReportsPage have been created, utilizing the consistent AdminLayout and styling.\n-   **AdminDashboardPage Enhanced**: Quick action buttons are now functional with React Router Links, providing navigation to venue verification, user management, and reports, while maintaining existing dashboard statistics and recent activity.\n\n**Key Technical Features Implemented**: Seamless integration with existing AuthContext, full CRUD operations for venue management via API, comprehensive error handling and loading states, mobile-first responsive design with Tailwind CSS, accessibility features, and efficient React state management.\n\n**Security Implementation**: All admin routes are protected by the PrivateRoute component, with automatic role checking (admin role required), proper logout functionality, and authentication credentials included in all API calls.\n\nThis subtask is now complete and ready to proceed with Subtask 2.7 (Frontend - Venue Verification Queue UI and Actions).\n</info added on 2025-08-27T10:32:45.988Z>",
-            "status": "done",
-            "testStrategy": "Verify that navigating to `/admin` routes without being logged in redirects to `/admin/login`. Confirm that after logging in, the admin can access all protected routes."
-          },
-          {
-            "id": 7,
-            "title": "Frontend - Venue Verification Queue UI and Actions",
-            "description": "Create a React component to display the list of pending venues fetched from the backend. Implement UI elements (buttons) for approving and rejecting venues, integrating with the respective backend endpoints.",
-            "dependencies": [
-              "2.5",
-              "2.6"
-            ],
-            "details": "Develop a React component for the venue verification queue (e.g., at `/admin/venues`). This component should fetch the list of pending venues from `/api/admin/venues/pending` on mount. Display each venue's relevant details (name, owner, description, etc.) in a table or card layout. For each venue, include 'Approve' and 'Reject' buttons. Implement `onClick` handlers for these buttons to make API calls to `/api/admin/venues/:id/approve` or `/api/admin/venues/:id/reject`. Provide visual feedback (e.g., success/error messages, removing the venue from the list) after an action.",
-            "status": "done",
-            "testStrategy": "Verify pending venues are displayed correctly. Test 'Approve' and 'Reject' actions for multiple venues, ensuring UI updates and backend status changes. Test handling of empty queue."
-          },
-          {
-            "id": 8,
-            "title": "Comprehensive Admin Panel Testing and Error Handling",
-            "description": "Conduct thorough testing of the entire admin panel functionality, including login, logout, RBAC, and venue verification actions. Implement robust error handling for both frontend and backend.",
-            "dependencies": [
-              "2.1",
-              "2.2",
-              "2.3",
-              "2.4",
-              "2.5",
-              "2.6",
-              "2.7"
-            ],
-            "details": "Perform end-to-end testing of the admin panel. Test admin login/logout, ensuring session/token management is secure. Verify that RBAC middleware correctly protects all admin routes. Test the venue verification queue: submit new venues (manually or via a test script), ensure they appear in the queue, and test approve/reject actions. Verify database updates for venue status. Implement comprehensive error handling on the frontend (e.g., display user-friendly messages for API failures) and backend (e.g., proper HTTP status codes and error logging).\n<info added on 2025-08-27T10:35:52.371Z>\nSuccessfully completed comprehensive admin panel testing and error handling implementation:\n\n✅ **COMPLETED TESTING IMPLEMENTATION:**\n\n1. **Comprehensive Backend Test Suite** (`backend/test/comprehensive-admin-panel-test.js`):\n   - **Authentication Testing**: Valid/invalid admin login, session management, token validation\n   - **RBAC Testing**: Admin access verification, venue owner access denial, unauthenticated access prevention\n   - **Venue Submission Testing**: Multiple venue creation with different data sets\n   - **Venue Verification Testing**: Approve/reject workflows, admin notes validation, status updates\n   - **Error Handling Testing**: Invalid IDs, non-existent resources, malformed data validation\n   - **Edge Cases Testing**: Double approval prevention, empty list handling, concurrent actions\n\n2. **Frontend Manual Testing Guide** (`frontend/test/admin-panel-manual-test-guide.md`):\n   - **Authentication Flows**: Login/logout, session persistence, auto-redirect testing\n   - **Navigation Testing**: Sidebar navigation, mobile responsiveness, route protection\n   - **Venue Verification UI**: Filter functionality, action buttons, modal interactions\n   - **Dashboard Testing**: Statistics display, quick actions, data refresh\n   - **Error Boundary Testing**: Component error handling, invalid data scenarios\n   - **Performance Testing**: Loading states, memory usage, large data sets\n   - **Accessibility Testing**: Keyboard navigation, screen reader compatibility\n   - **Cross-browser Testing**: Chrome, Firefox, Safari, Edge compatibility\n\n3. **Test Data Setup Script** (`backend/scripts/setup-test-data.js`):\n   - **User Creation**: Admin, venue owner, and regular user accounts\n   - **Venue Creation**: Multiple venues with different statuses (pending, approved, rejected)\n   - **Data Cleanup**: Automatic cleanup of existing test data\n   - **Comprehensive Coverage**: Various venue types, amenities, operating hours, pricing\n\n4. **Error Handling Enhancements Already Implemented**:\n   - **Backend Error Handling**: Proper HTTP status codes, validation errors, database error handling\n   - **Frontend Error Handling**: Network error messages, loading states, user feedback\n   - **API Error Responses**: Consistent error format, development vs production error details\n   - **Form Validation**: Client-side and server-side validation, required field checking\n\n**TESTING COVERAGE:**\n\n**Backend API Testing:**\n- ✅ Authentication endpoints (login/logout)\n- ✅ RBAC middleware protection\n- ✅ Venue CRUD operations\n- ✅ Input validation and sanitization\n- ✅ Error response formatting\n- ✅ Database operation error handling\n- ✅ Concurrent request handling\n\n**Frontend UI Testing:**\n- ✅ Component rendering and state management\n- ✅ User interaction flows\n- ✅ API integration and error handling\n- ✅ Responsive design and mobile compatibility\n- ✅ Loading states and user feedback\n- ✅ Form validation and submission\n- ✅ Navigation and routing\n\n**Security Testing:**\n- ✅ JWT token validation\n- ✅ Role-based access control\n- ✅ Session management\n- ✅ Input sanitization\n- ✅ CORS configuration\n- ✅ Rate limiting protection\n\n**Performance Testing:**\n- ✅ API response times\n- ✅ Database query optimization\n- ✅ Frontend rendering performance\n- ✅ Memory usage monitoring\n- ✅ Large dataset handling\n\n**ERROR HANDLING ROBUSTNESS:**\n- **Network Errors**: Graceful handling of connection failures\n- **Validation Errors**: Clear user feedback for invalid input\n- **Authentication Errors**: Proper redirect and error messages\n- **Authorization Errors**: Access denied with appropriate messaging\n- **Server Errors**: User-friendly error messages, detailed logging\n- **Client Errors**: Form validation, input sanitization\n\n**DEPLOYMENT READINESS:**\n- All tests pass successfully\n- Error handling is comprehensive and user-friendly\n- Performance is optimized for production use\n- Security measures are properly implemented\n- Documentation is complete for maintenance\n\nThe admin panel is now fully tested, robust, and ready for production deployment.\n</info added on 2025-08-27T10:35:52.371Z>",
-            "status": "done",
-            "testStrategy": "Execute a full test suite covering all functionalities. Test edge cases like network errors, invalid input, and concurrent actions. Verify all error messages are clear and helpful."
-          }
-        ]
+        "subtasks": []
       },
       {
         "id": 3,
         "title": "Build Venue Onboarding Flow for Venue Owners",
         "description": "Create the onboarding process for venue owners to submit court details for verification, enabling venue data collection for the platform.",
-        "details": "Implement frontend forms for venue owners to input venue details, location (use Google Maps API for address autocomplete), operating hours, and upload images. Backend endpoints to receive and store venue data with verification status set to pending. Validate inputs on frontend and backend. Use MongoDB schema for Venue with fields as per PRD.",
-        "testStrategy": "Validate form input constraints and error handling. Submit venue data and verify it appears in admin verification queue. Test image upload and storage. Confirm data integrity in MongoDB.",
-        "priority": "high",
-        "dependencies": [
-          2
-        ],
         "status": "pending",
+        "dependencies": [
+          2,
+          12
+        ],
+        "priority": "high",
+        "details": "Implement frontend forms for venue owners to input venue details, location (use Google Maps API for address autocomplete), operating hours, and upload images. Backend endpoints built with Rust using Actix Web or Axum framework to receive and store venue data with verification status set to pending. Use official MongoDB Rust driver for database integration. Validate inputs on frontend and backend with proper error handling. Use MongoDB schema for Venue with fields as per PRD.",
+        "testStrategy": "Validate form input constraints and error handling. Submit venue data and verify it appears in admin verification queue. Test image upload and storage. Confirm data integrity in MongoDB. Test Rust backend endpoints for proper error handling and MongoDB integration.",
         "subtasks": []
       },
       {
         "id": 4,
         "title": "Implement User Authentication and Profile Management",
         "description": "Develop user registration (email and OAuth SSO with Google and Facebook), login, role selection (Player or Venue Owner), and editable player profile with matchmaking preferences.",
-        "details": "Use Passport.js with Google and Facebook OAuth 2.0 strategies and local email/password strategy. Store user data in MongoDB with roles and nested profile object including skill level, play style, and availability. Implement frontend registration/login forms and profile management pages with React Hook Form and validation. Secure API endpoints with JWT or session-based auth.",
-        "testStrategy": "Test registration and login flows for email and OAuth. Verify role selection persists. Edit and save profile preferences and confirm data updates in DB. Test authentication middleware protects routes.",
-        "priority": "high",
-        "dependencies": [
-          1
-        ],
         "status": "pending",
+        "dependencies": [
+          1,
+          12
+        ],
+        "priority": "high",
+        "details": "Backend authentication implemented in Rust using oauth2 and jsonwebtoken crates for OAuth SSO and JWT token management. Use Actix Web or Axum framework with MongoDB integration via the official Rust driver. Store user data in MongoDB with roles and nested profile object including skill level, play style, and availability. Implement frontend registration/login forms and profile management pages with React Hook Form and validation. Secure API endpoints with JWT authentication.",
+        "testStrategy": "Test registration and login flows for email and OAuth. Verify role selection persists. Edit and save profile preferences and confirm data updates in DB. Test authentication middleware protects routes. Validate Rust backend integration with MongoDB and JWT token generation/verification.",
         "subtasks": []
       },
       {
         "id": 5,
         "title": "Develop Venue Dashboard with Calendar View for Schedule Management",
         "description": "Create a dashboard for venue owners to manage court availability, view bookings, and block off times using a calendar interface.",
-        "details": "Use React with a calendar library like FullCalendar 6.x or React Big Calendar for UI. Backend endpoints to fetch and update venue availability and bookings. Implement blocking/unblocking time slots. Ensure real-time updates with polling or WebSocket (optional for MVP). Store schedule data in MongoDB linked to Venue and GameSession models.",
+        "details": "Use React with a calendar library like FullCalendar 6.x or React Big Calendar for UI. Backend endpoints implemented in Rust with Actix Web or Axum framework to fetch and update venue availability and bookings. Implement blocking/unblocking time slots. Ensure real-time updates with polling or WebSocket (optional for MVP). Store schedule data in MongoDB using official Rust driver linked to Venue and GameSession models.",
         "testStrategy": "Test calendar displays correct availability and bookings. Verify blocking/unblocking updates backend and UI. Confirm only venue owners can access and modify their schedules.",
         "priority": "high",
         "dependencies": [
@@ -254,7 +71,7 @@
         "id": 6,
         "title": "Implement Game Session Management for Players",
         "description": "Allow players to create, view, and join game sessions with logic for auto-cancellation if minimum player count is not met.",
-        "details": "Design GameSession schema with venue, time, required players, joined players with status, and session status. Backend endpoints for session CRUD and joining logic. Implement auto-cancellation job using Node.js cron or agenda.js to cancel sessions not meeting minimum players before start time. Frontend UI for session creation, listing, and joining with status updates.",
+        "details": "Design GameSession schema with venue, time, required players, joined players with status, and session status. Backend endpoints implemented in Rust with Actix Web or Axum framework for session CRUD and joining logic. Implement auto-cancellation job using Rust cron library or scheduled tasks to cancel sessions not meeting minimum players before start time. Frontend UI for session creation, listing, and joining with status updates.",
         "testStrategy": "Create sessions and verify data stored correctly. Join sessions and check player status updates. Test auto-cancellation triggers correctly. Validate UI reflects session states accurately.",
         "priority": "high",
         "dependencies": [
@@ -268,7 +85,7 @@
         "id": 7,
         "title": "Generate Unique QR Codes for Each Booking",
         "description": "Implement QR code generation for game sessions accessible from the venue dashboard to facilitate check-ins.",
-        "details": "Use a library like 'qrcode' 1.5.x or 'qr-code-styling' for generating QR codes in backend or frontend. Each QR code encodes a unique session and player identifier. Store QR code data or generate on-demand. Integrate QR code display in venue dashboard and player session views.",
+        "details": "Use a Rust QR code library like 'qrcode' or 'qrcode-generator' for backend generation. Each QR code encodes a unique session and player identifier. Store QR code data or generate on-demand. Integrate QR code display in venue dashboard and player session views using React frontend.",
         "testStrategy": "Generate QR codes for sessions and verify scannability with standard QR scanners. Confirm QR codes encode correct session/player info. Test UI integration and accessibility.",
         "priority": "medium",
         "dependencies": [
@@ -282,7 +99,7 @@
         "id": 8,
         "title": "Implement QR Code Check-in Functionality",
         "description": "Develop the ability for players to scan QR codes to prove attendance at game sessions, enabling attendance verification.",
-        "details": "Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scanning. Backend API to validate scanned QR code data, update player check-in status in GameSession. Secure endpoints to prevent spoofing. Provide UI feedback on successful or failed check-in.",
+        "details": "Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scanning. Backend API implemented in Rust with Actix Web or Axum framework to validate scanned QR code data, update player check-in status in GameSession. Secure endpoints to prevent spoofing. Provide UI feedback on successful or failed check-in.",
         "testStrategy": "Test scanning QR codes with various devices. Verify backend updates check-in status correctly. Test error handling for invalid or duplicate scans.",
         "priority": "medium",
         "dependencies": [
@@ -295,7 +112,7 @@
         "id": 9,
         "title": "Build Reputation and Trust System",
         "description": "Add functionality for players to report no-shows and rate venues after completed and checked-in games to foster community trust.",
-        "details": "Extend GameSession and User schemas to store ratings and reports. Backend endpoints to submit ratings and no-show reports. Frontend UI for rating venues and reporting no-shows post-session. Implement aggregation logic for venue ratings. Ensure only checked-in players can rate/report.",
+        "details": "Extend GameSession and User schemas to store ratings and reports. Backend endpoints implemented in Rust with Actix Web or Axum framework to submit ratings and no-show reports. Frontend UI for rating venues and reporting no-shows post-session. Implement aggregation logic for venue ratings. Ensure only checked-in players can rate/report.",
         "testStrategy": "Submit ratings and reports and verify persistence. Confirm only eligible users can submit. Test aggregation and display of venue ratings. Validate UI flows and error handling.",
         "priority": "medium",
         "dependencies": [
@@ -309,7 +126,7 @@
         "id": 10,
         "title": "Integrate AI Chat Interface with Google Gemini API",
         "description": "Develop frontend chat interface and backend API integration with Google Gemini API for conversational matchmaking in English and Bahasa Indonesia.",
-        "details": "Frontend chat UI with React using a chat component library or custom implementation supporting multilingual input. Backend API to send user queries to Google Gemini API with proper prompt engineering and caching for common queries to reduce costs. Handle API responses and display matchmaking recommendations. Implement fallback deterministic filters for initial MVP. Use Google Gemini API latest version with secure API key management.",
+        "details": "Frontend chat UI with React using a chat component library or custom implementation supporting multilingual input. Backend API implemented in Rust with Actix Web or Axum framework to send user queries to Google Gemini API with proper prompt engineering and caching for common queries to reduce costs. Handle API responses and display matchmaking recommendations. Implement fallback deterministic filters for initial MVP. Use Google Gemini API latest version with secure API key management.",
         "testStrategy": "Test chat interface usability and responsiveness. Validate API calls and responses. Confirm recommendations are relevant and multilingual support works. Test caching and error handling.",
         "priority": "medium",
         "dependencies": [
@@ -331,11 +148,146 @@
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Migrate Backend from Node.js/Express.js to Rust with Actix Web Framework",
+        "description": "Complete migration of the existing Node.js/Express.js backend to Rust using Actix Web framework, maintaining API compatibility and improving performance",
+        "details": "",
+        "testStrategy": "",
+        "status": "pending",
+        "dependencies": [
+          1,
+          11
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Rust project structure and dependencies",
+            "description": "Initialize a new Rust project with Actix Web framework and configure Cargo.toml with necessary dependencies including database drivers, authentication libraries, and middleware components.",
+            "dependencies": [],
+            "details": "Create a new Rust project using cargo new. Add actix-web, serde, jsonwebtoken, oauth2, mongodb, and other required crates to Cargo.toml. Set up project directory structure mirroring the Node.js backend with src/bin for server, src/models, src/routes, src/middleware, and src/config modules.",
+            "status": "pending",
+            "testStrategy": "Verify project builds successfully with cargo build and all dependencies resolve without errors."
+          },
+          {
+            "id": 2,
+            "title": "Migrate database configuration and connection setup",
+            "description": "Translate the existing database.js configuration to Rust using the MongoDB driver, establishing connection pooling and error handling.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Implement a config module to handle database connection strings and settings from environment variables. Use mongodb crate to create a connection pool with proper error handling. Ensure connection is reusable across the application similar to the Node.js implementation.",
+            "status": "pending",
+            "testStrategy": "Test database connection establishment and verify successful ping operation to the database."
+          },
+          {
+            "id": 3,
+            "title": "Implement data models in Rust with Serde",
+            "description": "Convert User.js and Venue.js models to Rust structs with Serde serialization/deserialization for MongoDB integration.",
+            "dependencies": [
+              "12.2"
+            ],
+            "details": "Create Rust structs for User and Venue with appropriate fields matching the JavaScript models. Use serde and mongodb derive macros for serialization/deserialization. Implement From traits for conversion between BSON and Rust types. Ensure all model validations are preserved.",
+            "status": "pending",
+            "testStrategy": "Test serialization/deserialization of model objects and verify data integrity when saving/retrieving from database."
+          },
+          {
+            "id": 4,
+            "title": "Migrate authentication middleware and JWT handling",
+            "description": "Convert auth.js middleware to Rust Actix middleware with JWT token verification and OAuth2 integration.",
+            "dependencies": [
+              "12.1",
+              "12.3"
+            ],
+            "details": "Implement Actix Web middleware for JWT authentication using jsonwebtoken crate. Translate passport.js OAuth2 strategies to Rust using oauth2 crate. Create middleware functions that verify tokens and extract user information for request processing.",
+            "status": "pending",
+            "testStrategy": "Test middleware with valid and invalid tokens, verify proper authentication and error responses for unauthorized requests."
+          },
+          {
+            "id": 5,
+            "title": "Implement security middleware (CSRF and other security headers)",
+            "description": "Convert csrf.js and security.js middleware to Rust with Actix Web middleware for CSRF protection and security headers.",
+            "dependencies": [
+              "12.1",
+              "12.4"
+            ],
+            "details": "Create Actix middleware for CSRF token generation and validation. Implement security headers middleware similar to Helmet.js functionality. Ensure all security measures from the Node.js backend are preserved or enhanced.",
+            "status": "pending",
+            "testStrategy": "Test CSRF token validation and verify security headers are properly set in responses."
+          },
+          {
+            "id": 6,
+            "title": "Migrate auth routes and endpoints",
+            "description": "Convert auth.js routes to Rust Actix Web handlers with registration, login, and OAuth callback endpoints.",
+            "dependencies": [
+              "12.3",
+              "12.4",
+              "12.5"
+            ],
+            "details": "Implement Actix Web routes for all authentication endpoints. Handle user registration, login, OAuth redirects, and token generation. Ensure API compatibility with existing Node.js endpoints including request/response formats and error handling.",
+            "status": "pending",
+            "testStrategy": "Test all authentication endpoints with various scenarios including successful login, failed login, and OAuth integration."
+          },
+          {
+            "id": 7,
+            "title": "Migrate profile routes and user management endpoints",
+            "description": "Convert profile.js routes to Rust with user profile retrieval, update, and management functionality.",
+            "dependencies": [
+              "12.3",
+              "12.4",
+              "12.6"
+            ],
+            "details": "Implement Actix Web handlers for profile-related endpoints. Include GET profile, UPDATE profile, and other user management operations. Maintain exact API contract with the existing Node.js implementation.",
+            "status": "pending",
+            "testStrategy": "Test profile retrieval and update operations, verify data persistence and proper authorization checks."
+          },
+          {
+            "id": 8,
+            "title": "Migrate admin and venues routes",
+            "description": "Convert admin.js and venues.js routes to Rust Actix Web handlers with proper authorization and business logic.",
+            "dependencies": [
+              "12.3",
+              "12.4",
+              "12.7"
+            ],
+            "details": "Implement admin endpoints with role-based access control and venues management endpoints. Translate all business logic from JavaScript to Rust while maintaining API compatibility. Ensure proper error handling and response formats.",
+            "status": "pending",
+            "testStrategy": "Test admin endpoints with different user roles, verify authorization works correctly. Test venues CRUD operations and related functionality."
+          },
+          {
+            "id": 9,
+            "title": "Implement main server configuration and routing setup",
+            "description": "Convert server.js main application setup to Rust with Actix Web server configuration, middleware chain, and route mounting.",
+            "dependencies": [
+              "12.4",
+              "12.5",
+              "12.6",
+              "12.7",
+              "12.8"
+            ],
+            "details": "Create main application entry point that configures Actix Web server with all middleware, routes, and database connection. Set up proper error handling, logging, and server configuration matching the Node.js server behavior.",
+            "status": "pending",
+            "testStrategy": "Test server startup, verify all routes are properly mounted and middleware chain works correctly. Test comprehensive API requests to ensure full functionality."
+          },
+          {
+            "id": 10,
+            "title": "Create comprehensive test suite and deployment preparation",
+            "description": "Develop integration tests for all migrated endpoints and prepare deployment configuration for the Rust backend.",
+            "dependencies": [
+              "12.9"
+            ],
+            "details": "Write integration tests using actix-web-test crate to verify all endpoints work correctly. Create Dockerfile and deployment scripts for the Rust application. Set up environment configuration for production deployment. Ensure performance benchmarks show improvement over Node.js version.",
+            "status": "pending",
+            "testStrategy": "Run comprehensive test suite covering all endpoints and edge cases. Perform load testing to verify performance improvements. Test deployment process in staging environment."
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-27T09:33:35.425Z",
-      "updated": "2025-08-27T11:41:29.919Z",
+      "updated": "2025-08-28T07:37:14.555Z",
       "description": "Tasks for master context"
     }
   }
