@@ -1,0 +1,76 @@
+# Task ID: 12
+# Title: Migrate Backend from Node.js/Express.js to Rust with Actix Web Framework
+# Status: done
+# Dependencies: 1, 11
+# Priority: high
+# Description: Complete migration of the existing Node.js/Express.js backend to Rust using Actix Web framework, maintaining API compatibility and improving performance
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Set up Rust project structure and dependencies [done]
+### Dependencies: None
+### Description: Initialize a new Rust project with Actix Web framework and configure Cargo.toml with necessary dependencies including database drivers, authentication libraries, and middleware components.
+### Details:
+Create a new Rust project using cargo new. Add actix-web, serde, jsonwebtoken, oauth2, mongodb, and other required crates to Cargo.toml. Set up project directory structure mirroring the Node.js backend with src/bin for server, src/models, src/routes, src/middleware, and src/config modules.
+<info added on 2025-08-28T09:12:01.200Z>
+Successfully set up Rust project structure with Actix Web framework. Created backend-rust/ directory with proper module structure (config, controllers, middleware, models, routes, services, utils). Configured Cargo.toml with all necessary dependencies including actix-web, mongodb, serde, jsonwebtoken, oauth2, bcrypt, and others. Project builds successfully without errors. Ready to proceed with database configuration migration.
+</info added on 2025-08-28T09:12:01.200Z>
+
+## 2. Migrate database configuration and connection setup [done]
+### Dependencies: 12.1
+### Description: Translate the existing database.js configuration to Rust using the MongoDB driver, establishing connection pooling and error handling.
+### Details:
+Implement a config module to handle database connection strings and settings from environment variables. Use mongodb crate to create a connection pool with proper error handling. Ensure connection is reusable across the application similar to the Node.js implementation.
+
+## 3. Implement data models in Rust with Serde [done]
+### Dependencies: 12.2
+### Description: Convert User.js and Venue.js models to Rust structs with Serde serialization/deserialization for MongoDB integration.
+### Details:
+Create Rust structs for User and Venue with appropriate fields matching the JavaScript models. Use serde and mongodb derive macros for serialization/deserialization. Implement From traits for conversion between BSON and Rust types. Ensure all model validations are preserved.
+
+## 4. Migrate authentication middleware and JWT handling [done]
+### Dependencies: 12.1, 12.3
+### Description: Convert auth.js middleware to Rust Actix middleware with JWT token verification and OAuth2 integration.
+### Details:
+Implement Actix Web middleware for JWT authentication using jsonwebtoken crate. Translate passport.js OAuth2 strategies to Rust using oauth2 crate. Create middleware functions that verify tokens and extract user information for request processing.
+
+## 5. Implement security middleware (CSRF and other security headers) [done]
+### Dependencies: 12.1, 12.4
+### Description: Convert csrf.js and security.js middleware to Rust with Actix Web middleware for CSRF protection and security headers.
+### Details:
+Create Actix middleware for CSRF token generation and validation. Implement security headers middleware similar to Helmet.js functionality. Ensure all security measures from the Node.js backend are preserved or enhanced.
+
+## 6. Migrate auth routes and endpoints [done]
+### Dependencies: 12.3, 12.4, 12.5
+### Description: Convert auth.js routes to Rust Actix Web handlers with registration, login, and OAuth callback endpoints.
+### Details:
+Implement Actix Web routes for all authentication endpoints. Handle user registration, login, OAuth redirects, and token generation. Ensure API compatibility with existing Node.js endpoints including request/response formats and error handling.
+
+## 7. Migrate profile routes and user management endpoints [done]
+### Dependencies: 12.3, 12.4, 12.6
+### Description: Convert profile.js routes to Rust with user profile retrieval, update, and management functionality.
+### Details:
+Implement Actix Web handlers for profile-related endpoints. Include GET profile, UPDATE profile, and other user management operations. Maintain exact API contract with the existing Node.js implementation.
+
+## 8. Migrate admin and venues routes [done]
+### Dependencies: 12.3, 12.4, 12.7
+### Description: Convert admin.js and venues.js routes to Rust Actix Web handlers with proper authorization and business logic.
+### Details:
+Implement admin endpoints with role-based access control and venues management endpoints. Translate all business logic from JavaScript to Rust while maintaining API compatibility. Ensure proper error handling and response formats.
+
+## 9. Implement main server configuration and routing setup [done]
+### Dependencies: 12.4, 12.5, 12.6, 12.7, 12.8
+### Description: Convert server.js main application setup to Rust with Actix Web server configuration, middleware chain, and route mounting.
+### Details:
+Create main application entry point that configures Actix Web server with all middleware, routes, and database connection. Set up proper error handling, logging, and server configuration matching the Node.js server behavior.
+
+## 10. Create comprehensive test suite and deployment preparation [done]
+### Dependencies: 12.9
+### Description: Develop integration tests for all migrated endpoints and prepare deployment configuration for the Rust backend.
+### Details:
+Write integration tests using actix-web-test crate to verify all endpoints work correctly. Create Dockerfile and deployment scripts for the Rust application. Set up environment configuration for production deployment. Ensure performance benchmarks show improvement over Node.js version.
+

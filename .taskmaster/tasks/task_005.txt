@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Develop Venue Dashboard with Calendar View for Schedule Management
+# Status: pending
+# Dependencies: 3, 4
+# Priority: high
+# Description: Create a dashboard for venue owners to manage court availability, view bookings, and block off times using a calendar interface.
+# Details:
+Use React with a calendar library like FullCalendar 6.x or React Big Calendar for UI. Backend endpoints implemented in Rust with Actix Web or Axum framework to fetch and update venue availability and bookings. Implement blocking/unblocking time slots. Ensure real-time updates with polling or WebSocket (optional for MVP). Store schedule data in MongoDB using official Rust driver linked to Venue and GameSession models.
+
+# Test Strategy:
+Test calendar displays correct availability and bookings. Verify blocking/unblocking updates backend and UI. Confirm only venue owners can access and modify their schedules.

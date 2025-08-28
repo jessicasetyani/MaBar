@@ -50,6 +50,7 @@ async fn main() -> std::io::Result<()> {
                     .configure(configure_auth_routes)
                     .configure(configure_profile_routes)
                     .configure(configure_admin_routes)
+                    .configure(configure_venue_routes)
             )
     })
     .bind(&bind_address)?

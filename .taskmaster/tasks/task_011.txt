@@ -1,0 +1,34 @@
+# Task ID: 11
+# Title: Generate Secure Secrets and Environment Management Script
+# Status: done
+# Dependencies: 1
+# Priority: high
+# Description: Create cryptographically secure JWT_SECRET and SESSION_SECRET using OpenSSL and implement a script to safely update environment variables, addressing security vulnerabilities from placeholder secrets.
+# Details:
+Use OpenSSL to generate cryptographically secure secrets: `openssl rand -base64 64` for JWT_SECRET (minimum 64 bytes) and `openssl rand -base64 32` for SESSION_SECRET. Create a secure-secrets.js script that:
+
+1. Generates new secrets using OpenSSL via child_process
+2. Validates secret length and complexity requirements
+3. Updates the .env file programmatically while preserving other variables
+4. Creates backup of existing .env file before modification
+5. Provides option to generate secrets without overwriting existing ones
+6. Includes proper error handling for OpenSSL execution failures
+
+Implement security best practices:
+- Ensure secrets are never logged to console
+- Validate minimum entropy requirements
+- Use proper file permissions (chmod 600 for .env)
+- Include validation that .env is gitignored
+- Add documentation for production deployment procedures
+
+The script should be executable via npm script: `npm run generate-secrets`
+
+# Test Strategy:
+1. Run the script and verify new secure secrets are generated with proper length
+2. Confirm .env file is updated correctly with new secrets while preserving other variables
+3. Test backup functionality by checking .env.backup creation
+4. Verify error handling when OpenSSL is not available
+5. Test that existing secrets are not overwritten when using dry-run mode
+6. Validate script execution via npm script
+7. Confirm secrets meet minimum cryptographic strength requirements (64+ bytes for JWT, 32+ bytes for session)
+8. Test that script fails gracefully if .env file doesn't exist
