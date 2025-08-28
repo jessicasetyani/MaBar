@@ -53,6 +53,8 @@ actix-web-httpauth = "0.8"
 
 # Validation
 validator = { version = "0.16", features = ["derive"] }
+regex = "1.10"
+urlencoding = "2.1"
 
 # File upload handling
 actix-multipart = "0.6"
