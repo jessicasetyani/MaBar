@@ -92,6 +92,86 @@ body {
   margin-bottom: 2rem;
 }
 
+.email-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.email-form .form-group {
+  margin-bottom: 0;
+}
+
+.email-form input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.email-form input:focus {
+  outline: none;
+  border-color: #2196F3;
+}
+
+.email-form input.error {
+  border-color: #f44336;
+}
+
+.form-divider {
+  display: flex;
+  align-items: center;
+  margin: 1.5rem 0;
+  color: #666;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
+
+.form-divider span {
+  padding: 0 1rem;
+  font-size: 0.9rem;
+}
+
+.toggle-mode-btn {
+  background: none;
+  border: none;
+  color: #2196F3;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  margin-top: 1rem;
+  padding: 0.5rem;
+}
+
+.toggle-mode-btn:hover {
+  color: #1976D2;
+}
+
+.email-btn {
+  background: #2196F3;
+  color: white;
+}
+
+.email-btn:hover:not(:disabled) {
+  background: #1976D2;
+  transform: translateY(-2px);
+}
+
+.email-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .login-btn {
   padding: 1rem 1.5rem;
   border: none;
