@@ -22,8 +22,28 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      // Check for token in URL parameters (from OAuth callback)
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlToken = urlParams.get('token');
+      
+      if (urlToken) {
+        localStorage.setItem('token', urlToken);
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+      
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setUser(null);
+        setIsAuthenticated(false);
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/auth/status', {
-        credentials: 'include'
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
       const data = await response.json();
       
@@ -31,11 +51,13 @@ export const AuthProvider = ({ children }) => {
         setUser(data.user);
         setIsAuthenticated(true);
       } else {
+        localStorage.removeItem('token');
         setUser(null);
         setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Auth status check failed:', error);
+      localStorage.removeItem('token');
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -46,6 +68,65 @@ export const AuthProvider = ({ children }) => {
   const login = async (provider) => {
     // Redirect to OAuth provider
     window.location.href = `/auth/${provider}`;
+  };
+
+  const emailLogin = async (email, password) => {
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store JWT token
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setIsAuthenticated(true);
+        return { success: true, user: data.user };
+      } else {
+        return { success: false, error: data.message || 'Login failed' };
+      }
+    } catch (error) {
+      console.error('Email login error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
+    }
+  };
+
+  const emailRegister = async (email, password, firstName, lastName) => {
+    try {
+      const response = await fetch('/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ 
+          email, 
+          password, 
+          first_name: firstName, 
+          last_name: lastName 
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Store JWT token
+        localStorage.setItem('token', data.token);
+        setUser(data.user);
+        setIsAuthenticated(true);
+        return { success: true, user: data.user };
+      } else {
+        return { success: false, error: data.message || 'Registration failed' };
+      }
+    } catch (error) {
+      console.error('Email registration error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
+    }
   };
 
   const adminLogin = async (email, password) => {
@@ -74,16 +155,48 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setUserRole = async (role) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/auth/role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ role })
+      });
+
+      if (response.ok) {
+        // Update user state with new role
+        setUser(prev => ({ ...prev, role }));
+        return { success: true };
+      } else {
+        const data = await response.json();
+        return { success: false, error: data.message || 'Failed to set role' };
+      }
+    } catch (error) {
+      console.error('Set role error:', error);
+      return { success: false, error: 'Network error. Please try again.' };
+    }
+  };
+
   const logout = async () => {
     try {
       await fetch('/auth/logout', {
         method: 'POST',
         credentials: 'include'
       });
+      // Remove JWT token
+      localStorage.removeItem('token');
       setUser(null);
       setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout failed:', error);
+      // Still remove token and clear state on error
+      localStorage.removeItem('token');
+      setUser(null);
+      setIsAuthenticated(false);
     }
   };
 
@@ -184,6 +297,9 @@ export const AuthProvider = ({ children }) => {
     loading,
     isAuthenticated,
     login,
+    emailLogin,
+    emailRegister,
+    setUserRole,
     adminLogin,
     logout,
     updateProfile,
