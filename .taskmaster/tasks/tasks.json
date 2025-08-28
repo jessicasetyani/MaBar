@@ -214,33 +214,35 @@
         "id": 3,
         "title": "Build Venue Onboarding Flow for Venue Owners",
         "description": "Create the onboarding process for venue owners to submit court details for verification, enabling venue data collection for the platform.",
-        "details": "Implement frontend forms for venue owners to input venue details, location (use Google Maps API for address autocomplete), operating hours, and upload images. Backend endpoints to receive and store venue data with verification status set to pending. Validate inputs on frontend and backend. Use MongoDB schema for Venue with fields as per PRD.",
-        "testStrategy": "Validate form input constraints and error handling. Submit venue data and verify it appears in admin verification queue. Test image upload and storage. Confirm data integrity in MongoDB.",
-        "priority": "high",
-        "dependencies": [
-          2
-        ],
         "status": "pending",
+        "dependencies": [
+          2,
+          12
+        ],
+        "priority": "high",
+        "details": "Implement frontend forms for venue owners to input venue details, location (use Google Maps API for address autocomplete), operating hours, and upload images. Backend endpoints built with Rust using Actix Web or Axum framework to receive and store venue data with verification status set to pending. Use official MongoDB Rust driver for database integration. Validate inputs on frontend and backend with proper error handling. Use MongoDB schema for Venue with fields as per PRD.",
+        "testStrategy": "Validate form input constraints and error handling. Submit venue data and verify it appears in admin verification queue. Test image upload and storage. Confirm data integrity in MongoDB. Test Rust backend endpoints for proper error handling and MongoDB integration.",
         "subtasks": []
       },
       {
         "id": 4,
         "title": "Implement User Authentication and Profile Management",
         "description": "Develop user registration (email and OAuth SSO with Google and Facebook), login, role selection (Player or Venue Owner), and editable player profile with matchmaking preferences.",
-        "details": "Use Passport.js with Google and Facebook OAuth 2.0 strategies and local email/password strategy. Store user data in MongoDB with roles and nested profile object including skill level, play style, and availability. Implement frontend registration/login forms and profile management pages with React Hook Form and validation. Secure API endpoints with JWT or session-based auth.",
-        "testStrategy": "Test registration and login flows for email and OAuth. Verify role selection persists. Edit and save profile preferences and confirm data updates in DB. Test authentication middleware protects routes.",
-        "priority": "high",
-        "dependencies": [
-          1
-        ],
         "status": "pending",
+        "dependencies": [
+          1,
+          12
+        ],
+        "priority": "high",
+        "details": "Backend authentication implemented in Rust using oauth2 and jsonwebtoken crates for OAuth SSO and JWT token management. Use Actix Web or Axum framework with MongoDB integration via the official Rust driver. Store user data in MongoDB with roles and nested profile object including skill level, play style, and availability. Implement frontend registration/login forms and profile management pages with React Hook Form and validation. Secure API endpoints with JWT authentication.",
+        "testStrategy": "Test registration and login flows for email and OAuth. Verify role selection persists. Edit and save profile preferences and confirm data updates in DB. Test authentication middleware protects routes. Validate Rust backend integration with MongoDB and JWT token generation/verification.",
         "subtasks": []
       },
       {
         "id": 5,
         "title": "Develop Venue Dashboard with Calendar View for Schedule Management",
         "description": "Create a dashboard for venue owners to manage court availability, view bookings, and block off times using a calendar interface.",
-        "details": "Use React with a calendar library like FullCalendar 6.x or React Big Calendar for UI. Backend endpoints to fetch and update venue availability and bookings. Implement blocking/unblocking time slots. Ensure real-time updates with polling or WebSocket (optional for MVP). Store schedule data in MongoDB linked to Venue and GameSession models.",
+        "details": "Use React with a calendar library like FullCalendar 6.x or React Big Calendar for UI. Backend endpoints implemented in Rust with Actix Web or Axum framework to fetch and update venue availability and bookings. Implement blocking/unblocking time slots. Ensure real-time updates with polling or WebSocket (optional for MVP). Store schedule data in MongoDB using official Rust driver linked to Venue and GameSession models.",
         "testStrategy": "Test calendar displays correct availability and bookings. Verify blocking/unblocking updates backend and UI. Confirm only venue owners can access and modify their schedules.",
         "priority": "high",
         "dependencies": [
@@ -254,7 +256,7 @@
         "id": 6,
         "title": "Implement Game Session Management for Players",
         "description": "Allow players to create, view, and join game sessions with logic for auto-cancellation if minimum player count is not met.",
-        "details": "Design GameSession schema with venue, time, required players, joined players with status, and session status. Backend endpoints for session CRUD and joining logic. Implement auto-cancellation job using Node.js cron or agenda.js to cancel sessions not meeting minimum players before start time. Frontend UI for session creation, listing, and joining with status updates.",
+        "details": "Design GameSession schema with venue, time, required players, joined players with status, and session status. Backend endpoints implemented in Rust with Actix Web or Axum framework for session CRUD and joining logic. Implement auto-cancellation job using Rust cron library or scheduled tasks to cancel sessions not meeting minimum players before start time. Frontend UI for session creation, listing, and joining with status updates.",
         "testStrategy": "Create sessions and verify data stored correctly. Join sessions and check player status updates. Test auto-cancellation triggers correctly. Validate UI reflects session states accurately.",
         "priority": "high",
         "dependencies": [
@@ -268,7 +270,7 @@
         "id": 7,
         "title": "Generate Unique QR Codes for Each Booking",
         "description": "Implement QR code generation for game sessions accessible from the venue dashboard to facilitate check-ins.",
-        "details": "Use a library like 'qrcode' 1.5.x or 'qr-code-styling' for generating QR codes in backend or frontend. Each QR code encodes a unique session and player identifier. Store QR code data or generate on-demand. Integrate QR code display in venue dashboard and player session views.",
+        "details": "Use a Rust QR code library like 'qrcode' or 'qrcode-generator' for backend generation. Each QR code encodes a unique session and player identifier. Store QR code data or generate on-demand. Integrate QR code display in venue dashboard and player session views using React frontend.",
         "testStrategy": "Generate QR codes for sessions and verify scannability with standard QR scanners. Confirm QR codes encode correct session/player info. Test UI integration and accessibility.",
         "priority": "medium",
         "dependencies": [
@@ -282,7 +284,7 @@
         "id": 8,
         "title": "Implement QR Code Check-in Functionality",
         "description": "Develop the ability for players to scan QR codes to prove attendance at game sessions, enabling attendance verification.",
-        "details": "Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scanning. Backend API to validate scanned QR code data, update player check-in status in GameSession. Secure endpoints to prevent spoofing. Provide UI feedback on successful or failed check-in.",
+        "details": "Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scanning. Backend API implemented in Rust with Actix Web or Axum framework to validate scanned QR code data, update player check-in status in GameSession. Secure endpoints to prevent spoofing. Provide UI feedback on successful or failed check-in.",
         "testStrategy": "Test scanning QR codes with various devices. Verify backend updates check-in status correctly. Test error handling for invalid or duplicate scans.",
         "priority": "medium",
         "dependencies": [
@@ -295,7 +297,7 @@
         "id": 9,
         "title": "Build Reputation and Trust System",
         "description": "Add functionality for players to report no-shows and rate venues after completed and checked-in games to foster community trust.",
-        "details": "Extend GameSession and User schemas to store ratings and reports. Backend endpoints to submit ratings and no-show reports. Frontend UI for rating venues and reporting no-shows post-session. Implement aggregation logic for venue ratings. Ensure only checked-in players can rate/report.",
+        "details": "Extend GameSession and User schemas to store ratings and reports. Backend endpoints implemented in Rust with Actix Web or Axum framework to submit ratings and no-show reports. Frontend UI for rating venues and reporting no-shows post-session. Implement aggregation logic for venue ratings. Ensure only checked-in players can rate/report.",
         "testStrategy": "Submit ratings and reports and verify persistence. Confirm only eligible users can submit. Test aggregation and display of venue ratings. Validate UI flows and error handling.",
         "priority": "medium",
         "dependencies": [
@@ -303,13 +305,68 @@
           8
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Extend Database Schemas for Ratings and Reports",
+            "description": "Add fields to GameSession and User schemas to store venue ratings, no-show reports, and user reputation data.",
+            "dependencies": [],
+            "details": "Modify the GameSession schema to include fields for storing venue ratings (e.g., rating value, timestamp, user ID) and no-show reports (e.g., reporter ID, reported user ID, session ID, timestamp). Extend the User schema to include reputation score fields (e.g., total ratings received, average rating, no-show count). Use SQL migration scripts to add these columns to the respective tables.",
+            "status": "pending",
+            "testStrategy": "Verify schema migrations run successfully and new fields are accessible. Test inserting and retrieving sample rating and report data."
+          },
+          {
+            "id": 2,
+            "title": "Implement Backend Endpoints for Submitting Ratings and Reports",
+            "description": "Create Rust backend endpoints using Actix Web or Axum to handle submission of venue ratings and no-show reports.",
+            "dependencies": [
+              "9.1"
+            ],
+            "details": "Develop POST endpoints: /api/sessions/{sessionId}/rate for submitting venue ratings and /api/sessions/{sessionId}/report-no-show for reporting no-shows. Implement validation to ensure only checked-in players can submit (check against GameSession join status). Use request body parsing for rating values (e.g., 1-5 stars) and report details. Store data in the database using the extended schemas.",
+            "status": "pending",
+            "testStrategy": "Test endpoints with valid/invalid requests. Verify authentication and authorization checks. Confirm data persistence and error responses for unauthorized users."
+          },
+          {
+            "id": 3,
+            "title": "Implement Aggregation Logic for Venue Ratings",
+            "description": "Add backend logic to calculate and store aggregated venue ratings based on individual user submissions.",
+            "dependencies": [
+              "9.2"
+            ],
+            "details": "Create a function or service that computes average rating for each venue from stored ratings. Update the Venue schema or a separate aggregation table with computed averages (e.g., total ratings, average score). Implement this as a background task or on-demand when new ratings are submitted. Ensure efficient querying to avoid performance issues.",
+            "status": "pending",
+            "testStrategy": "Test aggregation with multiple ratings. Verify calculated averages are correct. Check performance with large datasets."
+          },
+          {
+            "id": 4,
+            "title": "Build Frontend UI for Rating Venues and Reporting No-Shows",
+            "description": "Develop React components for users to rate venues and report no-shows after game sessions.",
+            "dependencies": [
+              "9.2"
+            ],
+            "details": "Create a post-session modal or page that appears after check-in, featuring a star rating component for venues and a button to report no-shows. Integrate with backend endpoints to submit data. Include form validation and success/error feedback. Ensure UI is only accessible to checked-in players for the specific session.",
+            "status": "pending",
+            "testStrategy": "Test UI rendering conditional on check-in status. Verify form submissions and API calls. Check error handling and user feedback."
+          },
+          {
+            "id": 5,
+            "title": "Implement User Reputation Scoring and Moderation Features",
+            "description": "Add logic to calculate user reputation scores based on ratings and reports, and implement basic moderation tools.",
+            "dependencies": [
+              "9.3",
+              "9.4"
+            ],
+            "details": "Develop a reputation scoring algorithm that factors in received ratings and no-show reports (e.g., average rating minus no-show penalties). Create backend endpoints to retrieve user reputation scores. Implement admin moderation features to review and manage reports (e.g., endpoint to list reports, resolve disputes). Update user profiles to display reputation scores.",
+            "status": "pending",
+            "testStrategy": "Test reputation calculation with sample data. Verify moderation endpoints function correctly. Check score display in user profiles."
+          }
+        ]
       },
       {
         "id": 10,
         "title": "Integrate AI Chat Interface with Google Gemini API",
         "description": "Develop frontend chat interface and backend API integration with Google Gemini API for conversational matchmaking in English and Bahasa Indonesia.",
-        "details": "Frontend chat UI with React using a chat component library or custom implementation supporting multilingual input. Backend API to send user queries to Google Gemini API with proper prompt engineering and caching for common queries to reduce costs. Handle API responses and display matchmaking recommendations. Implement fallback deterministic filters for initial MVP. Use Google Gemini API latest version with secure API key management.",
+        "details": "Frontend chat UI with React using a chat component library or custom implementation supporting multilingual input. Backend API implemented in Rust with Actix Web or Axum framework to send user queries to Google Gemini API with proper prompt engineering and caching for common queries to reduce costs. Handle API responses and display matchmaking recommendations. Implement fallback deterministic filters for initial MVP. Use Google Gemini API latest version with secure API key management.",
         "testStrategy": "Test chat interface usability and responsiveness. Validate API calls and responses. Confirm recommendations are relevant and multilingual support works. Test caching and error handling.",
         "priority": "medium",
         "dependencies": [
@@ -317,7 +374,78 @@
           9
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set Up Google Gemini API Integration Backend",
+            "description": "Implement backend API endpoints in Rust using Actix Web or Axum framework to handle requests to Google Gemini API with secure API key management and proper error handling.",
+            "dependencies": [],
+            "details": "Create a new Rust module for Gemini API integration. Use reqwest or similar HTTP client to send requests to Gemini API. Securely manage API keys using environment variables (referencing Task 11 for secret management). Implement endpoints to accept user queries, format them for Gemini API, and return responses. Handle API errors and rate limiting.",
+            "status": "pending",
+            "testStrategy": "Test API endpoints with mock Gemini responses. Validate error handling for invalid requests and API failures. Confirm secure API key usage."
+          },
+          {
+            "id": 2,
+            "title": "Implement Prompt Engineering for Matchmaking",
+            "description": "Develop and refine prompts for Google Gemini API to generate conversational matchmaking recommendations in English and Bahasa Indonesia.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Design prompts that guide Gemini to understand user preferences for matchmaking (e.g., sport type, skill level, location). Include examples in both English and Bahasa Indonesia. Implement prompt formatting in the backend, ensuring language context is passed correctly. Test with various inputs to optimize recommendation quality.",
+            "status": "pending",
+            "testStrategy": "Test prompts with sample queries in both languages. Verify responses are relevant and appropriately formatted. Use A/B testing if possible for prompt variants."
+          },
+          {
+            "id": 3,
+            "title": "Build Multilingual Frontend Chat Interface",
+            "description": "Develop React-based chat UI component supporting input and display in English and Bahasa Indonesia, integrated with backend API.",
+            "dependencies": [
+              "10.1"
+            ],
+            "details": "Create a chat component using a library like react-chat-ui or custom implementation. Support text input and message display in both languages. Integrate with backend endpoints from 10.1 to send queries and receive responses. Implement language toggle or detection. Ensure responsive design and accessibility.",
+            "status": "pending",
+            "testStrategy": "Test chat UI usability, responsiveness, and multilingual support. Verify messages are sent/received correctly. Check language switching functionality."
+          },
+          {
+            "id": 4,
+            "title": "Implement Caching System for Common Queries",
+            "description": "Add caching mechanism to backend to store and reuse common Gemini API responses, reducing API calls and costs.",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Use a caching library like redis or in-memory cache in Rust. Cache responses based on query text and language. Set appropriate TTL for cache entries. Implement cache lookup before making Gemini API calls. Ensure cache invalidation on relevant changes.",
+            "status": "pending",
+            "testStrategy": "Test cache hit/miss scenarios. Verify reduced API calls for repeated queries. Check cache expiration and invalidation logic."
+          },
+          {
+            "id": 5,
+            "title": "Develop Fallback Deterministic Filters",
+            "description": "Create fallback logic for matchmaking when Gemini API is unavailable or returns errors, using deterministic rules for initial MVP.",
+            "dependencies": [
+              "10.1",
+              "10.2"
+            ],
+            "details": "Implement fallback filters based on simple rules (e.g., filter by sport type, location, or time). Use these when API calls fail or return low-confidence results. Integrate fallback with main response handling to ensure seamless user experience.",
+            "status": "pending",
+            "testStrategy": "Test fallback triggers on API errors. Verify fallback recommendations are reasonable and displayed correctly. Ensure smooth transition between API and fallback modes."
+          },
+          {
+            "id": 6,
+            "title": "Integrate and Test Full Chat Flow",
+            "description": "Connect all components end-to-end, test multilingual chat, recommendations, caching, and fallbacks in integrated environment.",
+            "dependencies": [
+              "10.1",
+              "10.2",
+              "10.3",
+              "10.4",
+              "10.5"
+            ],
+            "details": "Ensure frontend chat UI correctly calls backend API, which uses Gemini integration, caching, and fallbacks. Test complete flow in both languages. Validate recommendation display and error handling. Perform integration testing with real Gemini API (using test key).",
+            "status": "pending",
+            "testStrategy": "End-to-end testing of chat flow in both languages. Verify caching reduces API calls. Test fallback functionality. Validate security and performance."
+          }
+        ]
       },
       {
         "id": 11,
@@ -325,17 +453,240 @@
         "description": "Create cryptographically secure JWT_SECRET and SESSION_SECRET using OpenSSL and implement a script to safely update environment variables, addressing security vulnerabilities from placeholder secrets.",
         "details": "Use OpenSSL to generate cryptographically secure secrets: `openssl rand -base64 64` for JWT_SECRET (minimum 64 bytes) and `openssl rand -base64 32` for SESSION_SECRET. Create a secure-secrets.js script that:\n\n1. Generates new secrets using OpenSSL via child_process\n2. Validates secret length and complexity requirements\n3. Updates the .env file programmatically while preserving other variables\n4. Creates backup of existing .env file before modification\n5. Provides option to generate secrets without overwriting existing ones\n6. Includes proper error handling for OpenSSL execution failures\n\nImplement security best practices:\n- Ensure secrets are never logged to console\n- Validate minimum entropy requirements\n- Use proper file permissions (chmod 600 for .env)\n- Include validation that .env is gitignored\n- Add documentation for production deployment procedures\n\nThe script should be executable via npm script: `npm run generate-secrets`",
         "testStrategy": "1. Run the script and verify new secure secrets are generated with proper length\n2. Confirm .env file is updated correctly with new secrets while preserving other variables\n3. Test backup functionality by checking .env.backup creation\n4. Verify error handling when OpenSSL is not available\n5. Test that existing secrets are not overwritten when using dry-run mode\n6. Validate script execution via npm script\n7. Confirm secrets meet minimum cryptographic strength requirements (64+ bytes for JWT, 32+ bytes for session)\n8. Test that script fails gracefully if .env file doesn't exist",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           1
         ],
         "priority": "high",
         "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Migrate Backend from Node.js/Express.js to Rust with Actix Web Framework",
+        "description": "Complete migration of the existing Node.js/Express.js backend to Rust using Actix Web framework, maintaining API compatibility and improving performance",
+        "details": "",
+        "testStrategy": "",
+        "status": "done",
+        "dependencies": [
+          1,
+          11
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set up Rust project structure and dependencies",
+            "description": "Initialize a new Rust project with Actix Web framework and configure Cargo.toml with necessary dependencies including database drivers, authentication libraries, and middleware components.",
+            "dependencies": [],
+            "details": "Create a new Rust project using cargo new. Add actix-web, serde, jsonwebtoken, oauth2, mongodb, and other required crates to Cargo.toml. Set up project directory structure mirroring the Node.js backend with src/bin for server, src/models, src/routes, src/middleware, and src/config modules.\n<info added on 2025-08-28T09:12:01.200Z>\nSuccessfully set up Rust project structure with Actix Web framework. Created backend-rust/ directory with proper module structure (config, controllers, middleware, models, routes, services, utils). Configured Cargo.toml with all necessary dependencies including actix-web, mongodb, serde, jsonwebtoken, oauth2, bcrypt, and others. Project builds successfully without errors. Ready to proceed with database configuration migration.\n</info added on 2025-08-28T09:12:01.200Z>",
+            "status": "done",
+            "testStrategy": "Verify project builds successfully with cargo build and all dependencies resolve without errors."
+          },
+          {
+            "id": 2,
+            "title": "Migrate database configuration and connection setup",
+            "description": "Translate the existing database.js configuration to Rust using the MongoDB driver, establishing connection pooling and error handling.",
+            "dependencies": [
+              "12.1"
+            ],
+            "details": "Implement a config module to handle database connection strings and settings from environment variables. Use mongodb crate to create a connection pool with proper error handling. Ensure connection is reusable across the application similar to the Node.js implementation.",
+            "status": "done",
+            "testStrategy": "Test database connection establishment and verify successful ping operation to the database."
+          },
+          {
+            "id": 3,
+            "title": "Implement data models in Rust with Serde",
+            "description": "Convert User.js and Venue.js models to Rust structs with Serde serialization/deserialization for MongoDB integration.",
+            "dependencies": [
+              "12.2"
+            ],
+            "details": "Create Rust structs for User and Venue with appropriate fields matching the JavaScript models. Use serde and mongodb derive macros for serialization/deserialization. Implement From traits for conversion between BSON and Rust types. Ensure all model validations are preserved.",
+            "status": "done",
+            "testStrategy": "Test serialization/deserialization of model objects and verify data integrity when saving/retrieving from database."
+          },
+          {
+            "id": 4,
+            "title": "Migrate authentication middleware and JWT handling",
+            "description": "Convert auth.js middleware to Rust Actix middleware with JWT token verification and OAuth2 integration.",
+            "dependencies": [
+              "12.1",
+              "12.3"
+            ],
+            "details": "Implement Actix Web middleware for JWT authentication using jsonwebtoken crate. Translate passport.js OAuth2 strategies to Rust using oauth2 crate. Create middleware functions that verify tokens and extract user information for request processing.",
+            "status": "done",
+            "testStrategy": "Test middleware with valid and invalid tokens, verify proper authentication and error responses for unauthorized requests."
+          },
+          {
+            "id": 5,
+            "title": "Implement security middleware (CSRF and other security headers)",
+            "description": "Convert csrf.js and security.js middleware to Rust with Actix Web middleware for CSRF protection and security headers.",
+            "dependencies": [
+              "12.1",
+              "12.4"
+            ],
+            "details": "Create Actix middleware for CSRF token generation and validation. Implement security headers middleware similar to Helmet.js functionality. Ensure all security measures from the Node.js backend are preserved or enhanced.",
+            "status": "done",
+            "testStrategy": "Test CSRF token validation and verify security headers are properly set in responses."
+          },
+          {
+            "id": 6,
+            "title": "Migrate auth routes and endpoints",
+            "description": "Convert auth.js routes to Rust Actix Web handlers with registration, login, and OAuth callback endpoints.",
+            "dependencies": [
+              "12.3",
+              "12.4",
+              "12.5"
+            ],
+            "details": "Implement Actix Web routes for all authentication endpoints. Handle user registration, login, OAuth redirects, and token generation. Ensure API compatibility with existing Node.js endpoints including request/response formats and error handling.",
+            "status": "done",
+            "testStrategy": "Test all authentication endpoints with various scenarios including successful login, failed login, and OAuth integration."
+          },
+          {
+            "id": 7,
+            "title": "Migrate profile routes and user management endpoints",
+            "description": "Convert profile.js routes to Rust with user profile retrieval, update, and management functionality.",
+            "dependencies": [
+              "12.3",
+              "12.4",
+              "12.6"
+            ],
+            "details": "Implement Actix Web handlers for profile-related endpoints. Include GET profile, UPDATE profile, and other user management operations. Maintain exact API contract with the existing Node.js implementation.",
+            "status": "done",
+            "testStrategy": "Test profile retrieval and update operations, verify data persistence and proper authorization checks."
+          },
+          {
+            "id": 8,
+            "title": "Migrate admin and venues routes",
+            "description": "Convert admin.js and venues.js routes to Rust Actix Web handlers with proper authorization and business logic.",
+            "dependencies": [
+              "12.3",
+              "12.4",
+              "12.7"
+            ],
+            "details": "Implement admin endpoints with role-based access control and venues management endpoints. Translate all business logic from JavaScript to Rust while maintaining API compatibility. Ensure proper error handling and response formats.",
+            "status": "done",
+            "testStrategy": "Test admin endpoints with different user roles, verify authorization works correctly. Test venues CRUD operations and related functionality."
+          },
+          {
+            "id": 9,
+            "title": "Implement main server configuration and routing setup",
+            "description": "Convert server.js main application setup to Rust with Actix Web server configuration, middleware chain, and route mounting.",
+            "dependencies": [
+              "12.4",
+              "12.5",
+              "12.6",
+              "12.7",
+              "12.8"
+            ],
+            "details": "Create main application entry point that configures Actix Web server with all middleware, routes, and database connection. Set up proper error handling, logging, and server configuration matching the Node.js server behavior.",
+            "status": "done",
+            "testStrategy": "Test server startup, verify all routes are properly mounted and middleware chain works correctly. Test comprehensive API requests to ensure full functionality."
+          },
+          {
+            "id": 10,
+            "title": "Create comprehensive test suite and deployment preparation",
+            "description": "Develop integration tests for all migrated endpoints and prepare deployment configuration for the Rust backend.",
+            "dependencies": [
+              "12.9"
+            ],
+            "details": "Write integration tests using actix-web-test crate to verify all endpoints work correctly. Create Dockerfile and deployment scripts for the Rust application. Set up environment configuration for production deployment. Ensure performance benchmarks show improvement over Node.js version.",
+            "status": "done",
+            "testStrategy": "Run comprehensive test suite covering all endpoints and edge cases. Perform load testing to verify performance improvements. Test deployment process in staging environment."
+          }
+        ]
+      },
+      {
+        "id": 13,
+        "title": "Validate Completed Features After Rust Migration",
+        "description": "Validate and test that all previously completed features (Admin Panel Foundation and Venue Verification Queue) work correctly after the Rust backend migration, ensuring no functionality regression.",
+        "details": "Comprehensive testing of all completed features to ensure they work seamlessly with the new Rust backend:\n\n1. **Admin Panel Foundation Validation:**\n   - Test admin login with existing credentials\n   - Verify role-based access control works correctly\n   - Confirm admin dashboard loads and functions properly\n   - Test session management and authentication flow\n\n2. **Venue Verification Queue Validation:**\n   - Test venue submission retrieval from database\n   - Verify approve/reject functionality works correctly\n   - Confirm venue status updates persist in MongoDB\n   - Test admin notifications and feedback systems\n   - Validate venue owner status updates\n\n3. **API Compatibility Testing:**\n   - Ensure all existing API endpoints return identical responses\n   - Test request/response formats match exactly\n   - Verify error handling and status codes are consistent\n   - Confirm authentication tokens work across both systems\n\n4. **Database Integration Testing:**\n   - Validate data integrity after migration\n   - Test CRUD operations on existing data\n   - Confirm MongoDB queries return expected results\n   - Verify indexes and performance are maintained\n\n5. **Frontend Integration Testing:**\n   - Test React components work with new Rust endpoints\n   - Verify state management and data flow\n   - Confirm UI interactions trigger correct backend calls\n   - Test error handling and user feedback",
+        "testStrategy": "1. **Regression Testing Suite:**\n   - Run all existing admin panel tests against Rust backend\n   - Compare API responses between Node.js and Rust implementations\n   - Verify database queries return identical results\n\n2. **End-to-End Testing:**\n   - Complete admin login flow from frontend to backend\n   - Full venue verification workflow (submit → review → approve/reject)\n   - Test all user interactions and state changes\n\n3. **Performance Validation:**\n   - Compare response times between old and new backend\n   - Verify memory usage and resource consumption\n   - Test concurrent user scenarios\n\n4. **Data Integrity Checks:**\n   - Validate existing admin accounts still work\n   - Confirm venue data is accessible and modifiable\n   - Test data consistency across all operations\n\n5. **Error Handling Verification:**\n   - Test invalid credentials and unauthorized access\n   - Verify proper error messages and status codes\n   - Confirm graceful handling of edge cases",
+        "status": "done",
+        "dependencies": [
+          12
+        ],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set Up Test Environment and Baseline Data",
+            "description": "Prepare the testing environment with migrated Rust backend, restore production-like data, and establish baseline API responses from the original Node.js backend for comparison.",
+            "dependencies": [],
+            "details": "Deploy the Rust backend in a staging environment. Restore a snapshot of the MongoDB database with admin users, venue submissions, and existing data. Capture and store API responses from the original Node.js backend for all endpoints related to admin panel and venue verification features to use as a baseline for comparison.",
+            "status": "done",
+            "testStrategy": "Verify environment connectivity, database integrity, and baseline data consistency before proceeding with validation tests."
+          },
+          {
+            "id": 2,
+            "title": "Validate Admin Authentication and Session Management",
+            "description": "Test admin login functionality, role-based access control, session management, and authentication flow with the new Rust backend.",
+            "dependencies": [
+              "13.1"
+            ],
+            "details": "Execute test cases for admin login using existing credentials. Verify JWT token generation and validation. Test role-based access control by accessing protected routes with different admin roles. Validate session persistence, logout functionality, and token expiration handling. Ensure all authentication-related endpoints return consistent status codes and responses compared to the Node.js baseline.",
+            "status": "done",
+            "testStrategy": "Use automated API tests to simulate login flows, validate tokens, and check access control. Compare responses with baseline data from the Node.js backend."
+          },
+          {
+            "id": 3,
+            "title": "Test Venue Verification Queue Workflow",
+            "description": "Validate the entire venue verification queue functionality, including retrieval, approval/rejection actions, status updates, and notifications.",
+            "dependencies": [
+              "13.1",
+              "13.2"
+            ],
+            "details": "Test retrieval of venue submissions from MongoDB via Rust endpoints. Execute approve and reject actions and verify that venue status updates persist correctly. Confirm that admin notifications and feedback systems trigger appropriately. Validate that venue owner status updates are communicated and stored. Ensure all API endpoints for venue management return identical responses to the Node.js baseline.",
+            "status": "done",
+            "testStrategy": "Perform end-to-end testing of the venue verification workflow, including database checks for status updates and validation of notification triggers."
+          },
+          {
+            "id": 4,
+            "title": "Verify API Compatibility and Response Consistency",
+            "description": "Ensure all existing API endpoints for admin and venue features return identical responses, error handling, and status codes between Node.js and Rust backends.",
+            "dependencies": [
+              "13.1",
+              "13.2",
+              "13.3"
+            ],
+            "details": "Run a comprehensive suite of API tests against both Node.js and Rust backends. Compare response bodies, headers, status codes, and error messages for all endpoints related to admin panel and venue verification. Test edge cases and invalid requests to verify consistent error handling. Validate that authentication tokens work identically across both systems.",
+            "status": "done",
+            "testStrategy": "Use automated regression testing tools to compare API responses between the two backends and flag any discrepancies."
+          },
+          {
+            "id": 5,
+            "title": "Validate Database Integration and Data Integrity",
+            "description": "Test CRUD operations, data consistency, query results, and performance of MongoDB interactions with the Rust backend.",
+            "dependencies": [
+              "13.1",
+              "13.2",
+              "13.3",
+              "13.4"
+            ],
+            "details": "Execute CRUD operations on admin users, venue submissions, and related data via Rust API endpoints. Verify that data created, updated, or deleted persists correctly in MongoDB. Run identical database queries on both backends and compare results. Validate that indexes are used efficiently and performance metrics are maintained or improved. Check for data integrity issues after migration.",
+            "status": "done",
+            "testStrategy": "Perform database integration tests with actual CRUD operations and query comparisons. Use profiling tools to monitor query performance."
+          },
+          {
+            "id": 6,
+            "title": "Test Frontend Integration and User Experience",
+            "description": "Validate that the React frontend works seamlessly with the new Rust backend, including state management, UI interactions, and error handling.",
+            "dependencies": [
+              "13.1",
+              "13.2",
+              "13.3",
+              "13.4",
+              "13.5"
+            ],
+            "details": "Test the entire admin panel and venue verification queue UI with the Rust backend. Verify that all React components load data correctly, state updates trigger appropriate backend calls, and UI interactions (e.g., button clicks, form submissions) work as expected. Test error scenarios and ensure user feedback is consistent. Confirm that frontend authentication flows integrate properly with the Rust backend.",
+            "status": "done",
+            "testStrategy": "Conduct end-to-end browser tests using tools like Cypress or Playwright to simulate real user interactions and validate full integration."
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-27T09:33:35.425Z",
-      "updated": "2025-08-27T11:41:29.919Z",
+      "updated": "2025-08-28T10:12:36.179Z",
       "description": "Tasks for master context"
     }
   }

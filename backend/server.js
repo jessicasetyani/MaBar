@@ -11,6 +11,9 @@ const cookieParser = require('cookie-parser');
 const passport = require('./config/passport');
 const { csrfProtection, generateToken } = require('./middleware/csrf');
 const mongoSanitize = require('express-mongo-sanitize');
+const { globalErrorHandler, notFound } = require('./middleware/errorHandler');
+const { logger, requestLogger, securityMiddleware } = require('./utils/logger');
+const { sanitizeInput } = require('./middleware/validation');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -55,6 +58,13 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // MongoDB injection protection
 app.use(mongoSanitize());
+
+// Security logging middleware
+app.use(securityMiddleware);
+app.use(requestLogger);
+
+// Input sanitization
+app.use(sanitizeInput);
 
 // Cookie parser middleware
 app.use(cookieParser());
@@ -135,24 +145,25 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Error handling middleware
-app.use((err, req, res, _next) => {
-  console.error(err.stack);
-  res.status(500).json({
-    message: 'Internal server error'
-  });
-});
+// 404 handler (must be before error handler)
+app.use('*', notFound);
 
-// 404 handler
-app.use('*', (req, res) => {
-  res.status(404).json({ message: 'Route not found' });
-});
+// Global error handling middleware (must be last)
+app.use(globalErrorHandler);
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
+  logger.info('SIGTERM received. Shutting down gracefully...');
   mongoose.connection.close(() => {
-    console.log('MongoDB connection closed.');
+    logger.info('MongoDB connection closed.');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  logger.info('SIGINT received. Shutting down gracefully...');
+  mongoose.connection.close(() => {
+    logger.info('MongoDB connection closed.');
     process.exit(0);
   });
 });
