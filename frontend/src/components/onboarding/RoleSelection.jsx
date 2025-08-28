@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
 const RoleSelection = ({ data, onNext, onStepData, isFirstStep }) => {
-  const { updateProfile } = useAuth();
+  const { setUserRole } = useAuth();
   const [selectedRole, setSelectedRole] = useState(data || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -14,8 +14,13 @@ const RoleSelection = ({ data, onNext, onStepData, isFirstStep }) => {
     // Immediately save the role to the backend
     setLoading(true);
     try {
-      await updateProfile({ role });
-      onStepData(role);
+      const result = await setUserRole(role === 'player' ? 'Player' : 'VenueOwner');
+      
+      if (result.success) {
+        onStepData(role);
+      } else {
+        setError(result.error);
+      }
     } catch (error) {
       console.error('Failed to save role:', error);
       setError('Failed to save role selection. Please try again.');
