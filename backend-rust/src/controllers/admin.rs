@@ -13,7 +13,7 @@ pub async fn get_pending_venues(
     db: web::Data<Database>,
 ) -> Result<HttpResponse> {
     if let Some(user) = req.extensions().get::<User>() {
-        if !matches!(user.role, UserRole::Admin) {
+        if !matches!(user.role, Some(UserRole::Admin)) {
             return Ok(HttpResponse::Forbidden().json(serde_json::json!({
                 "message": "Admin access required"
             })));
@@ -48,7 +48,7 @@ pub async fn approve_venue(
     action_req: web::Json<VenueActionRequest>,
 ) -> Result<HttpResponse> {
     if let Some(user) = req.extensions().get::<User>() {
-        if !matches!(user.role, UserRole::Admin) {
+        if !matches!(user.role, Some(UserRole::Admin)) {
             return Ok(HttpResponse::Forbidden().json(serde_json::json!({
                 "message": "Admin access required"
             })));
@@ -97,7 +97,7 @@ pub async fn reject_venue(
     action_req: web::Json<VenueActionRequest>,
 ) -> Result<HttpResponse> {
     if let Some(user) = req.extensions().get::<User>() {
-        if !matches!(user.role, UserRole::Admin) {
+        if !matches!(user.role, Some(UserRole::Admin)) {
             return Ok(HttpResponse::Forbidden().json(serde_json::json!({
                 "message": "Admin access required"
             })));
