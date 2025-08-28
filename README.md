@@ -42,6 +42,9 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 ### 🏟️ Venue Management
 
+- **Complete venue onboarding flow** untuk venue owners
+- **Comprehensive venue submission form** dengan upload foto dan jadwal operasional
+- **Admin verification queue** untuk approve/reject venue submissions
 - Dashboard untuk venue owners
 - Statistik okupansi dan jam populer
 - Review dan rating management
@@ -51,7 +54,7 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 ### Tech Stack
 
 - **Frontend:** React.js, CSS3, HTML5 (PWA)
-- **Backend:** Node.js, Express.js (migrating to Rust/Actix Web)
+- **Backend:** Rust, Actix Web (primary), Node.js, Express.js (legacy)
 - **Database:** MongoDB
 - **AI/LLM:** Google Gemini API
 - **Authentication:** OAuth 2.0 (Google, Facebook, Apple SSO)
@@ -221,8 +224,8 @@ npm run task:report        # View complexity analysis report
 ### Current Development Status
 
 - **Total Tasks**: 13 tasks across the project
-- **Completed**: 3 tasks (23% complete)
-- **In Progress**: 1 task (Rust backend migration)
+- **Completed**: 4 tasks (31% complete)
+- **In Progress**: 0 tasks
 - **Pending**: 9 tasks ready for development
 
 See `.taskmaster/tasks/tasks.json` for complete task breakdown and current status.
@@ -325,8 +328,17 @@ mabar/
 ### API Documentation
 
 API endpoints are available at:
-- Health check: `http://localhost:5000/api/health`
-- API info: `http://localhost:5000/api`
+- Health check: `http://localhost:3001/api/health` (Rust backend)
+- Database health: `http://localhost:3001/api/db-health`
+- Venue endpoints: `http://localhost:3001/api/venues`
+- Admin endpoints: `http://localhost:3001/api/admin`
+- Legacy Node.js API: `http://localhost:5000/api`
+
+#### Key Venue API Endpoints
+- `POST /api/venues` - Submit new venue for review
+- `GET /api/venues` - List venues (with filtering)
+- `GET /api/venues/{id}` - Get specific venue details
+- `PATCH /api/venues/{id}/status` - Update venue status (admin only)
 
 ## 🎮 User Journey
 
@@ -401,7 +413,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - ✅ AI-powered matchmaking and booking
 - ✅ End-to-end booking flow with QR validation
-- 🔄 User onboarding and profile management
+- ✅ Venue onboarding and verification system
+- ✅ Admin panel with venue management
+- 🔄 User authentication and profile management
 - 🔄 Basic social features
 
 ### Future Releases

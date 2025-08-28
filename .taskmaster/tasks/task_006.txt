@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement Game Session Management for Players
+# Status: pending
+# Dependencies: 4, 5
+# Priority: high
+# Description: Allow players to create, view, and join game sessions with logic for auto-cancellation if minimum player count is not met.
+# Details:
+Design GameSession schema with venue, time, required players, joined players with status, and session status. Backend endpoints implemented in Rust with Actix Web or Axum framework for session CRUD and joining logic. Implement auto-cancellation job using Rust cron library or scheduled tasks to cancel sessions not meeting minimum players before start time. Frontend UI for session creation, listing, and joining with status updates.
+
+# Test Strategy:
+Create sessions and verify data stored correctly. Join sessions and check player status updates. Test auto-cancellation triggers correctly. Validate UI reflects session states accurately.

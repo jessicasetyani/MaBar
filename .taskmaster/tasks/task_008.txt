@@ -1,0 +1,11 @@
+# Task ID: 8
+# Title: Implement QR Code Check-in Functionality
+# Status: pending
+# Dependencies: 7
+# Priority: medium
+# Description: Develop the ability for players to scan QR codes to prove attendance at game sessions, enabling attendance verification.
+# Details:
+Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scanning. Backend API implemented in Rust with Actix Web or Axum framework to validate scanned QR code data, update player check-in status in GameSession. Secure endpoints to prevent spoofing. Provide UI feedback on successful or failed check-in.
+
+# Test Strategy:
+Test scanning QR codes with various devices. Verify backend updates check-in status correctly. Test error handling for invalid or duplicate scans.
