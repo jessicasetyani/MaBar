@@ -9,3 +9,41 @@ Use React with a calendar library like FullCalendar 6.x or React Big Calendar fo
 
 # Test Strategy:
 Test calendar displays correct availability and bookings. Verify blocking/unblocking updates backend and UI. Confirm only venue owners can access and modify their schedules.
+
+# Subtasks:
+## 1. Set Up Frontend Calendar Component with React Library [pending]
+### Dependencies: None
+### Description: Integrate a calendar library (FullCalendar 6.x or React Big Calendar) into the React frontend to display the calendar view for schedule management.
+### Details:
+Install the chosen calendar library via npm/yarn. Create a React component that initializes the calendar with basic configuration (e.g., initial view, date range). Ensure the component is styled to fit the dashboard layout. No backend integration at this stage.
+
+## 2. Implement Backend API Endpoints for Fetching Schedule Data [pending]
+### Dependencies: None
+### Description: Develop Rust backend endpoints to retrieve venue availability and booking data from MongoDB, linked to Venue and GameSession models.
+### Details:
+Using Actix Web or Axum, create GET endpoints (e.g., /api/venues/{venue_id}/schedule) that query MongoDB for availability slots and bookings. Use the official MongoDB Rust driver. Ensure endpoints return data in a format compatible with the frontend calendar (e.g., JSON array of events). Implement authentication middleware to restrict access to venue owners.
+
+## 3. Connect Frontend Calendar to Backend for Data Loading [pending]
+### Dependencies: 5.1, 5.2
+### Description: Fetch schedule data from the backend and populate the calendar UI with availability and booking information.
+### Details:
+In the React calendar component, use useEffect and fetch (or axios) to call the backend endpoints when the component mounts or when the date range changes. Map the response data to calendar events (e.g., using event sources). Handle loading states and errors in the UI.
+
+## 4. Implement Time Slot Blocking/Unblocking UI Interactions [pending]
+### Dependencies: 5.1
+### Description: Add frontend functionality for venue owners to select and mark time slots as blocked or unblocked directly in the calendar.
+### Details:
+Leverage the calendar library's event interaction features (e.g., selectable slots, click handlers) to allow users to select time ranges. Provide UI feedback (e.g., color change) for blocked slots. Store temporary state in React for blocked slots before backend submission.
+
+## 5. Develop Backend Endpoints for Updating Blocked Time Slots [pending]
+### Dependencies: 5.2
+### Description: Create backend API endpoints to handle creating and deleting blocked time slots, persisting changes to MongoDB.
+### Details:
+Implement POST and DELETE endpoints (e.g., /api/venues/{venue_id}/block) that accept time slot data (start, end) and update the venue's availability in MongoDB. Validate input and ensure only the venue owner can modify their schedule. Use the same MongoDB models and driver as in subtask 2.
+
+## 6. Integrate Blocking/Unblocking with Backend and Add Real-Time Updates [pending]
+### Dependencies: 5.3, 5.4, 5.5
+### Description: Connect the frontend blocking UI to the backend endpoints and implement polling for real-time schedule updates.
+### Details:
+In the React component, send requests to the backend endpoints when users confirm blocking/unblocking actions. Handle success/error responses and update the UI accordingly. Implement polling (setInterval) to periodically fetch updated schedule data from the backend to reflect changes made by other users or systems.
+

@@ -9,3 +9,35 @@ Design GameSession schema with venue, time, required players, joined players wit
 
 # Test Strategy:
 Create sessions and verify data stored correctly. Join sessions and check player status updates. Test auto-cancellation triggers correctly. Validate UI reflects session states accurately.
+
+# Subtasks:
+## 1. Design and Implement GameSession Database Schema [pending]
+### Dependencies: None
+### Description: Create the MongoDB schema for GameSession with fields: venue (reference), time (datetime), required_players (integer), joined_players (array of user references with status), session_status (enum: pending, active, cancelled). Ensure proper indexing for query performance.
+### Details:
+Use the official MongoDB Rust driver to define the GameSession struct with required fields. Include proper BSON serialization/deserialization using serde. Create indexes on time and session_status for efficient querying in cancellation jobs.
+
+## 2. Implement Backend CRUD Endpoints for Game Sessions [pending]
+### Dependencies: 6.1
+### Description: Create RESTful endpoints for creating, reading, updating, and deleting game sessions using Actix Web or Axum framework. Include proper authentication middleware and validation.
+### Details:
+Implement endpoints: POST /sessions (create), GET /sessions (list), GET /sessions/{id} (view), PUT /sessions/{id} (update), DELETE /sessions/{id} (delete). Use JWT authentication from Task 4. Validate input data and handle errors appropriately.
+
+## 3. Implement Session Joining Logic and Player Status Management [pending]
+### Dependencies: 6.2
+### Description: Create endpoint for players to join sessions with validation for maximum players and duplicate joins. Implement player status tracking within sessions.
+### Details:
+Implement POST /sessions/{id}/join endpoint that adds user to joined_players array with 'pending' status. Validate that user isn't already joined and session hasn't reached maximum capacity. Include proper error handling.
+
+## 4. Implement Auto-Cancellation Scheduled Job [pending]
+### Dependencies: 6.1
+### Description: Create a scheduled task that periodically checks for sessions that don't meet minimum player requirements before their start time and cancels them.
+### Details:
+Use a cron library like cron or scheduled tasks with tokio to run a job every 30 minutes. Query for sessions with status 'pending' where current time is within 1 hour of session time and joined_players count < required_players. Update session_status to 'cancelled' and notify joined players.
+
+## 5. Build Frontend UI for Session Management [pending]
+### Dependencies: 6.2, 6.3
+### Description: Create React components for session creation form, session listing, and session joining with real-time status updates.
+### Details:
+Build CreateSessionForm component with fields for venue selection, time, required players. Create SessionList component that fetches and displays sessions. Implement SessionCard component with join button and status display. Use React Query for data fetching and state management.
+

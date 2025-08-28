@@ -1,5 +1,20 @@
-reviews:
-  exclude:
-    - "**/*.txt"
-    - "**/*.md"
-    - ".taskmaster/**"
+# This configuration tells Coderabbit to only review the files
+# matching the patterns below. All other files will be ignored.
+path_filters:
+  # --- Files to REVIEW ---
+  - "backend/**"          # Review all files in the main backend folder
+  - "backend-rust/**"     # Review all files in the Rust backend folder
+  - "frontend/**"         # Review all files in the frontend folder
+  - "scripts/**"          # Review utility scripts
+
+  # --- Files to EXCLUDE ---
+  - "!**/node_modules/**"               # Exclude all node_modules folders
+  - "!**/node_modules_backup_17.../**" # Exclude the backed-up node_modules
+  - "!**/package-lock.json"           # Exclude the auto-generated lock file
+  - "!docs/**"                        # Exclude the documentation folder
+  - "!.github/**"                     # Exclude GitHub-specific workflow files
+  - "!.taskmaster/**"                 # Exclude Taskmaster configuration
+  - "!**/*.md"                        # Exclude all Markdown documentation files
+  - "!.env"                           # Exclude environment variables
+  - "!.env.example"                   # Exclude the example environment file
+  - "!sonar-project.properties"       # Exclude SonarQube configuration

@@ -247,7 +247,7 @@
         "id": 4,
         "title": "Implement User Authentication and Profile Management",
         "description": "Develop user registration (email and OAuth SSO with Google and Facebook), login, role selection (Player or Venue Owner), and editable player profile with matchmaking preferences.",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           1,
           12
@@ -296,7 +296,7 @@
               "4.3"
             ],
             "details": "Implement a POST /api/user/role endpoint that accepts a role (Player or VenueOwner) and updates the user's role in MongoDB. Secure the endpoint with JWT authentication middleware to ensure only logged-in users can access it. Validate that the role is one of the allowed values.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test role selection with authenticated requests. Verify role is updated in the database. Test with invalid roles and unauthorized access."
           },
           {
@@ -308,7 +308,7 @@
               "4.3"
             ],
             "details": "Using Actix Web or Axum middleware, implement a function that checks the Authorization header for a Bearer token, verifies it using jsonwebtoken, and attaches user info to the request context. Apply this middleware to all protected routes. Handle token expiration and invalid tokens gracefully.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test middleware with valid and invalid tokens. Verify that protected routes reject unauthorized requests and allow authorized ones with correct user context."
           },
           {
@@ -341,7 +341,7 @@
               "4.7"
             ],
             "details": "Frontend: Build a React form with fields for skill level (dropdown), play style (text input), and availability (multi-select or checkboxes). Use React Hook Form for validation. Backend: Implement PUT /api/user/profile endpoint that updates the nested profile object in the user document. Secure with JWT middleware. Validate input data on backend.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Test profile form submission and data persistence. Verify that updates are reflected in MongoDB. Test validation and error handling on both frontend and backend."
           }
         ]
@@ -358,7 +358,73 @@
           4
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Set Up Frontend Calendar Component with React Library",
+            "description": "Integrate a calendar library (FullCalendar 6.x or React Big Calendar) into the React frontend to display the calendar view for schedule management.",
+            "dependencies": [],
+            "details": "Install the chosen calendar library via npm/yarn. Create a React component that initializes the calendar with basic configuration (e.g., initial view, date range). Ensure the component is styled to fit the dashboard layout. No backend integration at this stage.",
+            "status": "pending",
+            "testStrategy": "Verify the calendar renders correctly in the UI, responds to navigation (e.g., month/week/day views), and displays the current date appropriately."
+          },
+          {
+            "id": 2,
+            "title": "Implement Backend API Endpoints for Fetching Schedule Data",
+            "description": "Develop Rust backend endpoints to retrieve venue availability and booking data from MongoDB, linked to Venue and GameSession models.",
+            "dependencies": [],
+            "details": "Using Actix Web or Axum, create GET endpoints (e.g., /api/venues/{venue_id}/schedule) that query MongoDB for availability slots and bookings. Use the official MongoDB Rust driver. Ensure endpoints return data in a format compatible with the frontend calendar (e.g., JSON array of events). Implement authentication middleware to restrict access to venue owners.",
+            "status": "pending",
+            "testStrategy": "Test endpoints with valid and invalid venue IDs, verify correct data retrieval, and confirm authentication prevents unauthorized access."
+          },
+          {
+            "id": 3,
+            "title": "Connect Frontend Calendar to Backend for Data Loading",
+            "description": "Fetch schedule data from the backend and populate the calendar UI with availability and booking information.",
+            "dependencies": [
+              "5.1",
+              "5.2"
+            ],
+            "details": "In the React calendar component, use useEffect and fetch (or axios) to call the backend endpoints when the component mounts or when the date range changes. Map the response data to calendar events (e.g., using event sources). Handle loading states and errors in the UI.",
+            "status": "pending",
+            "testStrategy": "Confirm the calendar displays data from the backend correctly, updates on navigation, and shows appropriate loading/error states."
+          },
+          {
+            "id": 4,
+            "title": "Implement Time Slot Blocking/Unblocking UI Interactions",
+            "description": "Add frontend functionality for venue owners to select and mark time slots as blocked or unblocked directly in the calendar.",
+            "dependencies": [
+              "5.1"
+            ],
+            "details": "Leverage the calendar library's event interaction features (e.g., selectable slots, click handlers) to allow users to select time ranges. Provide UI feedback (e.g., color change) for blocked slots. Store temporary state in React for blocked slots before backend submission.",
+            "status": "pending",
+            "testStrategy": "Test that selecting time slots updates the UI visually and that the frontend state management for blocked slots works correctly."
+          },
+          {
+            "id": 5,
+            "title": "Develop Backend Endpoints for Updating Blocked Time Slots",
+            "description": "Create backend API endpoints to handle creating and deleting blocked time slots, persisting changes to MongoDB.",
+            "dependencies": [
+              "5.2"
+            ],
+            "details": "Implement POST and DELETE endpoints (e.g., /api/venues/{venue_id}/block) that accept time slot data (start, end) and update the venue's availability in MongoDB. Validate input and ensure only the venue owner can modify their schedule. Use the same MongoDB models and driver as in subtask 2.",
+            "status": "pending",
+            "testStrategy": "Test endpoints with valid and invalid time slot data, verify MongoDB updates, and confirm authentication and authorization checks."
+          },
+          {
+            "id": 6,
+            "title": "Integrate Blocking/Unblocking with Backend and Add Real-Time Updates",
+            "description": "Connect the frontend blocking UI to the backend endpoints and implement polling for real-time schedule updates.",
+            "dependencies": [
+              "5.3",
+              "5.4",
+              "5.5"
+            ],
+            "details": "In the React component, send requests to the backend endpoints when users confirm blocking/unblocking actions. Handle success/error responses and update the UI accordingly. Implement polling (setInterval) to periodically fetch updated schedule data from the backend to reflect changes made by other users or systems.",
+            "status": "pending",
+            "testStrategy": "Verify that blocking/unblocking actions update the backend and UI, polling fetches new data, and error cases are handled gracefully."
+          }
+        ]
       },
       {
         "id": 6,
@@ -372,7 +438,62 @@
           5
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design and Implement GameSession Database Schema",
+            "description": "Create the MongoDB schema for GameSession with fields: venue (reference), time (datetime), required_players (integer), joined_players (array of user references with status), session_status (enum: pending, active, cancelled). Ensure proper indexing for query performance.",
+            "dependencies": [],
+            "details": "Use the official MongoDB Rust driver to define the GameSession struct with required fields. Include proper BSON serialization/deserialization using serde. Create indexes on time and session_status for efficient querying in cancellation jobs.",
+            "status": "pending",
+            "testStrategy": "Test schema creation and data insertion/retrieval. Verify indexes are properly created and used in queries."
+          },
+          {
+            "id": 2,
+            "title": "Implement Backend CRUD Endpoints for Game Sessions",
+            "description": "Create RESTful endpoints for creating, reading, updating, and deleting game sessions using Actix Web or Axum framework. Include proper authentication middleware and validation.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Implement endpoints: POST /sessions (create), GET /sessions (list), GET /sessions/{id} (view), PUT /sessions/{id} (update), DELETE /sessions/{id} (delete). Use JWT authentication from Task 4. Validate input data and handle errors appropriately.",
+            "status": "pending",
+            "testStrategy": "Test all endpoints with valid/invalid inputs. Verify authentication requirements and proper error responses."
+          },
+          {
+            "id": 3,
+            "title": "Implement Session Joining Logic and Player Status Management",
+            "description": "Create endpoint for players to join sessions with validation for maximum players and duplicate joins. Implement player status tracking within sessions.",
+            "dependencies": [
+              "6.2"
+            ],
+            "details": "Implement POST /sessions/{id}/join endpoint that adds user to joined_players array with 'pending' status. Validate that user isn't already joined and session hasn't reached maximum capacity. Include proper error handling.",
+            "status": "pending",
+            "testStrategy": "Test joining sessions with various scenarios: valid join, duplicate join, full session, cancelled session. Verify player status is correctly stored."
+          },
+          {
+            "id": 4,
+            "title": "Implement Auto-Cancellation Scheduled Job",
+            "description": "Create a scheduled task that periodically checks for sessions that don't meet minimum player requirements before their start time and cancels them.",
+            "dependencies": [
+              "6.1"
+            ],
+            "details": "Use a cron library like cron or scheduled tasks with tokio to run a job every 30 minutes. Query for sessions with status 'pending' where current time is within 1 hour of session time and joined_players count < required_players. Update session_status to 'cancelled' and notify joined players.",
+            "status": "pending",
+            "testStrategy": "Test cancellation job with mock sessions at different time thresholds. Verify sessions are cancelled when conditions are met and notifications are sent."
+          },
+          {
+            "id": 5,
+            "title": "Build Frontend UI for Session Management",
+            "description": "Create React components for session creation form, session listing, and session joining with real-time status updates.",
+            "dependencies": [
+              "6.2",
+              "6.3"
+            ],
+            "details": "Build CreateSessionForm component with fields for venue selection, time, required players. Create SessionList component that fetches and displays sessions. Implement SessionCard component with join button and status display. Use React Query for data fetching and state management.",
+            "status": "pending",
+            "testStrategy": "Test form validation and submission. Verify session listing displays correct data. Test join functionality and UI updates when session status changes."
+          }
+        ]
       },
       {
         "id": 7,
@@ -386,7 +507,50 @@
           6
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Integrate QR Code Library and Define QR Data Structure",
+            "description": "Add the QR code generation library to the Rust backend and define the data structure for encoding session and player identifiers in QR codes.",
+            "dependencies": [],
+            "details": "Add 'qrcode' or 'qrcode-generator' crate to Cargo.toml. Define a struct or function that takes session_id and player_id as input and formats them into a string (e.g., JSON or delimited format) for QR encoding. Ensure the data structure is consistent and easily parsable.",
+            "status": "pending",
+            "testStrategy": "Test that the library is correctly integrated and the data structure serializes session and player IDs accurately."
+          },
+          {
+            "id": 2,
+            "title": "Implement Backend QR Code Generation Endpoint",
+            "description": "Create a backend API endpoint in Rust that generates QR code images on-demand for a given session and player combination.",
+            "dependencies": [
+              "7.1"
+            ],
+            "details": "Using Actix Web or Axum, create a GET endpoint (e.g., /api/sessions/{session_id}/players/{player_id}/qrcode) that uses the QR library to generate a PNG or SVG image. The endpoint should encode the structured data from subtask 7.1 into the QR code and return the image with appropriate content-type headers.",
+            "status": "pending",
+            "testStrategy": "Test the endpoint returns a valid QR code image for valid inputs. Verify the encoded data matches the input session and player IDs using a QR decoder."
+          },
+          {
+            "id": 3,
+            "title": "Add QR Code Display to Venue Dashboard in React",
+            "description": "Integrate the QR code display into the venue dashboard React component, fetching and showing QR codes for relevant sessions.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "In the venue dashboard React component (from task 5), add a section or modal to display QR codes for selected sessions. Use fetch or axios to call the backend endpoint from subtask 7.2 and render the QR image using an <img> tag with the src set to the endpoint URL.",
+            "status": "pending",
+            "testStrategy": "Test that the QR code loads correctly in the dashboard UI and is scannable. Verify it only appears for authorized venue users and correct sessions."
+          },
+          {
+            "id": 4,
+            "title": "Add QR Code Display to Player Session View in React",
+            "description": "Integrate the QR code display into the player session view React component, allowing players to access their session QR codes.",
+            "dependencies": [
+              "7.2"
+            ],
+            "details": "In the player session view React component, add a section to display the QR code for the player's booking. Fetch the QR code from the backend endpoint (subtask 7.2) using the session_id and player_id, and render it in the UI. Ensure proper error handling if the QR code cannot be generated.",
+            "status": "pending",
+            "testStrategy": "Test that players can view their QR codes, and the encoded data matches their session and player ID. Verify accessibility and responsiveness on different devices."
+          }
+        ]
       },
       {
         "id": 8,
@@ -399,7 +563,51 @@
           7
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement QR Code Scanner Component in React Frontend",
+            "description": "Create a React component that uses the 'react-qr-reader' library to scan QR codes and capture the data.",
+            "dependencies": [],
+            "details": "Install and configure 'react-qr-reader' 3.x. Create a component that displays a camera view, handles scanning events, and extracts QR code data. Implement error handling for camera access issues and invalid scans. The component should trigger a callback with the scanned data.",
+            "status": "pending",
+            "testStrategy": "Test on multiple devices with different cameras. Verify that valid QR codes are correctly decoded and invalid ones are handled gracefully."
+          },
+          {
+            "id": 2,
+            "title": "Develop Backend API Endpoint for QR Code Validation",
+            "description": "Create a secure backend endpoint in Rust (using Actix Web or Axum) to validate scanned QR code data and update player check-in status.",
+            "dependencies": [
+              "8.1"
+            ],
+            "details": "Implement a POST endpoint (e.g., /api/checkin) that accepts scanned QR code data. Validate the data structure and authenticity to prevent spoofing. Check if the QR code corresponds to a valid GameSession and if the player is authorized. Update the player's check-in status in the GameSession document in MongoDB. Return appropriate HTTP status codes and messages.",
+            "status": "pending",
+            "testStrategy": "Test with valid and invalid QR codes. Verify that the database is updated correctly and that unauthorized requests are rejected."
+          },
+          {
+            "id": 3,
+            "title": "Integrate Frontend Scanning with Backend Validation",
+            "description": "Connect the QR scanner component to the backend API to send scanned data and handle responses.",
+            "dependencies": [
+              "8.1",
+              "8.2"
+            ],
+            "details": "In the React component, after scanning a QR code, send the data to the backend validation endpoint using fetch or axios. Handle the response to determine if the check-in was successful or failed. Implement loading states and error handling for network issues.",
+            "status": "pending",
+            "testStrategy": "Test the full flow from scan to API call and response. Verify that UI updates correctly based on success or failure."
+          },
+          {
+            "id": 4,
+            "title": "Implement UI Feedback for Check-in Results",
+            "description": "Add user interface elements to display success or failure messages after QR code check-in attempts.",
+            "dependencies": [
+              "8.3"
+            ],
+            "details": "Create React components or modals to show clear messages for successful check-ins, invalid QR codes, duplicate scans, or network errors. Use toast notifications or inline alerts to provide immediate feedback. Ensure the UI is intuitive and accessible.",
+            "status": "pending",
+            "testStrategy": "Test all possible feedback scenarios: success, invalid QR, duplicate check-in, and network error. Verify that messages are clear and displayed correctly."
+          }
+        ]
       },
       {
         "id": 9,
@@ -794,7 +1002,7 @@
     ],
     "metadata": {
       "created": "2025-08-27T09:33:35.425Z",
-      "updated": "2025-08-28T11:29:58.093Z",
+      "updated": "2025-08-28T12:00:00.794Z",
       "description": "Tasks for master context"
     }
   }

@@ -202,24 +202,73 @@ export const AuthProvider = ({ children }) => {
 
   const updateProfile = async (profileData) => {
     try {
-      const response = await fetch('/api/profile/basic', {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/profile', {
         method: 'PUT',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
         body: JSON.stringify(profileData)
       });
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
         return data;
       } else {
         throw new Error('Profile update failed');
       }
     } catch (error) {
       console.error('Profile update error:', error);
+      throw error;
+    }
+  };
+
+  const updatePlayerProfile = async (profileData) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/profile/player', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(profileData)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update user state with new profile
+        setUser(prev => ({ ...prev, profile: data.profile }));
+        return data;
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Player profile update failed');
+      }
+    } catch (error) {
+      console.error('Player profile update error:', error);
+      throw error;
+    }
+  };
+
+  const getPlayerProfile = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('/api/profile/player', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.profile;
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to get player profile');
+      }
+    } catch (error) {
+      console.error('Get player profile error:', error);
       throw error;
     }
   };
@@ -303,6 +352,8 @@ export const AuthProvider = ({ children }) => {
     adminLogin,
     logout,
     updateProfile,
+    updatePlayerProfile,
+    getPlayerProfile,
     updateSkillAssessment,
     updateVenueDetails,
     completeOnboarding,

@@ -9,3 +9,29 @@ Use a Rust QR code library like 'qrcode' or 'qrcode-generator' for backend gener
 
 # Test Strategy:
 Generate QR codes for sessions and verify scannability with standard QR scanners. Confirm QR codes encode correct session/player info. Test UI integration and accessibility.
+
+# Subtasks:
+## 1. Integrate QR Code Library and Define QR Data Structure [pending]
+### Dependencies: None
+### Description: Add the QR code generation library to the Rust backend and define the data structure for encoding session and player identifiers in QR codes.
+### Details:
+Add 'qrcode' or 'qrcode-generator' crate to Cargo.toml. Define a struct or function that takes session_id and player_id as input and formats them into a string (e.g., JSON or delimited format) for QR encoding. Ensure the data structure is consistent and easily parsable.
+
+## 2. Implement Backend QR Code Generation Endpoint [pending]
+### Dependencies: 7.1
+### Description: Create a backend API endpoint in Rust that generates QR code images on-demand for a given session and player combination.
+### Details:
+Using Actix Web or Axum, create a GET endpoint (e.g., /api/sessions/{session_id}/players/{player_id}/qrcode) that uses the QR library to generate a PNG or SVG image. The endpoint should encode the structured data from subtask 7.1 into the QR code and return the image with appropriate content-type headers.
+
+## 3. Add QR Code Display to Venue Dashboard in React [pending]
+### Dependencies: 7.2
+### Description: Integrate the QR code display into the venue dashboard React component, fetching and showing QR codes for relevant sessions.
+### Details:
+In the venue dashboard React component (from task 5), add a section or modal to display QR codes for selected sessions. Use fetch or axios to call the backend endpoint from subtask 7.2 and render the QR image using an <img> tag with the src set to the endpoint URL.
+
+## 4. Add QR Code Display to Player Session View in React [pending]
+### Dependencies: 7.2
+### Description: Integrate the QR code display into the player session view React component, allowing players to access their session QR codes.
+### Details:
+In the player session view React component, add a section to display the QR code for the player's booking. Fetch the QR code from the backend endpoint (subtask 7.2) using the session_id and player_id, and render it in the UI. Ensure proper error handling if the QR code cannot be generated.
+

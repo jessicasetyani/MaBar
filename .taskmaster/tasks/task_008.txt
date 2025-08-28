@@ -9,3 +9,29 @@ Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scan
 
 # Test Strategy:
 Test scanning QR codes with various devices. Verify backend updates check-in status correctly. Test error handling for invalid or duplicate scans.
+
+# Subtasks:
+## 1. Implement QR Code Scanner Component in React Frontend [pending]
+### Dependencies: None
+### Description: Create a React component that uses the 'react-qr-reader' library to scan QR codes and capture the data.
+### Details:
+Install and configure 'react-qr-reader' 3.x. Create a component that displays a camera view, handles scanning events, and extracts QR code data. Implement error handling for camera access issues and invalid scans. The component should trigger a callback with the scanned data.
+
+## 2. Develop Backend API Endpoint for QR Code Validation [pending]
+### Dependencies: 8.1
+### Description: Create a secure backend endpoint in Rust (using Actix Web or Axum) to validate scanned QR code data and update player check-in status.
+### Details:
+Implement a POST endpoint (e.g., /api/checkin) that accepts scanned QR code data. Validate the data structure and authenticity to prevent spoofing. Check if the QR code corresponds to a valid GameSession and if the player is authorized. Update the player's check-in status in the GameSession document in MongoDB. Return appropriate HTTP status codes and messages.
+
+## 3. Integrate Frontend Scanning with Backend Validation [pending]
+### Dependencies: 8.1, 8.2
+### Description: Connect the QR scanner component to the backend API to send scanned data and handle responses.
+### Details:
+In the React component, after scanning a QR code, send the data to the backend validation endpoint using fetch or axios. Handle the response to determine if the check-in was successful or failed. Implement loading states and error handling for network issues.
+
+## 4. Implement UI Feedback for Check-in Results [pending]
+### Dependencies: 8.3
+### Description: Add user interface elements to display success or failure messages after QR code check-in attempts.
+### Details:
+Create React components or modals to show clear messages for successful check-ins, invalid QR codes, duplicate scans, or network errors. Use toast notifications or inline alerts to provide immediate feedback. Ensure the UI is intuitive and accessible.
+

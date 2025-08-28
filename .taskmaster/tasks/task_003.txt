@@ -1,6 +1,6 @@
 # Task ID: 3
 # Title: Build Venue Onboarding Flow for Venue Owners
-# Status: in-progress
+# Status: done
 # Dependencies: 2, 12
 # Priority: high
 # Description: Create the onboarding process for venue owners to submit court details for verification, enabling venue data collection for the platform.
@@ -11,13 +11,13 @@ Implement frontend forms for venue owners to input venue details, location (use 
 Validate form input constraints and error handling. Submit venue data and verify it appears in admin verification queue. Test image upload and storage. Confirm data integrity in MongoDB. Test Rust backend endpoints for proper error handling and MongoDB integration.
 
 # Subtasks:
-## 1. Create Venue Routes and Controllers in Rust Backend [pending]
+## 1. Create Venue Routes and Controllers in Rust Backend [done]
 ### Dependencies: None
 ### Description: Implement Rust backend endpoints for venue submission, including POST /api/venues for creating new venue submissions with validation and MongoDB integration
 ### Details:
 Create venue routes in Rust backend with endpoints for venue submission. Implement proper validation, error handling, and MongoDB integration using the existing Venue model.
 
-## 2. Enhance Frontend Venue Submission Form [pending]
+## 2. Enhance Frontend Venue Submission Form [done]
 ### Dependencies: None
 ### Description: Enhance the existing VenueDetails component with Google Maps integration for address autocomplete, image upload functionality, and operating hours management
 ### Details:
