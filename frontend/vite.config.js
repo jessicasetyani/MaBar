@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react';
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load environment variables
-  const env = loadEnv(mode, process.cwd(), '');
+  // Load environment variables from root directory (centralized .env)
+  const env = loadEnv(mode, '../', '');
 
   const frontendPort = parseInt(env.FRONTEND_PORT) || 5173;
   const frontendHost = env.FRONTEND_HOST || '0.0.0.0';

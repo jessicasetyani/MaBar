@@ -145,9 +145,12 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 4. **Environment Setup**
 
+   Copy the example environment file and configure:
    ```bash
    cp .env.example .env
    ```
+
+   **Centralized Configuration**: All environment variables are managed in the root `.env` file. Both frontend and backend read from this single source of truth.
 
    Configure the following environment variables in `.env`:
 

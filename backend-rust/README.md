@@ -27,7 +27,7 @@ The server will start on `http://localhost:5000` (or the port specified in your 
 
 ### Environment Configuration
 
-Ensure your `.env` file in the project root contains:
+The backend uses centralized configuration from the root `.env` file. Copy `.env.example` to `.env` and configure:
 
 ```env
 # Database

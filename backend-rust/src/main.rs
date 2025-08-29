@@ -17,7 +17,8 @@ use middleware::SecurityHeaders;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    dotenv().ok();
+    // Load environment variables from root .env file (centralized configuration)
+    dotenv::from_path("../.env").ok();
     env_logger::init();
 
     // Initialize database connection

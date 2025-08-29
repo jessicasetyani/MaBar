@@ -2,7 +2,22 @@
 
 ## Overview
 
-This guide documents the centralized URL and port configuration system implemented in MaBar. All frontend and backend URLs now reference environment variables from the `.env` file for consistent configuration management.
+This guide documents the centralized configuration system implemented in MaBar. All environment variables are now managed through a single root `.env` file, eliminating duplication and ensuring consistent configuration across frontend and backend components.
+
+## Configuration Architecture
+
+### Single Source of Truth
+
+- **Root `.env` file**: Contains all environment variables for both frontend and backend
+- **No duplicate files**: Removed `backend-rust/.env` and `frontend/.env` to prevent confusion
+- **Centralized management**: All configuration changes happen in one place
+
+### How It Works
+
+1. **Backend (Rust)**: Loads environment variables from `../.env` (root directory)
+2. **Frontend (Vite)**: Configured to load environment variables from parent directory
+3. **Consistent ports**: Frontend runs on 5173, Backend runs on 5000
+4. **Environment variable prefixes**: Frontend uses `VITE_` prefixed variables
 
 ## Environment Variables
 
