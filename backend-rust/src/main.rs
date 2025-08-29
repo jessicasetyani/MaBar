@@ -31,16 +31,23 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
-    let bind_address = format!("127.0.0.1:{}", port);
+    let port = env::var("BACKEND_PORT")
+        .or_else(|_| env::var("PORT"))
+        .unwrap_or_else(|_| "5000".to_string());
+    let host = env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
+    let bind_address = format!("{}:{}", host, port);
 
     println!("🚀 MaBar Rust Backend starting on {}", bind_address);
 
     let db_data = web::Data::new(db_config.clone());
     
     HttpServer::new(move || {
+        let frontend_base = env::var("FRONTEND_BASE_URL").unwrap_or_else(|_| "http://localhost".to_string());
+        let frontend_port = env::var("FRONTEND_PORT").unwrap_or_else(|_| "5173".to_string());
+        let frontend_url = format!("{}:{}", frontend_base, frontend_port);
+
         let cors = Cors::default()
-            .allowed_origin(&env::var("FRONTEND_URL").unwrap_or_else(|_| "http://localhost:5173".to_string()))
+            .allowed_origin(&frontend_url)
             .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
             .allowed_headers(vec!["Content-Type", "Authorization", "X-CSRF-Token"])
             .supports_credentials();

@@ -41,7 +41,7 @@ const Preferences = ({ data, onNext, onPrevious, onStepData }) => {
     setLoading(true);
     try {
       // Update preferences via API
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/profile/preferences`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile/preferences`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'

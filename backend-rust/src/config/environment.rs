@@ -139,14 +139,26 @@ impl EnvironmentConfig {
                 name: "MaBar".to_string(),
                 version: env::var("APP_VERSION").unwrap_or_else(|_| "1.0.0".to_string()),
                 host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
-                port: env::var("PORT")
-                    .unwrap_or_else(|_| "3001".to_string())
+                port: env::var("BACKEND_PORT")
+                    .or_else(|_| env::var("PORT"))
+                    .unwrap_or_else(|_| "5000".to_string())
                     .parse()
                     .map_err(|_| "Invalid PORT value")?,
-                base_url: env::var("BACKEND_URL")
-                    .map_err(|_| "BACKEND_URL required in production")?,
-                frontend_url: env::var("FRONTEND_URL")
-                    .map_err(|_| "FRONTEND_URL required in production")?,
+                base_url: {
+                    let base = env::var("BACKEND_BASE_URL")
+                        .map_err(|_| "BACKEND_BASE_URL required in production")?;
+                    let port = env::var("BACKEND_PORT")
+                        .or_else(|_| env::var("PORT"))
+                        .unwrap_or_else(|_| "5000".to_string());
+                    format!("{}:{}", base, port)
+                },
+                frontend_url: {
+                    let base = env::var("FRONTEND_BASE_URL")
+                        .map_err(|_| "FRONTEND_BASE_URL required in production")?;
+                    let port = env::var("FRONTEND_PORT")
+                        .unwrap_or_else(|_| "5173".to_string());
+                    format!("{}:{}", base, port)
+                },
                 debug_mode: false,
                 maintenance_mode: env::var("MAINTENANCE_MODE")
                     .unwrap_or_else(|_| "false".to_string())
@@ -250,16 +262,27 @@ impl EnvironmentConfig {
             app: AppConfig {
                 name: "MaBar-Dev".to_string(),
                 version: "dev".to_string(),
-                host: "127.0.0.1".to_string(),
-                port: env::var("PORT")
-                    .unwrap_or_else(|_| "3000".to_string())
+                host: env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".to_string()),
+                port: env::var("BACKEND_PORT")
+                    .or_else(|_| env::var("PORT"))
+                    .unwrap_or_else(|_| "5000".to_string())
                     .parse()
-                    .unwrap_or(3000),
-                base_url: env::var("BACKEND_URL")
-                    .unwrap_or_else(|_| format!("http://localhost:{}", 
-                        env::var("PORT").unwrap_or_else(|_| "3000".to_string()))),
-                frontend_url: env::var("FRONTEND_URL")
-                    .unwrap_or_else(|_| "http://localhost:3001".to_string()),
+                    .unwrap_or(5000),
+                base_url: {
+                    let base = env::var("BACKEND_BASE_URL")
+                        .unwrap_or_else(|_| "http://localhost".to_string());
+                    let port = env::var("BACKEND_PORT")
+                        .or_else(|_| env::var("PORT"))
+                        .unwrap_or_else(|_| "5000".to_string());
+                    format!("{}:{}", base, port)
+                },
+                frontend_url: {
+                    let base = env::var("FRONTEND_BASE_URL")
+                        .unwrap_or_else(|_| "http://localhost".to_string());
+                    let port = env::var("FRONTEND_PORT")
+                        .unwrap_or_else(|_| "5173".to_string());
+                    format!("{}:{}", base, port)
+                },
                 debug_mode: true,
                 maintenance_mode: false,
             },
@@ -300,9 +323,13 @@ impl EnvironmentConfig {
                     burst_size: 100,
                     whitelist_ips: vec!["127.0.0.1".to_string()],
                 },
-                cors_origins: env::var("FRONTEND_URL")
-                    .map(|url| vec![url])
-                    .unwrap_or_else(|_| vec!["http://localhost:3001".to_string()]),
+                cors_origins: {
+                    let base = env::var("FRONTEND_BASE_URL")
+                        .unwrap_or_else(|_| "http://localhost".to_string());
+                    let port = env::var("FRONTEND_PORT")
+                        .unwrap_or_else(|_| "5173".to_string());
+                    vec![format!("{}:{}", base, port)]
+                },
                 csrf_protection: false, // Simplified for development
                 security_headers: true,
             },

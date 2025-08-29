@@ -34,9 +34,19 @@ Ensure your `.env` file in the project root contains:
 MONGODB_URI=mongodb://localhost:27017/mabar
 
 # Server Configuration
+# Backend Configuration
+BACKEND_PORT=5000
+BACKEND_HOST=127.0.0.1
+BACKEND_BASE_URL=http://localhost
+
+# Frontend Configuration
+FRONTEND_PORT=5173
+FRONTEND_HOST=0.0.0.0
+FRONTEND_BASE_URL=http://localhost
+
+# Legacy PORT variable for compatibility
 PORT=5000
 NODE_ENV=development
-FRONTEND_URL=http://localhost:5173
 
 # JWT Configuration
 JWT_SECRET=your_jwt_secret_here

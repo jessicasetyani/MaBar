@@ -208,7 +208,7 @@ const VenueDetails = ({ data, onNext, onPrevious, onStepData }) => {
         }
       };
 
-      const response = await fetch('/api/venues', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/venues`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

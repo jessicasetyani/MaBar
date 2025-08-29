@@ -170,8 +170,19 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
    # App Configuration
    NODE_ENV=development
+
+   # Backend Configuration
+   BACKEND_PORT=5000
+   BACKEND_HOST=127.0.0.1
+   BACKEND_BASE_URL=http://localhost
+
+   # Frontend Configuration
+   FRONTEND_PORT=5173
+   FRONTEND_HOST=0.0.0.0
+   FRONTEND_BASE_URL=http://localhost
+
+   # Legacy PORT variable for compatibility
    PORT=5000
-   FRONTEND_URL=http://localhost:5173
    ```
 
 5. **Database Setup** (Optional - requires MongoDB running)
@@ -410,12 +421,14 @@ mabar/
 
 API endpoints are available at:
 
-- Health check: `http://localhost:5000/api/health` (Rust backend)
-- Database health: `http://localhost:5000/api/db-health`
-- Authentication: `http://localhost:5000/auth/*`
-- Profile endpoints: `http://localhost:5000/api/profile/*`
-- Venue endpoints: `http://localhost:5000/api/venues/*`
-- Admin endpoints: `http://localhost:5000/api/admin/*`
+- Health check: `${BACKEND_URL}/api/health` (Rust backend)
+- Database health: `${BACKEND_URL}/api/db-health`
+- Authentication: `${BACKEND_URL}/auth/*`
+- Profile endpoints: `${BACKEND_URL}/api/profile/*`
+- Venue endpoints: `${BACKEND_URL}/api/venues/*`
+- Admin endpoints: `${BACKEND_URL}/api/admin/*`
+
+**Note:** Replace `${BACKEND_URL}` with your actual backend URL from environment variables (default: `http://localhost:5000`)
 
 #### Key API Endpoints
 

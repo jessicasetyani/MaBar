@@ -89,7 +89,7 @@ export const AuthProvider = ({ children }) => {
     setAuthError(null);
 
     try {
-      const response = await fetch('/auth/refresh', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -177,7 +177,7 @@ export const AuthProvider = ({ children }) => {
       }
 
       console.log('AuthContext: Making request to /auth/status with validated token');
-      const response = await fetch('/auth/status', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/status`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -226,7 +226,7 @@ export const AuthProvider = ({ children }) => {
 
   const emailLogin = async (email, password) => {
     try {
-      const response = await fetch('/auth/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -284,7 +284,7 @@ export const AuthProvider = ({ children }) => {
 
   const emailRegister = async (email, password, firstName, lastName) => {
     try {
-      const response = await fetch('/auth/register', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -316,7 +316,7 @@ export const AuthProvider = ({ children }) => {
 
   const adminLogin = async (email, password) => {
     try {
-      const response = await fetch('/auth/admin/login', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/admin/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -344,7 +344,7 @@ export const AuthProvider = ({ children }) => {
     try {
       console.log('AuthContext: Setting user role to:', role);
       const token = localStorage.getItem('token');
-      const response = await fetch('/auth/role', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/role`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -379,7 +379,7 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          await fetch('/auth/logout', {
+          await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/auth/logout`, {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${token}`,
@@ -428,7 +428,7 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (profileData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/profile', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -452,7 +452,7 @@ export const AuthProvider = ({ children }) => {
   const updatePlayerProfile = async (profileData) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/profile/player', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile/player`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -479,7 +479,7 @@ export const AuthProvider = ({ children }) => {
   const getPlayerProfile = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('/api/profile/player', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile/player`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -500,7 +500,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateSkillAssessment = async (skillData) => {
     try {
-      const response = await fetch('/api/profile/skill-assessment', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile/skill-assessment`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -524,7 +524,7 @@ export const AuthProvider = ({ children }) => {
 
   const updateVenueDetails = async (venueData) => {
     try {
-      const response = await fetch('/api/profile/venue-details', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile/venue-details`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json'
@@ -548,7 +548,7 @@ export const AuthProvider = ({ children }) => {
 
   const completeOnboarding = async () => {
     try {
-      const response = await fetch('/api/profile/complete-onboarding', {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL || ''}/api/profile/complete-onboarding`, {
         method: 'PUT',
         credentials: 'include'
       });
