@@ -2,7 +2,8 @@
 
 [![PWA](https://img.shields.io/badge/PWA-Progressive%20Web%20App-blue)](https://web.dev/progressive-web-apps/)
 [![React](https://img.shields.io/badge/React-18.x-blue)](https://reactjs.org/)
-[![Node.js](https://img.shields.io/badge/Node.js-18.x-green)](https://nodejs.org/)
+[![Rust](https://img.shields.io/badge/Rust-1.70+-orange)](https://www.rust-lang.org/)
+[![Actix Web](https://img.shields.io/badge/Actix%20Web-4.x-red)](https://actix.rs/)
 [![MongoDB](https://img.shields.io/badge/MongoDB-6.x-green)](https://www.mongodb.com/)
 [![Gemini AI](https://img.shields.io/badge/AI-Google%20Gemini-orange)](https://ai.google.dev/)
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/jessicasetyani/MaBar?utm_source=oss&utm_medium=github&utm_campaign=jessicasetyani%2FMaBar&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
@@ -53,13 +54,13 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 ### Tech Stack
 
-- **Frontend:** React.js, CSS3, HTML5 (PWA)
-- **Backend:** Rust, Actix Web (primary), Node.js, Express.js (legacy)
-- **Database:** MongoDB
+- **Frontend:** React.js 18+, CSS3, HTML5 (PWA)
+- **Backend:** Rust 1.70+ with Actix Web 4.x (primary)
+- **Database:** MongoDB 6.x with native Rust driver
 - **AI/LLM:** Google Gemini API
-- **Authentication:** OAuth 2.0 (Google, Facebook, Apple SSO)
+- **Authentication:** JWT with OAuth 2.0 (Google, Facebook)
 - **Task Management:** Task Master AI
-- **Development Tools:** ESLint, Prettier, Task Master AI
+- **Development Tools:** ESLint, Prettier, Cargo, Clippy
 
 ### User Roles
 
@@ -105,8 +106,8 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 ### Prerequisites
 
-- **Node.js 18.x or higher** - For frontend and legacy backend
-- **Rust 1.70+ and Cargo** - For primary Actix Web backend
+- **Rust 1.70+ and Cargo** - For the primary Actix Web backend
+- **Node.js 18.x or higher** - For frontend development
 - **MongoDB 6.x or higher** - Database server
 - **Google Gemini API key** - For AI-powered features
 - **OAuth credentials** - Google and Facebook app credentials
@@ -130,13 +131,12 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 3. **Install dependencies**
 
+   Install frontend dependencies:
    ```bash
-   npm install
+   npm install --prefix frontend
    ```
 
-   This will install dependencies for both frontend and Node.js backend.
-
-   For Rust backend:
+   Build Rust backend:
    ```bash
    cd backend-rust
    cargo build
@@ -170,8 +170,8 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
    # App Configuration
    NODE_ENV=development
-   PORT=3001
-   FRONTEND_URL=http://localhost:5000
+   PORT=5000
+   FRONTEND_URL=http://localhost:5173
    ```
 
 5. **Database Setup** (Optional - requires MongoDB running)
@@ -182,20 +182,35 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
 
 6. **Start Development Servers**
 
+   Start the Rust backend:
    ```bash
+   cd backend-rust
+   cargo run
+   ```
+
+   In a new terminal, start the frontend:
+   ```bash
+   cd frontend
    npm run dev
    ```
 
-   This will start both frontend and backend concurrently:
-   - Frontend: `http://localhost:5000`
-   - Backend API: `http://localhost:3001/api`
-   - Rust Backend: `http://localhost:3001` (primary)
+   This will start:
+   - **Rust Backend**: `http://localhost:5000` (primary API)
+   - **Frontend**: `http://localhost:5173` (React app)
 
 ### Building for Production
 
+Build the frontend:
 ```bash
+cd frontend
 npm run build
-npm start
+```
+
+Build and run the Rust backend:
+```bash
+cd backend-rust
+cargo build --release
+cargo run --release
 ```
 
 ## 📱 PWA Features
@@ -324,17 +339,7 @@ mabar/
 │   │   └── assets/         # Static assets
 │   ├── public/             # Public assets
 │   └── package.json        # Frontend dependencies
-├── backend/                # Node.js + Express backend (legacy)
-│   ├── controllers/        # Route controllers
-│   ├── models/             # Database models (Mongoose)
-│   ├── middleware/         # Express middleware
-│   ├── routes/             # API routes
-│   ├── services/           # Business logic services
-│   ├── utils/              # Server utilities
-│   ├── config/             # Configuration files
-│   ├── server.js           # Main server file
-│   └── package.json        # Backend dependencies
-├── backend-rust/           # Rust + Actix Web backend (new)
+├── backend-rust/           # Rust + Actix Web backend (primary)
 │   ├── src/
 │   │   ├── config/         # Database and configuration
 │   │   ├── controllers/    # Request handlers
@@ -362,19 +367,16 @@ mabar/
 ### Available Scripts
 
 **Root Level:**
-- `npm run dev` - Start both frontend and backend development servers
+
+- `npm run dev` - Start frontend development server only (legacy script)
 - `npm run build` - Build frontend for production
-- `npm run build:prod` - Build frontend for production with NODE_ENV=production
-- `npm run start` - Start production backend server
-- `npm run start:prod` - Start production backend server with NODE_ENV=production
-- `npm run test` - Run tests for both frontend and backend
-- `npm run lint` - Run ESLint on both frontend and backend
-- `npm run lint:fix` - Auto-fix ESLint issues on both frontend and backend
-- `npm run format` - Format code with Prettier on both frontend and backend
-- `npm run format:check` - Check code formatting on both frontend and backend
+- `npm run test` - Run frontend tests
+- `npm run lint` - Run ESLint on frontend
+- `npm run lint:fix` - Auto-fix ESLint issues on frontend
+- `npm run format` - Format code with Prettier on frontend
+- `npm run format:check` - Check code formatting on frontend
 - `npm run db:setup` - Setup MongoDB database with collections and indexes
 - `npm run generate-secrets` - Generate secure JWT and session secrets
-- `npm run portfolio:demo` - Build and start the application in production-like mode for demonstration
 
 **Task Management:**
 - `npm run task:list` - List all tasks with current status
@@ -387,23 +389,17 @@ mabar/
 - `npm run task:report` - View complexity analysis report
 
 **Frontend (cd frontend):**
-- `npm run dev` - Start Vite development server (http://localhost:5000)
+
+- `npm run dev` - Start Vite development server (<http://localhost:5173>)
 - `npm run build` - Build for production
 - `npm run lint` - Run ESLint
 - `npm run lint:fix` - Run ESLint with auto-fix
 - `npm run format` - Format code with Prettier
 - `npm run format:check` - Check code formatting
 
-**Backend (cd backend):**
-- `npm run dev` - Start legacy Node.js backend with nodemon
-- `npm start` - Start production Node.js backend server
-- `npm run lint` - Run ESLint on backend code
-- `npm run lint:fix` - Auto-fix ESLint issues on backend code
-- `npm run format` - Format backend code with Prettier
-- `npm run format:check` - Check backend code formatting
+**Rust Backend (cd backend-rust) - PRIMARY:**
 
-**Rust Backend (cd backend-rust):**
-- `cargo run` - Start Rust backend development server
+- `cargo run` - Start Rust backend development server (<http://localhost:5000>)
 - `cargo build --release` - Build for production
 - `cargo check` - Check code without building
 - `cargo test` - Run tests
@@ -413,13 +409,25 @@ mabar/
 ### API Documentation
 
 API endpoints are available at:
-- Health check: `http://localhost:3001/api/health` (Rust backend)
-- Database health: `http://localhost:3001/api/db-health`
-- Venue endpoints: `http://localhost:3001/api/venues`
-- Admin endpoints: `http://localhost:3001/api/admin`
-- Legacy Node.js API: `http://localhost:5000/api`
 
-#### Key Venue API Endpoints
+- Health check: `http://localhost:5000/api/health` (Rust backend)
+- Database health: `http://localhost:5000/api/db-health`
+- Authentication: `http://localhost:5000/auth/*`
+- Profile endpoints: `http://localhost:5000/api/profile/*`
+- Venue endpoints: `http://localhost:5000/api/venues/*`
+- Admin endpoints: `http://localhost:5000/api/admin/*`
+
+#### Key API Endpoints
+
+**Authentication:**
+
+- `GET /auth/status` - Check authentication status
+- `POST /auth/login` - Email/password login
+- `GET /auth/google` - Google OAuth
+- `GET /auth/facebook` - Facebook OAuth
+
+**Venues:**
+
 - `POST /api/venues` - Submit new venue for review
 - `GET /api/venues` - List venues (with filtering)
 - `GET /api/venues/{id}` - Get specific venue details
@@ -485,10 +493,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📚 Documentation
 
+- **[Rust Migration Guide](docs/RUST_MIGRATION.md)** - Complete migration guide from Node.js to Rust
+- **[Rust Backend README](backend-rust/README.md)** - Rust backend documentation and API reference
 - **[Task Management Guide](docs/TASK_MANAGEMENT.md)** - Complete guide to our AI-powered task system
 - **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
 - **[Security Documentation](docs/SECURITY.md)** - Security practices and guidelines
-- **[Rust Backend README](backend-rust/README.md)** - Rust backend migration documentation
 
 ## 🆘 Support
 
