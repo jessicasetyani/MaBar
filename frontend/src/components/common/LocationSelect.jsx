@@ -28,8 +28,11 @@ const LocationSelect = ({
   // Get display value for selected location
   const getDisplayValue = () => {
     if (!value) return '';
+    // First try to find exact match
     const location = JAKARTA_LOCATIONS.find(loc => loc.value === value);
-    return location ? location.label : value;
+    if (location) return location.label;
+    // If not found, return the value itself (it might be a valid selection)
+    return value;
   };
 
   // Handle search input change
@@ -55,6 +58,8 @@ const LocationSelect = ({
     setSearchQuery('');
     setIsOpen(false);
     setHighlightedIndex(-1);
+    // Focus back to input to show selection
+    setTimeout(() => inputRef.current?.focus(), 0);
   };
 
   // Handle input focus
@@ -66,13 +71,11 @@ const LocationSelect = ({
 
   // Handle input blur
   const handleInputBlur = (e) => {
-    // Delay closing to allow for option selection
-    setTimeout(() => {
-      if (!dropdownRef.current?.contains(document.activeElement)) {
-        setIsOpen(false);
-        setSearchQuery('');
-      }
-    }, 150);
+    // Only close if clicking outside the dropdown
+    if (!dropdownRef.current?.contains(e.relatedTarget)) {
+      setIsOpen(false);
+      setSearchQuery('');
+    }
   };
 
   // Handle keyboard navigation
@@ -152,7 +155,7 @@ const LocationSelect = ({
           type="text"
           id={id}
           name={name}
-          value={isOpen ? searchQuery : getDisplayValue()}
+          value={isOpen && searchQuery !== '' ? searchQuery : getDisplayValue()}
           onChange={handleSearchChange}
           onFocus={handleInputFocus}
           onBlur={handleInputBlur}
@@ -179,7 +182,10 @@ const LocationSelect = ({
                   <div
                     key={location.value}
                     className={`location-select__option ${index === highlightedIndex ? 'highlighted' : ''}`}
-                    onClick={() => handleLocationSelect(location)}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleLocationSelect(location);
+                    }}
                     onMouseEnter={() => setHighlightedIndex(index)}
                   >
                     {location.label}
@@ -196,7 +202,10 @@ const LocationSelect = ({
                         <div
                           key={location.value}
                           className={`location-select__option ${flatIndex === highlightedIndex ? 'highlighted' : ''}`}
-                          onClick={() => handleLocationSelect(location)}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleLocationSelect(location);
+                          }}
                           onMouseEnter={() => setHighlightedIndex(flatIndex)}
                         >
                           {location.label}

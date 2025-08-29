@@ -82,11 +82,16 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep, user }) 
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log('handleInputChange:', { name, value });
 
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData(prev => {
+      const newData = {
+        ...prev,
+        [name]: value
+      };
+      console.log('Updated formData:', newData);
+      return newData;
+    });
 
     // Clear error when user starts typing
     if (errors[name]) {
@@ -117,18 +122,24 @@ const BasicInfo = ({ data, onNext, onPrevious, onStepData, isFirstStep, user }) 
   };
 
   const handleNext = async () => {
+    console.log('handleNext called with formData:', formData);
+    
     if (!validateForm()) {
+      console.log('Validation failed');
       return;
     }
 
     setLoading(true);
     try {
-      // Update profile with essential info only
-      await updateProfile({
+      const profileData = {
         firstName: formData.firstName,
         skillLevel: formData.skillLevel,
         location: { city: formData.city }
-      });
+      };
+      console.log('Sending profile data:', profileData);
+      
+      // Update profile with essential info only
+      await updateProfile(profileData);
 
       // Clear persisted data on successful submission
       localStorage.removeItem('quickStartFormData');

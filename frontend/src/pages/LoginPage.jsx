@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
-  const { login, emailLogin, emailRegister, isAuthenticated, user } = useAuth();
+  const { emailLogin, emailRegister, isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isRegistering, setIsRegistering] = useState(false);
@@ -35,14 +35,6 @@ const LoginPage = () => {
       }
     }
   }, [isAuthenticated, user, navigate]);
-
-  const handleGoogleLogin = () => {
-    login('google');
-  };
-
-  const handleFacebookLogin = () => {
-    login('facebook');
-  };
 
   const onSubmit = async (data) => {
     setLoading(true);
@@ -154,26 +146,6 @@ const LoginPage = () => {
               {loading ? 'Please wait...' : (isRegistering ? 'Create Account' : 'Sign In')}
             </button>
           </form>
-          
-          <div className="form-divider">
-            <span>or</span>
-          </div>
-          
-          <button 
-            className="login-btn google-btn"
-            onClick={handleGoogleLogin}
-          >
-            <span className="btn-icon">🔐</span>
-            Continue with Google
-          </button>
-
-          <button 
-            className="login-btn facebook-btn"
-            onClick={handleFacebookLogin}
-          >
-            <span className="btn-icon">🔐</span>
-            Continue with Facebook
-          </button>
           
           <button 
             type="button" 

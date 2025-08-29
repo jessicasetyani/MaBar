@@ -251,9 +251,15 @@ impl EnvironmentConfig {
                 name: "MaBar-Dev".to_string(),
                 version: "dev".to_string(),
                 host: "127.0.0.1".to_string(),
-                port: 3001,
-                base_url: "http://localhost:3001".to_string(),
-                frontend_url: "http://localhost:5173".to_string(),
+                port: env::var("PORT")
+                    .unwrap_or_else(|_| "3000".to_string())
+                    .parse()
+                    .unwrap_or(3000),
+                base_url: env::var("BACKEND_URL")
+                    .unwrap_or_else(|_| format!("http://localhost:{}", 
+                        env::var("PORT").unwrap_or_else(|_| "3000".to_string()))),
+                frontend_url: env::var("FRONTEND_URL")
+                    .unwrap_or_else(|_| "http://localhost:3001".to_string()),
                 debug_mode: true,
                 maintenance_mode: false,
             },
@@ -294,7 +300,9 @@ impl EnvironmentConfig {
                     burst_size: 100,
                     whitelist_ips: vec!["127.0.0.1".to_string()],
                 },
-                cors_origins: vec!["http://localhost:5173".to_string()],
+                cors_origins: env::var("FRONTEND_URL")
+                    .map(|url| vec![url])
+                    .unwrap_or_else(|_| vec!["http://localhost:3001".to_string()]),
                 csrf_protection: false, // Simplified for development
                 security_headers: true,
             },

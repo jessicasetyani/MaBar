@@ -149,35 +149,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Check authentication status on app load
-  useEffect(() => {
-    checkAuthStatus();
-
-    // Cleanup on unmount
-    return () => {
-      stopTokenMonitoring();
-    };
-  }, [checkAuthStatus, stopTokenMonitoring]);
-
   const checkAuthStatus = useCallback(async () => {
     console.log('AuthContext: Starting auth check...');
+    setLoading(true);
+    
     try {
-      // Check for token in URL parameters (from OAuth callback)
-      const urlParams = new URLSearchParams(window.location.search);
-      const urlToken = urlParams.get('token');
-
-      if (urlToken) {
-        console.log('AuthContext: Found token in URL');
-        localStorage.setItem('token', urlToken);
-        // Clean up URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-      }
-
       const token = localStorage.getItem('token');
       console.log('AuthContext: Token from localStorage:', token ? 'exists' : 'none');
 
       if (!token) {
-        console.log('AuthContext: No token, setting unauthenticated state');
+        console.log('AuthContext: No token, setting unauthenticated state immediately');
         setUser(null);
         setIsAuthenticated(false);
         setLoading(false);
@@ -231,12 +212,17 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [validateToken, startTokenMonitoring]);
 
-  const login = async (provider) => {
-    // Redirect to OAuth provider
-    window.location.href = `/auth/${provider}`;
-  };
+  // Check authentication status on app load
+  useEffect(() => {
+    checkAuthStatus();
+
+    // Cleanup on unmount
+    return () => {
+      stopTokenMonitoring();
+    };
+  }, [checkAuthStatus, stopTokenMonitoring]);
 
   const emailLogin = async (email, password) => {
     try {
@@ -587,7 +573,6 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     authError,
     tokenRefreshing,
-    login,
     emailLogin,
     emailRegister,
     setUserRole,
@@ -628,7 +613,6 @@ export const AuthProvider = ({ children }) => {
     isAuthenticated,
     authError,
     tokenRefreshing,
-    login,
     emailLogin,
     emailRegister,
     setUserRole,

@@ -31,7 +31,7 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    let port = env::var("PORT").unwrap_or_else(|_| "5000".to_string());
+    let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
     let bind_address = format!("127.0.0.1:{}", port);
 
     println!("🚀 MaBar Rust Backend starting on {}", bind_address);
@@ -51,11 +51,11 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .wrap(Logger::default())
             .route("/", web::get().to(|| async { "MaBar Rust Backend API" }))
+            .configure(configure_auth_routes)
             .service(
                 web::scope("/api")
                     .route("/health", web::get().to(|| async { "OK" }))
                     .route("/db-health", web::get().to(db_health_check))
-                    .configure(configure_auth_routes)
                     .configure(configure_profile_routes)
                     .configure(configure_admin_routes)
                     .configure(configure_venue_routes)
