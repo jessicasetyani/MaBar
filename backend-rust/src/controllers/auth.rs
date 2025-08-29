@@ -422,7 +422,7 @@ pub async fn register(
         password_hash: Some("mock_hash".to_string()),
         first_name: register_req.first_name.clone(),
         last_name: register_req.last_name.clone(),
-        provider: Some(AuthProvider::Local),
+        provider: AuthProvider::Local,
         role: None, // User will select role after registration
         is_active: true,
         onboarding_completed: false,
@@ -645,7 +645,7 @@ async fn create_or_update_oauth_user(
                 first_name,
                 last_name,
                 profile_picture: picture,
-                provider: Some(provider),
+                provider: provider,
                 created_at: DateTime::now(),
                 updated_at: DateTime::now(),
                 ..Default::default()
