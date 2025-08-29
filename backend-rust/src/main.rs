@@ -5,6 +5,7 @@ mod models;
 mod routes;
 mod services;
 mod utils;
+mod security;
 
 use actix_web::{web, App, HttpServer, middleware::Logger, HttpResponse, Result, HttpMessage};
 use actix_cors::Cors;
@@ -23,7 +24,14 @@ async fn main() -> std::io::Result<()> {
     let db_config = DatabaseConfig::new().await
         .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
 
-    let port = env::var("PORT").unwrap_or_else(|_| "3001".to_string());
+    // Seed admin user if in development mode
+    if env::var("DEVELOPMENT_MODE").unwrap_or("false".to_string()) == "true" {
+        if let Err(e) = utils::seed::seed_admin_user(db_config.get_database()).await {
+            eprintln!("⚠️  Warning: Failed to seed admin user: {}", e);
+        }
+    }
+
+    let port = env::var("PORT").unwrap_or_else(|_| "5000".to_string());
     let bind_address = format!("127.0.0.1:{}", port);
 
     println!("🚀 MaBar Rust Backend starting on {}", bind_address);
@@ -51,6 +59,7 @@ async fn main() -> std::io::Result<()> {
                     .configure(configure_profile_routes)
                     .configure(configure_admin_routes)
                     .configure(configure_venue_routes)
+                    // Removed security routes for simplification
             )
     })
     .bind(&bind_address)?

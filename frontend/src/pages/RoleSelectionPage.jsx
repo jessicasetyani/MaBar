@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { USER_ROLES, ROLE_DISPLAY_NAMES } from '../constants/roles';
 
 const RoleSelectionPage = () => {
   const { user, setUserRole, isAuthenticated } = useAuth();
@@ -13,7 +14,8 @@ const RoleSelectionPage = () => {
     if (!isAuthenticated) {
       navigate('/login');
     } else if (user && user.role) {
-      navigate('/dashboard');
+      // User already has a role, redirect to homepage which will handle role-based routing
+      navigate('/');
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -48,8 +50,8 @@ const RoleSelectionPage = () => {
 
         <div className="role-options">
           <div
-            className={`role-card ${selectedRole === 'Player' ? 'selected' : ''} ${loading ? 'loading' : ''}`}
-            onClick={() => !loading && handleRoleSelect('Player')}
+            className={`role-card ${selectedRole === USER_ROLES.PLAYER ? 'selected' : ''} ${loading ? 'loading' : ''}`}
+            onClick={() => !loading && handleRoleSelect(USER_ROLES.PLAYER)}
           >
             <div className="role-icon">🏓</div>
             <h3>Player</h3>
@@ -59,14 +61,14 @@ const RoleSelectionPage = () => {
               <li>Book courts at venues</li>
               <li>Track your progress</li>
             </ul>
-            {loading && selectedRole === 'Player' && (
+            {loading && selectedRole === USER_ROLES.PLAYER && (
               <div className="loading-overlay">Saving...</div>
             )}
           </div>
 
           <div
-            className={`role-card ${selectedRole === 'VenueOwner' ? 'selected' : ''} ${loading ? 'loading' : ''}`}
-            onClick={() => !loading && handleRoleSelect('VenueOwner')}
+            className={`role-card ${selectedRole === USER_ROLES.VENUE_OWNER ? 'selected' : ''} ${loading ? 'loading' : ''}`}
+            onClick={() => !loading && handleRoleSelect(USER_ROLES.VENUE_OWNER)}
           >
             <div className="role-icon">🏢</div>
             <h3>Venue Owner</h3>
@@ -76,7 +78,7 @@ const RoleSelectionPage = () => {
               <li>Manage bookings</li>
               <li>View analytics</li>
             </ul>
-            {loading && selectedRole === 'VenueOwner' && (
+            {loading && selectedRole === USER_ROLES.VENUE_OWNER && (
               <div className="loading-overlay">Saving...</div>
             )}
           </div>

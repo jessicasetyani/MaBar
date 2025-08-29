@@ -244,11 +244,11 @@ pub async fn update_venue(
             "price_per_hour": venue_data.price_per_hour,
             "number_of_courts": venue_data.number_of_courts,
             "amenities": &venue_data.amenities,
-            "operating_hours": &venue_data.operating_hours,
+            "operating_hours": bson::to_bson(&venue_data.operating_hours).unwrap(),
             "photos": &venue_data.photos,
             "location": {
                 "type": "Point",
-                "coordinates": venue_data.location.coordinates
+                "coordinates": bson::to_bson(&venue_data.location.coordinates).unwrap()
             },
             "updated_at": DateTime::now()
         }

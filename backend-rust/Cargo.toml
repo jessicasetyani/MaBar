@@ -25,6 +25,13 @@ bson = { version = "2.8", features = ["chrono-0_4"] }
 jsonwebtoken = "9.2"
 oauth2 = "4.4"
 bcrypt = "0.15"
+argon2 = "0.5"
+aes-gcm = "0.10"
+base64 = "0.21"
+sha2 = "0.10"
+zxcvbn = "2.2"
+rand = "0.8"
+lazy_static = "1.4"
 uuid = { version = "1.6", features = ["v4", "serde"] }
 
 # Environment & Configuration
@@ -58,6 +65,9 @@ urlencoding = "2.1"
 
 # File upload handling
 actix-multipart = "0.6"
+
+# CLI tools (removed for simplification)
+# clap = "2.34"
 
 [dev-dependencies]
 actix-rt = "2.9"

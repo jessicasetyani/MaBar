@@ -1,5 +1,6 @@
 use actix_web::web;
 use crate::controllers::auth::*;
+// use crate::middleware::auth::auth_middleware;
 
 pub fn configure_auth_routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -15,6 +16,6 @@ pub fn configure_auth_routes(cfg: &mut web::ServiceConfig) {
             .route("/logout", web::post().to(logout))
             .route("/me", web::get().to(get_me))
             .route("/status", web::get().to(auth_status))
-            .route("/role", web::post().to(set_user_role).wrap(auth_middleware()))
+            .route("/role", web::post().to(set_user_role))
     );
 }

@@ -11,15 +11,20 @@ import AdminVenuesPage from './pages/AdminVenuesPage';
 import AdminUsersPage from './pages/AdminUsersPage';
 import AdminReportsPage from './pages/AdminReportsPage';
 import PrivateRoute from './components/common/PrivateRoute';
+import AuthErrorBoundary from './components/auth/AuthErrorBoundary';
+
 import './App.css';
+
+
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="app">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
+    <AuthErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="app">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/role-selection" element={<RoleSelectionPage />} />
             <Route path="/onboarding" element={<OnboardingPage />} />
@@ -60,9 +65,10 @@ function App() {
               }
             />
           </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+          </div>
+        </Router>
+      </AuthProvider>
+    </AuthErrorBoundary>
   );
 }
 

@@ -6,3 +6,4 @@ pub mod venues;
 pub use auth::*;
 pub use profile::*;
 pub use admin::*;
+pub use venues::*;

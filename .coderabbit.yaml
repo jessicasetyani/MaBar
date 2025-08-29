@@ -1,20 +1,55 @@
-# This configuration tells Coderabbit to only review the files
-# matching the patterns below. All other files will be ignored.
-path_filters:
-  # --- Files to REVIEW ---
-  - "backend/**"          # Review all files in the main backend folder
-  - "backend-rust/**"     # Review all files in the Rust backend folder
-  - "frontend/**"         # Review all files in the frontend folder
-  - "scripts/**"          # Review utility scripts
-
-  # --- Files to EXCLUDE ---
-  - "!**/node_modules/**"               # Exclude all node_modules folders
-  - "!**/node_modules_backup_17.../**" # Exclude the backed-up node_modules
-  - "!**/package-lock.json"           # Exclude the auto-generated lock file
-  - "!docs/**"                        # Exclude the documentation folder
-  - "!.github/**"                     # Exclude GitHub-specific workflow files
-  - "!.taskmaster/**"                 # Exclude Taskmaster configuration
-  - "!**/*.md"                        # Exclude all Markdown documentation files
-  - "!.env"                           # Exclude environment variables
-  - "!.env.example"                   # Exclude the example environment file
-  - "!sonar-project.properties"       # Exclude SonarQube configuration
+language: "en-US"
+early_access: false
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_ellipsis: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!**/*.md"
+    - "!**/*.txt"
+    - "!**/package-lock.json"
+    - "!**/yarn.lock"
+    - "!**/Cargo.lock"
+  path_instructions:
+    - path: "backend-rust/**"
+      instructions: |
+        Review Rust backend code focusing on:
+        - Security best practices
+        - Error handling
+        - Performance optimizations
+        - Code organization and modularity
+        - Database query efficiency
+        - Authentication and authorization logic
+    - path: "frontend/**"
+      instructions: |
+        Review React frontend code focusing on:
+        - Component structure and reusability
+        - State management patterns
+        - Performance optimizations
+        - Accessibility compliance
+        - User experience improvements
+        - Security considerations (XSS prevention)
+    - path: "**/*.rs"
+      instructions: |
+        For Rust files, pay special attention to:
+        - Memory safety and ownership patterns
+        - Error propagation using Result types
+        - Async/await usage and performance
+        - Security vulnerabilities
+        - Code documentation and comments
+    - path: "**/*.jsx"
+      instructions: |
+        For React JSX files, focus on:
+        - Component props validation
+        - Hooks usage and dependencies
+        - Event handling security
+        - Performance optimizations
+        - Accessibility attributes
+chat:
+  auto_reply: true
