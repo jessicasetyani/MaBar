@@ -90,7 +90,7 @@ pub async fn update_player_profile(
             profile.play_style = Some(play_style.clone());
         }
         if let Some(availability) = &update_req.availability {
-            profile.availability = Some(serde_json::to_value(availability.clone()).unwrap());
+            profile.availability = availability.clone();
         }
         
         let update_doc = doc! {

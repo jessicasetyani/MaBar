@@ -78,21 +78,16 @@ pub async fn create_venue(
         name: venue_data.name.clone(),
         description: venue_data.description.clone(),
         address: venue_data.address.clone(),
-        phone: venue_data.phone.clone().unwrap_or_default(),
-        email: "".to_string(), // TODO: Get from venue data
-        website: None, // TODO: Get from venue data
+        phone: Some(venue_data.phone.clone().unwrap_or_default()),
         owner: ObjectId::new(), // TODO: Get from authenticated user
-        owner_id: ObjectId::new(), // TODO: Get from authenticated user
         price_per_hour: venue_data.price_per_hour,
-        number_of_courts: venue_data.number_of_courts as u32,
+        number_of_courts: venue_data.number_of_courts as i32,
         amenities: venue_data.amenities.clone(),
-        operating_hours: serde_json::to_value(venue_data.operating_hours.clone()).unwrap(),
+        operating_hours: venue_data.operating_hours.clone(),
         photos: venue_data.photos.clone(),
         location: GeoLocation {
             location_type: "Point".to_string(),
-            coordinates: venue_data.location.coordinates.to_vec(),
-            lat: venue_data.location.coordinates[1],
-            lng: venue_data.location.coordinates[0],
+            coordinates: venue_data.location.coordinates,
         },
         status: VenueStatus::Pending,
         admin_notes: None,
