@@ -48,15 +48,15 @@ async fn main() -> std::io::Result<()> {
         let frontend_url = format!("{}:{}", frontend_base, frontend_port);
 
         let cors = Cors::default()
-            .allowed_origin(&frontend_url)
-            .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
-            .allowed_headers(vec!["Content-Type", "Authorization", "X-CSRF-Token"])
+            .allow_any_origin()
+            .allow_any_method()
+            .allow_any_header()
             .supports_credentials();
 
         App::new()
             .app_data(db_data.clone())
-            .wrap(SecurityHeaders)
             .wrap(cors)
+            .wrap(SecurityHeaders)
             .wrap(Logger::default())
             .route("/", web::get().to(|| async { "MaBar Rust Backend API" }))
             .configure(configure_auth_routes)
