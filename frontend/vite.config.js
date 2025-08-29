@@ -6,15 +6,13 @@ export default defineConfig(({ mode }) => {
   // Load environment variables from root directory (centralized .env)
   const env = loadEnv(mode, '../', '');
 
-  const frontendPort = parseInt(env.FRONTEND_PORT) || 5173;
+  const frontendPort = parseInt(env.FRONTEND_PORT) || 3001;
   const frontendHost = env.FRONTEND_HOST || '0.0.0.0';
-  const backendPort = parseInt(env.BACKEND_PORT) || 5000;
-  const backendBaseUrl = env.BACKEND_BASE_URL || 'http://localhost';
-  const frontendBaseUrl = env.FRONTEND_BASE_URL || 'http://localhost';
+  const backendPort = parseInt(env.BACKEND_PORT) || 3000;
 
   // Construct full URLs
-  const backendUrl = `${backendBaseUrl}:${backendPort}`;
-  const frontendUrl = `${frontendBaseUrl}:${frontendPort}`;
+  const backendUrl = `http://localhost:${backendPort}`;
+  const frontendUrl = `http://localhost:${frontendPort}`;
 
   return {
     plugins: [react()],

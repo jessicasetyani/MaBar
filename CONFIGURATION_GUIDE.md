@@ -25,28 +25,24 @@ This guide documents the centralized configuration system implemented in MaBar. 
 
 ```env
 # Backend Configuration
-BACKEND_PORT=5000
+BACKEND_PORT=3000
 BACKEND_HOST=127.0.0.1
-BACKEND_BASE_URL=http://localhost
 
 # Frontend Configuration
-FRONTEND_PORT=5173
+FRONTEND_PORT=3001
 FRONTEND_HOST=0.0.0.0
-FRONTEND_BASE_URL=http://localhost
 
-# Legacy PORT variable for compatibility
-PORT=5000
+# Vite-specific variables
+VITE_API_BASE_URL=http://localhost:3000
 ```
 
 ### Variable Descriptions
 
-- **BACKEND_PORT**: Port number for the Rust backend server (default: 5000)
+- **BACKEND_PORT**: Port number for the Rust backend server (default: 3000)
 - **BACKEND_HOST**: Host address for the backend server (default: 127.0.0.1)
-- **BACKEND_URL**: Complete backend URL used by frontend for API calls
-- **FRONTEND_PORT**: Port number for the Vite development server (default: 5173)
+- **FRONTEND_PORT**: Port number for the Vite development server (default: 3001)
 - **FRONTEND_HOST**: Host address for the frontend server (default: 0.0.0.0)
-- **FRONTEND_URL**: Complete frontend URL used by backend for CORS configuration
-- **PORT**: Legacy variable maintained for backward compatibility
+- **VITE_API_BASE_URL**: Backend URL for frontend API calls (automatically constructed from BACKEND_PORT)
 
 ## Implementation Details
 

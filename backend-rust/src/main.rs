@@ -32,20 +32,17 @@ async fn main() -> std::io::Result<()> {
         }
     }
 
-    let port = env::var("BACKEND_PORT")
-        .or_else(|_| env::var("PORT"))
-        .unwrap_or_else(|_| "5000".to_string());
+    let port = env::var("BACKEND_PORT").unwrap_or_else(|_| "3000".to_string());
     let host = env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".to_string());
     let bind_address = format!("{}:{}", host, port);
 
     println!("🚀 MaBar Rust Backend starting on {}", bind_address);
 
     let db_data = web::Data::new(db_config.clone());
-    
+
     HttpServer::new(move || {
-        let frontend_base = env::var("FRONTEND_BASE_URL").unwrap_or_else(|_| "http://localhost".to_string());
-        let frontend_port = env::var("FRONTEND_PORT").unwrap_or_else(|_| "5173".to_string());
-        let frontend_url = format!("{}:{}", frontend_base, frontend_port);
+        let frontend_port = env::var("FRONTEND_PORT").unwrap_or_else(|_| "3001".to_string());
+        let frontend_url = format!("http://localhost:{}", frontend_port);
 
         let cors = Cors::default()
             .allow_any_origin()

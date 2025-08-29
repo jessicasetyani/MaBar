@@ -138,26 +138,20 @@ impl EnvironmentConfig {
             app: AppConfig {
                 name: "MaBar".to_string(),
                 version: env::var("APP_VERSION").unwrap_or_else(|_| "1.0.0".to_string()),
-                host: env::var("HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
+                host: env::var("BACKEND_HOST").unwrap_or_else(|_| "0.0.0.0".to_string()),
                 port: env::var("BACKEND_PORT")
-                    .or_else(|_| env::var("PORT"))
-                    .unwrap_or_else(|_| "5000".to_string())
+                    .unwrap_or_else(|_| "3000".to_string())
                     .parse()
-                    .map_err(|_| "Invalid PORT value")?,
+                    .map_err(|_| "Invalid BACKEND_PORT value")?,
                 base_url: {
-                    let base = env::var("BACKEND_BASE_URL")
-                        .map_err(|_| "BACKEND_BASE_URL required in production")?;
-                    let port = env::var("BACKEND_PORT")
-                        .or_else(|_| env::var("PORT"))
-                        .unwrap_or_else(|_| "5000".to_string());
-                    format!("{}:{}", base, port)
+                    let port = env::var("BACKEND_PORT").unwrap_or_else(|_| "3000".to_string());
+                    // In production, this should be the actual domain
+                    format!("http://localhost:{}", port)
                 },
                 frontend_url: {
-                    let base = env::var("FRONTEND_BASE_URL")
-                        .map_err(|_| "FRONTEND_BASE_URL required in production")?;
-                    let port = env::var("FRONTEND_PORT")
-                        .unwrap_or_else(|_| "5173".to_string());
-                    format!("{}:{}", base, port)
+                    let port = env::var("FRONTEND_PORT").unwrap_or_else(|_| "3001".to_string());
+                    // In production, this should be the actual domain
+                    format!("http://localhost:{}", port)
                 },
                 debug_mode: false,
                 maintenance_mode: env::var("MAINTENANCE_MODE")
@@ -264,24 +258,16 @@ impl EnvironmentConfig {
                 version: "dev".to_string(),
                 host: env::var("BACKEND_HOST").unwrap_or_else(|_| "127.0.0.1".to_string()),
                 port: env::var("BACKEND_PORT")
-                    .or_else(|_| env::var("PORT"))
-                    .unwrap_or_else(|_| "5000".to_string())
+                    .unwrap_or_else(|_| "3000".to_string())
                     .parse()
-                    .unwrap_or(5000),
+                    .unwrap_or(3000),
                 base_url: {
-                    let base = env::var("BACKEND_BASE_URL")
-                        .unwrap_or_else(|_| "http://localhost".to_string());
-                    let port = env::var("BACKEND_PORT")
-                        .or_else(|_| env::var("PORT"))
-                        .unwrap_or_else(|_| "5000".to_string());
-                    format!("{}:{}", base, port)
+                    let port = env::var("BACKEND_PORT").unwrap_or_else(|_| "3000".to_string());
+                    format!("http://localhost:{}", port)
                 },
                 frontend_url: {
-                    let base = env::var("FRONTEND_BASE_URL")
-                        .unwrap_or_else(|_| "http://localhost".to_string());
-                    let port = env::var("FRONTEND_PORT")
-                        .unwrap_or_else(|_| "5173".to_string());
-                    format!("{}:{}", base, port)
+                    let port = env::var("FRONTEND_PORT").unwrap_or_else(|_| "3001".to_string());
+                    format!("http://localhost:{}", port)
                 },
                 debug_mode: true,
                 maintenance_mode: false,

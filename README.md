@@ -175,17 +175,15 @@ MaBar adalah Progressive Web Application (PWA) yang berfungsi sebagai platform m
    NODE_ENV=development
 
    # Backend Configuration
-   BACKEND_PORT=5000
+   BACKEND_PORT=3000
    BACKEND_HOST=127.0.0.1
-   BACKEND_BASE_URL=http://localhost
 
    # Frontend Configuration
-   FRONTEND_PORT=5173
+   FRONTEND_PORT=3001
    FRONTEND_HOST=0.0.0.0
-   FRONTEND_BASE_URL=http://localhost
 
-   # Legacy PORT variable for compatibility
-   PORT=5000
+   # Vite-specific variables
+   VITE_API_BASE_URL=http://localhost:3000
    ```
 
 5. **Database Setup** (Optional - requires MongoDB running)
