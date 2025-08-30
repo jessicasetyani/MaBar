@@ -465,7 +465,7 @@
             "description": "Add real-time functionality to reflect booking changes immediately in the calendar without manual refresh.",
             "dependencies": ["13.2", "13.3", "13.4"],
             "details": "Use WebSockets, Parse LiveQuery, or polling to listen for booking changes (new, updated, canceled) and update the calendar view in real time. Ensure performance and error handling.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T21:08:45.542Z",
+      "updated": "2025-08-30T21:12:45.762Z",
       "description": "Tasks for master context"
     }
   }

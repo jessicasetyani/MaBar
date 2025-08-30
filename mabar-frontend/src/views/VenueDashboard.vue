@@ -399,7 +399,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { VenueOwnerService } from '../services/venueOwnerService'
@@ -407,6 +407,7 @@ import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import Parse from '../services/back4app'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -419,6 +420,7 @@ const bookings = ref<any[]>([])
 const blockedSlots = ref<any[]>([])
 const selectedBooking = ref<any>(null)
 const showBookingModal = ref(false)
+const liveQuerySubscriptions = ref<any[]>([])
 
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -450,67 +452,152 @@ const logout = async () => {
 }
 
 const loadBookings = async () => {
-  // Mock booking data with detailed information
-  bookings.value = [
-    {
-      id: '1',
-      title: 'Court 1 - John & Mike vs Sarah & Lisa',
-      start: new Date().toISOString().split('T')[0] + 'T10:00:00',
-      end: new Date().toISOString().split('T')[0] + 'T11:30:00',
-      backgroundColor: '#84CC16',
-      borderColor: '#65A30D',
-      extendedProps: {
-        type: 'booking',
-        status: 'confirmed',
-        court: 'Court 1',
-        players: ['John Doe', 'Mike Smith', 'Sarah Johnson', 'Lisa Brown'],
-        contact: 'john.doe@email.com',
-        phone: '+62 812-3456-7890',
-        price: 150000,
-        paymentStatus: 'paid',
+  try {
+    // Try to load from Parse first, fallback to mock data
+    const BookingClass = Parse.Object.extend('Booking')
+    const query = new Parse.Query(BookingClass)
+    query.equalTo('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+
+    const parseBookings = await query.find()
+
+    if (parseBookings.length > 0) {
+      bookings.value = parseBookings.map((booking) => ({
+        id: booking.id,
+        title:
+          booking.get('title') ||
+          `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
+        start: booking.get('startTime'),
+        end: booking.get('endTime'),
+        backgroundColor:
+          booking.get('status') === 'confirmed' ? '#84CC16' : '#FDE047',
+        borderColor:
+          booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
+        textColor:
+          booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
+        extendedProps: {
+          type: 'booking',
+          status: booking.get('status'),
+          court: booking.get('court'),
+          players: booking.get('players') || [],
+          contact: booking.get('contact'),
+          phone: booking.get('phone'),
+          price: booking.get('price'),
+          paymentStatus: booking.get('paymentStatus'),
+        },
+      }))
+    } else {
+      // Fallback to mock data
+      bookings.value = [
+        {
+          id: '1',
+          title: 'Court 1 - John & Mike vs Sarah & Lisa',
+          start: new Date().toISOString().split('T')[0] + 'T10:00:00',
+          end: new Date().toISOString().split('T')[0] + 'T11:30:00',
+          backgroundColor: '#84CC16',
+          borderColor: '#65A30D',
+          extendedProps: {
+            type: 'booking',
+            status: 'confirmed',
+            court: 'Court 1',
+            players: ['John Doe', 'Mike Smith', 'Sarah Johnson', 'Lisa Brown'],
+            contact: 'john.doe@email.com',
+            phone: '+62 812-3456-7890',
+            price: 150000,
+            paymentStatus: 'paid',
+          },
+        },
+        {
+          id: '2',
+          title: 'Court 2 - Training Session',
+          start: new Date().toISOString().split('T')[0] + 'T14:00:00',
+          end: new Date().toISOString().split('T')[0] + 'T15:30:00',
+          backgroundColor: '#FDE047',
+          borderColor: '#FACC15',
+          textColor: '#334155',
+          extendedProps: {
+            type: 'booking',
+            status: 'pending',
+            court: 'Court 2',
+            players: ['Alex Wilson'],
+            contact: 'alex.wilson@email.com',
+            phone: '+62 813-7654-3210',
+            price: 100000,
+            paymentStatus: 'pending',
+          },
+        },
+      ]
+    }
+  } catch (error) {
+    console.error('Error loading bookings:', error)
+    // Use mock data on error
+    bookings.value = [
+      {
+        id: '1',
+        title: 'Court 1 - John & Mike vs Sarah & Lisa',
+        start: new Date().toISOString().split('T')[0] + 'T10:00:00',
+        end: new Date().toISOString().split('T')[0] + 'T11:30:00',
+        backgroundColor: '#84CC16',
+        borderColor: '#65A30D',
+        extendedProps: {
+          type: 'booking',
+          status: 'confirmed',
+          court: 'Court 1',
+          players: ['John Doe', 'Mike Smith', 'Sarah Johnson', 'Lisa Brown'],
+          contact: 'john.doe@email.com',
+          phone: '+62 812-3456-7890',
+          price: 150000,
+          paymentStatus: 'paid',
+        },
       },
-    },
-    {
-      id: '2',
-      title: 'Court 2 - Training Session',
-      start: new Date().toISOString().split('T')[0] + 'T14:00:00',
-      end: new Date().toISOString().split('T')[0] + 'T15:30:00',
-      backgroundColor: '#FDE047',
-      borderColor: '#FACC15',
-      textColor: '#334155',
-      extendedProps: {
-        type: 'booking',
-        status: 'pending',
-        court: 'Court 2',
-        players: ['Alex Wilson'],
-        contact: 'alex.wilson@email.com',
-        phone: '+62 813-7654-3210',
-        price: 100000,
-        paymentStatus: 'pending',
-      },
-    },
-  ]
+    ]
+  }
 }
 
 const loadBlockedSlots = async () => {
-  // Mock blocked slots data
-  blockedSlots.value = [
-    {
-      id: 'blocked-1',
-      title: '🚫 Blocked',
-      start: new Date().toISOString().split('T')[0] + 'T12:00:00',
-      end: new Date().toISOString().split('T')[0] + 'T13:30:00',
-      backgroundColor: '#EF4444',
-      borderColor: '#DC2626',
-      textColor: '#ffffff',
-      extendedProps: {
-        type: 'blocked',
-      },
-    },
-  ]
+  try {
+    const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+    const query = new Parse.Query(BlockedSlotClass)
+    query.equalTo('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+
+    const parseBlocked = await query.find()
+
+    if (parseBlocked.length > 0) {
+      blockedSlots.value = parseBlocked.map((blocked) => ({
+        id: blocked.id,
+        title: '🚫 Blocked',
+        start: blocked.get('startTime'),
+        end: blocked.get('endTime'),
+        backgroundColor: '#EF4444',
+        borderColor: '#DC2626',
+        textColor: '#ffffff',
+        extendedProps: {
+          type: 'blocked',
+        },
+      }))
+    } else {
+      // Mock blocked slots data
+      blockedSlots.value = [
+        {
+          id: 'blocked-1',
+          title: '🚫 Blocked',
+          start: new Date().toISOString().split('T')[0] + 'T12:00:00',
+          end: new Date().toISOString().split('T')[0] + 'T13:30:00',
+          backgroundColor: '#EF4444',
+          borderColor: '#DC2626',
+          textColor: '#ffffff',
+          extendedProps: {
+            type: 'blocked',
+          },
+        },
+      ]
+    }
+  } catch (error) {
+    console.error('Error loading blocked slots:', error)
+    blockedSlots.value = []
+  }
 }
 
-const handleSlotSelect = (selectInfo: any) => {
+const handleSlotSelect = async (selectInfo: any) => {
   const { start, end } = selectInfo
 
   // Check if slot overlaps with existing bookings
@@ -535,43 +622,76 @@ const handleSlotSelect = (selectInfo: any) => {
     )
   })
 
-  if (existingBlockIndex >= 0) {
-    // Unblock the slot
-    blockedSlots.value.splice(existingBlockIndex, 1)
-    console.log('Slot unblocked')
-  } else {
-    // Block the slot
-    const newBlockedSlot = {
-      id: `blocked-${Date.now()}`,
-      title: '🚫 Blocked',
-      start: start.toISOString(),
-      end: end.toISOString(),
-      backgroundColor: '#EF4444',
-      borderColor: '#DC2626',
-      textColor: '#ffffff',
-      extendedProps: {
-        type: 'blocked',
-      },
+  try {
+    if (existingBlockIndex >= 0) {
+      // Unblock the slot - remove from Parse
+      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+      const query = new Parse.Query(BlockedSlotClass)
+      const blockedSlot = await query.get(
+        blockedSlots.value[existingBlockIndex].id
+      )
+      await blockedSlot.destroy()
+
+      // Remove from local array (will be updated by LiveQuery)
+      blockedSlots.value.splice(existingBlockIndex, 1)
+      console.log('Slot unblocked')
+    } else {
+      // Block the slot - save to Parse
+      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+      const blockedSlot = new BlockedSlotClass()
+
+      blockedSlot.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+      blockedSlot.set('startTime', start.toISOString())
+      blockedSlot.set('endTime', end.toISOString())
+
+      const savedSlot = await blockedSlot.save()
+
+      // Add to local array (will be updated by LiveQuery)
+      const newBlockedSlot = {
+        id: savedSlot.id,
+        title: '🚫 Blocked',
+        start: start.toISOString(),
+        end: end.toISOString(),
+        backgroundColor: '#EF4444',
+        borderColor: '#DC2626',
+        textColor: '#ffffff',
+        extendedProps: {
+          type: 'blocked',
+        },
+      }
+      blockedSlots.value.push(newBlockedSlot)
+      console.log('Slot blocked')
     }
-    blockedSlots.value.push(newBlockedSlot)
-    console.log('Slot blocked')
+  } catch (error) {
+    console.error('Error updating blocked slot:', error)
+    alert('Failed to update slot. Please try again.')
   }
 
   // Clear selection
   selectInfo.view.calendar.unselect()
 }
 
-const handleEventClick = (clickInfo: any) => {
+const handleEventClick = async (clickInfo: any) => {
   const event = clickInfo.event
 
   if (event.extendedProps?.type === 'blocked') {
     if (confirm('Do you want to unblock this time slot?')) {
-      const blockIndex = blockedSlots.value.findIndex(
-        (blocked) => blocked.id === event.id
-      )
-      if (blockIndex >= 0) {
-        blockedSlots.value.splice(blockIndex, 1)
-        console.log('Slot unblocked')
+      try {
+        const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+        const query = new Parse.Query(BlockedSlotClass)
+        const blockedSlot = await query.get(event.id)
+        await blockedSlot.destroy()
+
+        const blockIndex = blockedSlots.value.findIndex(
+          (blocked) => blocked.id === event.id
+        )
+        if (blockIndex >= 0) {
+          blockedSlots.value.splice(blockIndex, 1)
+          console.log('Slot unblocked')
+        }
+      } catch (error) {
+        console.error('Error unblocking slot:', error)
+        alert('Failed to unblock slot. Please try again.')
       }
     }
   } else if (event.extendedProps?.type === 'booking') {
@@ -607,11 +727,147 @@ const formatPrice = (price: number) => {
   }).format(price)
 }
 
+const setupLiveQueries = async () => {
+  try {
+    const venueId = venueOwnerData.value?.objectId || 'mock-venue'
+
+    // Set up LiveQuery for bookings
+    const BookingClass = Parse.Object.extend('Booking')
+    const bookingQuery = new Parse.Query(BookingClass)
+    bookingQuery.equalTo('venueId', venueId)
+
+    const bookingSubscription = await bookingQuery.subscribe()
+
+    bookingSubscription.on('create', (booking: any) => {
+      console.log('New booking created:', booking)
+      const newBooking = {
+        id: booking.id,
+        title:
+          booking.get('title') ||
+          `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
+        start: booking.get('startTime'),
+        end: booking.get('endTime'),
+        backgroundColor:
+          booking.get('status') === 'confirmed' ? '#84CC16' : '#FDE047',
+        borderColor:
+          booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
+        textColor:
+          booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
+        extendedProps: {
+          type: 'booking',
+          status: booking.get('status'),
+          court: booking.get('court'),
+          players: booking.get('players') || [],
+          contact: booking.get('contact'),
+          phone: booking.get('phone'),
+          price: booking.get('price'),
+          paymentStatus: booking.get('paymentStatus'),
+        },
+      }
+      bookings.value.push(newBooking)
+    })
+
+    bookingSubscription.on('update', (booking: any) => {
+      console.log('Booking updated:', booking)
+      const index = bookings.value.findIndex((b) => b.id === booking.id)
+      if (index >= 0) {
+        bookings.value[index] = {
+          id: booking.id,
+          title:
+            booking.get('title') ||
+            `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
+          start: booking.get('startTime'),
+          end: booking.get('endTime'),
+          backgroundColor:
+            booking.get('status') === 'confirmed' ? '#84CC16' : '#FDE047',
+          borderColor:
+            booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
+          textColor:
+            booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
+          extendedProps: {
+            type: 'booking',
+            status: booking.get('status'),
+            court: booking.get('court'),
+            players: booking.get('players') || [],
+            contact: booking.get('contact'),
+            phone: booking.get('phone'),
+            price: booking.get('price'),
+            paymentStatus: booking.get('paymentStatus'),
+          },
+        }
+      }
+    })
+
+    bookingSubscription.on('delete', (booking: any) => {
+      console.log('Booking deleted:', booking)
+      const index = bookings.value.findIndex((b) => b.id === booking.id)
+      if (index >= 0) {
+        bookings.value.splice(index, 1)
+      }
+    })
+
+    // Set up LiveQuery for blocked slots
+    const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+    const blockedQuery = new Parse.Query(BlockedSlotClass)
+    blockedQuery.equalTo('venueId', venueId)
+
+    const blockedSubscription = await blockedQuery.subscribe()
+
+    blockedSubscription.on('create', (blocked: any) => {
+      console.log('New blocked slot created:', blocked)
+      const newBlocked = {
+        id: blocked.id,
+        title: '🚫 Blocked',
+        start: blocked.get('startTime'),
+        end: blocked.get('endTime'),
+        backgroundColor: '#EF4444',
+        borderColor: '#DC2626',
+        textColor: '#ffffff',
+        extendedProps: {
+          type: 'blocked',
+        },
+      }
+      // Check if not already in array to prevent duplicates
+      if (!blockedSlots.value.find((b) => b.id === blocked.id)) {
+        blockedSlots.value.push(newBlocked)
+      }
+    })
+
+    blockedSubscription.on('delete', (blocked: any) => {
+      console.log('Blocked slot deleted:', blocked)
+      const index = blockedSlots.value.findIndex((b) => b.id === blocked.id)
+      if (index >= 0) {
+        blockedSlots.value.splice(index, 1)
+      }
+    })
+
+    // Store subscriptions for cleanup
+    liveQuerySubscriptions.value = [bookingSubscription, blockedSubscription]
+
+    console.log('✅ LiveQuery subscriptions established')
+  } catch (error) {
+    console.error('Error setting up LiveQuery:', error)
+  }
+}
+
+const cleanupLiveQueries = () => {
+  liveQuerySubscriptions.value.forEach((subscription) => {
+    try {
+      subscription.unsubscribe()
+    } catch (error) {
+      console.error('Error unsubscribing from LiveQuery:', error)
+    }
+  })
+  liveQuerySubscriptions.value = []
+  console.log('🧹 LiveQuery subscriptions cleaned up')
+}
+
 onMounted(async () => {
   try {
     const profile = await VenueOwnerService.getVenueOwnerProfile()
     if (profile) {
       venueOwnerData.value = {
+        objectId: profile.id,
         personalInfo: profile.get('personalInfo'),
         venueDetails: profile.get('venueDetails'),
         legalDocs: profile.get('legalDocs'),
@@ -630,6 +886,7 @@ onMounted(async () => {
           activeTab.value = 'calendar'
           await loadBookings()
           await loadBlockedSlots()
+          await setupLiveQueries()
           break
         case 'rejected':
           applicationStatus.value = 'Rejected'
@@ -646,6 +903,10 @@ onMounted(async () => {
     console.error('Error loading venue owner data:', error)
     activeTab.value = 'profile'
   }
+})
+
+onUnmounted(() => {
+  cleanupLiveQueries()
 })
 </script>
 
