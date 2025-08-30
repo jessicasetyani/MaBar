@@ -124,6 +124,14 @@
             </p>
           </div>
 
+          <!-- Instructions -->
+          <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-sm text-blue-800">
+              💡 <strong>Tip:</strong> Click and drag on empty time slots to
+              block/unblock them. Click on blocked slots to unblock.
+            </p>
+          </div>
+
           <!-- Calendar Container -->
           <div
             class="bg-white rounded-lg shadow-sm border border-slate-200 p-6"
@@ -297,6 +305,7 @@ const venueOwnerData = ref<any>(null)
 const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
 const bookings = ref<any[]>([])
+const blockedSlots = ref<any[]>([])
 
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -307,7 +316,7 @@ const calendarOptions = computed(() => ({
     right: 'dayGridMonth,timeGridWeek,timeGridDay',
   },
   height: 'auto',
-  events: bookings.value,
+  events: [...bookings.value, ...blockedSlots.value],
   selectable: true,
   selectMirror: true,
   dayMaxEvents: true,
@@ -318,6 +327,8 @@ const calendarOptions = computed(() => ({
   eventColor: '#84CC16',
   eventTextColor: '#ffffff',
   eventBorderColor: '#65A30D',
+  select: handleSlotSelect,
+  eventClick: handleEventClick,
 }))
 
 const logout = async () => {
@@ -348,6 +359,91 @@ const loadBookings = async () => {
   ]
 }
 
+const loadBlockedSlots = async () => {
+  // Mock blocked slots data
+  blockedSlots.value = [
+    {
+      id: 'blocked-1',
+      title: '🚫 Blocked',
+      start: new Date().toISOString().split('T')[0] + 'T12:00:00',
+      end: new Date().toISOString().split('T')[0] + 'T13:30:00',
+      backgroundColor: '#EF4444',
+      borderColor: '#DC2626',
+      textColor: '#ffffff',
+      extendedProps: {
+        type: 'blocked',
+      },
+    },
+  ]
+}
+
+const handleSlotSelect = (selectInfo: any) => {
+  const { start, end } = selectInfo
+
+  // Check if slot overlaps with existing bookings
+  const hasBooking = bookings.value.some((booking) => {
+    const bookingStart = new Date(booking.start)
+    const bookingEnd = new Date(booking.end)
+    return start < bookingEnd && end > bookingStart
+  })
+
+  if (hasBooking) {
+    alert('Cannot block slot - there is an existing booking')
+    return
+  }
+
+  // Check if slot is already blocked
+  const existingBlockIndex = blockedSlots.value.findIndex((blocked) => {
+    const blockedStart = new Date(blocked.start)
+    const blockedEnd = new Date(blocked.end)
+    return (
+      start.getTime() === blockedStart.getTime() &&
+      end.getTime() === blockedEnd.getTime()
+    )
+  })
+
+  if (existingBlockIndex >= 0) {
+    // Unblock the slot
+    blockedSlots.value.splice(existingBlockIndex, 1)
+    console.log('Slot unblocked')
+  } else {
+    // Block the slot
+    const newBlockedSlot = {
+      id: `blocked-${Date.now()}`,
+      title: '🚫 Blocked',
+      start: start.toISOString(),
+      end: end.toISOString(),
+      backgroundColor: '#EF4444',
+      borderColor: '#DC2626',
+      textColor: '#ffffff',
+      extendedProps: {
+        type: 'blocked',
+      },
+    }
+    blockedSlots.value.push(newBlockedSlot)
+    console.log('Slot blocked')
+  }
+
+  // Clear selection
+  selectInfo.view.calendar.unselect()
+}
+
+const handleEventClick = (clickInfo: any) => {
+  const event = clickInfo.event
+
+  if (event.extendedProps?.type === 'blocked') {
+    if (confirm('Do you want to unblock this time slot?')) {
+      const blockIndex = blockedSlots.value.findIndex(
+        (blocked) => blocked.id === event.id
+      )
+      if (blockIndex >= 0) {
+        blockedSlots.value.splice(blockIndex, 1)
+        console.log('Slot unblocked')
+      }
+    }
+  }
+}
+
 onMounted(async () => {
   try {
     const profile = await VenueOwnerService.getVenueOwnerProfile()
@@ -370,6 +466,7 @@ onMounted(async () => {
           applicationStatus.value = 'Approved'
           activeTab.value = 'calendar'
           await loadBookings()
+          await loadBlockedSlots()
           break
         case 'rejected':
           applicationStatus.value = 'Rejected'

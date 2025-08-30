@@ -447,7 +447,7 @@
             "description": "Add functionality for venue owners to block or unblock time slots directly on the calendar.",
             "dependencies": ["13.2"],
             "details": "Implement click or drag handlers on calendar time slots to allow blocking/unblocking. Send updates to the backend (e.g., via Parse) to persist changes. Provide visual feedback for blocked slots (e.g., different color).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T21:03:53.933Z",
+      "updated": "2025-08-30T21:06:03.139Z",
       "description": "Tasks for master context"
     }
   }
