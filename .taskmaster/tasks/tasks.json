@@ -417,7 +417,7 @@
         "id": 13,
         "title": "Build Venue Dashboard with Calendar View",
         "description": "Create venue owner dashboard with booking calendar and management",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [23],
         "priority": "medium",
         "details": "Create dashboard with calendar view showing MaBar bookings. Implement time slot blocking/unblocking functionality. Show booking details and status. Use calendar library (like FullCalendar) with Tailwind styling. Implement real-time updates for booking changes.",
@@ -474,7 +474,7 @@
             "description": "Thoroughly test all dashboard functionalities, including calendar interactions, slot management, and real-time updates, across devices.",
             "dependencies": ["13.1", "13.2", "13.3", "13.4", "13.5"],
             "details": "Test calendar rendering, slot blocking/unblocking, booking details display, and real-time updates. Verify responsiveness on mobile and desktop. Write and run unit/integration tests as needed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T21:12:45.762Z",
+      "updated": "2025-08-30T21:15:22.022Z",
       "description": "Tasks for master context"
     }
   }
