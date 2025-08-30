@@ -14,5 +14,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['parse']
-  }
+  },
+  envDir: '../', // Look for .env files in the parent directory
 })
