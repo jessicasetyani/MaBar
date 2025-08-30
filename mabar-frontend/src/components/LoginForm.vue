@@ -50,5 +50,3 @@ const handleSubmit = async () => {
   }
 }
 </script>
-</template>
-<parameter name="explanation">Creating minimal login form component with auth store integration

@@ -41,5 +41,3 @@ const selectRole = async (role: 'player' | 'venue_owner') => {
   }
 }
 </script>
-</template>
-<parameter name="explanation">Creating role selection component for first-time users

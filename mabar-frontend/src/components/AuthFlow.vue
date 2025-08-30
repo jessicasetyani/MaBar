@@ -68,5 +68,3 @@ const handleRoleSelected = (role: 'player' | 'venue_owner') => {
   console.log('Role selected:', role)
 }
 </script>
-</template>
-<parameter name="explanation">Creating main authentication flow component that orchestrates login, registration, and role selection

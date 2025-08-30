@@ -51,5 +51,3 @@ const handleSubmit = async () => {
   }
 }
 </script>
-</template>
-<parameter name="explanation">Creating minimal registration form component with validation and auth store integration
