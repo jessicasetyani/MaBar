@@ -1,6 +1,6 @@
 # Task ID: 21
 # Title: Create Role Selection Component for First Login
-# Status: pending
+# Status: done
 # Dependencies: 6
 # Priority: high
 # Description: Build a role selection interface that appears after user registration, allowing users to choose between Player or Venue Owner roles with descriptions and visual indicators, then save selection and redirect to appropriate onboarding flow.
@@ -37,31 +37,31 @@ Code structure:
 7. Test edge cases: Verify component doesn't show for users with existing roles
 
 # Subtasks:
-## 1. Implement Conditional Rendering Logic [pending]
+## 1. Implement Conditional Rendering Logic [done]
 ### Dependencies: None
 ### Description: Set up logic to conditionally render the RoleSelection component only when the user's role field is null or undefined after successful registration/login.
 ### Details:
 Check Parse.User.current() for role field value; conditionally display component based on role being null/undefined.
 
-## 2. Design Role Selection UI with Tailwind CSS [pending]
+## 2. Design Role Selection UI with Tailwind CSS [done]
 ### Dependencies: None
 ### Description: Create the visual interface for role selection with cards/icons for Player and Venue Owner roles, including descriptive text and MaBar branding.
 ### Details:
 Build responsive UI cards with icons, text descriptions, and Tailwind styling; ensure mobile-friendly touch targets.
 
-## 3. Implement Role Selection and Save Logic [pending]
+## 3. Implement Role Selection and Save Logic [done]
 ### Dependencies: 21.1, 21.2
 ### Description: Add functionality to handle role selection, update the Parse User object with the selected role, and save it.
 ### Details:
 On role selection, call user.set('role', selectedRole).save(); use Pinia for state management.
 
-## 4. Handle Loading and Error States [pending]
+## 4. Handle Loading and Error States [done]
 ### Dependencies: 21.3
 ### Description: Implement visual feedback for loading during save operations and error handling with user notifications.
 ### Details:
 Show loading spinner during save; display error messages if save fails using user feedback components.
 
-## 5. Implement Redirection and Routing Logic [pending]
+## 5. Implement Redirection and Routing Logic [done]
 ### Dependencies: 21.3
 ### Description: Set up navigation to redirect users to the appropriate onboarding flow based on their selected role.
 ### Details:

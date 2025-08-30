@@ -126,17 +126,38 @@
 
           <!-- Instructions -->
           <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p class="text-sm text-blue-800">
-              💡 <strong>Tip:</strong> Click and drag on empty time slots to
-              block/unblock them. Click on blocked slots to unblock.
+            <p class="text-sm text-blue-800 mb-2">
+              💡 <strong>How to Block/Unblock Time Slots:</strong>
             </p>
+            <ul class="text-sm text-blue-700 space-y-1">
+              <li>• <strong>Block:</strong> Click and drag on empty time slots in Week/Day view</li>
+              <li>• <strong>Unblock:</strong> Click on red blocked slots and confirm</li>
+              <li>• <strong>View Bookings:</strong> Click on green/yellow booking events</li>
+            </ul>
+
+            <!-- Test Button for Debugging -->
+            <div class="mt-3 pt-3 border-t border-blue-200">
+              <button
+                @click="testBlockSlot"
+                class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
+              >
+                🧪 Test Block Tomorrow 2PM-3PM
+              </button>
+              <span class="ml-2 text-xs text-blue-600">
+                (Click to test blocking functionality)
+              </span>
+            </div>
           </div>
 
           <!-- Calendar Container -->
           <div
             class="bg-white rounded-lg shadow-sm border border-slate-200 p-6"
           >
-            <FullCalendar :options="calendarOptions" class="venue-calendar" />
+            <FullCalendar
+              :options="calendarOptions"
+              class="venue-calendar"
+              @mounted="onCalendarMounted"
+            />
           </div>
 
           <!-- Booking Details Modal -->
@@ -422,29 +443,42 @@ const selectedBooking = ref<any>(null)
 const showBookingModal = ref(false)
 const liveQuerySubscriptions = ref<any[]>([])
 
-const calendarOptions = computed(() => ({
-  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
-  initialView: 'timeGridWeek',
-  headerToolbar: {
-    left: 'prev,next today',
-    center: 'title',
-    right: 'dayGridMonth,timeGridWeek,timeGridDay',
-  },
-  height: 'auto',
-  events: [...bookings.value, ...blockedSlots.value],
-  selectable: true,
-  selectMirror: true,
-  dayMaxEvents: true,
-  weekends: true,
-  slotMinTime: '06:00:00',
-  slotMaxTime: '23:00:00',
-  allDaySlot: false,
-  eventColor: '#84CC16',
-  eventTextColor: '#ffffff',
-  eventBorderColor: '#65A30D',
-  select: handleSlotSelect,
-  eventClick: handleEventClick,
-}))
+const calendarOptions = computed(() => {
+  console.log('📅 Calendar options computed, plugins loaded:', {
+    dayGrid: !!dayGridPlugin,
+    timeGrid: !!timeGridPlugin,
+    interaction: !!interactionPlugin
+  })
+
+  return {
+    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    initialView: 'timeGridWeek',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay',
+    },
+    height: 'auto',
+    events: [...bookings.value, ...blockedSlots.value],
+    selectable: true,
+    selectMirror: true,
+    dayMaxEvents: true,
+    weekends: true,
+    slotMinTime: '06:00:00',
+    slotMaxTime: '23:00:00',
+    slotDuration: '00:30:00',
+    allDaySlot: false,
+    eventColor: '#84CC16',
+    eventTextColor: '#ffffff',
+    eventBorderColor: '#65A30D',
+    select: handleSlotSelect,
+    eventClick: handleEventClick,
+    selectAllow: () => {
+      console.log('🔍 selectAllow called - allowing selection')
+      return true
+    },
+  }
+})
 
 const logout = async () => {
   await authStore.logout()
@@ -456,9 +490,12 @@ const loadBookings = async () => {
     // Try to load from Parse first, fallback to mock data
     const BookingClass = Parse.Object.extend('Booking')
     const query = new Parse.Query(BookingClass)
-    query.equalTo('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+    const venueId = venueOwnerData.value?.objectId || 'mock-venue'
+    console.log('🔍 Loading bookings for venue ID:', venueId)
+    query.equalTo('venueId', venueId)
 
     const parseBookings = await query.find()
+    console.log('📅 Found bookings:', parseBookings.length)
 
     if (parseBookings.length > 0) {
       bookings.value = parseBookings.map((booking) => ({
@@ -557,9 +594,12 @@ const loadBlockedSlots = async () => {
   try {
     const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
     const query = new Parse.Query(BlockedSlotClass)
-    query.equalTo('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+    const venueId = venueOwnerData.value?.objectId || 'mock-venue'
+    console.log('🔍 Loading blocked slots for venue ID:', venueId)
+    query.equalTo('venueId', venueId)
 
     const parseBlocked = await query.find()
+    console.log('🚫 Found blocked slots:', parseBlocked.length)
 
     if (parseBlocked.length > 0) {
       blockedSlots.value = parseBlocked.map((blocked) => ({
@@ -598,7 +638,13 @@ const loadBlockedSlots = async () => {
 }
 
 const handleSlotSelect = async (selectInfo: any) => {
+  console.log('🎯 handleSlotSelect called!', selectInfo)
   const { start, end } = selectInfo
+  console.log('🎯 Slot selected:', {
+    start: start.toISOString(),
+    end: end.toISOString(),
+    view: selectInfo.view.type
+  })
 
   // Check if slot overlaps with existing bookings
   const hasBooking = bookings.value.some((booking) => {
@@ -608,7 +654,8 @@ const handleSlotSelect = async (selectInfo: any) => {
   })
 
   if (hasBooking) {
-    alert('Cannot block slot - there is an existing booking')
+    alert('❌ Cannot block slot - there is an existing booking in this time range')
+    selectInfo.view.calendar.unselect()
     return
   }
 
@@ -641,8 +688,10 @@ const handleSlotSelect = async (selectInfo: any) => {
       const blockedSlot = new BlockedSlotClass()
 
       blockedSlot.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
-      blockedSlot.set('startTime', start.toISOString())
-      blockedSlot.set('endTime', end.toISOString())
+      blockedSlot.set('startTime', start)
+      blockedSlot.set('endTime', end)
+      blockedSlot.set('reason', 'Manual Block')
+      blockedSlot.set('createdBy', Parse.User.current())
 
       const savedSlot = await blockedSlot.save()
 
@@ -660,11 +709,12 @@ const handleSlotSelect = async (selectInfo: any) => {
         },
       }
       blockedSlots.value.push(newBlockedSlot)
-      console.log('Slot blocked')
+      console.log('✅ Slot blocked successfully')
+      alert('✅ Time slot blocked successfully!')
     }
   } catch (error) {
     console.error('Error updating blocked slot:', error)
-    alert('Failed to update slot. Please try again.')
+    alert('❌ Failed to update slot. Please try again.')
   }
 
   // Clear selection
@@ -725,6 +775,32 @@ const formatPrice = (price: number) => {
     currency: 'IDR',
     minimumFractionDigits: 0,
   }).format(price)
+}
+
+// Test function to verify blocking works
+const testBlockSlot = async () => {
+  console.log('🧪 Testing block slot functionality...')
+
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  tomorrow.setHours(14, 0, 0, 0) // 2 PM
+
+  const endTime = new Date(tomorrow)
+  endTime.setHours(15, 0, 0, 0) // 3 PM
+
+  const mockSelectInfo = {
+    start: tomorrow,
+    end: endTime,
+    view: { calendar: { unselect: () => console.log('Calendar unselected') } }
+  }
+
+  await handleSlotSelect(mockSelectInfo)
+}
+
+// Calendar mounted callback
+const onCalendarMounted = () => {
+  console.log('📅 FullCalendar mounted successfully')
+  console.log('🔍 Calendar options:', calendarOptions.value)
 }
 
 const setupLiveQueries = async () => {
@@ -865,6 +941,7 @@ const cleanupLiveQueries = () => {
 onMounted(async () => {
   try {
     const profile = await VenueOwnerService.getVenueOwnerProfile()
+    console.log('🏢 VenueOwner profile loaded:', profile ? profile.id : 'null')
     if (profile) {
       venueOwnerData.value = {
         objectId: profile.id,
@@ -875,6 +952,11 @@ onMounted(async () => {
         status: profile.get('status'),
         submittedAt: profile.get('submittedAt'),
       }
+      console.log('📋 Venue data set:', {
+        id: profile.id,
+        status: profile.get('status'),
+        name: profile.get('venueDetails')?.name
+      })
 
       const status = profile.get('status')
       switch (status) {
@@ -911,8 +993,42 @@ onUnmounted(() => {
 </script>
 
 <style>
+/* Ensure calendar can receive mouse events */
+.venue-calendar {
+  pointer-events: auto !important;
+}
+
 .venue-calendar .fc {
   font-family: inherit;
+  pointer-events: auto !important;
+}
+
+/* Make selection more visible */
+.venue-calendar .fc-highlight {
+  background: rgba(59, 130, 246, 0.3) !important;
+  border: 2px dashed #3b82f6 !important;
+}
+
+/* Improve time slot hover effect */
+.venue-calendar .fc-timegrid-slot:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Style for selectable areas */
+.venue-calendar .fc-timegrid-slot {
+  cursor: crosshair !important;
+  pointer-events: auto !important;
+  border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+.venue-calendar .fc-timegrid-slots {
+  pointer-events: auto !important;
+}
+
+/* Make blocked slots more obvious */
+.venue-calendar .fc-event[style*="background-color: rgb(239, 68, 68)"] {
+  border: 2px solid #dc2626 !important;
+  font-weight: bold;
 }
 
 .venue-calendar .fc-button-primary {

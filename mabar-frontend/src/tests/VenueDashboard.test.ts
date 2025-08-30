@@ -82,7 +82,7 @@ describe('VenueDashboard', () => {
   describe('Layout and Navigation', () => {
     it('renders header with venue name', () => {
       expect(wrapper.find('header').exists()).toBe(true)
-      expect(wrapper.text()).toContain('Venue Dashboard')
+      expect(wrapper.text()).toContain('Test Venue')
     })
 
     it('shows desktop sidebar navigation', () => {
@@ -112,7 +112,9 @@ describe('VenueDashboard', () => {
 
   describe('Calendar Tab', () => {
     it('renders calendar component', () => {
-      expect(wrapper.find('.mock-calendar').exists()).toBe(true)
+      // Check if the calendar container exists since FullCalendar is stubbed
+      const calendarContainer = wrapper.find('.venue-calendar')
+      expect(calendarContainer.exists()).toBe(true)
     })
 
     it('shows booking instructions', () => {
@@ -202,9 +204,9 @@ describe('VenueDashboard', () => {
       wrapper.vm.showBookingModal = true
       await wrapper.vm.$nextTick()
 
-      const closeBtn = wrapper
-        .find('button')
-        .filter((btn: any) => btn.text().includes('✕'))[0]
+      const closeButtons = wrapper.findAll('button')
+      const closeBtn = closeButtons.find((btn: any) => btn.text().includes('✕'))
+      expect(closeBtn).toBeDefined()
       await closeBtn.trigger('click')
 
       expect(wrapper.vm.showBookingModal).toBe(false)
@@ -212,10 +214,12 @@ describe('VenueDashboard', () => {
   })
 
   describe('Data Loading', () => {
-    it('handles loading state', () => {
+    it('handles loading state', async () => {
       wrapper.vm.venueOwnerData = null
       wrapper.vm.activeTab = 'profile'
+      await wrapper.vm.$nextTick()
 
+      // Check if profile tab shows loading text
       expect(wrapper.text()).toContain('Loading venue information')
     })
 

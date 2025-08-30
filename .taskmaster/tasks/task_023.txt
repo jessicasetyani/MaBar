@@ -1,6 +1,6 @@
 # Task ID: 23
 # Title: Build Venue Owner Onboarding Multi-Step Form
-# Status: pending
+# Status: done
 # Dependencies: 6, 5, 4, 1
 # Priority: medium
 # Description: Create a comprehensive multi-step onboarding form for venue owners with personal information, venue details, legal documents, document upload, and verification status tracking.
