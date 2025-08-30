@@ -13,7 +13,13 @@ console.log('Environment validation:', {
 
 // Test Back4App connection on startup
 testBack4AppConnection().then(result => {
-  console.log('Back4App connection test:', result)
+  if (result.success) {
+    console.log('✅ Back4App:', result.message)
+  } else {
+    console.warn('⚠️ Back4App:', result.message)
+  }
+}).catch(error => {
+  console.error('❌ Back4App connection test failed:', error)
 })
 
 createApp(App).mount('#app')
