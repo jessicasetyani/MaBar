@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Parse from '../services/back4app'
 
 export interface User {
@@ -124,10 +124,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const isAuthenticated = computed(() => !!user.value)
+
   return {
     user,
     isLoading,
     error,
+    isAuthenticated,
     register,
     login,
     logout,
