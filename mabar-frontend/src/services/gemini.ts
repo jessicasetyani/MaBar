@@ -36,21 +36,25 @@ export class GeminiService {
       const result = await Parse.Cloud.run('getMatchmakingRecommendations', {
         query,
         userProfile,
-        language
+        language,
       })
-      
+
       return result as GeminiResponse
     } catch (error) {
       console.error('Gemini Service Error:', error)
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }
     }
   }
 
-  static async healthCheck(): Promise<{ status: string; timestamp: string; version: string }> {
+  static async healthCheck(): Promise<{
+    status: string
+    timestamp: string
+    version: string
+  }> {
     try {
       const result = await Parse.Cloud.run('healthCheck')
       return result

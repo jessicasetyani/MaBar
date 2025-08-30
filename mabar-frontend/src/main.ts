@@ -11,19 +11,21 @@ import { router } from './router'
 // Verify environment variables are accessible via type-safe module
 console.log('Environment validation:', {
   appId: env.BACK4APP_APP_ID ? 'loaded' : 'missing',
-  jsKey: env.BACK4APP_JAVASCRIPT_KEY ? 'loaded' : 'missing'
+  jsKey: env.BACK4APP_JAVASCRIPT_KEY ? 'loaded' : 'missing',
 })
 
 // Test Back4App connection on startup
-testBack4AppConnection().then(result => {
-  if (result.success) {
-    console.log('✅ Back4App:', result.message)
-  } else {
-    console.warn('⚠️ Back4App:', result.message)
-  }
-}).catch(error => {
-  console.error('❌ Back4App connection test failed:', error)
-})
+testBack4AppConnection()
+  .then((result) => {
+    if (result.success) {
+      console.log('✅ Back4App:', result.message)
+    } else {
+      console.warn('⚠️ Back4App:', result.message)
+    }
+  })
+  .catch((error) => {
+    console.error('❌ Back4App connection test failed:', error)
+  })
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -38,7 +40,7 @@ authStore.checkSession()
 // Test auth flow in development
 if (import.meta.env.DEV) {
   import('./utils/authTest').then(({ testAuthFlow }) => {
-    testAuthFlow().then(result => {
+    testAuthFlow().then((result) => {
       console.log('🧪 Auth Test Result:', result)
     })
   })

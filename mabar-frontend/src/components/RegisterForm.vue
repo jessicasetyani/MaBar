@@ -21,17 +21,24 @@
         />
       </div>
     </div>
-    
+
     <button
       type="submit"
       :disabled="authStore.isLoading"
       class="w-full text-white py-4 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-lg"
-      :class="authStore.isLoading ? 'bg-slate-400' : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700'"
+      :class="
+        authStore.isLoading
+          ? 'bg-slate-400'
+          : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700'
+      "
     >
       {{ authStore.isLoading ? 'Creating Account...' : 'Get Started' }}
     </button>
-    
-    <div v-if="authStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
+
+    <div
+      v-if="authStore.error"
+      class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm"
+    >
       {{ authStore.error }}
     </div>
   </form>

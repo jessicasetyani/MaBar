@@ -9,11 +9,11 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      events: 'events'
-    }
+      events: 'events',
+    },
   },
   optimizeDeps: {
-    include: ['parse']
+    include: ['parse'],
   },
   envDir: '../', // Look for .env files in the parent directory
 })

@@ -35,7 +35,8 @@
     "task:update-subtask": "npx task-master-ai update-subtask --project-root=. --id",
     "task:generate": "npx task-master-ai generate --project-root=.",
     "task:validate": "npx task-master-ai validate-dependencies --project-root=.",
-    "task:config": "npx task-master-ai models --project-root=."
+    "task:config": "npx task-master-ai models --project-root=.",
+    "prepare": "husky"
   },
   "keywords": [
     "padel",
@@ -64,7 +65,15 @@
     "npm": ">=8.0.0"
   },
   "devDependencies": {
-    "concurrently": "^9.2.0"
+    "@eslint/js": "^9.34.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2"
   },
   "workspaces": [
     "mabar-frontend",
@@ -74,5 +83,14 @@
     "dotenv": "^17.2.1",
     "mongoose": "^8.18.0",
     "parse": "^3.5.1"
+  },
+  "lint-staged": {
+    "mabar-frontend/src/**/*.{js,ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

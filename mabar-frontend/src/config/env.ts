@@ -10,21 +10,25 @@ function validateEnv(): EnvConfig {
   console.log('🔍 Environment check:', {
     appId: appId ? `${appId.substring(0, 8)}...` : 'missing',
     jsKey: jsKey ? `${jsKey.substring(0, 8)}...` : 'missing',
-    allEnvVars: Object.keys(import.meta.env)
+    allEnvVars: Object.keys(import.meta.env),
   })
 
   if (!appId) {
-    console.error('❌ VITE_BACK4APP_APP_ID is missing from environment variables')
+    console.error(
+      '❌ VITE_BACK4APP_APP_ID is missing from environment variables'
+    )
     throw new Error('VITE_BACK4APP_APP_ID is required')
   }
   if (!jsKey) {
-    console.error('❌ VITE_BACK4APP_JAVASCRIPT_KEY is missing from environment variables')
+    console.error(
+      '❌ VITE_BACK4APP_JAVASCRIPT_KEY is missing from environment variables'
+    )
     throw new Error('VITE_BACK4APP_JAVASCRIPT_KEY is required')
   }
 
   return {
     BACK4APP_APP_ID: appId,
-    BACK4APP_JAVASCRIPT_KEY: jsKey
+    BACK4APP_JAVASCRIPT_KEY: jsKey,
   }
 }
 

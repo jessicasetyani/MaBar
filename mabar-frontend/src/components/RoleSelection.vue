@@ -20,7 +20,9 @@
       </button>
     </div>
     <div v-if="authStore.isLoading" class="text-center">
-      <div class="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto"></div>
+      <div
+        class="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto"
+      ></div>
       <p class="text-sm text-gray-600 mt-2">Saving role...</p>
     </div>
     <div v-if="authStore.error" class="text-red-600 text-sm text-center">

@@ -27,17 +27,19 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = {
         id: result.id,
         email: result.get('email'),
-        role: result.get('role') || null
+        role: result.get('role') || null,
       }
       return { success: true }
     } catch (err: any) {
       // Fallback for development when Back4App is not available
       if (err.message.includes('unauthorized') || err.message.includes('403')) {
-        console.warn('Back4App unavailable, using mock registration for development')
+        console.warn(
+          'Back4App unavailable, using mock registration for development'
+        )
         user.value = {
           id: 'mock-' + Date.now(),
           email: email,
-          role: null
+          role: null,
         }
         return { success: true }
       }
@@ -57,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = {
         id: result.id,
         email: result.get('email'),
-        role: result.get('role') || null
+        role: result.get('role') || null,
       }
       return { success: true }
     } catch (err: any) {
@@ -67,7 +69,7 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = {
           id: 'mock-' + Date.now(),
           email: email,
-          role: null
+          role: null,
         }
         return { success: true }
       }
@@ -90,17 +92,17 @@ export const useAuthStore = defineStore('auth', () => {
 
   const setUserRole = async (role: 'player' | 'venue_owner') => {
     if (!user.value) return { success: false, error: 'No user logged in' }
-    
+
     isLoading.value = true
     error.value = null
-    
+
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) throw new Error('No current user')
-      
+
       currentUser.set('role', role)
       await currentUser.save()
-      
+
       user.value.role = role
       return { success: true }
     } catch (err: any) {
@@ -117,7 +119,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = {
         id: currentUser.id,
         email: currentUser.get('email'),
-        role: currentUser.get('role') || null
+        role: currentUser.get('role') || null,
       }
     }
   }
@@ -130,6 +132,6 @@ export const useAuthStore = defineStore('auth', () => {
     login,
     logout,
     setUserRole,
-    checkSession
+    checkSession,
   }
 })
