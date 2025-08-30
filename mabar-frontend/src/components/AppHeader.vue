@@ -125,13 +125,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useAuthStore } from '../stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const mobileMenuOpen = ref(false)
 
-const { user } = authStore
+const { user } = storeToRefs(authStore)
 
 const handleLogout = async () => {
   await authStore.logout()
