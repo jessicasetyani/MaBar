@@ -94,16 +94,26 @@ Parse.Cloud.define("getMatchmakingRecommendations", async (request) => {
     // Try to parse JSON response
     let recommendations;
     try {
-      recommendations = JSON.parse(geminiText);
+      // Strip code fences and whitespace
+      const cleanText = geminiText.trim().replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+      const parsed = JSON.parse(cleanText);
+      
+      // Shape guard
+      if (!Array.isArray(parsed.recommendations) || 
+          typeof parsed.reasoning !== 'string' || 
+          typeof parsed.confidence_score !== 'number') {
+        throw new Error('Invalid response shape');
+      }
+      
+      recommendations = parsed;
     } catch (parseError) {
-      // If JSON parsing fails, create a structured response
+      // Fallback with consistent schema
       recommendations = {
         recommendations: [{
           type: 'general',
-          message: geminiText,
-          confidence: 0.7
+          message: geminiText.slice(0, 800)
         }],
-        reasoning: 'AI-generated recommendation',
+        reasoning: 'Fallback due to non-JSON model output',
         confidence_score: 0.7
       };
     }
