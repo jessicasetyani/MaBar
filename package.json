@@ -4,24 +4,24 @@
   "description": "MaBar - Smart Padel Matchmaking Platform",
   "private": true,
   "scripts": {
-    "install": "npm install --prefix frontend && npm install --prefix backend",
-    "dev": "concurrently \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
-    "start": "npm start --prefix backend",
-    "build": "npm run build --prefix frontend",
-    "build:prod": "NODE_ENV=production npm run build --prefix frontend",
-    "start:prod": "NODE_ENV=production npm start --prefix backend",
-    "test": "npm test --prefix backend && npm test --prefix frontend",
-    "lint": "npm run lint --prefix frontend && npm run lint --prefix backend",
-    "lint:fix": "npm run lint:fix --prefix frontend && npm run lint:fix --prefix backend",
-    "format": "npm run format --prefix frontend && npm run format --prefix backend",
-    "format:check": "npm run format:check --prefix frontend && npm run format:check --prefix backend",
+    "install": "npm install --prefix mabar-frontend && npm install --prefix cloud",
+    "dev": "npm run dev --prefix mabar-frontend",
+    "start": "npm run dev --prefix mabar-frontend",
+    "build": "npm run build --prefix mabar-frontend",
+    "build:prod": "NODE_ENV=production npm run build --prefix mabar-frontend",
+    "preview": "npm run preview --prefix mabar-frontend",
+    "test": "npm test --prefix mabar-frontend",
+    "lint": "npm run lint --prefix mabar-frontend",
+    "lint:fix": "npm run lint:fix --prefix mabar-frontend",
+    "format": "npm run format --prefix mabar-frontend",
+    "format:check": "npm run format:check --prefix mabar-frontend",
     "db:setup": "node scripts/setup-db.js",
     "generate-secrets": "node scripts/generate-secure-secrets.js",
     "audit": "npm audit",
-    "security:audit": "npm audit --prefix backend && npm audit --prefix frontend && node scripts/security-audit.js",
-    "security:fix": "npm audit fix --prefix backend && npm audit fix --prefix frontend",
+    "security:audit": "npm audit --prefix cloud && npm audit --prefix mabar-frontend && node scripts/security-audit.js",
+    "security:fix": "npm audit fix --prefix cloud && npm audit fix --prefix mabar-frontend",
     "security:generate-secrets": "node scripts/generate-secure-secrets.js",
-    "portfolio:demo": "echo 'Starting MaBar Portfolio Demo...' && npm run build:prod && concurrently \"npm run start:prod\" \"npm run dev --prefix frontend\"",
+    "portfolio:demo": "echo 'Starting MaBar Portfolio Demo...' && npm run build:prod && npm run preview",
     "task:list": "npx task-master-ai get-tasks --project-root=.",
     "task:next": "npx task-master-ai next-task --project-root=.",
     "task:show": "npx task-master-ai get-task --project-root=. --id",
@@ -35,7 +35,8 @@
     "task:update-subtask": "npx task-master-ai update-subtask --project-root=. --id",
     "task:generate": "npx task-master-ai generate --project-root=.",
     "task:validate": "npx task-master-ai validate-dependencies --project-root=.",
-    "task:config": "npx task-master-ai models --project-root=."
+    "task:config": "npx task-master-ai models --project-root=.",
+    "prepare": "husky"
   },
   "keywords": [
     "padel",
@@ -64,14 +65,32 @@
     "npm": ">=8.0.0"
   },
   "devDependencies": {
-    "concurrently": "^9.2.0"
+    "@eslint/js": "^9.34.0",
+    "@vue/eslint-config-typescript": "^14.6.0",
+    "concurrently": "^9.2.0",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.5",
+    "prettier": "^3.6.2"
   },
   "workspaces": [
-    "frontend",
-    "backend"
+    "mabar-frontend",
+    "cloud"
   ],
   "dependencies": {
     "dotenv": "^17.2.1",
-    "mongoose": "^8.18.0"
+    "mongoose": "^8.18.0",
+    "parse": "^6.1.1"
+  },
+  "lint-staged": {
+    "mabar-frontend/src/**/*.{js,ts,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   }
 }

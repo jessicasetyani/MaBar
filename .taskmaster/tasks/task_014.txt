@@ -1,0 +1,11 @@
+# Task ID: 14
+# Title: Implement QR Code Generation for Check-in
+# Status: pending
+# Dependencies: 11
+# Priority: low
+# Description: Create QR code generation and display for booking verification
+# Details:
+Use qrcode.vue library to generate unique QR codes for each booking. Store QR code data in Parse booking object. Create QR display component in venue dashboard. Implement QR code scanning capability (optional). Ensure QR codes contain booking verification data.
+
+# Test Strategy:
+Test QR code generation, data encoding/decoding, and display functionality

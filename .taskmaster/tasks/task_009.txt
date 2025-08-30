@@ -1,43 +1,11 @@
 # Task ID: 9
-# Title: Build Reputation and Trust System
+# Title: Implement AI Chat Interface Component
 # Status: pending
-# Dependencies: 6, 8
-# Priority: medium
-# Description: Add functionality for players to report no-shows and rate venues after completed and checked-in games to foster community trust.
+# Dependencies: 5, 8
+# Priority: high
+# Description: Create the conversational AI chat interface for matchmaking
 # Details:
-Extend GameSession and User schemas to store ratings and reports. Backend endpoints implemented in Rust with Actix Web or Axum framework to submit ratings and no-show reports. Frontend UI for rating venues and reporting no-shows post-session. Implement aggregation logic for venue ratings. Ensure only checked-in players can rate/report.
+Build chat UI with message bubbles, input field, send button. Implement message history persistence. Create component for displaying AI responses. Support both English and Bahasa Indonesia input. Use Tailwind for styling with MaBar color scheme.
 
 # Test Strategy:
-Submit ratings and reports and verify persistence. Confirm only eligible users can submit. Test aggregation and display of venue ratings. Validate UI flows and error handling.
-
-# Subtasks:
-## 1. Extend Database Schemas for Ratings and Reports [pending]
-### Dependencies: None
-### Description: Add fields to GameSession and User schemas to store venue ratings, no-show reports, and user reputation data.
-### Details:
-Modify the GameSession schema to include fields for storing venue ratings (e.g., rating value, timestamp, user ID) and no-show reports (e.g., reporter ID, reported user ID, session ID, timestamp). Extend the User schema to include reputation score fields (e.g., total ratings received, average rating, no-show count). Use SQL migration scripts to add these columns to the respective tables.
-
-## 2. Implement Backend Endpoints for Submitting Ratings and Reports [pending]
-### Dependencies: 9.1
-### Description: Create Rust backend endpoints using Actix Web or Axum to handle submission of venue ratings and no-show reports.
-### Details:
-Develop POST endpoints: /api/sessions/{sessionId}/rate for submitting venue ratings and /api/sessions/{sessionId}/report-no-show for reporting no-shows. Implement validation to ensure only checked-in players can submit (check against GameSession join status). Use request body parsing for rating values (e.g., 1-5 stars) and report details. Store data in the database using the extended schemas.
-
-## 3. Implement Aggregation Logic for Venue Ratings [pending]
-### Dependencies: 9.2
-### Description: Add backend logic to calculate and store aggregated venue ratings based on individual user submissions.
-### Details:
-Create a function or service that computes average rating for each venue from stored ratings. Update the Venue schema or a separate aggregation table with computed averages (e.g., total ratings, average score). Implement this as a background task or on-demand when new ratings are submitted. Ensure efficient querying to avoid performance issues.
-
-## 4. Build Frontend UI for Rating Venues and Reporting No-Shows [pending]
-### Dependencies: 9.2
-### Description: Develop React components for users to rate venues and report no-shows after game sessions.
-### Details:
-Create a post-session modal or page that appears after check-in, featuring a star rating component for venues and a button to report no-shows. Integrate with backend endpoints to submit data. Include form validation and success/error feedback. Ensure UI is only accessible to checked-in players for the specific session.
-
-## 5. Implement User Reputation Scoring and Moderation Features [pending]
-### Dependencies: 9.3, 9.4
-### Description: Add logic to calculate user reputation scores based on ratings and reports, and implement basic moderation tools.
-### Details:
-Develop a reputation scoring algorithm that factors in received ratings and no-show reports (e.g., average rating minus no-show penalties). Create backend endpoints to retrieve user reputation scores. Implement admin moderation features to review and manage reports (e.g., endpoint to list reports, resolve disputes). Update user profiles to display reputation scores.
-
+Test chat interface functionality, message sending/receiving, language support, and responsive design

@@ -1,103 +1,49 @@
 # Task ID: 13
-# Title: Validate Completed Features After Rust Migration
-# Status: done
-# Dependencies: 12
-# Priority: high
-# Description: Validate and test that all previously completed features (Admin Panel Foundation and Venue Verification Queue) work correctly after the Rust backend migration, ensuring no functionality regression.
+# Title: Build Venue Dashboard with Calendar View
+# Status: pending
+# Dependencies: 23
+# Priority: medium
+# Description: Create venue owner dashboard with booking calendar and management
 # Details:
-Comprehensive testing of all completed features to ensure they work seamlessly with the new Rust backend:
-
-1. **Admin Panel Foundation Validation:**
-   - Test admin login with existing credentials
-   - Verify role-based access control works correctly
-   - Confirm admin dashboard loads and functions properly
-   - Test session management and authentication flow
-
-2. **Venue Verification Queue Validation:**
-   - Test venue submission retrieval from database
-   - Verify approve/reject functionality works correctly
-   - Confirm venue status updates persist in MongoDB
-   - Test admin notifications and feedback systems
-   - Validate venue owner status updates
-
-3. **API Compatibility Testing:**
-   - Ensure all existing API endpoints return identical responses
-   - Test request/response formats match exactly
-   - Verify error handling and status codes are consistent
-   - Confirm authentication tokens work across both systems
-
-4. **Database Integration Testing:**
-   - Validate data integrity after migration
-   - Test CRUD operations on existing data
-   - Confirm MongoDB queries return expected results
-   - Verify indexes and performance are maintained
-
-5. **Frontend Integration Testing:**
-   - Test React components work with new Rust endpoints
-   - Verify state management and data flow
-   - Confirm UI interactions trigger correct backend calls
-   - Test error handling and user feedback
+Create dashboard with calendar view showing MaBar bookings. Implement time slot blocking/unblocking functionality. Show booking details and status. Use calendar library (like FullCalendar) with Tailwind styling. Implement real-time updates for booking changes.
 
 # Test Strategy:
-1. **Regression Testing Suite:**
-   - Run all existing admin panel tests against Rust backend
-   - Compare API responses between Node.js and Rust implementations
-   - Verify database queries return identical results
-
-2. **End-to-End Testing:**
-   - Complete admin login flow from frontend to backend
-   - Full venue verification workflow (submit → review → approve/reject)
-   - Test all user interactions and state changes
-
-3. **Performance Validation:**
-   - Compare response times between old and new backend
-   - Verify memory usage and resource consumption
-   - Test concurrent user scenarios
-
-4. **Data Integrity Checks:**
-   - Validate existing admin accounts still work
-   - Confirm venue data is accessible and modifiable
-   - Test data consistency across all operations
-
-5. **Error Handling Verification:**
-   - Test invalid credentials and unauthorized access
-   - Verify proper error messages and status codes
-   - Confirm graceful handling of edge cases
+Test calendar functionality, slot management, booking displays, and real-time updates
 
 # Subtasks:
-## 1. Set Up Test Environment and Baseline Data [done]
+## 1. Design Dashboard Layout with Tailwind [pending]
 ### Dependencies: None
-### Description: Prepare the testing environment with migrated Rust backend, restore production-like data, and establish baseline API responses from the original Node.js backend for comparison.
+### Description: Create the overall dashboard layout using Tailwind CSS, ensuring responsive design and proper structure for calendar integration.
 ### Details:
-Deploy the Rust backend in a staging environment. Restore a snapshot of the MongoDB database with admin users, venue submissions, and existing data. Capture and store API responses from the original Node.js backend for all endpoints related to admin panel and venue verification features to use as a baseline for comparison.
+Design and implement the main dashboard structure with Tailwind CSS classes, including header, sidebar (if needed), and content area for the calendar. Ensure responsiveness for mobile and desktop views.
 
-## 2. Validate Admin Authentication and Session Management [done]
+## 2. Integrate Calendar Library and Display Bookings [pending]
 ### Dependencies: 13.1
-### Description: Test admin login functionality, role-based access control, session management, and authentication flow with the new Rust backend.
+### Description: Integrate FullCalendar (or similar) library and configure it to display MaBar bookings from the data source.
 ### Details:
-Execute test cases for admin login using existing credentials. Verify JWT token generation and validation. Test role-based access control by accessing protected routes with different admin roles. Validate session persistence, logout functionality, and token expiration handling. Ensure all authentication-related endpoints return consistent status codes and responses compared to the Node.js baseline.
+Install and set up FullCalendar library. Fetch booking data from the backend (e.g., Parse) and render events on the calendar. Style calendar elements with Tailwind to match the dashboard design.
 
-## 3. Test Venue Verification Queue Workflow [done]
-### Dependencies: 13.1, 13.2
-### Description: Validate the entire venue verification queue functionality, including retrieval, approval/rejection actions, status updates, and notifications.
+## 3. Implement Slot Blocking/Unblocking Functionality [pending]
+### Dependencies: 13.2
+### Description: Add functionality for venue owners to block or unblock time slots directly on the calendar.
 ### Details:
-Test retrieval of venue submissions from MongoDB via Rust endpoints. Execute approve and reject actions and verify that venue status updates persist correctly. Confirm that admin notifications and feedback systems trigger appropriately. Validate that venue owner status updates are communicated and stored. Ensure all API endpoints for venue management return identical responses to the Node.js baseline.
+Implement click or drag handlers on calendar time slots to allow blocking/unblocking. Send updates to the backend (e.g., via Parse) to persist changes. Provide visual feedback for blocked slots (e.g., different color).
 
-## 4. Verify API Compatibility and Response Consistency [done]
-### Dependencies: 13.1, 13.2, 13.3
-### Description: Ensure all existing API endpoints for admin and venue features return identical responses, error handling, and status codes between Node.js and Rust backends.
+## 4. Show Booking Details and Status [pending]
+### Dependencies: 13.2
+### Description: Display detailed information and status for each booking when selected or hovered.
 ### Details:
-Run a comprehensive suite of API tests against both Node.js and Rust backends. Compare response bodies, headers, status codes, and error messages for all endpoints related to admin panel and venue verification. Test edge cases and invalid requests to verify consistent error handling. Validate that authentication tokens work identically across both systems.
+Implement event click or hover interactions to show a popover/modal with booking details (e.g., customer name, time, status). Style the details view with Tailwind and ensure it integrates smoothly with the calendar.
 
-## 5. Validate Database Integration and Data Integrity [done]
-### Dependencies: 13.1, 13.2, 13.3, 13.4
-### Description: Test CRUD operations, data consistency, query results, and performance of MongoDB interactions with the Rust backend.
+## 5. Implement Real-Time Updates for Bookings [pending]
+### Dependencies: 13.2, 13.3, 13.4
+### Description: Add real-time functionality to reflect booking changes immediately in the calendar without manual refresh.
 ### Details:
-Execute CRUD operations on admin users, venue submissions, and related data via Rust API endpoints. Verify that data created, updated, or deleted persists correctly in MongoDB. Run identical database queries on both backends and compare results. Validate that indexes are used efficiently and performance metrics are maintained or improved. Check for data integrity issues after migration.
+Use WebSockets, Parse LiveQuery, or polling to listen for booking changes (new, updated, canceled) and update the calendar view in real time. Ensure performance and error handling.
 
-## 6. Test Frontend Integration and User Experience [done]
+## 6. Test Dashboard Features and Responsiveness [pending]
 ### Dependencies: 13.1, 13.2, 13.3, 13.4, 13.5
-### Description: Validate that the React frontend works seamlessly with the new Rust backend, including state management, UI interactions, and error handling.
+### Description: Thoroughly test all dashboard functionalities, including calendar interactions, slot management, and real-time updates, across devices.
 ### Details:
-Test the entire admin panel and venue verification queue UI with the Rust backend. Verify that all React components load data correctly, state updates trigger appropriate backend calls, and UI interactions (e.g., button clicks, form submissions) work as expected. Test error scenarios and ensure user feedback is consistent. Confirm that frontend authentication flows integrate properly with the Rust backend.
+Test calendar rendering, slot blocking/unblocking, booking details display, and real-time updates. Verify responsiveness on mobile and desktop. Write and run unit/integration tests as needed.
 

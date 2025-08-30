@@ -8,7 +8,7 @@
     },
     "research": {
       "provider": "openrouter",
-      "modelId": "perplexity/sonar",
+      "modelId": "perplexity/sonar-pro",
       "maxTokens": 8700,
       "temperature": 0.1
     },

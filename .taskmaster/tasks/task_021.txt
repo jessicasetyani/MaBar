@@ -1,0 +1,69 @@
+# Task ID: 21
+# Title: Create Role Selection Component for First Login
+# Status: pending
+# Dependencies: 6
+# Priority: high
+# Description: Build a role selection interface that appears after user registration, allowing users to choose between Player or Venue Owner roles with descriptions and visual indicators, then save selection and redirect to appropriate onboarding flow.
+# Details:
+Create RoleSelection.vue component that:
+
+1. Conditionally renders after successful registration/login based on user's role field being null/undefined
+2. Displays two role options: Player and Venue Owner with:
+   - Clear visual cards/icons for each role
+   - Descriptive text explaining each role's purpose
+   - MaBar branding and styling using Tailwind CSS
+3. Implements role selection logic:
+   - On role selection, update Parse User object with custom 'role' field ('player' or 'venue_owner')
+   - Show loading state during save operation
+   - Handle save errors with user feedback
+4. Implement redirection logic:
+   - Redirect to player onboarding flow for 'player' role
+   - Redirect to venue owner onboarding flow for 'venue_owner' role
+5. Use Pinia store for state management and routing
+6. Ensure mobile-responsive design with proper touch targets
+
+Code structure:
+- Use Parse.User.current() to get current user
+- Implement save: await user.set('role', selectedRole).save()
+- Use Vue Router for navigation: router.push('/onboarding/player') or router.push('/onboarding/venue-owner')
+
+# Test Strategy:
+1. Test component rendering: Verify role selection appears only when user.role is null/undefined
+2. Test role selection: Click each role option and verify visual feedback
+3. Test save functionality: Mock Parse save operation and verify role is saved correctly
+4. Test redirection: Verify correct onboarding route navigation based on selected role
+5. Test error handling: Simulate save errors and verify user feedback is displayed
+6. Test responsive design: Verify component works on mobile and desktop viewports
+7. Test edge cases: Verify component doesn't show for users with existing roles
+
+# Subtasks:
+## 1. Implement Conditional Rendering Logic [pending]
+### Dependencies: None
+### Description: Set up logic to conditionally render the RoleSelection component only when the user's role field is null or undefined after successful registration/login.
+### Details:
+Check Parse.User.current() for role field value; conditionally display component based on role being null/undefined.
+
+## 2. Design Role Selection UI with Tailwind CSS [pending]
+### Dependencies: None
+### Description: Create the visual interface for role selection with cards/icons for Player and Venue Owner roles, including descriptive text and MaBar branding.
+### Details:
+Build responsive UI cards with icons, text descriptions, and Tailwind styling; ensure mobile-friendly touch targets.
+
+## 3. Implement Role Selection and Save Logic [pending]
+### Dependencies: 21.1, 21.2
+### Description: Add functionality to handle role selection, update the Parse User object with the selected role, and save it.
+### Details:
+On role selection, call user.set('role', selectedRole).save(); use Pinia for state management.
+
+## 4. Handle Loading and Error States [pending]
+### Dependencies: 21.3
+### Description: Implement visual feedback for loading during save operations and error handling with user notifications.
+### Details:
+Show loading spinner during save; display error messages if save fails using user feedback components.
+
+## 5. Implement Redirection and Routing Logic [pending]
+### Dependencies: 21.3
+### Description: Set up navigation to redirect users to the appropriate onboarding flow based on their selected role.
+### Details:
+Use Vue Router to push to '/onboarding/player' or '/onboarding/venue-owner' after successful role save.
+

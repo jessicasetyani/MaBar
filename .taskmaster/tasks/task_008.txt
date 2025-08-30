@@ -1,11 +1,49 @@
 # Task ID: 8
-# Title: Implement QR Code Check-in Functionality
+# Title: Build Player Profile Management
 # Status: pending
-# Dependencies: 7
+# Dependencies: 22
 # Priority: medium
-# Description: Develop the ability for players to scan QR codes to prove attendance at game sessions, enabling attendance verification.
+# Description: Create advanced profile page with editable matchmaking criteria
 # Details:
-Use a React QR code scanner library like 'react-qr-reader' 3.x for frontend scanning. Backend API implemented in Rust with Actix Web or Axum framework to validate scanned QR code data, update player check-in status in GameSession. Secure endpoints to prevent spoofing. Provide UI feedback on successful or failed check-in.
+Create profile edit component with fields: weekly availability (day/time selectors), budget range slider, play style toggle, opponent preferences (gender/age selectors). Implement save/update functionality to Parse. Create profile view component for displaying user data.
 
 # Test Strategy:
-Test scanning QR codes with various devices. Verify backend updates check-in status correctly. Test error handling for invalid or duplicate scans.
+Test profile editing, data persistence, form validation, and display components
+
+# Subtasks:
+## 1. Design Profile Edit Component UI [pending]
+### Dependencies: None
+### Description: Create the user interface layout for the profile edit component with proper form structure and styling
+### Details:
+Design the visual layout including form fields arrangement, styling using Tailwind CSS, and ensure responsive design that works across mobile and desktop devices
+
+## 2. Implement Form Fields and Validation [pending]
+### Dependencies: 8.1
+### Description: Add all required form fields with proper validation rules and error handling
+### Details:
+Implement text inputs, sliders, and toggle switches with validation logic including required fields, email format validation, and custom validation rules for each field type
+
+## 3. Integrate Availability and Preference Selectors [pending]
+### Dependencies: 8.2
+### Description: Implement the complex selectors for weekly availability and opponent preferences
+### Details:
+Create day/time multi-selectors for weekly availability, gender/age selectors for opponent preferences, budget range slider with min/max values, and play style toggle with explanatory text
+
+## 4. Implement Save/Update Logic to Parse [pending]
+### Dependencies: 8.3
+### Description: Create the backend integration to save and update profile data in Parse database
+### Details:
+Implement Parse SDK integration for saving user profile data, create update functionality, handle success/error responses, and ensure data persistence to the Parse backend
+
+## 5. Create Profile View Component [pending]
+### Dependencies: 8.1
+### Description: Build the component for displaying user profile data in read-only mode
+### Details:
+Create a clean, responsive display component that shows all user profile information including availability, budget range, play style, and opponent preferences in a well-formatted layout
+
+## 6. Test Data Persistence and Display [pending]
+### Dependencies: 8.4, 8.5
+### Description: Comprehensive testing of profile editing, data saving, and display functionality
+### Details:
+Test profile editing flow, verify data persistence to Parse backend, test form validation, ensure proper data display in view component, and validate all functionality works across different devices
+

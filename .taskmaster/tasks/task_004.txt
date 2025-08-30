@@ -1,11 +1,43 @@
 # Task ID: 4
-# Title: Implement User Authentication and Profile Management
-# Status: pending
-# Dependencies: 1, 12
+# Title: Configure Environment Variables and Security
+# Status: done
+# Dependencies: 1
 # Priority: high
-# Description: Develop user registration (email and OAuth SSO with Google and Facebook), login, role selection (Player or Venue Owner), and editable player profile with matchmaking preferences.
+# Description: Set up environment management with .env files and security configurations
 # Details:
-Backend authentication implemented in Rust using oauth2 and jsonwebtoken crates for OAuth SSO and JWT token management. Use Actix Web or Axum framework with MongoDB integration via the official Rust driver. Store user data in MongoDB with roles and nested profile object including skill level, play style, and availability. Implement frontend registration/login forms and profile management pages with React Hook Form and validation. Secure API endpoints with JWT authentication.
+Create .env file with VITE_BACK4APP_APP_ID and VITE_BACK4APP_JAVASCRIPT_KEY placeholders. Configure .gitignore to exclude .env and /dist. Set up Vite environment variable handling with import.meta.env. Create environment configuration module for type-safe access to env variables.
 
 # Test Strategy:
-Test registration and login flows for email and OAuth. Verify role selection persists. Edit and save profile preferences and confirm data updates in DB. Test authentication middleware protects routes. Validate Rust backend integration with MongoDB and JWT token generation/verification.
+Verify environment variables are accessible in code, test .gitignore excludes sensitive files, validate build process
+
+# Subtasks:
+## 1. Create .env File with Placeholders [done]
+### Dependencies: None
+### Description: Create a .env file in the project root with placeholder values for VITE_BACK4APP_APP_ID and VITE_BACK4APP_JAVASCRIPT_KEY.
+### Details:
+Create .env file with VITE_BACK4APP_APP_ID=your_app_id_here and VITE_BACK4APP_JAVASCRIPT_KEY=your_key_here placeholders.
+
+## 2. Update .gitignore to Exclude Sensitive Files [done]
+### Dependencies: None
+### Description: Modify the .gitignore file to exclude .env and /dist directories from version control.
+### Details:
+Add entries for .env and /dist in the .gitignore file to prevent sensitive files from being committed.
+
+## 3. Configure Vite for Environment Variable Access [done]
+### Dependencies: 4.1
+### Description: Set up Vite to handle environment variables using import.meta.env.
+### Details:
+Ensure Vite is configured to expose environment variables prefixed with VITE_ via import.meta.env in the application.
+
+## 4. Implement Type-Safe Environment Configuration Module [done]
+### Dependencies: 4.3
+### Description: Create a module for type-safe access to environment variables.
+### Details:
+Develop a configuration module (e.g., env.ts) that validates and provides typed access to environment variables using TypeScript.
+
+## 5. Validate Environment Variable Usage in Code [done]
+### Dependencies: 4.4
+### Description: Verify that environment variables are correctly accessed and used throughout the codebase.
+### Details:
+Test and validate that all parts of the code using environment variables function correctly and adhere to the type-safe module.
+

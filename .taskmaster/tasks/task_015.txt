@@ -1,0 +1,11 @@
+# Task ID: 15
+# Title: Create Responsive PWA Layout and Navigation
+# Status: pending
+# Dependencies: 1, 2
+# Priority: medium
+# Description: Build main application layout with responsive navigation and routing
+# Details:
+Create main App.vue layout with header, navigation, and content areas. Implement Vue Router for navigation between dashboards (player/venue). Create responsive navigation menu that works on mobile and desktop. Implement role-based routing based on user type.
+
+# Test Strategy:
+Test navigation functionality, responsive design, role-based routing, and mobile compatibility

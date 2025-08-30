@@ -1,11 +1,11 @@
 # Task ID: 5
-# Title: Develop Venue Dashboard with Calendar View for Schedule Management
-# Status: pending
-# Dependencies: 3, 4
+# Title: Install and Configure Back4App JavaScript SDK
+# Status: done
+# Dependencies: 4
 # Priority: high
-# Description: Create a dashboard for venue owners to manage court availability, view bookings, and block off times using a calendar interface.
+# Description: Set up Back4App integration with Parse SDK for backend communication
 # Details:
-Use React with a calendar library like FullCalendar 6.x or React Big Calendar for UI. Backend endpoints implemented in Rust with Actix Web or Axum framework to fetch and update venue availability and bookings. Implement blocking/unblocking time slots. Ensure real-time updates with polling or WebSocket (optional for MVP). Store schedule data in MongoDB using official Rust driver linked to Venue and GameSession models.
+Install Parse SDK: `npm install parse`. Create Back4App service module: initialize Parse with appId and javascriptKey from environment variables. Configure Parse server URL: `Parse.serverURL = 'https://parseapi.back4app.com'`. Set up error handling and connection testing.
 
 # Test Strategy:
-Test calendar displays correct availability and bookings. Verify blocking/unblocking updates backend and UI. Confirm only venue owners can access and modify their schedules.
+Test Back4App connection with mock credentials, verify SDK initialization, test error handling

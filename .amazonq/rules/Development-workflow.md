@@ -1,0 +1,2 @@
+On every completed task from taskmaster, do a git commit with short descriptive commit message.
+when you do "npm run dev" make sure you had method to limit the running time, so you won't get stuck waiting the server to shutdown; or if you need to just make sure there won't be any error with the build, just use "npm run build".
