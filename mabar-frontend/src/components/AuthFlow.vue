@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-4">
-    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/20">
+  <div class="min-h-screen flex items-center justify-center p-4" style="background: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);">
+    <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
       <!-- Role Selection for users without role -->
       <RoleSelection 
         v-if="authStore.user && !authStore.user.role"
@@ -11,13 +11,13 @@
       <div v-else-if="!authStore.user">
         <div class="text-center mb-8">
           <div class="mb-4">
-            <div class="w-16 h-16 mx-auto bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-4">
+            <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4" style="background: linear-gradient(45deg, #10b981, #14b8a6);">
               <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
               </svg>
             </div>
           </div>
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">MaBar</h1>
+          <h1 class="text-4xl font-bold mb-2" style="background: linear-gradient(45deg, #059669, #0d9488); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MaBar</h1>
           <p class="text-gray-600 text-lg">Badminton Match & Venue Booking</p>
         </div>
         
@@ -46,7 +46,7 @@
       
       <!-- Authenticated user dashboard -->
       <div v-else class="text-center">
-        <div class="w-16 h-16 mx-auto bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-6">
+        <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6" style="background: linear-gradient(45deg, #10b981, #14b8a6);">
           <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
           </svg>
@@ -56,7 +56,7 @@
         <p class="text-emerald-600 font-medium mb-6 capitalize">{{ authStore.user.role?.replace('_', ' ') }}</p>
         <button
           @click="authStore.logout"
-          class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+          class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           Sign Out
         </button>

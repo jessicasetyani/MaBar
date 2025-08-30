@@ -25,7 +25,8 @@
     <button
       type="submit"
       :disabled="authStore.isLoading"
-      class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-xl hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+      class="w-full text-white p-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
+      :class="authStore.isLoading ? 'bg-gray-500' : 'bg-emerald-500 hover:bg-emerald-600'"
     >
       {{ authStore.isLoading ? 'Creating Account...' : 'Create Account' }}
     </button>
