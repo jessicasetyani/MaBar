@@ -138,6 +138,117 @@
           >
             <FullCalendar :options="calendarOptions" class="venue-calendar" />
           </div>
+
+          <!-- Booking Details Modal -->
+          <div
+            v-if="showBookingModal"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            @click="closeBookingModal"
+          >
+            <div
+              class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              @click.stop
+            >
+              <div class="p-6">
+                <div class="flex justify-between items-start mb-4">
+                  <h3 class="text-lg font-semibold text-slate-900">
+                    Booking Details
+                  </h3>
+                  <button
+                    @click="closeBookingModal"
+                    class="text-slate-400 hover:text-slate-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div v-if="selectedBooking" class="space-y-4">
+                  <!-- Status Badge -->
+                  <div class="flex items-center space-x-2">
+                    <span
+                      :class="[
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                        selectedBooking.status === 'confirmed'
+                          ? 'bg-lime-100 text-lime-800'
+                          : 'bg-yellow-100 text-yellow-800',
+                      ]"
+                    >
+                      {{
+                        selectedBooking.status === 'confirmed'
+                          ? '✓ Confirmed'
+                          : '⏳ Pending'
+                      }}
+                    </span>
+                    <span
+                      :class="[
+                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                        selectedBooking.paymentStatus === 'paid'
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-red-100 text-red-800',
+                      ]"
+                    >
+                      {{
+                        selectedBooking.paymentStatus === 'paid'
+                          ? '💳 Paid'
+                          : '💳 Unpaid'
+                      }}
+                    </span>
+                  </div>
+
+                  <!-- Time & Court -->
+                  <div class="bg-slate-50 rounded-lg p-3">
+                    <div class="text-sm text-slate-600 mb-1">
+                      Time & Location
+                    </div>
+                    <div class="font-medium text-slate-900">
+                      {{ formatTime(selectedBooking.start) }} -
+                      {{ formatTime(selectedBooking.end) }}
+                    </div>
+                    <div class="text-sm text-slate-600">
+                      {{ selectedBooking.court }}
+                    </div>
+                  </div>
+
+                  <!-- Players -->
+                  <div>
+                    <div class="text-sm text-slate-600 mb-2">Players</div>
+                    <div class="space-y-1">
+                      <div
+                        v-for="player in selectedBooking.players"
+                        :key="player"
+                        class="text-sm text-slate-900"
+                      >
+                        👤 {{ player }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Contact Info -->
+                  <div>
+                    <div class="text-sm text-slate-600 mb-2">
+                      Contact Information
+                    </div>
+                    <div class="space-y-1">
+                      <div class="text-sm text-slate-900">
+                        📧 {{ selectedBooking.contact }}
+                      </div>
+                      <div class="text-sm text-slate-900">
+                        📱 {{ selectedBooking.phone }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Price -->
+                  <div class="bg-slate-50 rounded-lg p-3">
+                    <div class="text-sm text-slate-600 mb-1">Total Price</div>
+                    <div class="text-lg font-semibold text-slate-900">
+                      {{ formatPrice(selectedBooking.price) }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Profile Tab -->
@@ -306,6 +417,8 @@ const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
 const bookings = ref<any[]>([])
 const blockedSlots = ref<any[]>([])
+const selectedBooking = ref<any>(null)
+const showBookingModal = ref(false)
 
 const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -337,7 +450,7 @@ const logout = async () => {
 }
 
 const loadBookings = async () => {
-  // Mock booking data for demonstration
+  // Mock booking data with detailed information
   bookings.value = [
     {
       id: '1',
@@ -346,6 +459,16 @@ const loadBookings = async () => {
       end: new Date().toISOString().split('T')[0] + 'T11:30:00',
       backgroundColor: '#84CC16',
       borderColor: '#65A30D',
+      extendedProps: {
+        type: 'booking',
+        status: 'confirmed',
+        court: 'Court 1',
+        players: ['John Doe', 'Mike Smith', 'Sarah Johnson', 'Lisa Brown'],
+        contact: 'john.doe@email.com',
+        phone: '+62 812-3456-7890',
+        price: 150000,
+        paymentStatus: 'paid',
+      },
     },
     {
       id: '2',
@@ -355,6 +478,16 @@ const loadBookings = async () => {
       backgroundColor: '#FDE047',
       borderColor: '#FACC15',
       textColor: '#334155',
+      extendedProps: {
+        type: 'booking',
+        status: 'pending',
+        court: 'Court 2',
+        players: ['Alex Wilson'],
+        contact: 'alex.wilson@email.com',
+        phone: '+62 813-7654-3210',
+        price: 100000,
+        paymentStatus: 'pending',
+      },
     },
   ]
 }
@@ -441,7 +574,37 @@ const handleEventClick = (clickInfo: any) => {
         console.log('Slot unblocked')
       }
     }
+  } else if (event.extendedProps?.type === 'booking') {
+    selectedBooking.value = {
+      id: event.id,
+      title: event.title,
+      start: event.start,
+      end: event.end,
+      ...event.extendedProps,
+    }
+    showBookingModal.value = true
   }
+}
+
+const closeBookingModal = () => {
+  showBookingModal.value = false
+  selectedBooking.value = null
+}
+
+const formatTime = (date: Date) => {
+  return date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  })
+}
+
+const formatPrice = (price: number) => {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+  }).format(price)
 }
 
 onMounted(async () => {

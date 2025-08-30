@@ -456,7 +456,7 @@
             "description": "Display detailed information and status for each booking when selected or hovered.",
             "dependencies": ["13.2"],
             "details": "Implement event click or hover interactions to show a popover/modal with booking details (e.g., customer name, time, status). Style the details view with Tailwind and ensure it integrates smoothly with the calendar.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T21:06:03.139Z",
+      "updated": "2025-08-30T21:08:45.542Z",
       "description": "Tasks for master context"
     }
   }
