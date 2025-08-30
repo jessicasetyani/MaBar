@@ -17,6 +17,7 @@
     "format:check": "npm run format:check --prefix mabar-frontend",
     "db:setup": "node scripts/setup-db.js",
     "db:schema": "node scripts/setup-back4app-schema.js",
+    "db:test": "node scripts/test-venue-owner.js",
     "generate-secrets": "node scripts/generate-secure-secrets.js",
     "audit": "npm audit",
     "security:audit": "npm audit --prefix cloud && npm audit --prefix mabar-frontend && node scripts/security-audit.js",

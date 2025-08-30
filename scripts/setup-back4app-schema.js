@@ -20,6 +20,13 @@ async function setupSchema() {
   console.log('🔄 Setting up Back4App schema for MaBar...');
 
   try {
+    // Test connection first
+    const TestObject = Parse.Object.extend('TestConnection');
+    const testObj = new TestObject();
+    testObj.set('test', 'connection');
+    await testObj.save();
+    await testObj.destroy();
+    console.log('✅ Back4App connection verified');
     // Create VenueOwner class schema
     const VenueOwnerSchema = new Parse.Schema('VenueOwner');
     
@@ -43,8 +50,17 @@ async function setupSchema() {
       delete: { requiresAuthentication: true }
     });
 
-    await VenueOwnerSchema.save();
-    console.log('✅ VenueOwner schema created');
+    try {
+      await VenueOwnerSchema.save();
+      console.log('✅ VenueOwner schema created');
+    } catch (error) {
+      if (error.code === 103) {
+        console.log('ℹ️  VenueOwner schema already exists');
+      } else {
+        console.error('❌ VenueOwner schema error:', error);
+        throw error;
+      }
+    }
 
     // Create Venue class schema
     const VenueSchema = new Parse.Schema('Venue');
@@ -71,8 +87,17 @@ async function setupSchema() {
       delete: { requiresAuthentication: true }
     });
 
-    await VenueSchema.save();
-    console.log('✅ Venue schema created');
+    try {
+      await VenueSchema.save();
+      console.log('✅ Venue schema created');
+    } catch (error) {
+      if (error.code === 103) {
+        console.log('ℹ️  Venue schema already exists');
+      } else {
+        console.error('❌ Venue schema error:', error);
+        throw error;
+      }
+    }
 
     // Create PlayerProfile class schema
     const PlayerProfileSchema = new Parse.Schema('PlayerProfile');
@@ -94,8 +119,17 @@ async function setupSchema() {
       delete: { requiresAuthentication: true }
     });
 
-    await PlayerProfileSchema.save();
-    console.log('✅ PlayerProfile schema created');
+    try {
+      await PlayerProfileSchema.save();
+      console.log('✅ PlayerProfile schema created');
+    } catch (error) {
+      if (error.code === 103) {
+        console.log('ℹ️  PlayerProfile schema already exists');
+      } else {
+        console.error('❌ PlayerProfile schema error:', error);
+        throw error;
+      }
+    }
 
     // Update _User class to add custom fields
     const UserSchema = new Parse.Schema('_User');
@@ -105,18 +139,25 @@ async function setupSchema() {
     UserSchema.addString('lastName');
     UserSchema.addString('phone');
     
-    await UserSchema.update();
-    console.log('✅ _User schema updated');
+    try {
+      await UserSchema.update();
+      console.log('✅ _User schema updated');
+    } catch (error) {
+      if (error.code === 103) {
+        console.log('ℹ️  _User schema already exists');
+      } else {
+        console.error('❌ _User schema error:', error);
+        throw error;
+      }
+    }
 
     console.log('\n🎉 Back4App schema setup completed successfully!');
+    console.log('📝 Classes created: VenueOwner, Venue, PlayerProfile, _User (updated)');
+    console.log('\n🔍 Check your Back4App dashboard to verify the classes were created');
     
   } catch (error) {
-    if (error.code === 103) {
-      console.log('ℹ️  Schema already exists, skipping...');
-    } else {
-      console.error('❌ Schema setup failed:', error);
-      process.exit(1);
-    }
+    console.error('❌ Schema setup failed:', error);
+    process.exit(1);
   }
 }
 
