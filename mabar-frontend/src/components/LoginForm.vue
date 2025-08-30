@@ -1,31 +1,35 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="space-y-4 max-w-md mx-auto">
-    <div>
-      <input
-        v-model="email"
-        type="email"
-        placeholder="Email"
-        required
-        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-      />
+  <form @submit.prevent="handleSubmit" class="space-y-6">
+    <div class="space-y-4">
+      <div>
+        <input
+          v-model="email"
+          type="email"
+          placeholder="Email address"
+          required
+          class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+        />
+      </div>
+      <div>
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Password"
+          required
+          class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+        />
+      </div>
     </div>
-    <div>
-      <input
-        v-model="password"
-        type="password"
-        placeholder="Password"
-        required
-        class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
-      />
-    </div>
+    
     <button
       type="submit"
       :disabled="authStore.isLoading"
-      class="w-full bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 disabled:opacity-50"
+      class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white p-4 rounded-xl hover:from-emerald-600 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
     >
-      {{ authStore.isLoading ? 'Signing In...' : 'Sign In' }}
+      {{ authStore.isLoading ? 'Logging in...' : 'Login' }}
     </button>
-    <div v-if="authStore.error" class="text-red-600 text-sm">
+    
+    <div v-if="authStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
       {{ authStore.error }}
     </div>
   </form>

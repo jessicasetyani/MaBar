@@ -1,6 +1,6 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-    <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-md">
+  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 p-4">
+    <div class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 w-full max-w-md border border-white/20">
       <!-- Role Selection for users without role -->
       <RoleSelection 
         v-if="authStore.user && !authStore.user.role"
@@ -9,26 +9,35 @@
       
       <!-- Auth Forms for non-authenticated users -->
       <div v-else-if="!authStore.user">
-        <div class="text-center mb-6">
-          <h1 class="text-3xl font-bold text-gray-900">MaBar</h1>
-          <p class="text-gray-600">Badminton Match & Venue Booking</p>
+        <div class="text-center mb-8">
+          <div class="mb-4">
+            <div class="w-16 h-16 mx-auto bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-4">
+              <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 2L2 7v10c0 5.55 3.84 9.74 9 11 5.16-1.26 9-5.45 9-11V7l-10-5z"/>
+              </svg>
+            </div>
+          </div>
+          <h1 class="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">MaBar</h1>
+          <p class="text-gray-600 text-lg">Badminton Match & Venue Booking</p>
         </div>
         
-        <div class="flex space-x-2 mb-6">
-          <button
-            @click="isLogin = true"
-            :class="isLogin ? 'bg-blue-600 text-white' : 'bg-gray-200'"
-            class="flex-1 py-2 px-4 rounded-lg"
-          >
-            Sign In
-          </button>
-          <button
-            @click="isLogin = false"
-            :class="!isLogin ? 'bg-blue-600 text-white' : 'bg-gray-200'"
-            class="flex-1 py-2 px-4 rounded-lg"
-          >
-            Sign Up
-          </button>
+        <div class="bg-gray-100 rounded-xl p-1 mb-8">
+          <div class="flex">
+            <button
+              @click="isLogin = true"
+              :class="isLogin ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-600 hover:text-emerald-600'"
+              class="flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200"
+            >
+              Login
+            </button>
+            <button
+              @click="isLogin = false"
+              :class="!isLogin ? 'bg-white text-emerald-600 shadow-sm' : 'text-gray-600 hover:text-emerald-600'"
+              class="flex-1 py-3 px-4 rounded-lg font-medium transition-all duration-200"
+            >
+              Register
+            </button>
+          </div>
         </div>
         
         <LoginForm v-if="isLogin" @success="handleAuthSuccess" />
@@ -37,11 +46,17 @@
       
       <!-- Authenticated user dashboard -->
       <div v-else class="text-center">
-        <h2 class="text-xl font-semibold mb-4">Welcome, {{ authStore.user.email }}!</h2>
-        <p class="text-gray-600 mb-4">Role: {{ authStore.user.role }}</p>
+        <div class="w-16 h-16 mx-auto bg-gradient-to-r from-emerald-500 to-teal-600 rounded-full flex items-center justify-center mb-6">
+          <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Welcome back!</h2>
+        <p class="text-gray-600 mb-2">{{ authStore.user.email }}</p>
+        <p class="text-emerald-600 font-medium mb-6 capitalize">{{ authStore.user.role?.replace('_', ' ') }}</p>
         <button
           @click="authStore.logout"
-          class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+          class="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl"
         >
           Sign Out
         </button>
