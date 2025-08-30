@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Parse from '../services/back4app'
 
 export interface User {
   id: string
   email: string
   role?: 'player' | 'venue_owner' | null
+  onboardingStatus?: 'pending' | 'completed' | null
 }
 
 export const useAuthStore = defineStore('auth', () => {
@@ -28,6 +29,7 @@ export const useAuthStore = defineStore('auth', () => {
         id: result.id || '',
         email: result.get('email'),
         role: result.get('role') || null,
+        onboardingStatus: result.get('onboardingStatus') || null,
       }
       return { success: true }
     } catch (err: any) {
@@ -40,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
           id: 'mock-' + Date.now(),
           email: email,
           role: null,
+          onboardingStatus: null,
         }
         return { success: true }
       }
@@ -60,6 +63,7 @@ export const useAuthStore = defineStore('auth', () => {
         id: result.id || '',
         email: result.get('email'),
         role: result.get('role') || null,
+        onboardingStatus: result.get('onboardingStatus') || null,
       }
       return { success: true }
     } catch (err: any) {
@@ -70,6 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
           id: 'mock-' + Date.now(),
           email: email,
           role: null,
+          onboardingStatus: null,
         }
         return { success: true }
       }
@@ -101,9 +106,11 @@ export const useAuthStore = defineStore('auth', () => {
       if (!currentUser) throw new Error('No current user')
 
       currentUser.set('role', role)
+      currentUser.set('onboardingStatus', 'pending')
       await currentUser.save()
 
       user.value.role = role
+      user.value.onboardingStatus = 'pending'
       return { success: true }
     } catch (err: any) {
       error.value = err.message
@@ -116,22 +123,60 @@ export const useAuthStore = defineStore('auth', () => {
   const checkSession = () => {
     const currentUser = Parse.User.current()
     if (currentUser) {
+      // Get onboarding status from user or localStorage backup
+      const onboardingStatus =
+        currentUser.get('onboardingStatus') ||
+        localStorage.getItem('mabar_onboarding_status') ||
+        null
+
       user.value = {
         id: currentUser.id || '',
         email: currentUser.get('email'),
         role: currentUser.get('role') || null,
+        onboardingStatus: onboardingStatus as 'pending' | 'completed' | null,
       }
     }
   }
+
+  const updateOnboardingStatus = async (status: 'pending' | 'completed') => {
+    if (!user.value) return { success: false, error: 'No user logged in' }
+
+    try {
+      const currentUser = Parse.User.current()
+      if (!currentUser) throw new Error('No current user')
+
+      currentUser.set('onboardingStatus', status)
+      await currentUser.save()
+
+      // Update local state
+      user.value.onboardingStatus = status
+
+      // Store in localStorage as backup
+      localStorage.setItem('mabar_onboarding_status', status)
+
+      return { success: true }
+    } catch (err: any) {
+      error.value = err.message
+      return { success: false, error: err.message }
+    }
+  }
+
+  const isAuthenticated = computed(() => !!user.value)
+  const hasCompletedOnboarding = computed(() => {
+    return user.value?.onboardingStatus === 'completed'
+  })
 
   return {
     user,
     isLoading,
     error,
+    isAuthenticated,
+    hasCompletedOnboarding,
     register,
     login,
     logout,
     setUserRole,
+    updateOnboardingStatus,
     checkSession,
   }
 })

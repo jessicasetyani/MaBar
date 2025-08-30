@@ -417,7 +417,7 @@
         "id": 13,
         "title": "Build Venue Dashboard with Calendar View",
         "description": "Create venue owner dashboard with booking calendar and management",
-        "status": "pending",
+        "status": "done",
         "dependencies": [23],
         "priority": "medium",
         "details": "Create dashboard with calendar view showing MaBar bookings. Implement time slot blocking/unblocking functionality. Show booking details and status. Use calendar library (like FullCalendar) with Tailwind styling. Implement real-time updates for booking changes.",
@@ -429,7 +429,7 @@
             "description": "Create the overall dashboard layout using Tailwind CSS, ensuring responsive design and proper structure for calendar integration.",
             "dependencies": [],
             "details": "Design and implement the main dashboard structure with Tailwind CSS classes, including header, sidebar (if needed), and content area for the calendar. Ensure responsiveness for mobile and desktop views.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -438,7 +438,7 @@
             "description": "Integrate FullCalendar (or similar) library and configure it to display MaBar bookings from the data source.",
             "dependencies": ["13.1"],
             "details": "Install and set up FullCalendar library. Fetch booking data from the backend (e.g., Parse) and render events on the calendar. Style calendar elements with Tailwind to match the dashboard design.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -447,7 +447,7 @@
             "description": "Add functionality for venue owners to block or unblock time slots directly on the calendar.",
             "dependencies": ["13.2"],
             "details": "Implement click or drag handlers on calendar time slots to allow blocking/unblocking. Send updates to the backend (e.g., via Parse) to persist changes. Provide visual feedback for blocked slots (e.g., different color).",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -456,7 +456,7 @@
             "description": "Display detailed information and status for each booking when selected or hovered.",
             "dependencies": ["13.2"],
             "details": "Implement event click or hover interactions to show a popover/modal with booking details (e.g., customer name, time, status). Style the details view with Tailwind and ensure it integrates smoothly with the calendar.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -465,7 +465,7 @@
             "description": "Add real-time functionality to reflect booking changes immediately in the calendar without manual refresh.",
             "dependencies": ["13.2", "13.3", "13.4"],
             "details": "Use WebSockets, Parse LiveQuery, or polling to listen for booking changes (new, updated, canceled) and update the calendar view in real time. Ensure performance and error handling.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -474,7 +474,7 @@
             "description": "Thoroughly test all dashboard functionalities, including calendar interactions, slot management, and real-time updates, across devices.",
             "dependencies": ["13.1", "13.2", "13.3", "13.4", "13.5"],
             "details": "Test calendar rendering, slot blocking/unblocking, booking details display, and real-time updates. Verify responsiveness on mobile and desktop. Write and run unit/integration tests as needed.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -498,7 +498,7 @@
         "testStrategy": "Test navigation functionality, responsive design, role-based routing, and mobile compatibility",
         "priority": "medium",
         "dependencies": [1, 2],
-        "status": "pending",
+        "status": "done",
         "subtasks": []
       },
       {
@@ -566,7 +566,7 @@
         "testStrategy": "Run test suite, verify coverage thresholds, test component rendering, and functionality testing",
         "priority": "medium",
         "dependencies": [1],
-        "status": "pending",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -574,7 +574,7 @@
             "description": "Install Vitest, Vue Test Utils, and jsdom as development dependencies.",
             "dependencies": [],
             "details": "Run command: npm install -D vitest @vue/test-utils jsdom",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -583,7 +583,7 @@
             "description": "Set up Vitest configuration file to support Vue.js testing.",
             "dependencies": ["17.1"],
             "details": "Create and configure vitest.config.ts with Vue plugin settings and test environment.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -592,7 +592,7 @@
             "description": "Develop reusable test utilities and global setup files for testing.",
             "dependencies": ["17.2"],
             "details": "Create setup files for common test configurations and helper functions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -601,7 +601,7 @@
             "description": "Configure test coverage thresholds as specified in the PRD.",
             "dependencies": ["17.2"],
             "details": "Set coverage thresholds in vitest.config.ts and ensure they meet PRD requirements.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -610,7 +610,7 @@
             "description": "Create initial unit tests for core Vue components to validate setup.",
             "dependencies": ["17.3", "17.4"],
             "details": "Write sample tests for key components to verify rendering and functionality.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -722,7 +722,7 @@
         "description": "Create a comprehensive multi-step onboarding form for venue owners with personal information, venue details, legal documents, document upload, and verification status tracking.",
         "details": "Create VenueOwnerOnboarding.vue component with:\n\n1. Multi-step form structure using Vue transitions with progress indicator (5 steps)\n2. Step 1 - Personal Information: Name (required), Email (required with validation)\n3. Step 2 - Venue Details: Venue name (required), address (with Google Maps integration), facilities checklist (court types, amenities)\n4. Step 3 - Legal Documents: NIK number (validation), SIUP number (validation), contact number (phone validation)\n5. Step 4 - Document Upload: File upload component for legal documents (max 5 files, PDF/JPEG/PNG only, max 5MB each) with drag-and-drop functionality\n6. Step 5 - Pending Verification: Status page showing verification pending with estimated timeline and next steps\n\nImplement form validation for each step using Vuelidate or similar. Store onboarding data in Parse with status tracking ('pending_verification'). Create file upload service that handles document storage in Back4App. Implement automatic status updates when documents are uploaded.",
         "testStrategy": "1. Test multi-step navigation: Verify progress indicator updates correctly through all 5 steps\n2. Test form validation: Validate required fields, email format, phone number validation, and file type/size restrictions\n3. Test file upload: Upload various document types and verify they are stored correctly in Back4App\n4. Test data persistence: Complete entire onboarding flow and verify all data is saved to Parse with correct status\n5. Test verification status: Verify the pending verification page displays correctly after submission",
-        "status": "pending",
+        "status": "done",
         "dependencies": [6, 5, 4, 1],
         "priority": "medium",
         "subtasks": []
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T11:29:09.166Z",
+      "updated": "2025-08-30T21:15:22.022Z",
       "description": "Tasks for master context"
     }
   }

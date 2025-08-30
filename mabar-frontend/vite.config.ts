@@ -60,4 +60,10 @@ export default defineConfig({
     include: ['parse'],
   },
   envDir: '../', // Look for .env files in the parent directory
+  server: {
+    watch: {
+      usePolling: true,
+      interval: 1000,
+    },
+  },
 })

@@ -2,18 +2,30 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
-import { env } from './config/env'
+
+// Debug environment variables first
+console.log('🔍 Raw environment variables:', {
+  all: import.meta.env,
+  appId: import.meta.env.VITE_BACK4APP_APP_ID,
+  jsKey: import.meta.env.VITE_BACK4APP_JAVASCRIPT_KEY,
+})
+
+try {
+  const { env } = await import('./config/env')
+  console.log('✅ Environment validation passed:', {
+    appId: env.BACK4APP_APP_ID ? 'loaded' : 'missing',
+    jsKey: env.BACK4APP_JAVASCRIPT_KEY ? 'loaded' : 'missing',
+  })
+} catch (error) {
+  console.error('❌ Environment validation failed:', error)
+  // Continue without env validation for now
+}
+
 import './services/back4app'
 import { testBack4AppConnection } from './utils/testConnection'
 import { useAuthStore } from './stores/auth'
 import { router } from './router'
 import { registerSW } from 'virtual:pwa-register'
-
-// Verify environment variables are accessible via type-safe module
-console.log('Environment validation:', {
-  appId: env.BACK4APP_APP_ID ? 'loaded' : 'missing',
-  jsKey: env.BACK4APP_JAVASCRIPT_KEY ? 'loaded' : 'missing',
-})
 
 // Test Back4App connection on startup
 testBack4AppConnection()
