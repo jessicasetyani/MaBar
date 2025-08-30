@@ -25,7 +25,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       const result = await parseUser.signUp()
       user.value = {
-        id: result.id,
+        id: result.id || '',
         email: result.get('email'),
         role: result.get('role') || null,
       }
@@ -57,7 +57,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const result = await Parse.User.logIn(email, password)
       user.value = {
-        id: result.id,
+        id: result.id || '',
         email: result.get('email'),
         role: result.get('role') || null,
       }
@@ -117,7 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
     const currentUser = Parse.User.current()
     if (currentUser) {
       user.value = {
-        id: currentUser.id,
+        id: currentUser.id || '',
         email: currentUser.get('email'),
         role: currentUser.get('role') || null,
       }

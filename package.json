@@ -82,7 +82,7 @@
   "dependencies": {
     "dotenv": "^17.2.1",
     "mongoose": "^8.18.0",
-    "parse": "^3.5.1"
+    "parse": "^6.1.1"
   },
   "lint-staged": {
     "mabar-frontend/src/**/*.{js,ts,vue}": [
