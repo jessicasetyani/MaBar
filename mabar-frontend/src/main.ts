@@ -7,6 +7,7 @@ import './services/back4app'
 import { testBack4AppConnection } from './utils/testConnection'
 import { useAuthStore } from './stores/auth'
 import { router } from './router'
+import { registerSW } from 'virtual:pwa-register'
 
 // Verify environment variables are accessible via type-safe module
 console.log('Environment validation:', {
@@ -43,6 +44,18 @@ if (import.meta.env.DEV) {
     testAuthFlow().then((result) => {
       console.log('🧪 Auth Test Result:', result)
     })
+  })
+}
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  registerSW({
+    onNeedRefresh() {
+      console.log('New content available, please refresh.')
+    },
+    onOfflineReady() {
+      console.log('App ready to work offline.')
+    },
   })
 }
 
