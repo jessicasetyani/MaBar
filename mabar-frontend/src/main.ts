@@ -33,4 +33,13 @@ app.use(pinia)
 const authStore = useAuthStore()
 authStore.checkSession()
 
+// Test auth flow in development
+if (import.meta.env.DEV) {
+  import('./utils/authTest').then(({ testAuthFlow }) => {
+    testAuthFlow().then(result => {
+      console.log('🧪 Auth Test Result:', result)
+    })
+  })
+}
+
 app.mount('#app')

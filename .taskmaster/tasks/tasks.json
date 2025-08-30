@@ -228,7 +228,7 @@
         "id": 6,
         "title": "Implement User Authentication System",
         "description": "Create user registration and login functionality using Back4App auth",
-        "status": "in-progress",
+        "status": "done",
         "dependencies": [
           5
         ],
@@ -330,7 +330,7 @@
             "id": 11,
             "title": "Integration testing: complete auth flow",
             "description": "Test the complete authentication flow from registration through role selection",
-            "status": "todo",
+            "status": "done",
             "dependencies": [],
             "details": "Ensure all UI components work together seamlessly with the auth store. Test edge cases and error handling.",
             "testStrategy": "Manual and automated testing of complete user journey"
@@ -339,7 +339,7 @@
             "id": 12,
             "title": "End-to-end testing with Back4App integration",
             "description": "Test authentication with actual Back4App backend",
-            "status": "todo",
+            "status": "done",
             "dependencies": [],
             "details": "Verify user registration, login, role storage in Parse User custom field, and session persistence work correctly with backend",
             "testStrategy": "E2E testing with Cypress or similar framework"
@@ -870,7 +870,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T05:47:32.649Z",
+      "updated": "2025-08-30T05:57:25.615Z",
       "description": "Tasks for master context"
     }
   }
