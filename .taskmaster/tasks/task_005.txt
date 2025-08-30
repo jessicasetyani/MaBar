@@ -1,6 +1,6 @@
 # Task ID: 5
 # Title: Install and Configure Back4App JavaScript SDK
-# Status: pending
+# Status: done
 # Dependencies: 4
 # Priority: high
 # Description: Set up Back4App integration with Parse SDK for backend communication

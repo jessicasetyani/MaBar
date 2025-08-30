@@ -1,6 +1,6 @@
 # Task ID: 1
 # Title: Initialize Vue.js Project with Vite
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Set up the Vue.js project structure with Vite as build tool and configure basic project settings
