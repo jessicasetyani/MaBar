@@ -66,9 +66,9 @@
         </div>
       </div>
 
-      <!-- Authenticated user dashboard -->
+      <!-- Authenticated user with completed onboarding -->
       <div
-        v-else
+        v-else-if="authStore.user && authStore.hasCompletedOnboarding"
         class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center"
       >
         <div
@@ -96,12 +96,34 @@
           Sign Out
         </button>
       </div>
+
+      <!-- User with role but pending onboarding - redirect to onboarding -->
+      <div
+        v-else-if="
+          authStore.user &&
+          authStore.user.role &&
+          !authStore.hasCompletedOnboarding
+        "
+        class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center"
+      >
+        <div class="text-4xl mb-4">⏳</div>
+        <h2 class="text-xl font-semibold text-slate-700 mb-4">
+          Redirecting to Onboarding...
+        </h2>
+        <p class="text-slate-600 mb-4">
+          Please complete your
+          {{ authStore.user.role?.replace('_', ' ') }} profile setup.
+        </p>
+        <div
+          class="animate-spin h-6 w-6 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto"
+        ></div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import LoginForm from './LoginForm.vue'
@@ -123,4 +145,20 @@ const handleRoleSelected = (role: 'player' | 'venue_owner') => {
     router.push('/onboarding/venue-owner')
   }
 }
+
+// Watch for users who have a role but haven't completed onboarding
+watch(
+  () => authStore.user,
+  (user) => {
+    if (user && user.role && !authStore.hasCompletedOnboarding) {
+      console.log('🔄 Auto-redirecting to onboarding for role:', user.role)
+      if (user.role === 'player') {
+        router.push('/onboarding/player')
+      } else if (user.role === 'venue_owner') {
+        router.push('/onboarding/venue-owner')
+      }
+    }
+  },
+  { immediate: true }
+)
 </script>

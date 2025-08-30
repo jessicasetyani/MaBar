@@ -19,9 +19,7 @@
         "details": "Install Tailwind CSS: `npm install -D tailwindcss postcss autoprefixer`. Initialize config: `npx tailwindcss init -p`. Configure tailwind.config.js with custom colors: primary: '#FDE047', background: '#FEFCE8', surface: '#FFFFFF', text: '#334155', subtle: '#64748B', accent: '#84CC16'. Set up base CSS file with @tailwind directives.",
         "testStrategy": "Verify Tailwind installation by creating test component with custom colors, check build process works correctly",
         "priority": "high",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "done",
         "subtasks": [
           {
@@ -37,9 +35,7 @@
             "id": 2,
             "title": "Initialize Tailwind Config",
             "description": "Generate Tailwind CSS configuration files",
-            "dependencies": [
-              "2.1"
-            ],
+            "dependencies": ["2.1"],
             "details": "Run command: `npx tailwindcss init -p` to create tailwind.config.js and postcss.config.js",
             "status": "done",
             "testStrategy": ""
@@ -48,9 +44,7 @@
             "id": 3,
             "title": "Add Custom Color Palette to tailwind.config.js",
             "description": "Configure the custom color palette in Tailwind configuration",
-            "dependencies": [
-              "2.2"
-            ],
+            "dependencies": ["2.2"],
             "details": "Edit tailwind.config.js to include colors: primary: '#FDE047', background: '#FEFCE8', surface: '#FFFFFF', text: '#334155', subtle: '#64748B', accent: '#84CC16'",
             "status": "done",
             "testStrategy": ""
@@ -59,9 +53,7 @@
             "id": 4,
             "title": "Set Up Base CSS with @tailwind Directives",
             "description": "Create base CSS file with Tailwind directives",
-            "dependencies": [
-              "2.3"
-            ],
+            "dependencies": ["2.3"],
             "details": "Create CSS file (e.g., main.css) with @tailwind base, @tailwind components, and @tailwind utilities directives",
             "status": "done",
             "testStrategy": ""
@@ -70,9 +62,7 @@
             "id": 5,
             "title": "Verify Integration with Test Component",
             "description": "Test Tailwind CSS integration by creating a component using custom colors",
-            "dependencies": [
-              "2.4"
-            ],
+            "dependencies": ["2.4"],
             "details": "Create a test component that uses the custom color palette classes and verify the build process works correctly",
             "status": "done",
             "testStrategy": ""
@@ -86,9 +76,7 @@
         "details": "Install ESLint: `npm install -D eslint eslint-plugin-vue @vue/eslint-config-typescript`. Install Prettier: `npm install -D prettier eslint-config-prettier`. Create .eslintrc.js and .prettierrc config files. Configure Vue 3 specific rules and TypeScript support. Set up pre-commit hooks with husky and lint-staged.",
         "testStrategy": "Run linting on sample code, verify formatting rules are applied correctly, test pre-commit hooks",
         "priority": "medium",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "done",
         "subtasks": [
           {
@@ -113,10 +101,7 @@
             "id": 3,
             "title": "Create and Configure .eslintrc.js",
             "description": "Create ESLint configuration file and set up Vue 3 and TypeScript rules.",
-            "dependencies": [
-              "3.1",
-              "3.2"
-            ],
+            "dependencies": ["3.1", "3.2"],
             "details": "Create .eslintrc.js file and configure rules for Vue 3 and TypeScript support.",
             "status": "done",
             "testStrategy": ""
@@ -125,9 +110,7 @@
             "id": 4,
             "title": "Create and Configure .prettierrc",
             "description": "Create Prettier configuration file for code formatting rules.",
-            "dependencies": [
-              "3.2"
-            ],
+            "dependencies": ["3.2"],
             "details": "Create .prettierrc file and define formatting preferences.",
             "status": "done",
             "testStrategy": ""
@@ -136,10 +119,7 @@
             "id": 5,
             "title": "Set Up Pre-commit Hooks with Husky and Lint-staged",
             "description": "Configure pre-commit hooks to run linting and formatting automatically.",
-            "dependencies": [
-              "3.3",
-              "3.4"
-            ],
+            "dependencies": ["3.3", "3.4"],
             "details": "Install husky and lint-staged, then configure pre-commit hooks to run ESLint and Prettier.",
             "status": "done",
             "testStrategy": ""
@@ -153,9 +133,7 @@
         "details": "Create .env file with VITE_BACK4APP_APP_ID and VITE_BACK4APP_JAVASCRIPT_KEY placeholders. Configure .gitignore to exclude .env and /dist. Set up Vite environment variable handling with import.meta.env. Create environment configuration module for type-safe access to env variables.",
         "testStrategy": "Verify environment variables are accessible in code, test .gitignore excludes sensitive files, validate build process",
         "priority": "high",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "done",
         "subtasks": [
           {
@@ -180,9 +158,7 @@
             "id": 3,
             "title": "Configure Vite for Environment Variable Access",
             "description": "Set up Vite to handle environment variables using import.meta.env.",
-            "dependencies": [
-              "4.1"
-            ],
+            "dependencies": ["4.1"],
             "details": "Ensure Vite is configured to expose environment variables prefixed with VITE_ via import.meta.env in the application.",
             "status": "done",
             "testStrategy": ""
@@ -191,9 +167,7 @@
             "id": 4,
             "title": "Implement Type-Safe Environment Configuration Module",
             "description": "Create a module for type-safe access to environment variables.",
-            "dependencies": [
-              "4.3"
-            ],
+            "dependencies": ["4.3"],
             "details": "Develop a configuration module (e.g., env.ts) that validates and provides typed access to environment variables using TypeScript.",
             "status": "done",
             "testStrategy": ""
@@ -202,9 +176,7 @@
             "id": 5,
             "title": "Validate Environment Variable Usage in Code",
             "description": "Verify that environment variables are correctly accessed and used throughout the codebase.",
-            "dependencies": [
-              "4.4"
-            ],
+            "dependencies": ["4.4"],
             "details": "Test and validate that all parts of the code using environment variables function correctly and adhere to the type-safe module.",
             "status": "done",
             "testStrategy": ""
@@ -218,9 +190,7 @@
         "details": "Install Parse SDK: `npm install parse`. Create Back4App service module: initialize Parse with appId and javascriptKey from environment variables. Configure Parse server URL: `Parse.serverURL = 'https://parseapi.back4app.com'`. Set up error handling and connection testing.",
         "testStrategy": "Test Back4App connection with mock credentials, verify SDK initialization, test error handling",
         "priority": "high",
-        "dependencies": [
-          4
-        ],
+        "dependencies": [4],
         "status": "done",
         "subtasks": []
       },
@@ -229,9 +199,7 @@
         "title": "Implement User Authentication System",
         "description": "Create user registration and login functionality using Back4App auth",
         "status": "done",
-        "dependencies": [
-          5
-        ],
+        "dependencies": [5],
         "priority": "high",
         "details": "Phase 2 Complete: UI Components Implementation. Created RegisterForm.vue, LoginForm.vue, RoleSelection.vue, AuthFlow.vue, and updated App.vue. Ready for Phase 3: Integration & Testing - ensure all components work together seamlessly, handle edge cases, and integrate with backend authentication.",
         "testStrategy": "Test complete user registration flow, login functionality, role selection, session persistence, error cases, and integration between all UI components and auth store",
@@ -351,9 +319,7 @@
         "title": "Build Player Profile Management",
         "description": "Create advanced profile page with editable matchmaking criteria",
         "status": "pending",
-        "dependencies": [
-          22
-        ],
+        "dependencies": [22],
         "priority": "medium",
         "details": "Create profile edit component with fields: weekly availability (day/time selectors), budget range slider, play style toggle, opponent preferences (gender/age selectors). Implement save/update functionality to Parse. Create profile view component for displaying user data.",
         "testStrategy": "Test profile editing, data persistence, form validation, and display components",
@@ -371,9 +337,7 @@
             "id": 2,
             "title": "Implement Form Fields and Validation",
             "description": "Add all required form fields with proper validation rules and error handling",
-            "dependencies": [
-              "8.1"
-            ],
+            "dependencies": ["8.1"],
             "details": "Implement text inputs, sliders, and toggle switches with validation logic including required fields, email format validation, and custom validation rules for each field type",
             "status": "pending",
             "testStrategy": ""
@@ -382,9 +346,7 @@
             "id": 3,
             "title": "Integrate Availability and Preference Selectors",
             "description": "Implement the complex selectors for weekly availability and opponent preferences",
-            "dependencies": [
-              "8.2"
-            ],
+            "dependencies": ["8.2"],
             "details": "Create day/time multi-selectors for weekly availability, gender/age selectors for opponent preferences, budget range slider with min/max values, and play style toggle with explanatory text",
             "status": "pending",
             "testStrategy": ""
@@ -393,9 +355,7 @@
             "id": 4,
             "title": "Implement Save/Update Logic to Parse",
             "description": "Create the backend integration to save and update profile data in Parse database",
-            "dependencies": [
-              "8.3"
-            ],
+            "dependencies": ["8.3"],
             "details": "Implement Parse SDK integration for saving user profile data, create update functionality, handle success/error responses, and ensure data persistence to the Parse backend",
             "status": "pending",
             "testStrategy": ""
@@ -404,9 +364,7 @@
             "id": 5,
             "title": "Create Profile View Component",
             "description": "Build the component for displaying user profile data in read-only mode",
-            "dependencies": [
-              "8.1"
-            ],
+            "dependencies": ["8.1"],
             "details": "Create a clean, responsive display component that shows all user profile information including availability, budget range, play style, and opponent preferences in a well-formatted layout",
             "status": "pending",
             "testStrategy": ""
@@ -415,10 +373,7 @@
             "id": 6,
             "title": "Test Data Persistence and Display",
             "description": "Comprehensive testing of profile editing, data saving, and display functionality",
-            "dependencies": [
-              "8.4",
-              "8.5"
-            ],
+            "dependencies": ["8.4", "8.5"],
             "details": "Test profile editing flow, verify data persistence to Parse backend, test form validation, ensure proper data display in view component, and validate all functionality works across different devices",
             "status": "pending",
             "testStrategy": ""
@@ -432,10 +387,7 @@
         "details": "Build chat UI with message bubbles, input field, send button. Implement message history persistence. Create component for displaying AI responses. Support both English and Bahasa Indonesia input. Use Tailwind for styling with MaBar color scheme.",
         "testStrategy": "Test chat interface functionality, message sending/receiving, language support, and responsive design",
         "priority": "high",
-        "dependencies": [
-          5,
-          8
-        ],
+        "dependencies": [5, 8],
         "status": "pending",
         "subtasks": []
       },
@@ -446,9 +398,7 @@
         "details": "Create Back4App Cloud Code function that accepts user query and profile data, calls Gemini API securely, and returns matchmaking recommendations. Store Gemini API key in Back4App environment. Implement error handling and rate limiting. Support both English and Bahasa processing.",
         "testStrategy": "Test Cloud Function deployment, API communication, error handling, and response formatting",
         "priority": "high",
-        "dependencies": [
-          5
-        ],
+        "dependencies": [5],
         "status": "done",
         "subtasks": []
       },
@@ -459,10 +409,7 @@
         "details": "Create session creation form: date/time, venue selection, minimum players, session details. Implement join session functionality. Create session list view. Store sessions in Parse with status tracking. Implement real-time updates for session changes.",
         "testStrategy": "Test session creation, joining, status updates, and real-time functionality",
         "priority": "high",
-        "dependencies": [
-          9,
-          10
-        ],
+        "dependencies": [9, 10],
         "status": "pending",
         "subtasks": []
       },
@@ -471,9 +418,7 @@
         "title": "Build Venue Dashboard with Calendar View",
         "description": "Create venue owner dashboard with booking calendar and management",
         "status": "pending",
-        "dependencies": [
-          23
-        ],
+        "dependencies": [23],
         "priority": "medium",
         "details": "Create dashboard with calendar view showing MaBar bookings. Implement time slot blocking/unblocking functionality. Show booking details and status. Use calendar library (like FullCalendar) with Tailwind styling. Implement real-time updates for booking changes.",
         "testStrategy": "Test calendar functionality, slot management, booking displays, and real-time updates",
@@ -491,9 +436,7 @@
             "id": 2,
             "title": "Integrate Calendar Library and Display Bookings",
             "description": "Integrate FullCalendar (or similar) library and configure it to display MaBar bookings from the data source.",
-            "dependencies": [
-              "13.1"
-            ],
+            "dependencies": ["13.1"],
             "details": "Install and set up FullCalendar library. Fetch booking data from the backend (e.g., Parse) and render events on the calendar. Style calendar elements with Tailwind to match the dashboard design.",
             "status": "pending",
             "testStrategy": ""
@@ -502,9 +445,7 @@
             "id": 3,
             "title": "Implement Slot Blocking/Unblocking Functionality",
             "description": "Add functionality for venue owners to block or unblock time slots directly on the calendar.",
-            "dependencies": [
-              "13.2"
-            ],
+            "dependencies": ["13.2"],
             "details": "Implement click or drag handlers on calendar time slots to allow blocking/unblocking. Send updates to the backend (e.g., via Parse) to persist changes. Provide visual feedback for blocked slots (e.g., different color).",
             "status": "pending",
             "testStrategy": ""
@@ -513,9 +454,7 @@
             "id": 4,
             "title": "Show Booking Details and Status",
             "description": "Display detailed information and status for each booking when selected or hovered.",
-            "dependencies": [
-              "13.2"
-            ],
+            "dependencies": ["13.2"],
             "details": "Implement event click or hover interactions to show a popover/modal with booking details (e.g., customer name, time, status). Style the details view with Tailwind and ensure it integrates smoothly with the calendar.",
             "status": "pending",
             "testStrategy": ""
@@ -524,11 +463,7 @@
             "id": 5,
             "title": "Implement Real-Time Updates for Bookings",
             "description": "Add real-time functionality to reflect booking changes immediately in the calendar without manual refresh.",
-            "dependencies": [
-              "13.2",
-              "13.3",
-              "13.4"
-            ],
+            "dependencies": ["13.2", "13.3", "13.4"],
             "details": "Use WebSockets, Parse LiveQuery, or polling to listen for booking changes (new, updated, canceled) and update the calendar view in real time. Ensure performance and error handling.",
             "status": "pending",
             "testStrategy": ""
@@ -537,13 +472,7 @@
             "id": 6,
             "title": "Test Dashboard Features and Responsiveness",
             "description": "Thoroughly test all dashboard functionalities, including calendar interactions, slot management, and real-time updates, across devices.",
-            "dependencies": [
-              "13.1",
-              "13.2",
-              "13.3",
-              "13.4",
-              "13.5"
-            ],
+            "dependencies": ["13.1", "13.2", "13.3", "13.4", "13.5"],
             "details": "Test calendar rendering, slot blocking/unblocking, booking details display, and real-time updates. Verify responsiveness on mobile and desktop. Write and run unit/integration tests as needed.",
             "status": "pending",
             "testStrategy": ""
@@ -557,9 +486,7 @@
         "details": "Use qrcode.vue library to generate unique QR codes for each booking. Store QR code data in Parse booking object. Create QR display component in venue dashboard. Implement QR code scanning capability (optional). Ensure QR codes contain booking verification data.",
         "testStrategy": "Test QR code generation, data encoding/decoding, and display functionality",
         "priority": "low",
-        "dependencies": [
-          11
-        ],
+        "dependencies": [11],
         "status": "pending",
         "subtasks": []
       },
@@ -570,10 +497,7 @@
         "details": "Create main App.vue layout with header, navigation, and content areas. Implement Vue Router for navigation between dashboards (player/venue). Create responsive navigation menu that works on mobile and desktop. Implement role-based routing based on user type.",
         "testStrategy": "Test navigation functionality, responsive design, role-based routing, and mobile compatibility",
         "priority": "medium",
-        "dependencies": [
-          1,
-          2
-        ],
+        "dependencies": [1, 2],
         "status": "done",
         "subtasks": []
       },
@@ -584,9 +508,7 @@
         "details": "Configure Vite PWA plugin: `npm install -D vite-plugin-pwa`. Create manifest.json with app metadata. Configure service worker for offline caching. Set up app icons and splash screens. Test installability and offline functionality.",
         "testStrategy": "Test PWA installation, offline functionality, service worker registration, and manifest validation",
         "priority": "medium",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "done",
         "subtasks": [
           {
@@ -602,9 +524,7 @@
             "id": 2,
             "title": "Create manifest.json with App Metadata",
             "description": "Create a manifest.json file containing PWA metadata such as name, description, and theme colors.",
-            "dependencies": [
-              "16.1"
-            ],
+            "dependencies": ["16.1"],
             "details": "Define app name, short_name, description, start_url, display mode, theme_color, background_color, and icons in manifest.json.",
             "status": "done",
             "testStrategy": ""
@@ -613,9 +533,7 @@
             "id": 3,
             "title": "Configure Service Worker for Offline Caching",
             "description": "Set up the service worker to cache assets for offline functionality.",
-            "dependencies": [
-              "16.1"
-            ],
+            "dependencies": ["16.1"],
             "details": "Configure the Vite PWA plugin to generate and register a service worker, specifying caching strategies for routes and assets.",
             "status": "done",
             "testStrategy": ""
@@ -624,9 +542,7 @@
             "id": 4,
             "title": "Set Up App Icons and Splash Screens",
             "description": "Generate and configure app icons and splash screens for various device sizes.",
-            "dependencies": [
-              "16.2"
-            ],
+            "dependencies": ["16.2"],
             "details": "Provide multiple icon sizes (e.g., 192x192, 512x512) and configure splash screen metadata in the manifest.json.",
             "status": "done",
             "testStrategy": ""
@@ -635,11 +551,7 @@
             "id": 5,
             "title": "Test Installability and Offline Features",
             "description": "Test the PWA for installability, offline functionality, and service worker registration.",
-            "dependencies": [
-              "16.2",
-              "16.3",
-              "16.4"
-            ],
+            "dependencies": ["16.2", "16.3", "16.4"],
             "details": "Verify the app can be installed, works offline, caches resources properly, and the service worker registers correctly across browsers.",
             "status": "done",
             "testStrategy": ""
@@ -653,9 +565,7 @@
         "details": "Install Vitest: `npm install -D vitest @vue/test-utils jsdom`. Configure vitest.config.ts with Vue support. Create test utilities and setup files. Implement test coverage threshold as specified in PRD. Create sample tests for core components.",
         "testStrategy": "Run test suite, verify coverage thresholds, test component rendering, and functionality testing",
         "priority": "medium",
-        "dependencies": [
-          1
-        ],
+        "dependencies": [1],
         "status": "done",
         "subtasks": [
           {
@@ -671,9 +581,7 @@
             "id": 2,
             "title": "Configure vitest.config.ts for Vue",
             "description": "Set up Vitest configuration file to support Vue.js testing.",
-            "dependencies": [
-              "17.1"
-            ],
+            "dependencies": ["17.1"],
             "details": "Create and configure vitest.config.ts with Vue plugin settings and test environment.",
             "status": "done",
             "testStrategy": ""
@@ -682,9 +590,7 @@
             "id": 3,
             "title": "Create Test Utilities and Setup Files",
             "description": "Develop reusable test utilities and global setup files for testing.",
-            "dependencies": [
-              "17.2"
-            ],
+            "dependencies": ["17.2"],
             "details": "Create setup files for common test configurations and helper functions.",
             "status": "done",
             "testStrategy": ""
@@ -693,9 +599,7 @@
             "id": 4,
             "title": "Implement Coverage Thresholds",
             "description": "Configure test coverage thresholds as specified in the PRD.",
-            "dependencies": [
-              "17.2"
-            ],
+            "dependencies": ["17.2"],
             "details": "Set coverage thresholds in vitest.config.ts and ensure they meet PRD requirements.",
             "status": "done",
             "testStrategy": ""
@@ -704,10 +608,7 @@
             "id": 5,
             "title": "Write Sample Tests for Core Components",
             "description": "Create initial unit tests for core Vue components to validate setup.",
-            "dependencies": [
-              "17.3",
-              "17.4"
-            ],
+            "dependencies": ["17.3", "17.4"],
             "details": "Write sample tests for key components to verify rendering and functionality.",
             "status": "done",
             "testStrategy": ""
@@ -721,9 +622,7 @@
         "details": "Create Back4App Cloud Code Job that runs periodically to check sessions approaching start time (2 hours before). Cancel sessions that don't meet minimum player requirement. Send notifications to affected users. Update session status in Parse database.",
         "testStrategy": "Test Cloud Job scheduling, session cancellation logic, notification system, and database updates",
         "priority": "low",
-        "dependencies": [
-          11
-        ],
+        "dependencies": [11],
         "status": "pending",
         "subtasks": []
       },
@@ -732,9 +631,7 @@
         "title": "Build Admin Dashboard for Venue Verification and User Management",
         "description": "Create comprehensive admin dashboard for venue approval, user role management, and platform health monitoring with KPI tracking",
         "status": "pending",
-        "dependencies": [
-          23
-        ],
+        "dependencies": [23],
         "priority": "medium",
         "details": "Create Vue.js admin dashboard component with three main sections:\n\n1. Venue Verification Panel:\n   - Display pending venue registrations from Task 12 with owner details, documents, and verification status\n   - Implement approve/reject functionality with status updates in Parse\n   - Create audit trail for verification actions with timestamps and admin user\n\n2. User Management Panel:\n   - Display user list with filtering by role (player/venue_owner/admin)\n   - Implement role assignment functionality with dropdown selectors\n   - Show user activity metrics (sessions joined, bookings made)\n   - Include user suspension/reactivation capabilities\n\n3. Platform Health Dashboard:\n   - Display KPIs from PRD: no-show rates, venue violations, session completion rates\n   - Implement data visualization using Chart.js for trend analysis\n   - Show real-time metrics with date range filtering\n   - Create violation reporting system with severity levels\n\nTechnical Implementation:\n- Use Vue 3 Composition API with TypeScript for type safety\n- Implement role-based access control (RBAC) middleware to restrict admin access\n- Create Parse queries for venue verification status and user management\n- Use Tailwind CSS for responsive dashboard layout with grid system\n- Implement real-time data updates using Parse Live Queries for admin notifications\n- Add search and filtering capabilities across all panels\n- Create admin audit log in Parse for all administrative actions\n\nSecurity Considerations:\n- Implement server-side validation for all admin actions via Cloud Code\n- Restrict admin routes to users with admin role only\n- Validate user permissions before allowing role changes\n- Encrypt sensitive admin operations in database",
         "testStrategy": "1. Test venue verification workflow: Submit venue registration (Task 12), verify admin dashboard displays pending venues, test approve/reject functionality, confirm status updates in Parse\n2. Test user role management: Create test users, verify role assignment functionality, test access control changes\n3. Test platform health metrics: Generate test data (sessions, bookings, no-shows), verify KPI calculations accuracy, test date range filtering\n4. Test security: Attempt unauthorized admin access, verify RBAC prevents access, test server-side validation of admin actions\n5. Test responsiveness: Verify dashboard works on mobile, tablet, and desktop breakpoints\n6. Test real-time updates: Verify Live Queries update dashboard when venue status changes or new violations occur\n7. Test search and filtering: Verify all panels support search functionality and filter correctly",
@@ -747,11 +644,7 @@
         "details": "Create a reputation management system using Back4App Parse Server with the following components:\n\n1. **Player Reputation Tracking**:\n   - Store player attendance history with session IDs and status (attended/no-show)\n   - Calculate no-show rate percentage based on last 10 sessions\n   - Implement reputation scoring algorithm (e.g., 5-star system based on attendance reliability)\n   - Store reputation data in Parse User object with custom fields: reputationScore, totalSessions, noShowCount, lastUpdated\n\n2. **Venue Quality Rating System**:\n   - Create venue rating collection with fields: venueId, userId, rating (1-5), reviewText, timestamp\n   - Calculate average rating for each venue\n   - Support rating submission after completed sessions\n   - Store aggregated venue ratings in Venue object\n\n3. **Admin Reputation Management Tools**:\n   - Create admin dashboard with reputation management interface\n   - Implement violation reporting system with severity levels\n   - Add manual reputation adjustment capabilities\n   - Create automated reputation decay system (scores decrease over inactivity)\n   - Implement notification system for reputation threshold breaches\n\n4. **Technical Implementation**:\n   - Use Cloud Code functions for reputation calculations\n   - Create BeforeSave triggers to update reputation scores automatically\n   - Implement real-time reputation updates using Parse LiveQuery\n   - Create Vue components for rating submission and reputation display\n   - Use Tailwind CSS for responsive admin interface\n\nBest Practices:\n- Use weighted averages for recent behavior (more weight to recent sessions)\n- Implement rate limiting for rating submissions\n- Add fraud detection for fake reviews\n- Ensure data privacy compliance for reputation data\n- Create backup system for reputation scores",
         "testStrategy": "Test the reputation system with the following scenarios:\n\n1. **Player Reputation Tests**:\n   - Verify no-show rate calculation accuracy with various session histories\n   - Test reputation score updates after session completion\n   - Verify reputation decay after periods of inactivity\n   - Test threshold notifications for poor reputation scores\n\n2. **Venue Rating Tests**:\n   - Test rating submission workflow after completed sessions\n   - Verify average rating calculations with multiple submissions\n   - Test rating validation (1-5 stars, required fields)\n   - Verify rating display in venue profiles\n\n3. **Admin Tools Tests**:\n   - Test manual reputation adjustment functionality\n   - Verify violation reporting and handling workflow\n   - Test reputation dashboard data accuracy\n   - Verify admin permission checks for reputation management\n\n4. **Integration Tests**:\n   - Test reputation impact on matchmaking algorithms\n   - Verify reputation data persistence across sessions\n   - Test real-time reputation updates\n   - Verify data consistency between User and Session objects\n\nUse Jest for unit tests and Cypress for end-to-end testing of the reputation workflow.",
         "status": "pending",
-        "dependencies": [
-          6,
-          11,
-          18
-        ],
+        "dependencies": [6, 11, 18],
         "priority": "medium",
         "subtasks": []
       },
@@ -762,9 +655,7 @@
         "details": "Create RoleSelection.vue component that:\n\n1. Conditionally renders after successful registration/login based on user's role field being null/undefined\n2. Displays two role options: Player and Venue Owner with:\n   - Clear visual cards/icons for each role\n   - Descriptive text explaining each role's purpose\n   - MaBar branding and styling using Tailwind CSS\n3. Implements role selection logic:\n   - On role selection, update Parse User object with custom 'role' field ('player' or 'venue_owner')\n   - Show loading state during save operation\n   - Handle save errors with user feedback\n4. Implement redirection logic:\n   - Redirect to player onboarding flow for 'player' role\n   - Redirect to venue owner onboarding flow for 'venue_owner' role\n5. Use Pinia store for state management and routing\n6. Ensure mobile-responsive design with proper touch targets\n\nCode structure:\n- Use Parse.User.current() to get current user\n- Implement save: await user.set('role', selectedRole).save()\n- Use Vue Router for navigation: router.push('/onboarding/player') or router.push('/onboarding/venue-owner')",
         "testStrategy": "1. Test component rendering: Verify role selection appears only when user.role is null/undefined\n2. Test role selection: Click each role option and verify visual feedback\n3. Test save functionality: Mock Parse save operation and verify role is saved correctly\n4. Test redirection: Verify correct onboarding route navigation based on selected role\n5. Test error handling: Simulate save errors and verify user feedback is displayed\n6. Test responsive design: Verify component works on mobile and desktop viewports\n7. Test edge cases: Verify component doesn't show for users with existing roles",
         "status": "done",
-        "dependencies": [
-          6
-        ],
+        "dependencies": [6],
         "priority": "high",
         "subtasks": [
           {
@@ -789,10 +680,7 @@
             "id": 3,
             "title": "Implement Role Selection and Save Logic",
             "description": "Add functionality to handle role selection, update the Parse User object with the selected role, and save it.",
-            "dependencies": [
-              "21.1",
-              "21.2"
-            ],
+            "dependencies": ["21.1", "21.2"],
             "details": "On role selection, call user.set('role', selectedRole).save(); use Pinia for state management.",
             "status": "done",
             "testStrategy": ""
@@ -801,9 +689,7 @@
             "id": 4,
             "title": "Handle Loading and Error States",
             "description": "Implement visual feedback for loading during save operations and error handling with user notifications.",
-            "dependencies": [
-              "21.3"
-            ],
+            "dependencies": ["21.3"],
             "details": "Show loading spinner during save; display error messages if save fails using user feedback components.",
             "status": "done",
             "testStrategy": ""
@@ -812,9 +698,7 @@
             "id": 5,
             "title": "Implement Redirection and Routing Logic",
             "description": "Set up navigation to redirect users to the appropriate onboarding flow based on their selected role.",
-            "dependencies": [
-              "21.3"
-            ],
+            "dependencies": ["21.3"],
             "details": "Use Vue Router to push to '/onboarding/player' or '/onboarding/venue-owner' after successful role save.",
             "status": "done",
             "testStrategy": ""
@@ -828,10 +712,7 @@
         "details": "Create PlayerOnboarding.vue component with:\n\n1. Multi-step form structure using Vue transitions with progress indicator\n2. Step 1 - Personal Info: Name (required), Email (required, validation)\n3. Step 2 - Skill Assessment: Radio buttons for Beginner/Intermediate/Advanced with descriptions\n4. Step 3 - Play Style: Toggle for Casual/Competitive with explanatory text\n5. Step 4 - Preferences: \n   - Weekly availability: Day/time selectors (multi-select)\n   - Budget range: Slider with min/max values\n   - Opponent preferences: Gender (Male/Female/Any) and Age range selectors\n\nUse Tailwind CSS for styling with MaBar color scheme. Implement form validation for each step. Store collected data in Parse User object custom fields upon completion. Redirect to player dashboard after successful onboarding.",
         "testStrategy": "1. Test multi-step navigation: Verify progress indicator updates correctly and steps transition smoothly\n2. Test form validation: Verify required fields are validated and error messages display appropriately\n3. Test data persistence: Complete onboarding flow and verify all data is saved correctly to Parse User object\n4. Test redirection: Verify successful completion redirects to player dashboard\n5. Test responsive design: Verify form works on mobile and desktop devices",
         "status": "pending",
-        "dependencies": [
-          6,
-          8
-        ],
+        "dependencies": [6, 8],
         "priority": "medium",
         "subtasks": []
       },
@@ -841,13 +722,8 @@
         "description": "Create a comprehensive multi-step onboarding form for venue owners with personal information, venue details, legal documents, document upload, and verification status tracking.",
         "details": "Create VenueOwnerOnboarding.vue component with:\n\n1. Multi-step form structure using Vue transitions with progress indicator (5 steps)\n2. Step 1 - Personal Information: Name (required), Email (required with validation)\n3. Step 2 - Venue Details: Venue name (required), address (with Google Maps integration), facilities checklist (court types, amenities)\n4. Step 3 - Legal Documents: NIK number (validation), SIUP number (validation), contact number (phone validation)\n5. Step 4 - Document Upload: File upload component for legal documents (max 5 files, PDF/JPEG/PNG only, max 5MB each) with drag-and-drop functionality\n6. Step 5 - Pending Verification: Status page showing verification pending with estimated timeline and next steps\n\nImplement form validation for each step using Vuelidate or similar. Store onboarding data in Parse with status tracking ('pending_verification'). Create file upload service that handles document storage in Back4App. Implement automatic status updates when documents are uploaded.",
         "testStrategy": "1. Test multi-step navigation: Verify progress indicator updates correctly through all 5 steps\n2. Test form validation: Validate required fields, email format, phone number validation, and file type/size restrictions\n3. Test file upload: Upload various document types and verify they are stored correctly in Back4App\n4. Test data persistence: Complete entire onboarding flow and verify all data is saved to Parse with correct status\n5. Test verification status: Verify the pending verification page displays correctly after submission",
-        "status": "pending",
-        "dependencies": [
-          6,
-          5,
-          4,
-          1
-        ],
+        "status": "done",
+        "dependencies": [6, 5, 4, 1],
         "priority": "medium",
         "subtasks": []
       },
@@ -858,19 +734,14 @@
         "details": "Create AdminOnboardingStep1.vue component that handles the initial admin verification process:\n\n1. **Credentials Verification Form**:\n   - Create secure login form specifically for admin access\n   - Implement email/password validation with enhanced security requirements\n   - Use Back4App authentication with Parse.User.logIn() for admin users\n\n2. **Role Verification Logic**:\n   - After successful login, verify user has 'admin' role in Parse User object\n   - Implement role-based access control - redirect non-admin users to appropriate dashboards\n   - Create custom Parse Cloud Function to validate admin privileges if needed\n\n3. **Security Checks**:\n   - Implement IP whitelisting/geolocation validation for admin access\n   - Add two-factor authentication readiness (placeholder for future implementation)\n   - Implement session timeout and security logging for admin activities\n   - Validate admin account status (active/suspended) before proceeding\n\n4. **Error Handling**:\n   - Create specific error messages for admin authentication failures\n   - Implement brute force protection with login attempt tracking\n   - Handle network connectivity issues gracefully\n\n5. **UI/UX**:\n   - Design professional admin login interface with MaBar branding\n   - Include loading states and success/error feedback\n   - Implement responsive design for mobile admin access\n\nUse Tailwind CSS for styling and ensure all security best practices are followed for admin authentication.",
         "testStrategy": "1. Test admin authentication: Verify successful login with valid admin credentials and proper role verification\n2. Test security validation: Attempt login with non-admin credentials and verify redirection to appropriate user dashboard\n3. Test error handling: Verify proper error messages for invalid credentials, network issues, and role validation failures\n4. Test security features: Verify IP validation (if implemented) and session timeout functionality\n5. Test responsive design: Verify admin login works on mobile, tablet, and desktop devices\n6. Test integration: Verify seamless transition to Step 2 (permissions setup) after successful verification",
         "status": "pending",
-        "dependencies": [
-          6,
-          5,
-          4,
-          1
-        ],
+        "dependencies": [6, 5, 4, 1],
         "priority": "low",
         "subtasks": []
       }
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T12:23:11.995Z",
+      "updated": "2025-08-30T12:57:26.914Z",
       "description": "Tasks for master context"
     }
   }

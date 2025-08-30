@@ -228,6 +228,14 @@
                 <li>• After approval, you can start managing your venue</li>
               </ul>
             </div>
+
+            <!-- Show error if any -->
+            <div
+              v-if="error"
+              class="bg-red-50 border border-red-200 rounded-lg p-4"
+            >
+              <p class="text-red-700 text-sm">{{ error }}</p>
+            </div>
           </div>
 
           <!-- Navigation Buttons -->
@@ -275,16 +283,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import Parse from '../services/back4app'
+import { useAuthStore } from '../stores/auth'
+import {
+  VenueOwnerService,
+  type VenueOwnerData,
+} from '../services/venueOwnerService'
 
 const router = useRouter()
+const authStore = useAuthStore()
 
 const currentStep = ref(1)
 const isSubmitting = ref(false)
 const uploadedFiles = ref<File[]>([])
 const fileInput = ref<HTMLInputElement | null>(null)
+const applicationSubmitted = ref(false)
+const error = ref<string | null>(null)
 
 const formData = ref({
   personalInfo: {
@@ -393,43 +408,23 @@ const handleSubmit = async () => {
   if (currentStep.value !== 4) return
 
   isSubmitting.value = true
+  error.value = null
 
   try {
-    const currentUser = Parse.User.current()
-    if (!currentUser) throw new Error('No user logged in')
+    await VenueOwnerService.saveVenueOwnerApplication(
+      formData.value as VenueOwnerData,
+      uploadedFiles.value
+    )
 
-    // Create venue owner profile
-    const VenueOwner = Parse.Object.extend('VenueOwner')
-    const venueOwner = new VenueOwner()
+    // Update auth store
+    await authStore.updateOnboardingStatus('completed')
 
-    venueOwner.set('user', currentUser)
-    venueOwner.set('personalInfo', formData.value.personalInfo)
-    venueOwner.set('venueDetails', formData.value.venueDetails)
-    venueOwner.set('legalDocs', formData.value.legalDocs)
-    venueOwner.set('status', 'pending_verification')
-    venueOwner.set('submittedAt', new Date())
-
-    // Upload files if any
-    if (uploadedFiles.value.length > 0) {
-      const fileUrls = []
-      for (const file of uploadedFiles.value) {
-        const parseFile = new Parse.File(file.name, file)
-        await parseFile.save()
-        fileUrls.push(parseFile.url())
-      }
-      venueOwner.set('documents', fileUrls)
-    }
-
-    await venueOwner.save()
-
-    // Update user status
-    currentUser.set('onboardingStatus', 'pending_verification')
-    await currentUser.save()
-
+    applicationSubmitted.value = true
     currentStep.value = 5
-  } catch (error) {
-    console.error('Error submitting application:', error)
-    alert('Error submitting application. Please try again.')
+  } catch (err: any) {
+    console.error('Error submitting application:', err)
+    error.value =
+      err.message || 'Error submitting application. Please try again.'
   } finally {
     isSubmitting.value = false
   }
@@ -438,4 +433,22 @@ const handleSubmit = async () => {
 const goToDashboard = () => {
   router.push('/venue-dashboard')
 }
+
+// Check if application already exists on mount
+onMounted(async () => {
+  try {
+    const status = await VenueOwnerService.checkApplicationStatus()
+    if (status.exists) {
+      if (status.status === 'pending_verification') {
+        applicationSubmitted.value = true
+        currentStep.value = 5
+      } else if (status.status === 'approved') {
+        // Redirect to dashboard if already approved
+        router.push('/venue-dashboard')
+      }
+    }
+  } catch (err) {
+    console.error('Error checking application status:', err)
+  }
+})
 </script>

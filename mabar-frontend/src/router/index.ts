@@ -42,7 +42,7 @@ export const router = createRouter({
 // Navigation guards for role-based routing
 router.beforeEach((to, _from, next) => {
   const authStore = useAuthStore()
-  const { user, isAuthenticated } = authStore
+  const { user, isAuthenticated, hasCompletedOnboarding } = authStore
 
   // Check if route requires authentication
   if (to.meta.requiresAuth && !isAuthenticated) {
@@ -52,7 +52,37 @@ router.beforeEach((to, _from, next) => {
 
   // Check if route requires guest (not authenticated)
   if (to.meta.requiresGuest && isAuthenticated) {
-    // Redirect to appropriate dashboard based on role
+    // If user has completed onboarding, redirect to dashboard
+    if (hasCompletedOnboarding) {
+      if (user?.role === 'player') {
+        next('/dashboard')
+      } else if (user?.role === 'venue_owner') {
+        next('/venue-dashboard')
+      } else {
+        next('/')
+      }
+    } else {
+      // If user hasn't completed onboarding, allow them to stay on auth flow
+      next()
+    }
+    return
+  }
+
+  // Allow access to onboarding routes if user has role but hasn't completed onboarding
+  const isOnboardingRoute = to.path.startsWith('/onboarding/')
+  if (isOnboardingRoute && user?.role && !hasCompletedOnboarding) {
+    // Check if the onboarding route matches the user's role
+    const expectedRoute =
+      user.role === 'player' ? '/onboarding/player' : '/onboarding/venue-owner'
+    if (to.path === expectedRoute) {
+      next()
+      return
+    }
+  }
+
+  // Check role-based access for completed users
+  if (to.meta.requiresRole && user?.role !== to.meta.requiresRole) {
+    // Redirect to appropriate dashboard based on actual role
     if (user?.role === 'player') {
       next('/dashboard')
     } else if (user?.role === 'venue_owner') {
@@ -63,9 +93,8 @@ router.beforeEach((to, _from, next) => {
     return
   }
 
-  // Check role-based access
-  if (to.meta.requiresRole && user?.role !== to.meta.requiresRole) {
-    // Redirect to appropriate dashboard based on actual role
+  // Redirect completed users away from onboarding routes
+  if (isOnboardingRoute && hasCompletedOnboarding) {
     if (user?.role === 'player') {
       next('/dashboard')
     } else if (user?.role === 'venue_owner') {

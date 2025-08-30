@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <!-- Show layout only when user is authenticated and has a role -->
+    <!-- Show layout only when user has completed onboarding -->
     <AppLayout v-if="showLayout" />
-    <!-- Show auth flow when not authenticated or no role -->
+    <!-- Show auth flow or onboarding when not completed -->
     <router-view v-else />
   </div>
 </template>
@@ -14,8 +14,12 @@ import AppLayout from './components/AppLayout.vue'
 
 const authStore = useAuthStore()
 
-// Show layout when user is authenticated and has a role
+// Show layout only when user is authenticated and has completed onboarding
 const showLayout = computed(() => {
-  return authStore.isAuthenticated && authStore.user?.role
+  return (
+    authStore.isAuthenticated &&
+    authStore.user?.role &&
+    authStore.hasCompletedOnboarding
+  )
 })
 </script>
