@@ -1,0 +1,11 @@
+# Task ID: 6
+# Title: Implement User Authentication System
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Create user registration and login functionality using Back4App auth
+# Details:
+Implement auth store with Pinia: user registration (email/password), login, logout functions. Create auth forms with validation. Handle session persistence. Implement role selection after first login (Player/Venue Owner). Store user role in Parse User object custom field.
+
+# Test Strategy:
+Test user registration flow, login functionality, role selection, session persistence, and error cases

@@ -1,0 +1,49 @@
+# Task ID: 13
+# Title: Build Venue Dashboard with Calendar View
+# Status: pending
+# Dependencies: 23
+# Priority: medium
+# Description: Create venue owner dashboard with booking calendar and management
+# Details:
+Create dashboard with calendar view showing MaBar bookings. Implement time slot blocking/unblocking functionality. Show booking details and status. Use calendar library (like FullCalendar) with Tailwind styling. Implement real-time updates for booking changes.
+
+# Test Strategy:
+Test calendar functionality, slot management, booking displays, and real-time updates
+
+# Subtasks:
+## 1. Design Dashboard Layout with Tailwind [pending]
+### Dependencies: None
+### Description: Create the overall dashboard layout using Tailwind CSS, ensuring responsive design and proper structure for calendar integration.
+### Details:
+Design and implement the main dashboard structure with Tailwind CSS classes, including header, sidebar (if needed), and content area for the calendar. Ensure responsiveness for mobile and desktop views.
+
+## 2. Integrate Calendar Library and Display Bookings [pending]
+### Dependencies: 13.1
+### Description: Integrate FullCalendar (or similar) library and configure it to display MaBar bookings from the data source.
+### Details:
+Install and set up FullCalendar library. Fetch booking data from the backend (e.g., Parse) and render events on the calendar. Style calendar elements with Tailwind to match the dashboard design.
+
+## 3. Implement Slot Blocking/Unblocking Functionality [pending]
+### Dependencies: 13.2
+### Description: Add functionality for venue owners to block or unblock time slots directly on the calendar.
+### Details:
+Implement click or drag handlers on calendar time slots to allow blocking/unblocking. Send updates to the backend (e.g., via Parse) to persist changes. Provide visual feedback for blocked slots (e.g., different color).
+
+## 4. Show Booking Details and Status [pending]
+### Dependencies: 13.2
+### Description: Display detailed information and status for each booking when selected or hovered.
+### Details:
+Implement event click or hover interactions to show a popover/modal with booking details (e.g., customer name, time, status). Style the details view with Tailwind and ensure it integrates smoothly with the calendar.
+
+## 5. Implement Real-Time Updates for Bookings [pending]
+### Dependencies: 13.2, 13.3, 13.4
+### Description: Add real-time functionality to reflect booking changes immediately in the calendar without manual refresh.
+### Details:
+Use WebSockets, Parse LiveQuery, or polling to listen for booking changes (new, updated, canceled) and update the calendar view in real time. Ensure performance and error handling.
+
+## 6. Test Dashboard Features and Responsiveness [pending]
+### Dependencies: 13.1, 13.2, 13.3, 13.4, 13.5
+### Description: Thoroughly test all dashboard functionalities, including calendar interactions, slot management, and real-time updates, across devices.
+### Details:
+Test calendar rendering, slot blocking/unblocking, booking details display, and real-time updates. Verify responsiveness on mobile and desktop. Write and run unit/integration tests as needed.
+

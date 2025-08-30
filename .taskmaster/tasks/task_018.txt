@@ -1,0 +1,11 @@
+# Task ID: 18
+# Title: Implement Session Commitment Deadline Logic
+# Status: pending
+# Dependencies: 11
+# Priority: low
+# Description: Create automated session cancellation for unmet player minimums
+# Details:
+Create Back4App Cloud Code Job that runs periodically to check sessions approaching start time (2 hours before). Cancel sessions that don't meet minimum player requirement. Send notifications to affected users. Update session status in Parse database.
+
+# Test Strategy:
+Test Cloud Job scheduling, session cancellation logic, notification system, and database updates

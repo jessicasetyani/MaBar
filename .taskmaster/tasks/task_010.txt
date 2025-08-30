@@ -1,0 +1,11 @@
+# Task ID: 10
+# Title: Create Back4App Cloud Function for Gemini API
+# Status: pending
+# Dependencies: 5
+# Priority: high
+# Description: Set up serverless function to handle secure Gemini API calls
+# Details:
+Create Back4App Cloud Code function that accepts user query and profile data, calls Gemini API securely, and returns matchmaking recommendations. Store Gemini API key in Back4App environment. Implement error handling and rate limiting. Support both English and Bahasa processing.
+
+# Test Strategy:
+Test Cloud Function deployment, API communication, error handling, and response formatting

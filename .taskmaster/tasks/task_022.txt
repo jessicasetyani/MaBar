@@ -1,0 +1,26 @@
+# Task ID: 22
+# Title: Build Player Onboarding Multi-Step Form
+# Status: pending
+# Dependencies: 6, 8
+# Priority: medium
+# Description: Create a multi-step onboarding form for new players with personal information, skill assessment, play style preferences, availability, budget, and opponent preferences.
+# Details:
+Create PlayerOnboarding.vue component with:
+
+1. Multi-step form structure using Vue transitions with progress indicator
+2. Step 1 - Personal Info: Name (required), Email (required, validation)
+3. Step 2 - Skill Assessment: Radio buttons for Beginner/Intermediate/Advanced with descriptions
+4. Step 3 - Play Style: Toggle for Casual/Competitive with explanatory text
+5. Step 4 - Preferences: 
+   - Weekly availability: Day/time selectors (multi-select)
+   - Budget range: Slider with min/max values
+   - Opponent preferences: Gender (Male/Female/Any) and Age range selectors
+
+Use Tailwind CSS for styling with MaBar color scheme. Implement form validation for each step. Store collected data in Parse User object custom fields upon completion. Redirect to player dashboard after successful onboarding.
+
+# Test Strategy:
+1. Test multi-step navigation: Verify progress indicator updates correctly and steps transition smoothly
+2. Test form validation: Verify required fields are validated and error messages display appropriately
+3. Test data persistence: Complete onboarding flow and verify all data is saved correctly to Parse User object
+4. Test redirection: Verify successful completion redirects to player dashboard
+5. Test responsive design: Verify form works on mobile and desktop devices

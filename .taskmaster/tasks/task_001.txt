@@ -1,0 +1,11 @@
+# Task ID: 1
+# Title: Initialize Vue.js Project with Vite
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Set up the Vue.js project structure with Vite as build tool and configure basic project settings
+# Details:
+Create new Vue.js project using Vite: `npm create vite@latest mabar-frontend -- --template vue`. Install Vue 3.4+ and configure TypeScript support. Set up basic project structure with src/, components/, views/, stores/ directories. Configure vite.config.ts with Vue plugin and base settings.
+
+# Test Strategy:
+Verify project creation with `npm run dev` command, check Vue version compatibility, and validate TypeScript configuration

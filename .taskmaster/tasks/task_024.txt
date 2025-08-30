@@ -1,0 +1,44 @@
+# Task ID: 24
+# Title: Create Admin Onboarding Flow - Credentials Verification and Security Checks
+# Status: pending
+# Dependencies: 6, 5, 4, 1
+# Priority: low
+# Description: Implement Step 1 of admin onboarding with secure credentials verification, role validation, and security checks before granting admin access.
+# Details:
+Create AdminOnboardingStep1.vue component that handles the initial admin verification process:
+
+1. **Credentials Verification Form**:
+   - Create secure login form specifically for admin access
+   - Implement email/password validation with enhanced security requirements
+   - Use Back4App authentication with Parse.User.logIn() for admin users
+
+2. **Role Verification Logic**:
+   - After successful login, verify user has 'admin' role in Parse User object
+   - Implement role-based access control - redirect non-admin users to appropriate dashboards
+   - Create custom Parse Cloud Function to validate admin privileges if needed
+
+3. **Security Checks**:
+   - Implement IP whitelisting/geolocation validation for admin access
+   - Add two-factor authentication readiness (placeholder for future implementation)
+   - Implement session timeout and security logging for admin activities
+   - Validate admin account status (active/suspended) before proceeding
+
+4. **Error Handling**:
+   - Create specific error messages for admin authentication failures
+   - Implement brute force protection with login attempt tracking
+   - Handle network connectivity issues gracefully
+
+5. **UI/UX**:
+   - Design professional admin login interface with MaBar branding
+   - Include loading states and success/error feedback
+   - Implement responsive design for mobile admin access
+
+Use Tailwind CSS for styling and ensure all security best practices are followed for admin authentication.
+
+# Test Strategy:
+1. Test admin authentication: Verify successful login with valid admin credentials and proper role verification
+2. Test security validation: Attempt login with non-admin credentials and verify redirection to appropriate user dashboard
+3. Test error handling: Verify proper error messages for invalid credentials, network issues, and role validation failures
+4. Test security features: Verify IP validation (if implemented) and session timeout functionality
+5. Test responsive design: Verify admin login works on mobile, tablet, and desktop devices
+6. Test integration: Verify seamless transition to Step 2 (permissions setup) after successful verification

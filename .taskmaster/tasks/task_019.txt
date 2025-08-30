@@ -1,0 +1,49 @@
+# Task ID: 19
+# Title: Build Admin Dashboard for Venue Verification and User Management
+# Status: pending
+# Dependencies: 23
+# Priority: medium
+# Description: Create comprehensive admin dashboard for venue approval, user role management, and platform health monitoring with KPI tracking
+# Details:
+Create Vue.js admin dashboard component with three main sections:
+
+1. Venue Verification Panel:
+   - Display pending venue registrations from Task 12 with owner details, documents, and verification status
+   - Implement approve/reject functionality with status updates in Parse
+   - Create audit trail for verification actions with timestamps and admin user
+
+2. User Management Panel:
+   - Display user list with filtering by role (player/venue_owner/admin)
+   - Implement role assignment functionality with dropdown selectors
+   - Show user activity metrics (sessions joined, bookings made)
+   - Include user suspension/reactivation capabilities
+
+3. Platform Health Dashboard:
+   - Display KPIs from PRD: no-show rates, venue violations, session completion rates
+   - Implement data visualization using Chart.js for trend analysis
+   - Show real-time metrics with date range filtering
+   - Create violation reporting system with severity levels
+
+Technical Implementation:
+- Use Vue 3 Composition API with TypeScript for type safety
+- Implement role-based access control (RBAC) middleware to restrict admin access
+- Create Parse queries for venue verification status and user management
+- Use Tailwind CSS for responsive dashboard layout with grid system
+- Implement real-time data updates using Parse Live Queries for admin notifications
+- Add search and filtering capabilities across all panels
+- Create admin audit log in Parse for all administrative actions
+
+Security Considerations:
+- Implement server-side validation for all admin actions via Cloud Code
+- Restrict admin routes to users with admin role only
+- Validate user permissions before allowing role changes
+- Encrypt sensitive admin operations in database
+
+# Test Strategy:
+1. Test venue verification workflow: Submit venue registration (Task 12), verify admin dashboard displays pending venues, test approve/reject functionality, confirm status updates in Parse
+2. Test user role management: Create test users, verify role assignment functionality, test access control changes
+3. Test platform health metrics: Generate test data (sessions, bookings, no-shows), verify KPI calculations accuracy, test date range filtering
+4. Test security: Attempt unauthorized admin access, verify RBAC prevents access, test server-side validation of admin actions
+5. Test responsiveness: Verify dashboard works on mobile, tablet, and desktop breakpoints
+6. Test real-time updates: Verify Live Queries update dashboard when venue status changes or new violations occur
+7. Test search and filtering: Verify all panels support search functionality and filter correctly

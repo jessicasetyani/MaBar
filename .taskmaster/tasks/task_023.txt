@@ -1,0 +1,24 @@
+# Task ID: 23
+# Title: Build Venue Owner Onboarding Multi-Step Form
+# Status: pending
+# Dependencies: 6, 5, 4, 1
+# Priority: medium
+# Description: Create a comprehensive multi-step onboarding form for venue owners with personal information, venue details, legal documents, document upload, and verification status tracking.
+# Details:
+Create VenueOwnerOnboarding.vue component with:
+
+1. Multi-step form structure using Vue transitions with progress indicator (5 steps)
+2. Step 1 - Personal Information: Name (required), Email (required with validation)
+3. Step 2 - Venue Details: Venue name (required), address (with Google Maps integration), facilities checklist (court types, amenities)
+4. Step 3 - Legal Documents: NIK number (validation), SIUP number (validation), contact number (phone validation)
+5. Step 4 - Document Upload: File upload component for legal documents (max 5 files, PDF/JPEG/PNG only, max 5MB each) with drag-and-drop functionality
+6. Step 5 - Pending Verification: Status page showing verification pending with estimated timeline and next steps
+
+Implement form validation for each step using Vuelidate or similar. Store onboarding data in Parse with status tracking ('pending_verification'). Create file upload service that handles document storage in Back4App. Implement automatic status updates when documents are uploaded.
+
+# Test Strategy:
+1. Test multi-step navigation: Verify progress indicator updates correctly through all 5 steps
+2. Test form validation: Validate required fields, email format, phone number validation, and file type/size restrictions
+3. Test file upload: Upload various document types and verify they are stored correctly in Back4App
+4. Test data persistence: Complete entire onboarding flow and verify all data is saved to Parse with correct status
+5. Test verification status: Verify the pending verification page displays correctly after submission

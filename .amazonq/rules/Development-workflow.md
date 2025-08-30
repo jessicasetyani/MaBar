@@ -1,0 +1,1 @@
+On every completed task from taskmaster, do a git commit with short descriptive commit message

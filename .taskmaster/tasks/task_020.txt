@@ -1,0 +1,70 @@
+# Task ID: 20
+# Title: Implement Reputation System for Players and Venues
+# Status: pending
+# Dependencies: 6, 11, 18
+# Priority: medium
+# Description: Build a comprehensive reputation tracking system that monitors player reliability (no-show rates), venue quality ratings, and provides admin tools for managing reputation scores and handling violations according to community health KPIs.
+# Details:
+Create a reputation management system using Back4App Parse Server with the following components:
+
+1. **Player Reputation Tracking**:
+   - Store player attendance history with session IDs and status (attended/no-show)
+   - Calculate no-show rate percentage based on last 10 sessions
+   - Implement reputation scoring algorithm (e.g., 5-star system based on attendance reliability)
+   - Store reputation data in Parse User object with custom fields: reputationScore, totalSessions, noShowCount, lastUpdated
+
+2. **Venue Quality Rating System**:
+   - Create venue rating collection with fields: venueId, userId, rating (1-5), reviewText, timestamp
+   - Calculate average rating for each venue
+   - Support rating submission after completed sessions
+   - Store aggregated venue ratings in Venue object
+
+3. **Admin Reputation Management Tools**:
+   - Create admin dashboard with reputation management interface
+   - Implement violation reporting system with severity levels
+   - Add manual reputation adjustment capabilities
+   - Create automated reputation decay system (scores decrease over inactivity)
+   - Implement notification system for reputation threshold breaches
+
+4. **Technical Implementation**:
+   - Use Cloud Code functions for reputation calculations
+   - Create BeforeSave triggers to update reputation scores automatically
+   - Implement real-time reputation updates using Parse LiveQuery
+   - Create Vue components for rating submission and reputation display
+   - Use Tailwind CSS for responsive admin interface
+
+Best Practices:
+- Use weighted averages for recent behavior (more weight to recent sessions)
+- Implement rate limiting for rating submissions
+- Add fraud detection for fake reviews
+- Ensure data privacy compliance for reputation data
+- Create backup system for reputation scores
+
+# Test Strategy:
+Test the reputation system with the following scenarios:
+
+1. **Player Reputation Tests**:
+   - Verify no-show rate calculation accuracy with various session histories
+   - Test reputation score updates after session completion
+   - Verify reputation decay after periods of inactivity
+   - Test threshold notifications for poor reputation scores
+
+2. **Venue Rating Tests**:
+   - Test rating submission workflow after completed sessions
+   - Verify average rating calculations with multiple submissions
+   - Test rating validation (1-5 stars, required fields)
+   - Verify rating display in venue profiles
+
+3. **Admin Tools Tests**:
+   - Test manual reputation adjustment functionality
+   - Verify violation reporting and handling workflow
+   - Test reputation dashboard data accuracy
+   - Verify admin permission checks for reputation management
+
+4. **Integration Tests**:
+   - Test reputation impact on matchmaking algorithms
+   - Verify reputation data persistence across sessions
+   - Test real-time reputation updates
+   - Verify data consistency between User and Session objects
+
+Use Jest for unit tests and Cypress for end-to-end testing of the reputation workflow.
