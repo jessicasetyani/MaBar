@@ -6,6 +6,7 @@ import { env } from './config/env'
 import './services/back4app'
 import { testBack4AppConnection } from './utils/testConnection'
 import { useAuthStore } from './stores/auth'
+import { router } from './router'
 
 // Verify environment variables are accessible via type-safe module
 console.log('Environment validation:', {
@@ -28,6 +29,7 @@ const app = createApp(App)
 const pinia = createPinia()
 
 app.use(pinia)
+app.use(router)
 
 // Initialize auth session
 const authStore = useAuthStore()

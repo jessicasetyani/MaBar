@@ -3,5 +3,8 @@ import AuthFlow from './components/AuthFlow.vue'
 </script>
 
 <template>
-  <AuthFlow />
+  <router-view v-slot="{ Component }">
+    <component :is="Component" v-if="Component" />
+    <AuthFlow v-else />
+  </router-view>
 </template>

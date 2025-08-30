@@ -761,7 +761,7 @@
         "description": "Build a role selection interface that appears after user registration, allowing users to choose between Player or Venue Owner roles with descriptions and visual indicators, then save selection and redirect to appropriate onboarding flow.",
         "details": "Create RoleSelection.vue component that:\n\n1. Conditionally renders after successful registration/login based on user's role field being null/undefined\n2. Displays two role options: Player and Venue Owner with:\n   - Clear visual cards/icons for each role\n   - Descriptive text explaining each role's purpose\n   - MaBar branding and styling using Tailwind CSS\n3. Implements role selection logic:\n   - On role selection, update Parse User object with custom 'role' field ('player' or 'venue_owner')\n   - Show loading state during save operation\n   - Handle save errors with user feedback\n4. Implement redirection logic:\n   - Redirect to player onboarding flow for 'player' role\n   - Redirect to venue owner onboarding flow for 'venue_owner' role\n5. Use Pinia store for state management and routing\n6. Ensure mobile-responsive design with proper touch targets\n\nCode structure:\n- Use Parse.User.current() to get current user\n- Implement save: await user.set('role', selectedRole).save()\n- Use Vue Router for navigation: router.push('/onboarding/player') or router.push('/onboarding/venue-owner')",
         "testStrategy": "1. Test component rendering: Verify role selection appears only when user.role is null/undefined\n2. Test role selection: Click each role option and verify visual feedback\n3. Test save functionality: Mock Parse save operation and verify role is saved correctly\n4. Test redirection: Verify correct onboarding route navigation based on selected role\n5. Test error handling: Simulate save errors and verify user feedback is displayed\n6. Test responsive design: Verify component works on mobile and desktop viewports\n7. Test edge cases: Verify component doesn't show for users with existing roles",
-        "status": "pending",
+        "status": "done",
         "dependencies": [
           6
         ],
@@ -773,7 +773,7 @@
             "description": "Set up logic to conditionally render the RoleSelection component only when the user's role field is null or undefined after successful registration/login.",
             "dependencies": [],
             "details": "Check Parse.User.current() for role field value; conditionally display component based on role being null/undefined.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -782,7 +782,7 @@
             "description": "Create the visual interface for role selection with cards/icons for Player and Venue Owner roles, including descriptive text and MaBar branding.",
             "dependencies": [],
             "details": "Build responsive UI cards with icons, text descriptions, and Tailwind styling; ensure mobile-friendly touch targets.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -794,7 +794,7 @@
               "21.2"
             ],
             "details": "On role selection, call user.set('role', selectedRole).save(); use Pinia for state management.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -805,7 +805,7 @@
               "21.3"
             ],
             "details": "Show loading spinner during save; display error messages if save fails using user feedback components.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -816,7 +816,7 @@
               "21.3"
             ],
             "details": "Use Vue Router to push to '/onboarding/player' or '/onboarding/venue-owner' after successful role save.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           }
         ]
@@ -870,7 +870,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T06:21:01.456Z",
+      "updated": "2025-08-30T08:18:27.323Z",
       "description": "Tasks for master context"
     }
   }

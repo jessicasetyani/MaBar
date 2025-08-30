@@ -52,12 +52,14 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import LoginForm from './LoginForm.vue'
 import RegisterForm from './RegisterForm.vue'
 import RoleSelection from './RoleSelection.vue'
 
 const authStore = useAuthStore()
+const router = useRouter()
 const isLogin = ref(true)
 
 const handleAuthSuccess = () => {
@@ -65,6 +67,10 @@ const handleAuthSuccess = () => {
 }
 
 const handleRoleSelected = (role: 'player' | 'venue_owner') => {
-  console.log('Role selected:', role)
+  if (role === 'player') {
+    router.push('/onboarding/player')
+  } else {
+    router.push('/onboarding/venue-owner')
+  }
 }
 </script>
