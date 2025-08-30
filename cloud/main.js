@@ -127,12 +127,20 @@ Parse.Cloud.define("getMatchmakingRecommendations", async (request) => {
     };
     
   } catch (error) {
-    console.error('Gemini API Error:', error);
+    // Log sanitized error for debugging
+    const sanitizedError = {
+      status: error.response?.status,
+      code: error.code,
+      message: error.message,
+      stack: error.stack
+    };
+    console.error('Gemini API Error:', sanitizedError);
     
-    // Return error response
+    // Return generic error response
     return {
       success: false,
-      error: error.message || 'Internal server error',
+      error: 'ERR_GEMINI_API',
+      message: 'External service error',
       timestamp: new Date().toISOString()
     };
   }
