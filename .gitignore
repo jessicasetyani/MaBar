@@ -475,3 +475,7 @@ dmypy.json
 .taskmaster/tasks/*.tmp
 .taskmaster/tasks/*.temp
 .taskmaster/tasks/.*.swp 
+
+# Amazon Q - exclude everything except rules
+.amazonq/
+!.amazonq/rules/
