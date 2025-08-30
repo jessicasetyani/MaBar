@@ -176,18 +176,16 @@ Thumbs.db
 .fuse_hidden*
 
 # =============================================================================
-# RUST BACKEND SPECIFIC
+# BACK4APP CLOUD FUNCTIONS SPECIFIC
 # =============================================================================
-# Rust build artifacts
-target/
-Cargo.lock
-**/*.rs.bk
-*.pdb
+# Cloud function build artifacts
+cloud/dist/
+cloud/build/
+cloud/.cache/
 
-# Rust IDE files
-.vscode/settings.json
-.idea/
-*.iml
+# Cloud function logs
+cloud/logs/
+cloud/*.log
 
 # =============================================================================
 # TASK MASTER AI - EXCLUDE GENERATED CONTENT, KEEP CONFIGURATION
@@ -382,8 +380,8 @@ pids/
 # MABAR PROJECT SPECIFIC
 # =============================================================================
 # Upload directories
-backend/uploads/
-frontend/uploads/
+cloud/uploads/
+mabar-frontend/uploads/
 uploads/
 
 # Generated QR codes
