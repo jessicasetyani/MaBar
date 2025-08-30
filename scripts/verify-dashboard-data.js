@@ -3,6 +3,20 @@
 const Parse = require('parse/node');
 require('dotenv').config();
 
+// Validate required environment variables
+const missing = [];
+if (!process.env.VITE_BACK4APP_APP_ID) missing.push('VITE_BACK4APP_APP_ID');
+if (!process.env.VITE_BACK4APP_JAVASCRIPT_KEY) missing.push('VITE_BACK4APP_JAVASCRIPT_KEY');
+if (!process.env.VITE_BACK4APP_MASTER_KEY) missing.push('VITE_BACK4APP_MASTER_KEY');
+const venueId = process.env.VENUE_OWNER_ID || 'Ivej8c3bJ7';
+if (!process.env.VENUE_OWNER_ID) {
+  console.warn('⚠️  VENUE_OWNER_ID not set, using fallback ID');
+}
+if (missing.length > 0) {
+  console.error(`❌ Missing environment variables: ${missing.join(', ')}`);
+  process.exit(1);
+}
+
 // Initialize Parse
 Parse.initialize(
   process.env.VITE_BACK4APP_APP_ID,
@@ -18,7 +32,7 @@ async function verifyDashboardData() {
     // Get the specific VenueOwner profile we know exists
     const VenueOwner = Parse.Object.extend('VenueOwner');
     const venueQuery = new Parse.Query(VenueOwner);
-    const venueOwner = await venueQuery.get('Ivej8c3bJ7'); // The ID we saw in debug
+    const venueOwner = await venueQuery.get(venueId, { useMasterKey: true });
     
     console.log('✅ VenueOwner profile verified:', {
       id: venueOwner.id,
@@ -32,7 +46,7 @@ async function verifyDashboardData() {
     const bookingQuery = new Parse.Query(BookingClass);
     bookingQuery.equalTo('venueId', venueOwner.id);
     
-    const bookings = await bookingQuery.find();
+    const bookings = await bookingQuery.find({ useMasterKey: true });
     console.log(`\n📅 Bookings for venue ${venueOwner.id}: ${bookings.length}`);
     
     if (bookings.length > 0) {
@@ -50,7 +64,7 @@ async function verifyDashboardData() {
     const blockedQuery = new Parse.Query(BlockedSlotClass);
     blockedQuery.equalTo('venueId', venueOwner.id);
     
-    const blockedSlots = await blockedQuery.find();
+    const blockedSlots = await blockedQuery.find({ useMasterKey: true });
     console.log(`\n🚫 Blocked slots for venue ${venueOwner.id}: ${blockedSlots.length}`);
 
     console.log('\n🎯 Dashboard Data Summary:');
@@ -74,6 +88,7 @@ async function verifyDashboardData() {
 
   } catch (error) {
     console.error('❌ Verification failed:', error);
+    throw error;
   }
 }
 

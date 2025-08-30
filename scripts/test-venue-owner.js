@@ -3,12 +3,27 @@
 const Parse = require('parse/node');
 require('dotenv').config();
 
+// Environment variables with server-side priority and fallbacks
+const appId = process.env.BACK4APP_APP_ID || process.env.VITE_BACK4APP_APP_ID;
+const jsKey = process.env.BACK4APP_JAVASCRIPT_KEY || process.env.VITE_BACK4APP_JAVASCRIPT_KEY;
+const masterKey = process.env.BACK4APP_MASTER_KEY || process.env.VITE_BACK4APP_MASTER_KEY;
+
+// Validate required credentials
+if (!appId) {
+  console.error('❌ Missing BACK4APP_APP_ID or VITE_BACK4APP_APP_ID');
+  process.exit(1);
+}
+if (!jsKey) {
+  console.error('❌ Missing BACK4APP_JAVASCRIPT_KEY or VITE_BACK4APP_JAVASCRIPT_KEY');
+  process.exit(1);
+}
+if (!masterKey) {
+  console.error('❌ Missing BACK4APP_MASTER_KEY (required for this script)');
+  process.exit(1);
+}
+
 // Initialize Parse
-Parse.initialize(
-  process.env.VITE_BACK4APP_APP_ID,
-  process.env.VITE_BACK4APP_JAVASCRIPT_KEY,
-  process.env.VITE_BACK4APP_MASTER_KEY
-);
+Parse.initialize(appId, jsKey, masterKey);
 Parse.serverURL = 'https://parseapi.back4app.com';
 
 async function testVenueOwner() {
@@ -27,7 +42,7 @@ async function testVenueOwner() {
       savedUser = await user.signUp();
       console.log('✅ Test user created');
     } catch (error) {
-      if (error.code === 202) {
+      if (error.code === 202 || error.code === 203) {
         // User already exists, try to log in
         savedUser = await Parse.User.logIn('test@venue.com', 'testpass123');
         console.log('✅ Test user logged in');
