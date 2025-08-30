@@ -438,7 +438,7 @@
             "description": "Integrate FullCalendar (or similar) library and configure it to display MaBar bookings from the data source.",
             "dependencies": ["13.1"],
             "details": "Install and set up FullCalendar library. Fetch booking data from the backend (e.g., Parse) and render events on the calendar. Style calendar elements with Tailwind to match the dashboard design.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T21:01:30.528Z",
+      "updated": "2025-08-30T21:03:53.933Z",
       "description": "Tasks for master context"
     }
   }

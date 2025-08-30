@@ -128,12 +128,7 @@
           <div
             class="bg-white rounded-lg shadow-sm border border-slate-200 p-6"
           >
-            <div id="calendar-container" class="min-h-[600px]">
-              <!-- Calendar will be rendered here -->
-              <div class="flex items-center justify-center h-96 text-slate-500">
-                📅 Calendar will be integrated in the next step
-              </div>
-            </div>
+            <FullCalendar :options="calendarOptions" class="venue-calendar" />
           </div>
         </div>
 
@@ -285,10 +280,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { VenueOwnerService } from '../services/venueOwnerService'
+import FullCalendar from '@fullcalendar/vue3'
+import dayGridPlugin from '@fullcalendar/daygrid'
+import timeGridPlugin from '@fullcalendar/timegrid'
+import interactionPlugin from '@fullcalendar/interaction'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -297,10 +296,56 @@ const { user } = authStore
 const venueOwnerData = ref<any>(null)
 const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
+const bookings = ref<any[]>([])
+
+const calendarOptions = computed(() => ({
+  plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+  initialView: 'timeGridWeek',
+  headerToolbar: {
+    left: 'prev,next today',
+    center: 'title',
+    right: 'dayGridMonth,timeGridWeek,timeGridDay',
+  },
+  height: 'auto',
+  events: bookings.value,
+  selectable: true,
+  selectMirror: true,
+  dayMaxEvents: true,
+  weekends: true,
+  slotMinTime: '06:00:00',
+  slotMaxTime: '23:00:00',
+  allDaySlot: false,
+  eventColor: '#84CC16',
+  eventTextColor: '#ffffff',
+  eventBorderColor: '#65A30D',
+}))
 
 const logout = async () => {
   await authStore.logout()
   router.push('/')
+}
+
+const loadBookings = async () => {
+  // Mock booking data for demonstration
+  bookings.value = [
+    {
+      id: '1',
+      title: 'Court 1 - John & Mike vs Sarah & Lisa',
+      start: new Date().toISOString().split('T')[0] + 'T10:00:00',
+      end: new Date().toISOString().split('T')[0] + 'T11:30:00',
+      backgroundColor: '#84CC16',
+      borderColor: '#65A30D',
+    },
+    {
+      id: '2',
+      title: 'Court 2 - Training Session',
+      start: new Date().toISOString().split('T')[0] + 'T14:00:00',
+      end: new Date().toISOString().split('T')[0] + 'T15:30:00',
+      backgroundColor: '#FDE047',
+      borderColor: '#FACC15',
+      textColor: '#334155',
+    },
+  ]
 }
 
 onMounted(async () => {
@@ -323,12 +368,11 @@ onMounted(async () => {
           break
         case 'approved':
           applicationStatus.value = 'Approved'
-          // Default to calendar tab for approved venues
           activeTab.value = 'calendar'
+          await loadBookings()
           break
         case 'rejected':
           applicationStatus.value = 'Rejected'
-          // Default to profile tab for rejected venues
           activeTab.value = 'profile'
           break
         default:
@@ -336,13 +380,45 @@ onMounted(async () => {
           activeTab.value = 'profile'
       }
     } else {
-      // No application found, redirect to onboarding
       router.push('/onboarding/venue-owner')
     }
   } catch (error) {
     console.error('Error loading venue owner data:', error)
-    // Default to profile tab on error
     activeTab.value = 'profile'
   }
 })
 </script>
+
+<style>
+.venue-calendar .fc {
+  font-family: inherit;
+}
+
+.venue-calendar .fc-button-primary {
+  background-color: #fde047;
+  border-color: #facc15;
+  color: #334155;
+}
+
+.venue-calendar .fc-button-primary:hover {
+  background-color: #facc15;
+  border-color: #eab308;
+}
+
+.venue-calendar .fc-button-primary:disabled {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+}
+
+.venue-calendar .fc-today-button {
+  background-color: #84cc16;
+  border-color: #65a30d;
+  color: white;
+}
+
+.venue-calendar .fc-today-button:hover {
+  background-color: #65a30d;
+  border-color: #4d7c0f;
+}
+</style>
