@@ -1,13 +1,13 @@
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-6">
-    <div class="space-y-4">
+    <div class="space-y-5">
       <div>
         <input
           v-model="email"
           type="email"
           placeholder="Email address"
           required
-          class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+          class="w-full px-4 py-4 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-slate-50 focus:bg-white text-slate-900 placeholder-slate-500"
         />
       </div>
       <div>
@@ -16,7 +16,7 @@
           type="password"
           placeholder="Password"
           required
-          class="w-full p-4 border border-gray-200 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-gray-50 focus:bg-white"
+          class="w-full px-4 py-4 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-slate-50 focus:bg-white text-slate-900 placeholder-slate-500"
         />
       </div>
     </div>
@@ -24,13 +24,13 @@
     <button
       type="submit"
       :disabled="authStore.isLoading"
-      class="w-full text-white p-4 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl font-medium"
-      :class="authStore.isLoading ? 'bg-gray-500' : 'bg-emerald-500 hover:bg-emerald-600'"
+      class="w-full text-white py-4 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-lg"
+      :class="authStore.isLoading ? 'bg-slate-400' : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700'"
     >
-      {{ authStore.isLoading ? 'Logging in...' : 'Login' }}
+      {{ authStore.isLoading ? 'Signing in...' : 'Continue' }}
     </button>
     
-    <div v-if="authStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
+    <div v-if="authStore.error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm">
       {{ authStore.error }}
     </div>
   </form>
