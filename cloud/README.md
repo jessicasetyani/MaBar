@@ -29,7 +29,7 @@ b4a deploy cloud/
 1. Go to your Back4App app dashboard
 2. Navigate to Server Settings > Environment Variables
 3. Add the following environment variable:
-   - `GEMINI_API_KEY`: Your Google Gemini API key
+   - `GOOGLE_API_KEY`: Your Google Gemini API key
 
 ## Cloud Functions
 

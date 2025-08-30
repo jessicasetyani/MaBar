@@ -43,10 +43,10 @@ Parse.Cloud.define("getMatchmakingRecommendations", async (request) => {
       throw new Error('Rate limit exceeded. Please try again later.');
     }
     
-    // Get Gemini API key from environment
-    const geminiApiKey = process.env.GEMINI_API_KEY;
+    // Get Google API key from environment
+    const geminiApiKey = process.env.GOOGLE_API_KEY;
     if (!geminiApiKey) {
-      throw new Error('Gemini API key not configured');
+      throw new Error('Google API key not configured');
     }
     
     // Prepare the prompt for Gemini
