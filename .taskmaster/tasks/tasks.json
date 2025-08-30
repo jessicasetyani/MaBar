@@ -417,7 +417,7 @@
         "id": 13,
         "title": "Build Venue Dashboard with Calendar View",
         "description": "Create venue owner dashboard with booking calendar and management",
-        "status": "pending",
+        "status": "in-progress",
         "dependencies": [23],
         "priority": "medium",
         "details": "Create dashboard with calendar view showing MaBar bookings. Implement time slot blocking/unblocking functionality. Show booking details and status. Use calendar library (like FullCalendar) with Tailwind styling. Implement real-time updates for booking changes.",
@@ -429,7 +429,7 @@
             "description": "Create the overall dashboard layout using Tailwind CSS, ensuring responsive design and proper structure for calendar integration.",
             "dependencies": [],
             "details": "Design and implement the main dashboard structure with Tailwind CSS classes, including header, sidebar (if needed), and content area for the calendar. Ensure responsiveness for mobile and desktop views.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": ""
           },
           {
@@ -741,7 +741,7 @@
     ],
     "metadata": {
       "created": "2025-08-30T03:16:04.145Z",
-      "updated": "2025-08-30T12:57:26.914Z",
+      "updated": "2025-08-30T21:01:30.528Z",
       "description": "Tasks for master context"
     }
   }
