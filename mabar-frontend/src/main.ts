@@ -1,9 +1,11 @@
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
 import { env } from './config/env'
 import './services/back4app'
 import { testBack4AppConnection } from './utils/testConnection'
+import { useAuthStore } from './stores/auth'
 
 // Verify environment variables are accessible via type-safe module
 console.log('Environment validation:', {
@@ -22,4 +24,13 @@ testBack4AppConnection().then(result => {
   console.error('❌ Back4App connection test failed:', error)
 })
 
-createApp(App).mount('#app')
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+
+// Initialize auth session
+const authStore = useAuthStore()
+authStore.checkSession()
+
+app.mount('#app')
