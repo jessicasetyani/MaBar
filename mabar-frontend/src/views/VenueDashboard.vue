@@ -382,7 +382,7 @@
     <!-- Fixed FAB for Creating Bookings - Always Visible for Testing -->
     <div
       v-if="activeTab === 'calendar'"
-      class="fab-container fixed top-32 right-6 z-[9999]"
+      class="fab-container fixed top-1/2 right-4 transform -translate-y-1/2 z-[9999]"
     >
       <!-- Quick Create Popover -->
       <div
@@ -596,39 +596,10 @@
         </div>
 
         <!-- Main FAB Button -->
-        <button
+        <FloatingActionButton
           @click="handleFABClick"
-          class="w-14 h-14 rounded-full md-elevation-3 hover:md-elevation-4 transition-all duration-300 flex items-center justify-center group relative overflow-hidden md-primary md:w-16 md:h-16"
-          title="Add Booking"
           aria-label="Add new booking"
-        >
-          <!-- Enhanced Tooltip -->
-          <div
-            class="absolute bottom-16 right-0 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
-          >
-            Add Booking
-          </div>
-          <!-- Background Animation -->
-          <div
-            class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"
-          ></div>
-
-          <!-- Icon -->
-          <svg
-            class="w-6 h-6 md:w-7 md:h-7 transition-transform duration-200 relative z-10"
-            :class="showQuickCreate ? 'rotate-45' : 'rotate-0'"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-        </button>
+        />
       </div>
     </div>
   </div>
@@ -647,7 +618,11 @@ import interactionPlugin from '@fullcalendar/interaction'
 import Parse from '../services/back4app'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
-import { CalendarLoadingState, CalendarErrorState } from '../components/ui'
+import {
+  CalendarLoadingState,
+  CalendarErrorState,
+  FloatingActionButton,
+} from '../components/ui'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
 
@@ -1561,24 +1536,25 @@ onMounted(async () => {
   }
 }
 
-/* FAB positioning - Google Calendar style at top of calendar */
+/* FAB positioning - Sticky right side center */
 .fab-container {
   position: fixed !important;
   z-index: 9999 !important;
+  top: 50% !important;
+  right: 1rem !important;
+  transform: translateY(-50%) !important;
 }
 
 /* Responsive FAB positioning */
 @media (max-width: 768px) {
   .fab-container {
-    top: 7.5rem !important;
-    right: 1rem !important;
+    right: 0.75rem !important;
   }
 }
 
 @media (max-width: 640px) {
   .fab-container {
-    top: 7rem !important;
-    right: 0.75rem !important;
+    right: 0.5rem !important;
   }
 }
 </style>
