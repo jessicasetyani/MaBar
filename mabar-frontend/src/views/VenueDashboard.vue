@@ -141,7 +141,7 @@
               <div class="flex justify-between items-center mb-4">
                 <button
                   @click="handleFABClick"
-                  class="md-button md-button-filled"
+                  class="inline-flex items-center px-4 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 font-semibold transition-colors"
                 >
                   <svg
                     class="w-5 h-5 mr-2"
@@ -197,41 +197,55 @@
           />
 
           <!-- Booking Form Modal -->
-          <div
-            v-if="showBookingForm"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            @click="clearSelection"
-          >
+          <Teleport to="body">
             <div
-              class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
-              @click.stop
+              v-if="showBookingForm"
+              class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
+              @click="closeBookingForm"
             >
-              <div class="p-6">
-                <div class="flex justify-between items-start mb-4">
-                  <h3 class="text-lg font-semibold text-slate-900">
-                    {{ isEditMode ? 'Edit Booking' : 'Create Booking' }}
-                  </h3>
-                  <button
-                    @click="clearSelection"
-                    class="text-slate-400 hover:text-slate-600"
-                  >
-                    ✕
-                  </button>
-                </div>
+              <div
+                class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+                @click.stop
+              >
+                <div class="p-6">
+                  <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-lg font-semibold text-slate-900">
+                      {{ isEditMode ? 'Edit Booking' : 'Create Booking' }}
+                    </h3>
+                    <button
+                      @click="closeBookingForm"
+                      class="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-md transition-colors"
+                    >
+                      <svg
+                        class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M6 18L18 6M6 6l12 12"
+                        />
+                      </svg>
+                    </button>
+                  </div>
 
-                <BookingForm
-                  :selected-slots="selectedSlots"
-                  :paddle-fields="paddleFields"
-                  :is-edit-mode="isEditMode"
-                  :editing-booking="editingBooking"
-                  @create="createBooking"
-                  @update="updateBooking"
-                  @delete="deleteBooking"
-                  @cancel="clearSelection"
-                />
+                  <BookingForm
+                    :selected-slots="selectedSlots"
+                    :paddle-fields="paddleFields"
+                    :is-edit-mode="isEditMode"
+                    :editing-booking="editingBooking"
+                    @create="createBooking"
+                    @update="updateBooking"
+                    @delete="deleteBooking"
+                    @cancel="closeBookingForm"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          </Teleport>
         </div>
 
         <!-- Profile Tab -->
@@ -309,13 +323,22 @@
                 <div>
                   <dt class="text-sm font-medium text-slate-500">Address</dt>
                   <dd class="text-sm text-slate-900">
-                    {{ venueOwnerData.venueDetails?.address }}
+                    {{
+                      (venueOwnerData.venueDetails as any)?.address ||
+                      'Not provided'
+                    }}
                   </dd>
                 </div>
-                <div v-if="venueOwnerData.venueDetails?.facilities?.length">
+                <div
+                  v-if="
+                    (venueOwnerData.venueDetails as any)?.facilities?.length
+                  "
+                >
                   <dt class="text-sm font-medium text-slate-500">Facilities</dt>
                   <dd class="text-sm text-slate-900">
-                    {{ venueOwnerData.venueDetails.facilities.join(', ') }}
+                    {{
+                      (venueOwnerData.venueDetails as any).facilities.join(', ')
+                    }}
                   </dd>
                 </div>
               </dl>
@@ -615,7 +638,6 @@ import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import Parse from '../services/back4app'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
 import {
@@ -775,7 +797,16 @@ const selectedBookingForDetails = ref<{
   title: string
   start: Date
   end: Date
-  extendedProps?: Record<string, unknown>
+  extendedProps?: {
+    type: string
+    status?: string
+    court?: string
+    players?: string[]
+    contact?: string
+    phone?: string
+    price?: number
+    paymentStatus?: string
+  }
 } | null>(null)
 // const loadingBookings = ref(false)
 // const errorMessage = ref('')
@@ -917,26 +948,6 @@ const handleEventClick = async (clickInfo: {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const unblockSlot = async (eventId: string) => {
-  try {
-    const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-    const query = new Parse.Query(BlockedSlotClass)
-    const blockedSlot = await query.get(eventId)
-    await blockedSlot.destroy()
-
-    const blockIndex = blockedSlots.value.findIndex(
-      (blocked) => blocked.id === eventId
-    )
-    if (blockIndex >= 0) {
-      blockedSlots.value.splice(blockIndex, 1)
-    }
-  } catch (error) {
-    console.error('Error unblocking slot:', error)
-    alert('Failed to unblock slot. Please try again.')
-  }
-}
-
 const createBooking = async (bookingData: Record<string, unknown>) => {
   try {
     isSubmitting.value = true
@@ -944,7 +955,7 @@ const createBooking = async (bookingData: Record<string, unknown>) => {
     // Handle batch operations
     if (bookingData.type === 'batch' && bookingData.items) {
       const results = []
-      for (const item of bookingData.items) {
+      for (const item of bookingData.items as Record<string, unknown>[]) {
         const result = await createSingleBooking(item)
         results.push(result)
       }
@@ -1001,8 +1012,8 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
         venueId,
         startTime: new Date(bookingData.start as string),
         endTime: new Date(bookingData.end as string),
-        court: bookingData.court as string,
-        reason: bookingData.reason as string,
+        court: (bookingData.court as string) || '',
+        reason: (bookingData.reason as string) || '',
       })
     } else {
       // Create regular booking using BookingService
@@ -1011,7 +1022,7 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
         title: bookingData.title as string,
         startTime: new Date(bookingData.start as string),
         endTime: new Date(bookingData.end as string),
-        court: bookingData.court as string,
+        court: (bookingData.court as string) || '',
         players: (bookingData.players as string[]) || [],
         playerPhones: (bookingData.playerPhones as string[]) || [],
         contact: bookingData.contact as string,
@@ -1045,8 +1056,8 @@ const updateBooking = async (
       await BookingService.updateBlockedSlot(bookingId, {
         startTime: new Date(bookingData.start as string),
         endTime: new Date(bookingData.end as string),
-        court: bookingData.court as string,
-        reason: bookingData.reason as string,
+        court: (bookingData.court as string) || '',
+        reason: (bookingData.reason as string) || '',
       })
     } else {
       // Update regular booking using BookingService
@@ -1054,7 +1065,7 @@ const updateBooking = async (
         title: bookingData.title as string,
         startTime: new Date(bookingData.start as string),
         endTime: new Date(bookingData.end as string),
-        court: bookingData.court as string,
+        court: (bookingData.court as string) || '',
         players: (bookingData.players as string[]) || [],
         playerPhones: (bookingData.playerPhones as string[]) || [],
         contact: bookingData.contact as string,
@@ -1122,13 +1133,19 @@ const deleteBooking = async (bookingId: string) => {
 
 const clearSelection = () => {
   selectedSlots.value = []
-  showBookingForm.value = false
-  isEditMode.value = false
-  editingBooking.value = null
   showQuickCreate.value = false
   showMultiCourtPanel.value = false
   multiSelectMode.value = false
   isSubmitting.value = false
+  // Note: Don't close showBookingForm here as it might be intentionally opened
+}
+
+const closeBookingForm = () => {
+  console.log('🚪 Closing booking form')
+  showBookingForm.value = false
+  isEditMode.value = false
+  editingBooking.value = null
+  selectedSlots.value = []
 }
 
 const refreshCalendarData = async () => {
@@ -1136,11 +1153,24 @@ const refreshCalendarData = async () => {
 }
 
 const openManualBookingForm = () => {
+  console.log('📝 Opening manual booking form')
+  // Close any other modals first
+  showQuickCreate.value = false
+  showMultiCourtPanel.value = false
+  showBookingDetails.value = false
+
+  // Clear selection and reset form state
   clearSelection()
+  isEditMode.value = false
+  editingBooking.value = null
+
+  // Show the booking form
   showBookingForm.value = true
+  console.log('📝 showBookingForm is now:', showBookingForm.value)
 }
 
 const handleFABClick = () => {
+  console.log('🔘 FAB clicked, opening booking form')
   openManualBookingForm()
 }
 

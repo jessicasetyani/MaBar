@@ -24,6 +24,7 @@ export class BookingTestUtils {
         endTime: new Date(Date.now() + 24 * 60 * 60 * 1000 + 90 * 60 * 1000), // +90 minutes
         court: 'Court 1',
         players: ['Test Player 1', 'Test Player 2'],
+        playerPhones: ['+6281234567890', '+6281234567891'],
         contact: 'test@example.com',
         phone: '+6281234567890',
         price: 150000,
