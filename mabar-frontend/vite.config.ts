@@ -35,6 +35,11 @@ export default defineConfig({
         start_url: '/',
         icons: [
           {
+            src: 'icons/icon-144x144.png',
+            sizes: '144x144',
+            type: 'image/png'
+          },
+          {
             src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png'
@@ -61,6 +66,11 @@ export default defineConfig({
   },
   envDir: '../', // Look for .env files in the parent directory
   server: {
+    host: true,
+    port: 5173,
+    hmr: {
+      port: 5173,
+    },
     watch: {
       usePolling: true,
       interval: 1000,
