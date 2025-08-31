@@ -3,7 +3,7 @@
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-slate-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
+        <div class="flex justify-between items-center h-14">
           <div class="flex items-center space-x-4">
             <h1 class="text-xl font-semibold text-slate-900">
               {{ venueOwnerData?.venueDetails?.name || 'Venue Dashboard' }}
@@ -15,58 +15,62 @@
               ✓ Verified
             </span>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center">
             <span class="text-sm text-slate-600">{{ user?.email }}</span>
-            <button
-              @click="logout"
-              class="text-sm text-slate-600 hover:text-slate-900 transition-colors"
-            >
-              Logout
-            </button>
           </div>
         </div>
       </div>
     </header>
 
-    <div class="flex h-[calc(100vh-4rem)]">
+    <div class="flex h-[calc(100vh-3.5rem)]">
       <!-- Sidebar -->
       <aside
         class="w-64 bg-white shadow-sm border-r border-slate-200 hidden lg:block"
       >
-        <nav class="p-4 space-y-2">
-          <button
-            @click="activeTab = 'calendar'"
-            :class="[
-              'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-              activeTab === 'calendar'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-100',
-            ]"
-          >
-            📅 Calendar & Bookings
-          </button>
-          <button
-            @click="activeTab = 'profile'"
-            :class="[
-              'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-              activeTab === 'profile'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-100',
-            ]"
-          >
-            🏢 Venue Profile
-          </button>
-          <button
-            @click="activeTab = 'analytics'"
-            :class="[
-              'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-              activeTab === 'analytics'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-100',
-            ]"
-          >
-            📊 Analytics
-          </button>
+        <nav class="p-4 space-y-2 flex flex-col h-full">
+          <div class="space-y-2">
+            <button
+              @click="activeTab = 'calendar'"
+              :class="[
+                'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                activeTab === 'calendar'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'text-slate-600 hover:bg-slate-100',
+              ]"
+            >
+              📅 Calendar & Bookings
+            </button>
+            <button
+              @click="activeTab = 'profile'"
+              :class="[
+                'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                activeTab === 'profile'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'text-slate-600 hover:bg-slate-100',
+              ]"
+            >
+              🏢 Venue Profile
+            </button>
+            <button
+              @click="activeTab = 'analytics'"
+              :class="[
+                'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                activeTab === 'analytics'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'text-slate-600 hover:bg-slate-100',
+              ]"
+            >
+              📊 Analytics
+            </button>
+          </div>
+          <div class="mt-auto pt-4 border-t border-slate-200">
+            <button
+              @click="logout"
+              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
+            >
+              🚪 Logout
+            </button>
+          </div>
         </nav>
       </aside>
 
@@ -111,6 +115,13 @@
           >
             <span class="text-base mb-1">📊</span>
             <span class="text-xs">Analytics</span>
+          </button>
+          <button
+            @click="logout"
+            class="flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center text-slate-600 hover:bg-red-50 hover:text-red-600"
+          >
+            <span class="text-base mb-1">🚪</span>
+            <span class="text-xs">Logout</span>
           </button>
         </nav>
       </div>
@@ -445,8 +456,8 @@
                 ]"
                 :title="
                   selectedSlots.length > 0
-                    ? 'Create Booking from Selection'
-                    : 'Create New Booking'
+                    ? 'Add Booking from Selection'
+                    : 'Add Booking'
                 "
               >
                 <!-- Background Animation -->
