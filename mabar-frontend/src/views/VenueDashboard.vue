@@ -1141,18 +1141,7 @@ const openManualBookingForm = () => {
 }
 
 const handleFABClick = () => {
-  showQuickCreate.value = !showQuickCreate.value
-  showMultiCourtPanel.value = false
-
-  if (showQuickCreate.value) {
-    // Reset quick create form with smart defaults
-    quickCreateData.value = {
-      court: '',
-      title: '',
-      duration: 90,
-      startHour: new Date().getHours() + 1,
-    }
-  }
+  openManualBookingForm()
 }
 
 const getSelectedCourts = () => {
