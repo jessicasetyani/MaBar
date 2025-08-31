@@ -123,11 +123,49 @@
           <div
             class="bg-white rounded-lg shadow-sm border border-slate-200 p-6"
           >
-            <FullCalendar
-              :options="calendarOptions"
-              class="venue-calendar"
-              @mounted="onCalendarMounted"
+            <!-- Loading State -->
+            <CalendarLoadingState v-if="calendarLoading" />
+
+            <!-- Error State -->
+            <CalendarErrorState
+              v-else-if="calendarError"
+              :error="calendarError"
+              :retrying="calendarRetrying"
+              @retry="retryLoad"
+              @show-offline="() => {}"
             />
+
+            <!-- Calendar -->
+            <div v-else>
+              <!-- Refresh Button -->
+              <div class="flex justify-end mb-4">
+                <button
+                  @click="refreshData"
+                  class="inline-flex items-center px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
+                >
+                  <svg
+                    class="w-4 h-4 mr-1.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                    />
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+
+              <FullCalendar
+                :options="calendarOptions"
+                class="venue-calendar"
+                @mounted="onCalendarMounted"
+              />
+            </div>
           </div>
 
           <!-- Booking Details Modal -->
@@ -591,7 +629,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { VenueOwnerService } from '../services/venueOwnerService'
@@ -603,6 +641,8 @@ import interactionPlugin from '@fullcalendar/interaction'
 import Parse from '../services/back4app'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
+import { CalendarLoadingState, CalendarErrorState } from '../components/ui'
+import { useCalendarData } from '../composables/useCalendarData'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
 
@@ -621,32 +661,31 @@ const venueOwnerData = ref<{
 } | null>(null)
 const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
-const bookings = ref<
-  Array<{
-    id: string
-    title: string
-    start: Date
-    end: Date
-    backgroundColor: string
-    borderColor: string
-    textColor: string
-    resourceId?: string
-    extendedProps: Record<string, unknown>
-  }>
->([])
-const blockedSlots = ref<
-  Array<{
-    id: string
-    title: string
-    start: Date
-    end: Date
-    backgroundColor: string
-    borderColor: string
-    textColor: string
-    resourceId?: string
-    extendedProps: Record<string, unknown>
-  }>
->([])
+// Calendar data management using composable
+const venueId = computed(() => venueOwnerData.value?.objectId || '')
+const {
+  bookings,
+  blockedSlots,
+  isLoading: calendarLoading,
+  error: calendarError,
+  isRetrying: calendarRetrying,
+  loadAllData,
+  retryLoad,
+  refreshData,
+  setupLiveQueries,
+} = useCalendarData(venueId.value)
+
+// Watch for venue ID changes and reload data
+watch(
+  venueId,
+  async (newVenueId) => {
+    if (newVenueId && applicationStatus.value === 'Approved') {
+      await loadAllData()
+      await setupLiveQueries()
+    }
+  },
+  { immediate: false }
+)
 // const selectedBooking = ref<any>(null)
 // const showBookingModal = ref(false)
 const showBookingForm = ref(false)
@@ -660,7 +699,6 @@ const selectedSlots = ref<
   }>
 >([])
 const paddleFields = ref<string[]>(['Court 1', 'Court 2', 'Court 3', 'Court 4'])
-const liveQuerySubscriptions = ref<Array<{ unsubscribe: () => void }>>([])
 const isEditMode = ref(false)
 const editingBooking = ref<{
   id: string
@@ -682,7 +720,13 @@ const showMultiCourtPanel = ref(false)
 const multiSelectMode = ref(false)
 const isSubmitting = ref(false)
 const showBookingDetails = ref(false)
-const selectedBookingForDetails = ref<any>(null)
+const selectedBookingForDetails = ref<{
+  id: string
+  title: string
+  start: Date
+  end: Date
+  extendedProps?: Record<string, unknown>
+} | null>(null)
 // const loadingBookings = ref(false)
 // const errorMessage = ref('')
 const quickCreateData = ref({
@@ -741,12 +785,12 @@ const calendarOptions = computed(() => {
     eventOverlap: true,
     selectOverlap: true,
     // Enhanced Google Calendar-style interactions
-    eventMouseEnter: (info: any) => {
+    eventMouseEnter: (info: { el: HTMLElement }) => {
       info.el.style.cursor = 'pointer'
       info.el.style.transform = 'translateY(-1px)'
       info.el.style.zIndex = '10'
     },
-    eventMouseLeave: (info: any) => {
+    eventMouseLeave: (info: { el: HTMLElement }) => {
       info.el.style.cursor = 'default'
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
@@ -767,69 +811,7 @@ const calendarOptions = computed(() => {
 //   router.push('/')
 // }
 
-const loadBookings = async (limit: number = 100, skip: number = 0) => {
-  try {
-    const venueId = venueOwnerData.value?.objectId
-    if (!venueId) {
-      console.warn('⚠️ No venue ID available, showing empty calendar')
-      bookings.value = []
-      return
-    }
-
-    console.log('🔍 Loading bookings for venue ID:', venueId)
-    const bookingData = await BookingService.getBookings(venueId, limit, skip)
-    console.log('📅 Found bookings:', bookingData.length)
-
-    // Convert booking data to calendar events with enhanced player display
-    bookings.value = bookingData.map((booking) => {
-      return BookingService.formatBookingForCalendar(booking)
-    })
-
-    console.log('📊 Bookings loaded and formatted:', bookings.value.length)
-  } catch (error) {
-    console.error('Error loading bookings:', error)
-    bookings.value = [] // Show empty calendar on error
-    // Show user-friendly error message
-    if (error instanceof Error) {
-      console.error('Booking load error:', error.message)
-    }
-  }
-}
-
-const loadBlockedSlots = async (limit: number = 100, skip: number = 0) => {
-  try {
-    const venueId = venueOwnerData.value?.objectId
-    if (!venueId) {
-      console.warn('⚠️ No venue ID available, showing empty blocked slots')
-      blockedSlots.value = []
-      return
-    }
-
-    console.log('🔍 Loading blocked slots for venue ID:', venueId)
-    const blockedData = await BookingService.getBlockedSlots(
-      venueId,
-      limit,
-      skip
-    )
-    console.log('🚫 Found blocked slots:', blockedData.length)
-
-    // Convert blocked slot data to calendar events
-    blockedSlots.value = blockedData.map((slot) => {
-      return BookingService.formatBlockedSlotForCalendar(slot)
-    })
-
-    console.log(
-      '📊 Blocked slots loaded and formatted:',
-      blockedSlots.value.length
-    )
-  } catch (error) {
-    console.error('Error loading blocked slots:', error)
-    blockedSlots.value = [] // Show empty on error
-    if (error instanceof Error) {
-      console.error('Blocked slots load error:', error.message)
-    }
-  }
-}
+// Data loading is now handled by the useCalendarData composable
 
 const handleSlotSelect = async (selectInfo: {
   start: Date
@@ -1139,7 +1121,7 @@ const clearSelection = () => {
 }
 
 const refreshCalendarData = async () => {
-  await Promise.all([loadBookings(), loadBlockedSlots()])
+  await refreshData()
 }
 
 const openManualBookingForm = () => {
@@ -1214,7 +1196,7 @@ const handleQuickCreate = async () => {
   const result = await createBooking(bookingData)
   if (result.success) {
     showQuickCreate.value = false
-    await loadBookings() // Refresh calendar
+    await refreshData() // Refresh calendar
   }
 }
 
@@ -1256,161 +1238,7 @@ const onCalendarMounted = () => {
   console.log('📅 FullCalendar mounted successfully')
 }
 
-const setupLiveQueries = async () => {
-  try {
-    const venueId = venueOwnerData.value?.objectId || 'mock-venue'
-
-    // Set up LiveQuery for bookings
-    const BookingClass = Parse.Object.extend('Booking')
-    const bookingQuery = new Parse.Query(BookingClass)
-    bookingQuery.equalTo('venueId', venueId)
-
-    const bookingSubscription = await bookingQuery.subscribe()
-
-    bookingSubscription.on(
-      'create',
-      (booking: { id: string; get: (key: string) => unknown }) => {
-        console.log('New booking created:', booking)
-        const newBooking = {
-          id: booking.id,
-          title:
-            booking.get('title') ||
-            `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
-          start: booking.get('startTime'),
-          end: booking.get('endTime'),
-          backgroundColor:
-            booking.get('status') === 'confirmed'
-              ? MaBarColors.calendar.confirmed
-              : MaBarColors.calendar.pending,
-          borderColor:
-            booking.get('status') === 'confirmed'
-              ? MaBarColors.hover.accent
-              : MaBarColors.hover.primary,
-          textColor:
-            booking.get('status') === 'confirmed'
-              ? MaBarColors.surface
-              : MaBarColors.text,
-          extendedProps: {
-            type: 'booking',
-            status: booking.get('status'),
-            court: booking.get('court'),
-            players: booking.get('players') || [],
-            contact: booking.get('contact'),
-            phone: booking.get('phone'),
-            price: booking.get('price'),
-            paymentStatus: booking.get('paymentStatus'),
-          },
-        }
-        bookings.value.push(newBooking)
-      }
-    )
-
-    bookingSubscription.on(
-      'update',
-      (booking: { id: string; get: (key: string) => unknown }) => {
-        console.log('Booking updated:', booking)
-        const index = bookings.value.findIndex((b) => b.id === booking.id)
-        if (index >= 0) {
-          bookings.value[index] = {
-            id: booking.id,
-            title:
-              booking.get('title') ||
-              `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
-            start: booking.get('startTime'),
-            end: booking.get('endTime'),
-            backgroundColor:
-              booking.get('status') === 'confirmed'
-                ? MaBarColors.calendar.confirmed
-                : MaBarColors.calendar.pending,
-            borderColor:
-              booking.get('status') === 'confirmed'
-                ? MaBarColors.hover.accent
-                : MaBarColors.hover.primary,
-            textColor:
-              booking.get('status') === 'confirmed'
-                ? MaBarColors.surface
-                : MaBarColors.text,
-            extendedProps: {
-              type: 'booking',
-              status: booking.get('status'),
-              court: booking.get('court'),
-              players: booking.get('players') || [],
-              contact: booking.get('contact'),
-              phone: booking.get('phone'),
-              price: booking.get('price'),
-              paymentStatus: booking.get('paymentStatus'),
-            },
-          }
-        }
-      }
-    )
-
-    bookingSubscription.on('delete', (booking: { id: string }) => {
-      console.log('Booking deleted:', booking)
-      const index = bookings.value.findIndex((b) => b.id === booking.id)
-      if (index >= 0) {
-        bookings.value.splice(index, 1)
-      }
-    })
-
-    // Set up LiveQuery for blocked slots
-    const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-    const blockedQuery = new Parse.Query(BlockedSlotClass)
-    blockedQuery.equalTo('venueId', venueId)
-
-    const blockedSubscription = await blockedQuery.subscribe()
-
-    blockedSubscription.on(
-      'create',
-      (blocked: { id: string; get: (key: string) => unknown }) => {
-        console.log('New blocked slot created:', blocked)
-        const newBlocked = {
-          id: blocked.id,
-          title: '🚫 Blocked',
-          start: blocked.get('startTime'),
-          end: blocked.get('endTime'),
-          backgroundColor: MaBarColors.calendar.blocked,
-          borderColor: '#DC2626',
-          textColor: MaBarColors.surface,
-          extendedProps: {
-            type: 'blocked',
-          },
-        }
-        // Check if not already in array to prevent duplicates
-        if (!blockedSlots.value.find((b) => b.id === blocked.id)) {
-          blockedSlots.value.push(newBlocked)
-        }
-      }
-    )
-
-    blockedSubscription.on('delete', (blocked: { id: string }) => {
-      console.log('Blocked slot deleted:', blocked)
-      const index = blockedSlots.value.findIndex((b) => b.id === blocked.id)
-      if (index >= 0) {
-        blockedSlots.value.splice(index, 1)
-      }
-    })
-
-    // Store subscriptions for cleanup
-    liveQuerySubscriptions.value = [bookingSubscription, blockedSubscription]
-
-    console.log('✅ LiveQuery subscriptions established')
-  } catch (error) {
-    console.error('Error setting up LiveQuery:', error)
-  }
-}
-
-const cleanupLiveQueries = () => {
-  liveQuerySubscriptions.value.forEach((subscription) => {
-    try {
-      subscription.unsubscribe()
-    } catch (error) {
-      console.error('Error unsubscribing from LiveQuery:', error)
-    }
-  })
-  liveQuerySubscriptions.value = []
-  console.log('🧹 LiveQuery subscriptions cleaned up')
-}
+// LiveQuery management is now handled by the useCalendarData composable
 
 onMounted(async () => {
   try {
@@ -1440,8 +1268,6 @@ onMounted(async () => {
         case 'approved': {
           applicationStatus.value = 'Approved'
           activeTab.value = 'calendar'
-          await loadBookings()
-          await loadBlockedSlots()
 
           // Check if venue has bookings, if not create sample data for development
           const hasBookings = await SeedDataService.hasBookings(profile.id)
@@ -1450,10 +1276,10 @@ onMounted(async () => {
               '🌱 No bookings found, creating sample data for development'
             )
             await SeedDataService.createSampleBookings(profile.id)
-            await loadBookings() // Reload after seeding
           }
 
-          await setupLiveQueries()
+          // Load calendar data using the composable
+          await loadAllData()
           break
         }
         case 'rejected':
@@ -1473,9 +1299,7 @@ onMounted(async () => {
   }
 })
 
-onUnmounted(() => {
-  cleanupLiveQueries()
-})
+// Cleanup is now handled by the useCalendarData composable
 </script>
 
 <style>

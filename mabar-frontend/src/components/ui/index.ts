@@ -5,6 +5,8 @@ export { default as LoadingSpinner } from './LoadingSpinner.vue'
 export { default as FeedbackAlert } from './FeedbackAlert.vue'
 export { default as SkeletonLoader } from './SkeletonLoader.vue'
 export { default as IconButton } from './IconButton.vue'
+export { default as CalendarLoadingState } from './CalendarLoadingState.vue'
+export { default as CalendarErrorState } from './CalendarErrorState.vue'
 
 // Component usage examples and guidelines:
 
