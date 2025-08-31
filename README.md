@@ -1,8 +1,10 @@
 # MaBar - Smart Padel Matchmaking Platform
 
-[![Version](https://img.shields.io/badge/version-2.0.0--beta-blue.svg)](https://github.com/your-org/mabar)
+[![Version](https://img.shields.io/badge/version-2.0.0--beta-blue.svg)](https://github.com/jessicasetyani/MaBar)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Vue.js](https://img.shields.io/badge/vue-3.5.18-brightgreen.svg)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/typescript-5.6.3-blue.svg)](https://www.typescriptlang.org/)
 
 > **MaBar** is a Progressive Web Application (PWA) designed to be the premier smart matchmaking platform for Padel players in Jakarta. Connect players and courts through conversational AI, providing personalized recommendations and fostering a reliable community.
 
@@ -33,7 +35,8 @@ MaBar solves the fragmented discovery problem in Jakarta's Padel community by pr
 - **Backend**: Back4App (Parse Server) as BaaS
 
 ### Project Structure
-```
+
+```text
 MaBar/
 ├── mabar-frontend/          # Vue.js PWA application
 │   ├── src/
@@ -62,26 +65,30 @@ MaBar/
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
-   git clone https://github.com/your-org/mabar.git
-   cd mabar
+   git clone https://github.com/jessicasetyani/MaBar.git
+   cd MaBar
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Environment Setup**
+
    ```bash
    # Copy environment template
    cp mabar-frontend/.env.example mabar-frontend/.env
-   
+
    # Edit with your Back4App credentials
    nano mabar-frontend/.env
    ```
 
 4. **Configure Environment Variables**
+
    ```env
    # mabar-frontend/.env
    VITE_BACK4APP_APP_ID=your_back4app_application_id
@@ -89,6 +96,7 @@ MaBar/
    ```
 
 5. **Start Development Server**
+
    ```bash
    npm run dev
    ```
@@ -151,6 +159,7 @@ Located in `/cloud/main.js`:
 ### Deployment
 
 Deploy cloud functions to Back4App:
+
 ```bash
 # Install Back4App CLI
 npm install -g back4app-cli
@@ -165,6 +174,7 @@ b4a deploy cloud/
 ### Google Gemini API
 
 The AI matchmaking system uses Google Gemini Pro for:
+
 - Natural language query processing
 - Player compatibility analysis
 - Venue recommendations
@@ -180,6 +190,7 @@ The AI matchmaking system uses Google Gemini Pro for:
 ## 📱 User Experience
 
 ### Player Journey
+
 1. **Registration** - Email/password authentication
 2. **Role Selection** - Choose Player or Venue Owner
 3. **Profile Setup** - Skill assessment and preferences
@@ -187,6 +198,7 @@ The AI matchmaking system uses Google Gemini Pro for:
 5. **Booking** - Session creation and management
 
 ### Venue Owner Journey
+
 1. **Registration** - Business verification required
 2. **Venue Setup** - Court information and scheduling
 3. **Dashboard** - Booking management and analytics
@@ -218,6 +230,7 @@ The AI matchmaking system uses Google Gemini Pro for:
 ### Development Workflow
 
 The project uses Task Master AI for project management:
+
 ```bash
 # View current tasks
 npm run task:list
@@ -242,10 +255,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/your-org/mabar/issues)
-- **Documentation**: [Project Wiki](https://github.com/your-org/mabar/wiki)
-- **Email**: support@mabar.app
+- **Issues**: [GitHub Issues](https://github.com/jessicasetyani/MaBar/issues)
+- **Documentation**: [Project Wiki](https://github.com/jessicasetyani/MaBar/wiki)
+- **Email**: [support@mabar.app](mailto:support@mabar.app)
 
 ---
 
-**Built with ❤️ for the Jakarta Padel Community**
+### Built with ❤️ for the Jakarta Padel Community
