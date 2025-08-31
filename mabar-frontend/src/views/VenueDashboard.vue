@@ -20,17 +20,11 @@
           </div>
           <div class="flex items-center space-x-4">
             <span class="text-sm text-slate-600">{{ user?.email }}</span>
-            <button
-              @click="logout"
-              class="hidden lg:block text-sm text-slate-600 hover:text-red-600 transition-colors"
-            >
-              Logout
-            </button>
           </div>
         </div>
 
-        <!-- Tab Navigation Row - Hidden on mobile -->
-        <div class="hidden lg:flex items-center h-12">
+        <!-- Tab Navigation Row -->
+        <div class="flex items-center h-12">
           <nav class="flex space-x-8">
             <button
               @click="activeTab = 'calendar'"
@@ -70,59 +64,7 @@
       </div>
     </header>
 
-    <div class="h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-6.5rem)]">
-      <!-- Mobile Navigation -->
-      <div
-        class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg"
-        style="padding-bottom: env(safe-area-inset-bottom, 0px)"
-      >
-        <nav class="flex">
-          <button
-            @click="activeTab = 'calendar'"
-            :class="[
-              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
-              activeTab === 'calendar'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-50',
-            ]"
-          >
-            <span class="text-base mb-1">📅</span>
-            <span class="text-xs">Calendar</span>
-          </button>
-          <button
-            @click="activeTab = 'profile'"
-            :class="[
-              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
-              activeTab === 'profile'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-50',
-            ]"
-          >
-            <span class="text-base mb-1">🏢</span>
-            <span class="text-xs">Profile</span>
-          </button>
-          <button
-            @click="activeTab = 'analytics'"
-            :class="[
-              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
-              activeTab === 'analytics'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-50',
-            ]"
-          >
-            <span class="text-base mb-1">📊</span>
-            <span class="text-xs">Analytics</span>
-          </button>
-          <button
-            @click="logout"
-            class="flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center text-slate-600 hover:bg-red-50 hover:text-red-600"
-          >
-            <span class="text-base mb-1">🚪</span>
-            <span class="text-xs">Logout</span>
-          </button>
-        </nav>
-      </div>
-
+    <div class="h-[calc(100vh-6.5rem)]">
       <!-- Main Content -->
       <main class="overflow-auto main-content h-full">
         <!-- Calendar Tab -->
@@ -187,6 +129,15 @@
               @mounted="onCalendarMounted"
             />
           </div>
+
+          <!-- Booking Details Modal -->
+          <BookingDetailsModal
+            v-if="showBookingDetails && selectedBookingForDetails"
+            :booking="selectedBookingForDetails"
+            @close="closeBookingDetails"
+            @edit="editBookingFromDetails"
+            @delete="deleteBookingFromDetails"
+          />
 
           <!-- Booking Form Modal -->
           <div
@@ -457,6 +408,12 @@
                     : 'Add Booking'
                 "
               >
+                <!-- Enhanced Tooltip -->
+                <div
+                  class="absolute bottom-16 right-0 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+                >
+                  Add Booking
+                </div>
                 <!-- Background Animation -->
                 <div
                   class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"
@@ -629,58 +586,6 @@
           </div>
         </div>
       </main>
-
-      <!-- Mobile Navigation -->
-      <div
-        class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg"
-        style="padding-bottom: env(safe-area-inset-bottom, 0px)"
-      >
-        <nav class="flex">
-          <button
-            @click="activeTab = 'calendar'"
-            :class="[
-              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
-              activeTab === 'calendar'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-50',
-            ]"
-          >
-            <span class="text-base mb-1">📅</span>
-            <span class="text-xs">Calendar</span>
-          </button>
-          <button
-            @click="activeTab = 'profile'"
-            :class="[
-              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
-              activeTab === 'profile'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-50',
-            ]"
-          >
-            <span class="text-base mb-1">🏢</span>
-            <span class="text-xs">Profile</span>
-          </button>
-          <button
-            @click="activeTab = 'analytics'"
-            :class="[
-              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
-              activeTab === 'analytics'
-                ? 'bg-yellow-100 text-yellow-800'
-                : 'text-slate-600 hover:bg-slate-50',
-            ]"
-          >
-            <span class="text-base mb-1">📊</span>
-            <span class="text-xs">Analytics</span>
-          </button>
-          <button
-            @click="logout"
-            class="flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center text-slate-600 hover:bg-red-50 hover:text-red-600"
-          >
-            <span class="text-base mb-1">🚪</span>
-            <span class="text-xs">Logout</span>
-          </button>
-        </nav>
-      </div>
     </div>
   </div>
 </template>
@@ -690,33 +595,96 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { VenueOwnerService } from '../services/venueOwnerService'
+import { BookingService } from '../services/bookingService'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Parse from '../services/back4app'
 import BookingForm from '../components/BookingForm.vue'
+import BookingDetailsModal from '../components/BookingDetailsModal.vue'
+import { SeedDataService } from '../services/seedData'
+import { MaBarColors } from '../config/colors'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const { user } = authStore
 
-const venueOwnerData = ref<any>(null)
+const venueOwnerData = ref<{
+  objectId: string
+  personalInfo?: Record<string, unknown>
+  venueDetails?: { name?: string }
+  legalDocs?: Record<string, unknown>
+  documents?: unknown[]
+  status?: string
+  submittedAt?: Date
+} | null>(null)
 const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
-const bookings = ref<any[]>([])
-const blockedSlots = ref<any[]>([])
+const bookings = ref<
+  Array<{
+    id: string
+    title: string
+    start: Date
+    end: Date
+    backgroundColor: string
+    borderColor: string
+    textColor: string
+    resourceId?: string
+    extendedProps: Record<string, unknown>
+  }>
+>([])
+const blockedSlots = ref<
+  Array<{
+    id: string
+    title: string
+    start: Date
+    end: Date
+    backgroundColor: string
+    borderColor: string
+    textColor: string
+    resourceId?: string
+    extendedProps: Record<string, unknown>
+  }>
+>([])
 // const selectedBooking = ref<any>(null)
 // const showBookingModal = ref(false)
 const showBookingForm = ref(false)
-const selectedSlots = ref<any[]>([])
+const selectedSlots = ref<
+  Array<{
+    id: string
+    start: string
+    end: string
+    startTime: Date
+    endTime: Date
+  }>
+>([])
 const paddleFields = ref<string[]>(['Court 1', 'Court 2', 'Court 3', 'Court 4'])
-const liveQuerySubscriptions = ref<any[]>([])
+const liveQuerySubscriptions = ref<Array<{ unsubscribe: () => void }>>([])
 const isEditMode = ref(false)
-const editingBooking = ref<any>(null)
+const editingBooking = ref<{
+  id: string
+  title: string
+  start: Date
+  end: Date
+  type: string
+  players?: string[]
+  contact?: string
+  phone?: string
+  price?: number
+  status?: string
+  paymentStatus?: string
+  reason?: string
+  court?: string
+} | null>(null)
 const showQuickCreate = ref(false)
 const showMultiCourtPanel = ref(false)
 const multiSelectMode = ref(false)
+const isSubmitting = ref(false)
+const showBookingDetails = ref(false)
+const selectedBookingForDetails = ref<any>(null)
+// const loadingBookings = ref(false)
+// const errorMessage = ref('')
 const quickCreateData = ref({
   court: '',
   title: '',
@@ -737,9 +705,9 @@ const calendarOptions = computed(() => {
     id: `selected-${slot.id}`,
     start: slot.start,
     end: slot.end,
-    backgroundColor: '#3B82F6',
+    backgroundColor: MaBarColors.calendar.selected,
     borderColor: '#2563EB',
-    textColor: '#ffffff',
+    textColor: MaBarColors.surface,
     title: '✓ Selected',
     extendedProps: {
       type: 'selected',
@@ -764,9 +732,9 @@ const calendarOptions = computed(() => {
     slotMaxTime: '23:00:00',
     slotDuration: '00:30:00',
     allDaySlot: false,
-    eventColor: '#84CC16',
-    eventTextColor: '#ffffff',
-    eventBorderColor: '#65A30D',
+    eventColor: MaBarColors.calendar.confirmed,
+    eventTextColor: MaBarColors.surface,
+    eventBorderColor: MaBarColors.hover.accent,
     select: handleSlotSelect,
     eventClick: handleEventClick,
     selectAllow: () => true,
@@ -793,189 +761,81 @@ const calendarOptions = computed(() => {
   }
 })
 
-const logout = async () => {
-  await authStore.logout()
-  router.push('/')
-}
+// Logout function available if needed
+// const logout = async () => {
+//   await authStore.logout()
+//   router.push('/')
+// }
 
-const loadBookings = async () => {
+const loadBookings = async (limit: number = 100, skip: number = 0) => {
   try {
-    // Try to load from Parse first, fallback to mock data
-    const BookingClass = Parse.Object.extend('Booking')
-    const query = new Parse.Query(BookingClass)
-    const venueId = venueOwnerData.value?.objectId || 'mock-venue'
-    console.log('🔍 Loading bookings for venue ID:', venueId)
-    query.equalTo('venueId', venueId)
-
-    const parseBookings = await query.find()
-    console.log('📅 Found bookings:', parseBookings.length)
-
-    if (parseBookings.length > 0) {
-      bookings.value = parseBookings.map((booking) => ({
-        id: booking.id,
-        title:
-          booking.get('title') ||
-          `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
-        start: booking.get('startTime'),
-        end: booking.get('endTime'),
-        backgroundColor:
-          booking.get('status') === 'confirmed' ? '#84CC16' : '#FDE047',
-        borderColor:
-          booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
-        textColor:
-          booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
-        resourceId: booking.get('court'), // For multi-field support
-        extendedProps: {
-          type: 'booking',
-          status: booking.get('status'),
-          court: booking.get('court'),
-          players: booking.get('players') || [],
-          contact: booking.get('contact'),
-          phone: booking.get('phone'),
-          price: booking.get('price'),
-          paymentStatus: booking.get('paymentStatus'),
-        },
-      }))
-    } else {
-      // Fallback to mock data with multiple fields
-      const today = new Date().toISOString().split('T')[0]
-      bookings.value = [
-        {
-          id: '1',
-          title: 'John & Mike vs Sarah & Lisa',
-          start: `${today}T10:00:00`,
-          end: `${today}T11:30:00`,
-          backgroundColor: '#84CC16',
-          borderColor: '#65A30D',
-          resourceId: 'Court 1',
-          extendedProps: {
-            type: 'booking',
-            status: 'confirmed',
-            court: 'Court 1',
-            players: ['John Doe', 'Mike Smith', 'Sarah Johnson', 'Lisa Brown'],
-            contact: 'john.doe@email.com',
-            phone: '+62 812-3456-7890',
-            price: 150000,
-            paymentStatus: 'paid',
-          },
-        },
-        {
-          id: '2',
-          title: 'Training Session',
-          start: `${today}T10:00:00`,
-          end: `${today}T11:30:00`,
-          backgroundColor: '#FDE047',
-          borderColor: '#FACC15',
-          textColor: '#334155',
-          resourceId: 'Court 2',
-          extendedProps: {
-            type: 'booking',
-            status: 'pending',
-            court: 'Court 2',
-            players: ['Alex Wilson'],
-            contact: 'alex.wilson@email.com',
-            phone: '+62 813-7654-3210',
-            price: 100000,
-            paymentStatus: 'pending',
-          },
-        },
-        {
-          id: '3',
-          title: 'Match Tournament',
-          start: `${today}T14:00:00`,
-          end: `${today}T15:30:00`,
-          backgroundColor: '#84CC16',
-          borderColor: '#65A30D',
-          resourceId: 'Court 3',
-          extendedProps: {
-            type: 'booking',
-            status: 'confirmed',
-            court: 'Court 3',
-            players: ['Player A', 'Player B', 'Player C', 'Player D'],
-            contact: 'tournament@example.com',
-            phone: '+62 814-1234-5678',
-            price: 200000,
-            paymentStatus: 'paid',
-          },
-        },
-      ]
+    const venueId = venueOwnerData.value?.objectId
+    if (!venueId) {
+      console.warn('⚠️ No venue ID available, showing empty calendar')
+      bookings.value = []
+      return
     }
+
+    console.log('🔍 Loading bookings for venue ID:', venueId)
+    const bookingData = await BookingService.getBookings(venueId, limit, skip)
+    console.log('📅 Found bookings:', bookingData.length)
+
+    // Convert booking data to calendar events with enhanced player display
+    bookings.value = bookingData.map((booking) => {
+      return BookingService.formatBookingForCalendar(booking)
+    })
+
+    console.log('📊 Bookings loaded and formatted:', bookings.value.length)
   } catch (error) {
     console.error('Error loading bookings:', error)
-    // Use mock data on error
-    const today = new Date().toISOString().split('T')[0]
-    bookings.value = [
-      {
-        id: '1',
-        title: 'John & Mike vs Sarah & Lisa',
-        start: `${today}T10:00:00`,
-        end: `${today}T11:30:00`,
-        backgroundColor: '#84CC16',
-        borderColor: '#65A30D',
-        resourceId: 'Court 1',
-        extendedProps: {
-          type: 'booking',
-          status: 'confirmed',
-          court: 'Court 1',
-          players: ['John Doe', 'Mike Smith', 'Sarah Johnson', 'Lisa Brown'],
-          contact: 'john.doe@email.com',
-          phone: '+62 812-3456-7890',
-          price: 150000,
-          paymentStatus: 'paid',
-        },
-      },
-    ]
+    bookings.value = [] // Show empty calendar on error
+    // Show user-friendly error message
+    if (error instanceof Error) {
+      console.error('Booking load error:', error.message)
+    }
   }
 }
 
-const loadBlockedSlots = async () => {
+const loadBlockedSlots = async (limit: number = 100, skip: number = 0) => {
   try {
-    const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-    const query = new Parse.Query(BlockedSlotClass)
-    const venueId = venueOwnerData.value?.objectId || 'mock-venue'
-    console.log('🔍 Loading blocked slots for venue ID:', venueId)
-    query.equalTo('venueId', venueId)
-
-    const parseBlocked = await query.find()
-    console.log('🚫 Found blocked slots:', parseBlocked.length)
-
-    if (parseBlocked.length > 0) {
-      blockedSlots.value = parseBlocked.map((blocked) => ({
-        id: blocked.id,
-        title: '🚫 Blocked',
-        start: blocked.get('startTime'),
-        end: blocked.get('endTime'),
-        backgroundColor: '#EF4444',
-        borderColor: '#DC2626',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'blocked',
-        },
-      }))
-    } else {
-      // Mock blocked slots data
-      blockedSlots.value = [
-        {
-          id: 'blocked-1',
-          title: '🚫 Blocked',
-          start: new Date().toISOString().split('T')[0] + 'T12:00:00',
-          end: new Date().toISOString().split('T')[0] + 'T13:30:00',
-          backgroundColor: '#EF4444',
-          borderColor: '#DC2626',
-          textColor: '#ffffff',
-          extendedProps: {
-            type: 'blocked',
-          },
-        },
-      ]
+    const venueId = venueOwnerData.value?.objectId
+    if (!venueId) {
+      console.warn('⚠️ No venue ID available, showing empty blocked slots')
+      blockedSlots.value = []
+      return
     }
+
+    console.log('🔍 Loading blocked slots for venue ID:', venueId)
+    const blockedData = await BookingService.getBlockedSlots(
+      venueId,
+      limit,
+      skip
+    )
+    console.log('🚫 Found blocked slots:', blockedData.length)
+
+    // Convert blocked slot data to calendar events
+    blockedSlots.value = blockedData.map((slot) => {
+      return BookingService.formatBlockedSlotForCalendar(slot)
+    })
+
+    console.log(
+      '📊 Blocked slots loaded and formatted:',
+      blockedSlots.value.length
+    )
   } catch (error) {
     console.error('Error loading blocked slots:', error)
-    blockedSlots.value = []
+    blockedSlots.value = [] // Show empty on error
+    if (error instanceof Error) {
+      console.error('Blocked slots load error:', error.message)
+    }
   }
 }
 
-const handleSlotSelect = async (selectInfo: any) => {
+const handleSlotSelect = async (selectInfo: {
+  start: Date
+  end: Date
+  view: { calendar: { unselect: () => void } }
+}) => {
   console.log('🎯 handleSlotSelect called!', selectInfo)
   const { start, end } = selectInfo
 
@@ -1023,7 +883,15 @@ const handleSlotSelect = async (selectInfo: any) => {
   }
 }
 
-const handleEventClick = async (clickInfo: any) => {
+const handleEventClick = async (clickInfo: {
+  event: {
+    id: string
+    title: string
+    start: Date
+    end: Date
+    extendedProps?: Record<string, unknown>
+  }
+}) => {
   const event = clickInfo.event
 
   // Close any open popovers
@@ -1038,23 +906,25 @@ const handleEventClick = async (clickInfo: any) => {
       selectedSlots.value.splice(index, 1)
     }
   } else if (event.extendedProps?.type === 'blocked') {
-    if (confirm('Do you want to unblock this time slot?')) {
-      await unblockSlot(event.id)
-    }
-  } else if (event.extendedProps?.type === 'booking') {
-    // Open edit mode for booking
+    // Show edit/delete options for blocked slots
     editingBooking.value = {
       id: event.id,
       title: event.title,
       start: event.start,
       end: event.end,
+      type: 'blocked',
       ...event.extendedProps,
     }
     isEditMode.value = true
     showBookingForm.value = true
+  } else if (event.extendedProps?.type === 'booking') {
+    // Show booking details modal first
+    selectedBookingForDetails.value = event
+    showBookingDetails.value = true
   }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const unblockSlot = async (eventId: string) => {
   try {
     const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
@@ -1074,8 +944,10 @@ const unblockSlot = async (eventId: string) => {
   }
 }
 
-const createBooking = async (bookingData: any) => {
+const createBooking = async (bookingData: Record<string, unknown>) => {
   try {
+    isSubmitting.value = true
+
     // Handle batch operations
     if (bookingData.type === 'batch' && bookingData.items) {
       const results = []
@@ -1093,23 +965,23 @@ const createBooking = async (bookingData: any) => {
         )
       }
 
-      // Clear selected slots and refresh
-      selectedSlots.value = []
-      showBookingForm.value = false
-      await loadBookings()
-      await loadBlockedSlots()
-
+      clearSelection()
+      await refreshCalendarData()
       return { success: successCount > 0, successCount, failCount }
     } else {
       // Single booking/block
       const result = await createSingleBooking(bookingData)
 
       if (result.success) {
-        // Clear selected slots
-        selectedSlots.value = []
-        showBookingForm.value = false
-        await loadBookings()
-        await loadBlockedSlots()
+        clearSelection()
+        await refreshCalendarData()
+        alert(
+          `${bookingData.type === 'blocked' ? 'Time slot blocked' : 'Booking created'} successfully!`
+        )
+      } else {
+        alert(
+          `Failed to create ${bookingData.type === 'blocked' ? 'block' : 'booking'}: ${result.error}`
+        )
       }
 
       return result
@@ -1118,43 +990,47 @@ const createBooking = async (bookingData: any) => {
     console.error('Error in createBooking:', error)
     alert(`Failed to create booking: ${(error as Error).message}`)
     return { success: false, error: (error as Error).message }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
-const createSingleBooking = async (bookingData: any) => {
+const createSingleBooking = async (bookingData: Record<string, unknown>) => {
   try {
+    const venueId = venueOwnerData.value?.objectId
+    if (!venueId) {
+      throw new Error('No venue ID available')
+    }
+
     if (bookingData.type === 'blocked') {
-      // Create blocked slot
-      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-      const blockedSlot = new BlockedSlotClass()
-
-      blockedSlot.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
-      blockedSlot.set('startTime', new Date(bookingData.start))
-      blockedSlot.set('endTime', new Date(bookingData.end))
-      blockedSlot.set('court', bookingData.court)
-      blockedSlot.set('reason', bookingData.reason)
-      blockedSlot.set('createdBy', Parse.User.current())
-
-      await blockedSlot.save()
+      // Create blocked slot using BookingService
+      await BookingService.createBlockedSlot({
+        venueId,
+        startTime: new Date(bookingData.start as string),
+        endTime: new Date(bookingData.end as string),
+        court: bookingData.court as string,
+        reason: bookingData.reason as string,
+      })
     } else {
-      // Create regular booking
-      const BookingClass = Parse.Object.extend('Booking')
-      const booking = new BookingClass()
-
-      booking.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
-      booking.set('title', bookingData.title)
-      booking.set('startTime', new Date(bookingData.start))
-      booking.set('endTime', new Date(bookingData.end))
-      booking.set('court', bookingData.court)
-      booking.set('players', bookingData.players || [])
-      booking.set('contact', bookingData.contact)
-      booking.set('phone', bookingData.phone)
-      booking.set('price', bookingData.price)
-      booking.set('status', bookingData.status || 'confirmed')
-      booking.set('paymentStatus', bookingData.paymentStatus || 'pending')
-      booking.set('createdBy', Parse.User.current())
-
-      await booking.save()
+      // Create regular booking using BookingService
+      await BookingService.createBooking({
+        venueId,
+        title: bookingData.title as string,
+        startTime: new Date(bookingData.start as string),
+        endTime: new Date(bookingData.end as string),
+        court: bookingData.court as string,
+        players: (bookingData.players as string[]) || [],
+        playerPhones: (bookingData.playerPhones as string[]) || [],
+        contact: bookingData.contact as string,
+        phone: bookingData.phone as string,
+        price: bookingData.price as number,
+        status:
+          (bookingData.status as 'confirmed' | 'pending' | 'cancelled') ||
+          'confirmed',
+        paymentStatus:
+          (bookingData.paymentStatus as 'pending' | 'paid' | 'refunded') ||
+          'pending',
+      })
     }
 
     return { success: true }
@@ -1164,44 +1040,46 @@ const createSingleBooking = async (bookingData: any) => {
   }
 }
 
-const updateBooking = async (bookingId: string, bookingData: any) => {
+const updateBooking = async (
+  bookingId: string,
+  bookingData: Record<string, unknown>
+) => {
   try {
+    isSubmitting.value = true
+
     if (bookingData.type === 'blocked') {
-      // Update blocked slot
-      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-      const query = new Parse.Query(BlockedSlotClass)
-      const blockedSlot = await query.get(bookingId)
-
-      blockedSlot.set('startTime', new Date(bookingData.start))
-      blockedSlot.set('endTime', new Date(bookingData.end))
-      blockedSlot.set('court', bookingData.court)
-      blockedSlot.set('reason', bookingData.reason)
-
-      await blockedSlot.save()
+      // Update blocked slot using BookingService
+      await BookingService.updateBlockedSlot(bookingId, {
+        startTime: new Date(bookingData.start as string),
+        endTime: new Date(bookingData.end as string),
+        court: bookingData.court as string,
+        reason: bookingData.reason as string,
+      })
     } else {
-      // Update regular booking
-      const BookingClass = Parse.Object.extend('Booking')
-      const query = new Parse.Query(BookingClass)
-      const booking = await query.get(bookingId)
-
-      booking.set('title', bookingData.title)
-      booking.set('startTime', new Date(bookingData.start))
-      booking.set('endTime', new Date(bookingData.end))
-      booking.set('court', bookingData.court)
-      booking.set('players', bookingData.players || [])
-      booking.set('contact', bookingData.contact)
-      booking.set('phone', bookingData.phone)
-      booking.set('price', bookingData.price)
-      booking.set('status', bookingData.status)
-      booking.set('paymentStatus', bookingData.paymentStatus)
-
-      await booking.save()
+      // Update regular booking using BookingService
+      await BookingService.updateBooking(bookingId, {
+        title: bookingData.title as string,
+        startTime: new Date(bookingData.start as string),
+        endTime: new Date(bookingData.end as string),
+        court: bookingData.court as string,
+        players: (bookingData.players as string[]) || [],
+        playerPhones: (bookingData.playerPhones as string[]) || [],
+        contact: bookingData.contact as string,
+        phone: bookingData.phone as string,
+        price: bookingData.price as number,
+        status: bookingData.status as 'confirmed' | 'pending' | 'cancelled',
+        paymentStatus: bookingData.paymentStatus as
+          | 'pending'
+          | 'paid'
+          | 'refunded',
+      })
     }
 
-    // Reset edit mode
-    isEditMode.value = false
-    editingBooking.value = null
-    showBookingForm.value = false
+    clearSelection()
+    await refreshCalendarData()
+    alert(
+      `${bookingData.type === 'blocked' ? 'Block' : 'Booking'} updated successfully!`
+    )
 
     return { success: true }
   } catch (error) {
@@ -1210,35 +1088,42 @@ const updateBooking = async (bookingId: string, bookingData: any) => {
       `Failed to update ${bookingData.type === 'blocked' ? 'block' : 'booking'}: ${(error as Error).message}`
     )
     return { success: false, error: (error as Error).message }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
 const deleteBooking = async (bookingId: string) => {
+  if (
+    !confirm(
+      'Are you sure you want to delete this booking? This action cannot be undone.'
+    )
+  ) {
+    return { success: false, cancelled: true }
+  }
+
   try {
-    // Try to delete as booking first, then as blocked slot
+    isSubmitting.value = true
+
+    // Try to delete as booking first, then as blocked slot using BookingService
     try {
-      const BookingClass = Parse.Object.extend('Booking')
-      const query = new Parse.Query(BookingClass)
-      const booking = await query.get(bookingId)
-      await booking.destroy()
+      await BookingService.deleteBooking(bookingId)
     } catch {
       // If not found as booking, try as blocked slot
-      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-      const query = new Parse.Query(BlockedSlotClass)
-      const blockedSlot = await query.get(bookingId)
-      await blockedSlot.destroy()
+      await BookingService.deleteBlockedSlot(bookingId)
     }
 
-    // Reset edit mode
-    isEditMode.value = false
-    editingBooking.value = null
-    showBookingForm.value = false
+    clearSelection()
+    await refreshCalendarData()
+    alert('Booking deleted successfully!')
 
     return { success: true }
   } catch (error) {
     console.error('Error deleting booking/block:', error)
     alert(`Failed to delete: ${(error as Error).message}`)
     return { success: false, error: (error as Error).message }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
@@ -1250,6 +1135,11 @@ const clearSelection = () => {
   showQuickCreate.value = false
   showMultiCourtPanel.value = false
   multiSelectMode.value = false
+  isSubmitting.value = false
+}
+
+const refreshCalendarData = async () => {
+  await Promise.all([loadBookings(), loadBlockedSlots()])
 }
 
 const openManualBookingForm = () => {
@@ -1334,6 +1224,34 @@ const openFullForm = () => {
   openManualBookingForm()
 }
 
+const closeBookingDetails = () => {
+  showBookingDetails.value = false
+  selectedBookingForDetails.value = null
+}
+
+const editBookingFromDetails = () => {
+  if (selectedBookingForDetails.value) {
+    editingBooking.value = {
+      id: selectedBookingForDetails.value.id,
+      title: selectedBookingForDetails.value.title,
+      start: selectedBookingForDetails.value.start,
+      end: selectedBookingForDetails.value.end,
+      type: 'booking',
+      ...selectedBookingForDetails.value.extendedProps,
+    }
+    isEditMode.value = true
+    showBookingDetails.value = false
+    showBookingForm.value = true
+  }
+}
+
+const deleteBookingFromDetails = async () => {
+  if (selectedBookingForDetails.value) {
+    await deleteBooking(selectedBookingForDetails.value.id)
+    closeBookingDetails()
+  }
+}
+
 const onCalendarMounted = () => {
   console.log('📅 FullCalendar mounted successfully')
 }
@@ -1349,40 +1267,11 @@ const setupLiveQueries = async () => {
 
     const bookingSubscription = await bookingQuery.subscribe()
 
-    bookingSubscription.on('create', (booking: any) => {
-      console.log('New booking created:', booking)
-      const newBooking = {
-        id: booking.id,
-        title:
-          booking.get('title') ||
-          `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
-        start: booking.get('startTime'),
-        end: booking.get('endTime'),
-        backgroundColor:
-          booking.get('status') === 'confirmed' ? '#84CC16' : '#FDE047',
-        borderColor:
-          booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
-        textColor:
-          booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
-        extendedProps: {
-          type: 'booking',
-          status: booking.get('status'),
-          court: booking.get('court'),
-          players: booking.get('players') || [],
-          contact: booking.get('contact'),
-          phone: booking.get('phone'),
-          price: booking.get('price'),
-          paymentStatus: booking.get('paymentStatus'),
-        },
-      }
-      bookings.value.push(newBooking)
-    })
-
-    bookingSubscription.on('update', (booking: any) => {
-      console.log('Booking updated:', booking)
-      const index = bookings.value.findIndex((b) => b.id === booking.id)
-      if (index >= 0) {
-        bookings.value[index] = {
+    bookingSubscription.on(
+      'create',
+      (booking: { id: string; get: (key: string) => unknown }) => {
+        console.log('New booking created:', booking)
+        const newBooking = {
           id: booking.id,
           title:
             booking.get('title') ||
@@ -1390,11 +1279,17 @@ const setupLiveQueries = async () => {
           start: booking.get('startTime'),
           end: booking.get('endTime'),
           backgroundColor:
-            booking.get('status') === 'confirmed' ? '#84CC16' : '#FDE047',
+            booking.get('status') === 'confirmed'
+              ? MaBarColors.calendar.confirmed
+              : MaBarColors.calendar.pending,
           borderColor:
-            booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
+            booking.get('status') === 'confirmed'
+              ? MaBarColors.hover.accent
+              : MaBarColors.hover.primary,
           textColor:
-            booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
+            booking.get('status') === 'confirmed'
+              ? MaBarColors.surface
+              : MaBarColors.text,
           extendedProps: {
             type: 'booking',
             status: booking.get('status'),
@@ -1406,10 +1301,51 @@ const setupLiveQueries = async () => {
             paymentStatus: booking.get('paymentStatus'),
           },
         }
+        bookings.value.push(newBooking)
       }
-    })
+    )
 
-    bookingSubscription.on('delete', (booking: any) => {
+    bookingSubscription.on(
+      'update',
+      (booking: { id: string; get: (key: string) => unknown }) => {
+        console.log('Booking updated:', booking)
+        const index = bookings.value.findIndex((b) => b.id === booking.id)
+        if (index >= 0) {
+          bookings.value[index] = {
+            id: booking.id,
+            title:
+              booking.get('title') ||
+              `${booking.get('court')} - ${booking.get('players')?.join(' vs ')}`,
+            start: booking.get('startTime'),
+            end: booking.get('endTime'),
+            backgroundColor:
+              booking.get('status') === 'confirmed'
+                ? MaBarColors.calendar.confirmed
+                : MaBarColors.calendar.pending,
+            borderColor:
+              booking.get('status') === 'confirmed'
+                ? MaBarColors.hover.accent
+                : MaBarColors.hover.primary,
+            textColor:
+              booking.get('status') === 'confirmed'
+                ? MaBarColors.surface
+                : MaBarColors.text,
+            extendedProps: {
+              type: 'booking',
+              status: booking.get('status'),
+              court: booking.get('court'),
+              players: booking.get('players') || [],
+              contact: booking.get('contact'),
+              phone: booking.get('phone'),
+              price: booking.get('price'),
+              paymentStatus: booking.get('paymentStatus'),
+            },
+          }
+        }
+      }
+    )
+
+    bookingSubscription.on('delete', (booking: { id: string }) => {
       console.log('Booking deleted:', booking)
       const index = bookings.value.findIndex((b) => b.id === booking.id)
       if (index >= 0) {
@@ -1424,27 +1360,30 @@ const setupLiveQueries = async () => {
 
     const blockedSubscription = await blockedQuery.subscribe()
 
-    blockedSubscription.on('create', (blocked: any) => {
-      console.log('New blocked slot created:', blocked)
-      const newBlocked = {
-        id: blocked.id,
-        title: '🚫 Blocked',
-        start: blocked.get('startTime'),
-        end: blocked.get('endTime'),
-        backgroundColor: '#EF4444',
-        borderColor: '#DC2626',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'blocked',
-        },
+    blockedSubscription.on(
+      'create',
+      (blocked: { id: string; get: (key: string) => unknown }) => {
+        console.log('New blocked slot created:', blocked)
+        const newBlocked = {
+          id: blocked.id,
+          title: '🚫 Blocked',
+          start: blocked.get('startTime'),
+          end: blocked.get('endTime'),
+          backgroundColor: MaBarColors.calendar.blocked,
+          borderColor: '#DC2626',
+          textColor: MaBarColors.surface,
+          extendedProps: {
+            type: 'blocked',
+          },
+        }
+        // Check if not already in array to prevent duplicates
+        if (!blockedSlots.value.find((b) => b.id === blocked.id)) {
+          blockedSlots.value.push(newBlocked)
+        }
       }
-      // Check if not already in array to prevent duplicates
-      if (!blockedSlots.value.find((b) => b.id === blocked.id)) {
-        blockedSlots.value.push(newBlocked)
-      }
-    })
+    )
 
-    blockedSubscription.on('delete', (blocked: any) => {
+    blockedSubscription.on('delete', (blocked: { id: string }) => {
       console.log('Blocked slot deleted:', blocked)
       const index = blockedSlots.value.findIndex((b) => b.id === blocked.id)
       if (index >= 0) {
@@ -1498,13 +1437,25 @@ onMounted(async () => {
         case 'pending_verification':
           applicationStatus.value = 'Pending Verification'
           break
-        case 'approved':
+        case 'approved': {
           applicationStatus.value = 'Approved'
           activeTab.value = 'calendar'
           await loadBookings()
           await loadBlockedSlots()
+
+          // Check if venue has bookings, if not create sample data for development
+          const hasBookings = await SeedDataService.hasBookings(profile.id)
+          if (!hasBookings) {
+            console.log(
+              '🌱 No bookings found, creating sample data for development'
+            )
+            await SeedDataService.createSampleBookings(profile.id)
+            await loadBookings() // Reload after seeding
+          }
+
           await setupLiveQueries()
           break
+        }
         case 'rejected':
           applicationStatus.value = 'Rejected'
           activeTab.value = 'profile'
@@ -1751,32 +1702,8 @@ onUnmounted(() => {
   }
 }
 
-/* FAB positioning to avoid mobile navigation overlap */
+/* FAB positioning */
 .fab-container {
   bottom: 1.5rem;
-}
-
-@media (max-width: 1023px) {
-  .fab-container {
-    bottom: calc(5rem + env(safe-area-inset-bottom, 1rem)) !important;
-  }
-}
-
-/* Mobile navigation safe area */
-@media (max-width: 1023px) {
-  .mobile-nav {
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-}
-
-/* Main content padding to avoid mobile navigation overlap */
-.main-content {
-  padding-bottom: 0;
-}
-
-@media (max-width: 1023px) {
-  .main-content {
-    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 1rem));
-  }
 }
 </style>

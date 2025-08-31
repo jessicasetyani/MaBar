@@ -217,28 +217,106 @@
         />
       </div>
 
-      <!-- Players -->
+      <!-- Players with Individual Phones (minimum 1, maximum 4) -->
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1"
-          >Players</label
-        >
-        <div class="space-y-2">
-          <input
-            v-for="(_, index) in formData.players"
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          Players with Phone Numbers (minimum 1, maximum 4)
+          <span class="text-xs text-slate-500 ml-1"
+            >{{ getValidPlayerCount() }}/4 players</span
+          >
+        </label>
+
+        <div class="space-y-3">
+          <div
+            v-for="(player, index) in formData.players"
             :key="index"
-            v-model="formData.players[index]"
-            type="text"
-            :placeholder="`Player ${index + 1} name`"
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          />
+            class="flex items-center space-x-2"
+          >
+            <div
+              class="flex-shrink-0 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-xs font-medium text-slate-600"
+            >
+              {{ index + 1 }}
+            </div>
+            <div class="flex-1 grid grid-cols-2 gap-2">
+              <input
+                v-model="formData.players[index]"
+                type="text"
+                :placeholder="
+                  index === 0
+                    ? 'Main player name (required)'
+                    : `Player ${index + 1} name`
+                "
+                :required="index === 0"
+                :class="[
+                  'px-3 py-2 border rounded-md focus:outline-none focus:ring-2 transition-colors',
+                  getPlayerValidationClass(player, index),
+                ]"
+                @blur="validatePlayerName(index)"
+              />
+              <input
+                v-model="formData.playerPhones[index]"
+                type="tel"
+                :placeholder="
+                  index === 0 ? 'Phone (required)' : `Player ${index + 1} phone`
+                "
+                :required="
+                  index === 0 ||
+                  !!(formData.players[index] && formData.players[index].trim())
+                "
+                class="px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              />
+            </div>
+            <button
+              v-if="formData.players.length > 1 && index > 0"
+              type="button"
+              @click="removePlayer(index)"
+              class="text-red-500 hover:text-red-700 p-1 rounded-md hover:bg-red-50 transition-colors"
+              title="Remove player"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
-        <button
-          type="button"
-          @click="addPlayer"
-          class="mt-2 text-sm text-blue-600 hover:text-blue-800"
+
+        <!-- Player validation feedback -->
+        <div
+          v-if="playerValidationError"
+          class="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded-md"
         >
-          + Add Player
-        </button>
+          {{ playerValidationError }}
+        </div>
+
+        <div class="mt-3 flex justify-between items-center">
+          <button
+            v-if="formData.players.length < 4"
+            type="button"
+            @click="addPlayer"
+            class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          >
+            + Add Player ({{ getValidPlayerCount() }}/4)
+          </button>
+          <div class="text-xs text-slate-500">
+            {{
+              getValidPlayerCount() === 1
+                ? 'Singles match'
+                : getValidPlayerCount() === 2
+                  ? 'Doubles match'
+                  : `${getValidPlayerCount()} players`
+            }}
+          </div>
+        </div>
       </div>
 
       <!-- Contact Information -->
@@ -379,19 +457,41 @@
 
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
+import { ValidationUtils } from '../utils/validation'
 
 interface Props {
-  selectedSlots: any[]
+  selectedSlots: Array<{
+    id: string
+    start: string
+    end: string
+    startTime: Date
+    endTime: Date
+  }>
   paddleFields: string[]
   isEditMode: boolean
-  editingBooking: any
+  editingBooking: {
+    id: string
+    title: string
+    start: Date
+    end: Date
+    type: string
+    players?: string[]
+    playerPhones?: string[]
+    contact?: string
+    phone?: string
+    price?: number
+    status?: string
+    paymentStatus?: string
+    reason?: string
+    court?: string
+  } | null
 }
 
 const props = defineProps<Props>()
 
 const emit = defineEmits<{
-  create: [bookingData: any]
-  update: [bookingId: string, bookingData: any]
+  create: [bookingData: Record<string, unknown>]
+  update: [bookingId: string, bookingData: Record<string, unknown>]
   delete: [bookingId: string]
   cancel: []
   removeSlot: [index: number]
@@ -404,6 +504,7 @@ const formData = ref({
   endTime: '',
   court: '',
   players: ['', '', '', ''],
+  playerPhones: ['', '', '', ''],
   contact: '',
   phone: '',
   price: 150000,
@@ -414,6 +515,7 @@ const formData = ref({
 
 const batchMode = ref(false)
 const isSubmitting = ref(false)
+const playerValidationError = ref('')
 
 const formatDateTime = (date: Date) => {
   return date.toLocaleString('en-US', {
@@ -447,7 +549,53 @@ const getSlotsSummary = () => {
 }
 
 const addPlayer = () => {
-  formData.value.players.push('')
+  if (formData.value.players.length < 4) {
+    formData.value.players.push('')
+    formData.value.playerPhones.push('')
+    playerValidationError.value = ''
+  }
+}
+
+const removePlayer = (index: number) => {
+  if (formData.value.players.length > 1 && index > 0) {
+    formData.value.players.splice(index, 1)
+    formData.value.playerPhones.splice(index, 1)
+    validatePlayers()
+  }
+}
+
+const getValidPlayerCount = () => {
+  return formData.value.players.filter((p) => p && p.trim()).length
+}
+
+const getPlayerValidationClass = (player: string, index: number) => {
+  if (index === 0 && (!player || !player.trim())) {
+    return 'border-red-300 focus:ring-red-400 focus:border-red-400'
+  }
+  if (player && player.trim()) {
+    return 'border-green-300 focus:ring-green-400 focus:border-green-400'
+  }
+  return 'border-slate-300 focus:ring-yellow-400 focus:border-yellow-400'
+}
+
+const validatePlayerName = (index: number) => {
+  const player = formData.value.players[index]
+  if (index === 0 && (!player || !player.trim())) {
+    playerValidationError.value = 'Main player name is required'
+    return false
+  }
+  validatePlayers()
+  return true
+}
+
+const validatePlayers = () => {
+  const validation = ValidationUtils.validatePlayers(formData.value.players)
+  if (!validation.isValid) {
+    playerValidationError.value = validation.error || ''
+    return false
+  }
+  playerValidationError.value = ''
+  return true
 }
 
 const removeSlot = (index: number) => {
@@ -459,99 +607,149 @@ const toggleBatchMode = () => {
 }
 
 const handleSubmit = async () => {
-  const baseData = {
-    court: formData.value.court,
-    type: formData.value.type,
+  // Validate required fields
+  if (formData.value.type === 'booking') {
+    if (!validatePlayers()) {
+      return
+    }
+
+    if (
+      !formData.value.contact ||
+      !ValidationUtils.isValidEmail(formData.value.contact)
+    ) {
+      alert('Please provide a valid email address.')
+      return
+    }
+
+    if (
+      !formData.value.phone ||
+      !ValidationUtils.isValidPhoneNumber(formData.value.phone)
+    ) {
+      alert(
+        'Please provide a valid Indonesian phone number (e.g., +62812345678 or 08123456789).'
+      )
+      return
+    }
+
+    if (!ValidationUtils.isValidPrice(formData.value.price)) {
+      alert('Please provide a valid price.')
+      return
+    }
   }
 
-  if (formData.value.type === 'blocked') {
-    // Handle blocked slots
-    if (props.selectedSlots.length > 1 && batchMode.value) {
-      // Batch create blocked slots
-      for (const slot of props.selectedSlots) {
+  isSubmitting.value = true
+
+  try {
+    const baseData = {
+      court: formData.value.court,
+      type: formData.value.type,
+    }
+
+    if (formData.value.type === 'blocked') {
+      // Handle blocked slots
+      if (props.selectedSlots.length > 1 && batchMode.value) {
+        // Batch create blocked slots
+        for (const slot of props.selectedSlots) {
+          const blockData = {
+            ...baseData,
+            title: `🚫 ${formData.value.blockReason}`,
+            reason: formData.value.blockReason,
+            start: slot.start,
+            end: slot.end,
+          }
+          await emit('create', blockData)
+        }
+      } else {
+        // Single or individual blocked slots
         const blockData = {
           ...baseData,
           title: `🚫 ${formData.value.blockReason}`,
           reason: formData.value.blockReason,
-          start: slot.start,
-          end: slot.end,
+          start:
+            props.selectedSlots.length > 0
+              ? props.selectedSlots[0].start
+              : formData.value.startTime,
+          end:
+            props.selectedSlots.length > 0
+              ? props.selectedSlots[props.selectedSlots.length - 1].end
+              : formData.value.endTime,
         }
-        await emit('create', blockData)
+
+        if (props.isEditMode && props.editingBooking) {
+          emit('update', props.editingBooking.id, blockData)
+        } else {
+          emit('create', blockData)
+        }
       }
     } else {
-      // Single or individual blocked slots
-      const blockData = {
-        ...baseData,
-        title: `🚫 ${formData.value.blockReason}`,
-        reason: formData.value.blockReason,
-        start:
-          props.selectedSlots.length > 0
-            ? props.selectedSlots[0].start
-            : formData.value.startTime,
-        end:
-          props.selectedSlots.length > 0
-            ? props.selectedSlots[props.selectedSlots.length - 1].end
-            : formData.value.endTime,
-      }
+      // Handle regular bookings
+      const validPlayers = formData.value.players.filter((p) => p && p.trim())
+      const validPlayerPhones = formData.value.playerPhones.filter(
+        (p, index) =>
+          formData.value.players[index] &&
+          formData.value.players[index].trim() &&
+          p &&
+          p.trim()
+      )
 
-      if (props.isEditMode) {
-        emit('update', props.editingBooking.id, blockData)
+      if (props.selectedSlots.length > 1 && batchMode.value) {
+        // Batch create bookings with sequential processing
+        for (let i = 0; i < props.selectedSlots.length; i++) {
+          const slot = props.selectedSlots[i]
+          const bookingData = {
+            ...baseData,
+            title: `${formData.value.title} ${props.selectedSlots.length > 1 ? `(${i + 1}/${props.selectedSlots.length})` : ''}`,
+            start: slot.start,
+            end: slot.end,
+            players: validPlayers,
+            playerPhones: validPlayerPhones,
+            contact: formData.value.contact,
+            phone: formData.value.phone,
+            price: formData.value.price,
+            status: formData.value.status,
+            paymentStatus: formData.value.paymentStatus,
+          }
+          await emit('create', bookingData)
+        }
       } else {
-        emit('create', blockData)
-      }
-    }
-  } else {
-    // Handle regular bookings
-    if (props.selectedSlots.length > 1 && batchMode.value) {
-      // Batch create bookings with sequential processing
-      for (let i = 0; i < props.selectedSlots.length; i++) {
-        const slot = props.selectedSlots[i]
+        // Single or individual bookings
         const bookingData = {
           ...baseData,
-          title: `${formData.value.title} ${props.selectedSlots.length > 1 ? `(${i + 1}/${props.selectedSlots.length})` : ''}`,
-          start: slot.start,
-          end: slot.end,
-          players: formData.value.players.filter((p) => p.trim()),
+          title: formData.value.title,
+          start:
+            props.selectedSlots.length > 0
+              ? props.selectedSlots[0].start
+              : formData.value.startTime,
+          end:
+            props.selectedSlots.length > 0
+              ? props.selectedSlots[props.selectedSlots.length - 1].end
+              : formData.value.endTime,
+          players: validPlayers,
+          playerPhones: validPlayerPhones,
           contact: formData.value.contact,
           phone: formData.value.phone,
           price: formData.value.price,
           status: formData.value.status,
           paymentStatus: formData.value.paymentStatus,
         }
-        await emit('create', bookingData)
-      }
-    } else {
-      // Single or individual bookings
-      const bookingData = {
-        ...baseData,
-        title: formData.value.title,
-        start:
-          props.selectedSlots.length > 0
-            ? props.selectedSlots[0].start
-            : formData.value.startTime,
-        end:
-          props.selectedSlots.length > 0
-            ? props.selectedSlots[props.selectedSlots.length - 1].end
-            : formData.value.endTime,
-        players: formData.value.players.filter((p) => p.trim()),
-        contact: formData.value.contact,
-        phone: formData.value.phone,
-        price: formData.value.price,
-        status: formData.value.status,
-        paymentStatus: formData.value.paymentStatus,
-      }
 
-      if (props.isEditMode) {
-        emit('update', props.editingBooking.id, bookingData)
-      } else {
-        emit('create', bookingData)
+        if (props.isEditMode && props.editingBooking) {
+          emit('update', props.editingBooking.id, bookingData)
+        } else {
+          emit('create', bookingData)
+        }
       }
     }
+  } finally {
+    isSubmitting.value = false
   }
 }
 
 const handleDelete = () => {
-  if (confirm('Are you sure you want to delete this booking?')) {
+  if (
+    props.editingBooking &&
+    confirm('Are you sure you want to delete this booking?')
+  ) {
     emit('delete', props.editingBooking.id)
   }
 }
@@ -561,6 +759,20 @@ watch(
   () => props.editingBooking,
   (booking) => {
     if (booking && props.isEditMode) {
+      const players = booking.players || []
+      const playerPhones = booking.playerPhones || []
+
+      // Ensure we have at least 1 player slot, max 4
+      const playerSlots = [...players]
+      const phoneSlots = [...playerPhones]
+
+      while (playerSlots.length < 1) playerSlots.push('')
+      while (playerSlots.length < 4) playerSlots.push('')
+      while (phoneSlots.length < playerSlots.length) phoneSlots.push('')
+
+      // Clear validation errors when editing
+      playerValidationError.value = ''
+
       formData.value = {
         type: booking.type === 'blocked' ? 'blocked' : 'booking',
         title: booking.title || '',
@@ -571,7 +783,8 @@ watch(
           ? new Date(booking.end).toISOString().slice(0, 16)
           : '',
         court: booking.court || '',
-        players: booking.players || ['', '', '', ''],
+        players: playerSlots,
+        playerPhones: phoneSlots,
         contact: booking.contact || '',
         phone: booking.phone || '',
         price: booking.price || 150000,
@@ -594,6 +807,12 @@ onMounted(() => {
 
     formData.value.startTime = now.toISOString().slice(0, 16)
     formData.value.endTime = later.toISOString().slice(0, 16)
+  }
+
+  // Initialize with minimum required player slots
+  if (formData.value.players.length === 0) {
+    formData.value.players = ['', '', '', '']
+    formData.value.playerPhones = ['', '', '', '']
   }
 })
 </script>
