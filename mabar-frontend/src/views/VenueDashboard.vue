@@ -3,7 +3,10 @@
     <!-- Header -->
     <header class="bg-white shadow-sm border-b border-slate-200">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-14">
+        <!-- Top Header Row -->
+        <div
+          class="flex justify-between items-center h-14 border-b border-slate-100"
+        >
           <div class="flex items-center space-x-4">
             <h1 class="text-xl font-semibold text-slate-900">
               {{ venueOwnerData?.venueDetails?.name || 'Venue Dashboard' }}
@@ -15,27 +18,27 @@
               ✓ Verified
             </span>
           </div>
-          <div class="flex items-center">
+          <div class="flex items-center space-x-4">
             <span class="text-sm text-slate-600">{{ user?.email }}</span>
+            <button
+              @click="logout"
+              class="hidden lg:block text-sm text-slate-600 hover:text-red-600 transition-colors"
+            >
+              Logout
+            </button>
           </div>
         </div>
-      </div>
-    </header>
 
-    <div class="flex h-[calc(100vh-3.5rem)]">
-      <!-- Sidebar -->
-      <aside
-        class="w-64 bg-white shadow-sm border-r border-slate-200 hidden lg:block"
-      >
-        <nav class="p-4 space-y-2 flex flex-col h-full">
-          <div class="space-y-2">
+        <!-- Tab Navigation Row - Hidden on mobile -->
+        <div class="hidden lg:flex items-center h-12">
+          <nav class="flex space-x-8">
             <button
               @click="activeTab = 'calendar'"
               :class="[
-                'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'py-3 px-1 border-b-2 font-medium text-sm transition-colors',
                 activeTab === 'calendar'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'text-slate-600 hover:bg-slate-100',
+                  ? 'border-yellow-400 text-yellow-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300',
               ]"
             >
               📅 Calendar & Bookings
@@ -43,10 +46,10 @@
             <button
               @click="activeTab = 'profile'"
               :class="[
-                'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'py-3 px-1 border-b-2 font-medium text-sm transition-colors',
                 activeTab === 'profile'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'text-slate-600 hover:bg-slate-100',
+                  ? 'border-yellow-400 text-yellow-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300',
               ]"
             >
               🏢 Venue Profile
@@ -54,26 +57,20 @@
             <button
               @click="activeTab = 'analytics'"
               :class="[
-                'w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                'py-3 px-1 border-b-2 font-medium text-sm transition-colors',
                 activeTab === 'analytics'
-                  ? 'bg-yellow-100 text-yellow-800'
-                  : 'text-slate-600 hover:bg-slate-100',
+                  ? 'border-yellow-400 text-yellow-600'
+                  : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300',
               ]"
             >
               📊 Analytics
             </button>
-          </div>
-          <div class="mt-auto pt-4 border-t border-slate-200">
-            <button
-              @click="logout"
-              class="w-full text-left px-3 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors"
-            >
-              🚪 Logout
-            </button>
-          </div>
-        </nav>
-      </aside>
+          </nav>
+        </div>
+      </div>
+    </header>
 
+    <div class="h-[calc(100vh-3.5rem)] lg:h-[calc(100vh-6.5rem)]">
       <!-- Mobile Navigation -->
       <div
         class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg"
@@ -127,7 +124,7 @@
       </div>
 
       <!-- Main Content -->
-      <main class="flex-1 overflow-auto main-content">
+      <main class="overflow-auto main-content h-full">
         <!-- Calendar Tab -->
         <div v-if="activeTab === 'calendar'" class="p-6">
           <div class="mb-6">
@@ -632,6 +629,58 @@
           </div>
         </div>
       </main>
+
+      <!-- Mobile Navigation -->
+      <div
+        class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg"
+        style="padding-bottom: env(safe-area-inset-bottom, 0px)"
+      >
+        <nav class="flex">
+          <button
+            @click="activeTab = 'calendar'"
+            :class="[
+              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
+              activeTab === 'calendar'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'text-slate-600 hover:bg-slate-50',
+            ]"
+          >
+            <span class="text-base mb-1">📅</span>
+            <span class="text-xs">Calendar</span>
+          </button>
+          <button
+            @click="activeTab = 'profile'"
+            :class="[
+              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
+              activeTab === 'profile'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'text-slate-600 hover:bg-slate-50',
+            ]"
+          >
+            <span class="text-base mb-1">🏢</span>
+            <span class="text-xs">Profile</span>
+          </button>
+          <button
+            @click="activeTab = 'analytics'"
+            :class="[
+              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
+              activeTab === 'analytics'
+                ? 'bg-yellow-100 text-yellow-800'
+                : 'text-slate-600 hover:bg-slate-50',
+            ]"
+          >
+            <span class="text-base mb-1">📊</span>
+            <span class="text-xs">Analytics</span>
+          </button>
+          <button
+            @click="logout"
+            class="flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center text-slate-600 hover:bg-red-50 hover:text-red-600"
+          >
+            <span class="text-base mb-1">🚪</span>
+            <span class="text-xs">Logout</span>
+          </button>
+        </nav>
+      </div>
     </div>
   </div>
 </template>
