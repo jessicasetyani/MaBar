@@ -1,3 +1,184 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ========================================
+   Theme System - CSS Variables
+   ======================================== */
+
+/* Default Light Theme (MaBar Original) */
+:root {
+  /* MaBar Original Colors */
+  --background: #FEFCE8;
+  --foreground: #334155;
+  --card: #FFFFFF;
+  --card-foreground: #334155;
+  --primary: #FDE047;
+  --primary-foreground: #334155;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #334155;
+  --muted: #F8FAFC;
+  --muted-foreground: #64748B;
+  --accent: #84CC16;
+  --accent-foreground: #FFFFFF;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --border: #E2E8F0;
+  --input: #F1F5F9;
+  --ring: #84CC16;
+
+  /* Layout & Typography */
+  --radius: 0.625rem;
+  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2rem;
+  --spacing-3xl: 3rem;
+}
+
+/* Dark Mode Theme */
+[data-theme="dark"] {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+}
+
+/* Tennis Theme */
+[data-theme="tennis"] {
+  --background: oklch(0.9800 0.0200 120.0000);
+  --foreground: oklch(0.1500 0.0200 120.0000);
+  --card: oklch(0.9800 0.0200 120.0000);
+  --card-foreground: oklch(0.1500 0.0200 120.0000);
+  --primary: oklch(0.6200 0.1500 120.0000);
+  --primary-foreground: oklch(0.9800 0.0200 120.0000);
+  --secondary: oklch(0.9800 0.0200 120.0000);
+  --secondary-foreground: oklch(0.1500 0.0200 120.0000);
+  --muted: oklch(0.9800 0.0200 120.0000);
+  --muted-foreground: oklch(0.5500 0.0200 120.0000);
+  --accent: oklch(0.9800 0.0200 120.0000);
+  --accent-foreground: oklch(0.1500 0.0200 120.0000);
+  --destructive: oklch(0.5800 0.2400 28.0000);
+  --destructive-foreground: oklch(0.9800 0.0200 120.0000);
+  --border: oklch(0.9200 0.0200 120.0000);
+  --input: oklch(0.9200 0.0200 120.0000);
+  --ring: oklch(0.7000 0.0200 120.0000);
+}
+
+/* ========================================
+   Base Styles
+   ======================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-family);
+  line-height: 1.6;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ========================================
+   Enhanced Component Classes
+   ======================================== */
+
+/* Card Components */
+.card-enhanced {
+  background-color: var(--card);
+  color: var(--card-foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-xl);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+  transition: all 0.2s ease;
+}
+
+.card-enhanced:hover {
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Button Enhancements */
+.btn-enhanced {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  white-space: nowrap;
+  border-radius: var(--radius);
+  font-weight: 500;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  min-height: 2.25rem;
+  outline: none;
+  text-decoration: none;
+}
+
+.btn-enhanced:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.btn-primary-enhanced {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.btn-primary-enhanced:hover {
+  opacity: 0.9;
+}
+
+.btn-outline-enhanced {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+.btn-outline-enhanced:hover {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+/* Form Components */
+.form-input-enhanced {
+  width: 100%;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--spacing-sm) var(--spacing-md);
+  color: var(--foreground);
+  outline: none;
+  transition: all 0.2s;
+}
+
+.form-input-enhanced:focus {
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgb(132 204 22 / 0.1);
+}
+
+.form-input-enhanced::placeholder {
+  color: var(--muted-foreground);
+}

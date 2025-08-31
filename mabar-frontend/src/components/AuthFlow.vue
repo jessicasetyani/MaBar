@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+  <div class="min-h-screen bg-background flex items-center justify-center p-4">
     <div class="w-full max-w-md">
       <!-- Role Selection for users without role -->
       <RoleSelection
@@ -10,15 +10,15 @@
       <!-- Auth Forms for non-authenticated users -->
       <div
         v-else-if="!authStore.user"
-        class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden"
+        class="bg-card rounded-3xl shadow-xl border border-border overflow-hidden card-enhanced"
       >
         <!-- Header -->
-        <div class="bg-emerald-500 px-8 py-12 text-center">
+        <div class="bg-primary px-8 py-12 text-center">
           <div
-            class="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6"
+            class="w-20 h-20 mx-auto bg-primary-foreground/20 rounded-full flex items-center justify-center mb-6"
           >
             <svg
-              class="w-10 h-10 text-white"
+              class="w-10 h-10 text-primary-foreground"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -31,8 +31,8 @@
               />
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-white mb-2">MaBar</h1>
-          <p class="text-emerald-100">Badminton Match & Venue Booking</p>
+          <h1 class="text-3xl font-bold text-primary-foreground mb-2">MaBar</h1>
+          <p class="text-primary-foreground/80">Badminton Match & Venue Booking</p>
         </div>
 
         <!-- Form Content -->

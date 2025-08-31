@@ -1,29 +1,29 @@
 <template>
   <div class="max-w-md mx-auto space-y-6">
-    <h2 class="text-2xl font-bold text-center">Choose Your Role</h2>
+    <h2 class="text-2xl font-bold text-center text-foreground">Choose Your Role</h2>
     <div class="space-y-4">
       <button
         @click="selectRole('player')"
         :disabled="authStore.isLoading"
-        class="w-full p-4 border-2 border-blue-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 disabled:opacity-50"
+        class="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-accent disabled:opacity-50 transition-all card-enhanced"
       >
-        <div class="text-lg font-semibold">🏓 Player</div>
-        <div class="text-sm text-gray-600">Find matches and play badminton</div>
+        <div class="text-lg font-semibold text-foreground">🏓 Player</div>
+        <div class="text-sm text-muted-foreground">Find matches and play badminton</div>
       </button>
       <button
         @click="selectRole('venue_owner')"
         :disabled="authStore.isLoading"
-        class="w-full p-4 border-2 border-green-200 rounded-lg hover:border-green-500 hover:bg-green-50 disabled:opacity-50"
+        class="w-full p-4 border-2 border-border rounded-lg hover:border-primary hover:bg-accent disabled:opacity-50 transition-all card-enhanced"
       >
-        <div class="text-lg font-semibold">🏢 Venue Owner</div>
-        <div class="text-sm text-gray-600">Manage courts and bookings</div>
+        <div class="text-lg font-semibold text-foreground">🏢 Venue Owner</div>
+        <div class="text-sm text-muted-foreground">Manage courts and bookings</div>
       </button>
     </div>
     <div v-if="authStore.isLoading" class="text-center">
       <div
-        class="animate-spin h-6 w-6 border-2 border-blue-500 border-t-transparent rounded-full mx-auto"
+        class="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full mx-auto"
       ></div>
-      <p class="text-sm text-gray-600 mt-2">Saving role...</p>
+      <p class="text-sm text-muted-foreground mt-2">Saving role...</p>
     </div>
     <div v-if="authStore.error" class="text-red-600 text-sm text-center">
       {{ authStore.error }}
