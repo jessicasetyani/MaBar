@@ -13,10 +13,10 @@
         class="md-card md-elevation-3 overflow-hidden"
       >
         <!-- Header -->
-        <div class="md-primary p-xl text-center">
-          <div class="w-16 h-16 mx-auto mb-6 flex items-center justify-center">
+        <div class="md-primary p-6 text-center">
+          <div class="w-10 h-10 mx-auto mb-4 flex items-center justify-center">
             <svg
-              class="w-12 h-12 text-md-sys-color-on-primary"
+              class="w-8 h-8 text-md-sys-color-on-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -31,48 +31,52 @@
             </svg>
           </div>
           <h1
-            class="md-headline-large font-medium text-md-sys-color-on-primary mb-2"
+            class="md-headline-medium font-medium text-md-sys-color-on-primary mb-1"
           >
             MaBar
           </h1>
-          <p class="md-body-large text-md-sys-color-on-primary opacity-80">
-            Smart Padel Matchmaking Platform
+          <p class="md-body-medium text-md-sys-color-on-primary opacity-80">
+            Smart Padel Matchmaking
           </p>
         </div>
 
         <!-- Form Content -->
-        <div class="p-xl">
+        <div class="p-6">
           <!-- Tab Toggle -->
           <div
-            class="md-surface-variant rounded-lg p-1 mb-6"
+            class="flex bg-slate-100 rounded-lg p-1 mb-6"
             role="tablist"
             aria-label="Authentication options"
           >
             <button
               @click="isLogin = true"
-              :class="
+              :class="[
+                'flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2',
                 isLogin
-                  ? 'md-secondary text-md-sys-color-on-secondary md-elevation-1'
-                  : 'text-md-sys-color-on-surface-variant'
-              "
-              class="flex-1 py-3 px-4 rounded-md md-label-large font-medium transition-standard focus-visible"
+                  ? 'bg-white text-slate-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              ]"
               role="tab"
               :aria-selected="isLogin"
               :tabindex="isLogin ? 0 : -1"
+              id="signin-tab"
             >
               Sign In
             </button>
             <button
               @click="isLogin = false"
-              :class="
+              :class="[
+                'flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2',
                 !isLogin
-                  ? 'md-secondary text-md-sys-color-on-secondary md-elevation-1'
-                  : 'text-md-sys-color-on-surface-variant'
-              "
-              class="flex-1 py-3 px-4 rounded-md md-label-large font-medium transition-standard focus-visible"
+                  ? 'bg-white text-slate-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              ]"
               role="tab"
               :aria-selected="!isLogin"
               :tabindex="!isLogin ? 0 : -1"
+              id="signup-tab"
             >
               Sign Up
             </button>
