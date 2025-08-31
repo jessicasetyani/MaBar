@@ -59,8 +59,8 @@ if (import.meta.env.DEV) {
   })
 }
 
-// Register service worker
-if ('serviceWorker' in navigator) {
+// Register service worker only in production
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   registerSW({
     onNeedRefresh() {
       console.log('New content available, please refresh.')

@@ -6,7 +6,8 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   plugins: [
     vue(),
-    VitePWA({
+VitePWA({
+      disable: process.env.NODE_ENV === 'development',
       registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
