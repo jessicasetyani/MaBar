@@ -27,19 +27,132 @@
       </div>
     </div>
 
-    <!-- Selected Slots Display -->
-    <div v-else-if="selectedSlots.length > 0" class="bg-blue-50 rounded-lg p-3">
-      <h4 class="text-sm font-medium text-blue-800 mb-2">
-        Selected Time Slots
-      </h4>
-      <div class="space-y-1">
+    <!-- Enhanced Selected Slots Display -->
+    <div
+      v-else-if="selectedSlots.length > 0"
+      class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200"
+    >
+      <div class="flex justify-between items-center mb-4">
+        <div class="flex items-center space-x-2">
+          <div
+            class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"
+          >
+            <span class="text-blue-600 text-sm font-bold">{{
+              selectedSlots.length
+            }}</span>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold text-blue-800">
+              Selected Time Slots
+            </h4>
+            <p class="text-xs text-blue-600">{{ getSlotsSummary() }}</p>
+          </div>
+        </div>
+        <div class="flex space-x-2">
+          <button
+            v-if="selectedSlots.length > 1"
+            type="button"
+            @click="toggleBatchMode"
+            :class="[
+              'px-3 py-1.5 text-xs rounded-lg font-medium transition-all duration-200',
+              batchMode
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'bg-white text-blue-700 hover:bg-blue-100 border border-blue-200',
+            ]"
+          >
+            <span class="flex items-center space-x-1">
+              <svg
+                class="w-3 h-3"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  :d="
+                    batchMode
+                      ? 'M9 12l2 2 4-4'
+                      : 'M4 6h16M4 10h16M4 14h16M4 18h16'
+                  "
+                />
+              </svg>
+              <span>{{ batchMode ? 'Batch Mode' : 'Individual' }}</span>
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Slots Grid -->
+      <div class="grid grid-cols-1 gap-2 max-h-40 overflow-y-auto">
         <div
-          v-for="slot in selectedSlots"
+          v-for="(slot, index) in selectedSlots"
           :key="slot.id"
-          class="text-sm text-blue-700"
+          class="flex justify-between items-center text-sm bg-white rounded-lg p-3 border border-blue-100 hover:border-blue-200 transition-colors"
         >
-          {{ formatDateTime(slot.startTime) }} -
-          {{ formatDateTime(slot.endTime) }}
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600"
+            >
+              {{ index + 1 }}
+            </div>
+            <div>
+              <div class="font-medium text-slate-800">
+                {{ formatDateTime(slot.startTime) }} -
+                {{ formatDateTime(slot.endTime) }}
+              </div>
+              <div class="text-xs text-slate-500">
+                Duration: {{ getDuration(slot.startTime, slot.endTime) }}
+              </div>
+            </div>
+          </div>
+          <button
+            type="button"
+            @click="removeSlot(index)"
+            class="text-red-400 hover:text-red-600 hover:bg-red-50 p-1 rounded-md transition-colors"
+            title="Remove slot"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Batch Mode Info -->
+      <div
+        v-if="batchMode && selectedSlots.length > 1"
+        class="mt-4 pt-3 border-t border-blue-200"
+      >
+        <div class="flex items-center space-x-2 text-xs text-blue-700">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <span
+            >Batch mode: All {{ selectedSlots.length }} slots will use identical
+            booking details</span
+          >
         </div>
       </div>
     </div>
@@ -233,10 +346,32 @@
 
       <button
         type="submit"
-        class="px-6 py-2 bg-yellow-400 text-slate-800 rounded-md hover:bg-yellow-500 transition-colors font-medium"
+        :disabled="isSubmitting"
+        class="px-6 py-2.5 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 disabled:bg-slate-300 disabled:text-slate-500 transition-all duration-200 font-semibold flex items-center space-x-2"
       >
-        {{ isEditMode ? 'Update' : 'Create' }}
-        {{ formData.type === 'blocked' ? 'Block' : 'Booking' }}
+        <svg
+          v-if="isSubmitting"
+          class="animate-spin w-4 h-4"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+          />
+        </svg>
+        <span>
+          {{ isSubmitting ? 'Creating...' : isEditMode ? 'Update' : 'Create' }}
+          {{ formData.type === 'blocked' ? 'Block' : 'Booking' }}
+          {{
+            selectedSlots.length > 1 && batchMode
+              ? ` (${selectedSlots.length})`
+              : ''
+          }}
+        </span>
       </button>
     </div>
   </form>
@@ -259,6 +394,7 @@ const emit = defineEmits<{
   update: [bookingId: string, bookingData: any]
   delete: [bookingId: string]
   cancel: []
+  removeSlot: [index: number]
 }>()
 
 const formData = ref({
@@ -276,6 +412,9 @@ const formData = ref({
   blockReason: '',
 })
 
+const batchMode = ref(false)
+const isSubmitting = ref(false)
+
 const formatDateTime = (date: Date) => {
   return date.toLocaleString('en-US', {
     month: 'short',
@@ -286,60 +425,127 @@ const formatDateTime = (date: Date) => {
   })
 }
 
+const getDuration = (start: Date, end: Date) => {
+  const diff = new Date(end).getTime() - new Date(start).getTime()
+  const hours = Math.floor(diff / (1000 * 60 * 60))
+  const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+  return hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`
+}
+
+const getSlotsSummary = () => {
+  if (props.selectedSlots.length === 0) return ''
+  if (props.selectedSlots.length === 1) return 'Single slot'
+
+  const totalDuration = props.selectedSlots.reduce((total, slot) => {
+    const diff = new Date(slot.end).getTime() - new Date(slot.start).getTime()
+    return total + diff
+  }, 0)
+
+  const hours = Math.floor(totalDuration / (1000 * 60 * 60))
+  const minutes = Math.floor((totalDuration % (1000 * 60 * 60)) / (1000 * 60))
+  return `Total: ${hours}h ${minutes}m`
+}
+
 const addPlayer = () => {
   formData.value.players.push('')
 }
 
-const handleSubmit = () => {
+const removeSlot = (index: number) => {
+  emit('removeSlot', index)
+}
+
+const toggleBatchMode = () => {
+  batchMode.value = !batchMode.value
+}
+
+const handleSubmit = async () => {
   const baseData = {
     court: formData.value.court,
     type: formData.value.type,
   }
 
   if (formData.value.type === 'blocked') {
-    const blockData = {
-      ...baseData,
-      title: `🚫 ${formData.value.blockReason}`,
-      reason: formData.value.blockReason,
-      start:
-        props.selectedSlots.length > 0
-          ? props.selectedSlots[0].start
-          : formData.value.startTime,
-      end:
-        props.selectedSlots.length > 0
-          ? props.selectedSlots[props.selectedSlots.length - 1].end
-          : formData.value.endTime,
-    }
-
-    if (props.isEditMode) {
-      emit('update', props.editingBooking.id, blockData)
+    // Handle blocked slots
+    if (props.selectedSlots.length > 1 && batchMode.value) {
+      // Batch create blocked slots
+      for (const slot of props.selectedSlots) {
+        const blockData = {
+          ...baseData,
+          title: `🚫 ${formData.value.blockReason}`,
+          reason: formData.value.blockReason,
+          start: slot.start,
+          end: slot.end,
+        }
+        await emit('create', blockData)
+      }
     } else {
-      emit('create', blockData)
+      // Single or individual blocked slots
+      const blockData = {
+        ...baseData,
+        title: `🚫 ${formData.value.blockReason}`,
+        reason: formData.value.blockReason,
+        start:
+          props.selectedSlots.length > 0
+            ? props.selectedSlots[0].start
+            : formData.value.startTime,
+        end:
+          props.selectedSlots.length > 0
+            ? props.selectedSlots[props.selectedSlots.length - 1].end
+            : formData.value.endTime,
+      }
+
+      if (props.isEditMode) {
+        emit('update', props.editingBooking.id, blockData)
+      } else {
+        emit('create', blockData)
+      }
     }
   } else {
-    const bookingData = {
-      ...baseData,
-      title: formData.value.title,
-      start:
-        props.selectedSlots.length > 0
-          ? props.selectedSlots[0].start
-          : formData.value.startTime,
-      end:
-        props.selectedSlots.length > 0
-          ? props.selectedSlots[props.selectedSlots.length - 1].end
-          : formData.value.endTime,
-      players: formData.value.players.filter((p) => p.trim()),
-      contact: formData.value.contact,
-      phone: formData.value.phone,
-      price: formData.value.price,
-      status: formData.value.status,
-      paymentStatus: formData.value.paymentStatus,
-    }
-
-    if (props.isEditMode) {
-      emit('update', props.editingBooking.id, bookingData)
+    // Handle regular bookings
+    if (props.selectedSlots.length > 1 && batchMode.value) {
+      // Batch create bookings with sequential processing
+      for (let i = 0; i < props.selectedSlots.length; i++) {
+        const slot = props.selectedSlots[i]
+        const bookingData = {
+          ...baseData,
+          title: `${formData.value.title} ${props.selectedSlots.length > 1 ? `(${i + 1}/${props.selectedSlots.length})` : ''}`,
+          start: slot.start,
+          end: slot.end,
+          players: formData.value.players.filter((p) => p.trim()),
+          contact: formData.value.contact,
+          phone: formData.value.phone,
+          price: formData.value.price,
+          status: formData.value.status,
+          paymentStatus: formData.value.paymentStatus,
+        }
+        await emit('create', bookingData)
+      }
     } else {
-      emit('create', bookingData)
+      // Single or individual bookings
+      const bookingData = {
+        ...baseData,
+        title: formData.value.title,
+        start:
+          props.selectedSlots.length > 0
+            ? props.selectedSlots[0].start
+            : formData.value.startTime,
+        end:
+          props.selectedSlots.length > 0
+            ? props.selectedSlots[props.selectedSlots.length - 1].end
+            : formData.value.endTime,
+        players: formData.value.players.filter((p) => p.trim()),
+        contact: formData.value.contact,
+        phone: formData.value.phone,
+        price: formData.value.price,
+        status: formData.value.status,
+        paymentStatus: formData.value.paymentStatus,
+      }
+
+      if (props.isEditMode) {
+        emit('update', props.editingBooking.id, bookingData)
+      } else {
+        emit('create', bookingData)
+      }
     }
   }
 }
