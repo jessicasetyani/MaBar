@@ -79,10 +79,24 @@
   --md-sys-shape-corner-extra-large: 28px;
   
   /* Material Design 3 Motion */
+  --md-sys-motion-duration-short1: 50ms;
   --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short3: 150ms;
   --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium1: 250ms;
   --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-duration-medium3: 350ms;
+  --md-sys-motion-duration-medium4: 400ms;
+  --md-sys-motion-duration-long1: 450ms;
+  --md-sys-motion-duration-long2: 500ms;
+  
+  --md-sys-motion-easing-linear: cubic-bezier(0, 0, 1, 1);
   --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+  --md-sys-motion-easing-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+  --md-sys-motion-easing-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --md-sys-motion-easing-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+  --md-sys-motion-easing-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
   
   /* Legacy Compatibility */
   --background: var(--md-sys-color-background);
@@ -369,7 +383,204 @@ body {
 .md-primary { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
 .md-secondary { background-color: var(--md-sys-color-secondary); color: var(--md-sys-color-on-secondary); }
 
-/* Legacy Compatibility Classes */
+/* ========================================
+   MaBar Spacing System
+   ======================================== */
+.space-xs { margin: 4px; }
+.space-sm { margin: 8px; }
+.space-md { margin: 12px; }
+.space-lg { margin: 16px; }
+.space-xl { margin: 24px; }
+.space-2xl { margin: 32px; }
+.space-3xl { margin: 48px; }
+
+.p-xs { padding: 4px; }
+.p-sm { padding: 8px; }
+.p-md { padding: 12px; }
+.p-lg { padding: 16px; }
+.p-xl { padding: 24px; }
+.p-2xl { padding: 32px; }
+.p-3xl { padding: 48px; }
+
+/* ========================================
+   Animation & Transition Standards
+   ======================================== */
+.transition-standard {
+  transition: all var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.transition-enter {
+  transition: all var(--md-sys-motion-duration-medium2) cubic-bezier(0, 0, 0, 1);
+}
+
+.transition-exit {
+  transition: all var(--md-sys-motion-duration-short4) cubic-bezier(0.3, 0, 1, 1);
+}
+
+/* ========================================
+   Loading States & Feedback
+   ======================================== */
+.loading-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--md-sys-color-outline);
+  border-top: 2px solid var(--md-sys-color-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--md-sys-color-surface-variant) 25%, var(--md-sys-color-outline-variant) 50%, var(--md-sys-color-surface-variant) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ========================================
+   Feedback States
+   ======================================== */
+.feedback-success {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+  border-left: 4px solid var(--md-sys-color-secondary);
+}
+
+.feedback-error {
+  background-color: var(--md-sys-color-error-container);
+  color: var(--md-sys-color-on-error-container);
+  border-left: 4px solid var(--md-sys-color-error);
+}
+
+.feedback-warning {
+  background-color: #FEF3C7;
+  color: #92400E;
+  border-left: 4px solid #F59E0B;
+}
+
+.feedback-info {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+  border-left: 4px solid #3B82F6;
+}
+
+/* ========================================
+   Icon Standards
+   ======================================== */
+.icon-xs { width: 16px; height: 16px; }
+.icon-sm { width: 20px; height: 20px; }
+.icon-md { width: 24px; height: 24px; }
+.icon-lg { width: 32px; height: 32px; }
+.icon-xl { width: 48px; height: 48px; }
+
+.icon-primary { color: var(--md-sys-color-on-surface); }
+.icon-secondary { color: var(--md-sys-color-on-surface-variant); }
+.icon-interactive { color: var(--md-sys-color-primary); }
+
+/* ========================================
+   Accessibility Focus States
+   ======================================== */
+.focus-visible:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+/* Touch Target Standards */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.touch-target-large {
+  min-height: 48px;
+  min-width: 48px;
+}
+
+/* ========================================
+   Mobile Interaction Patterns
+   ======================================== */
+@media (max-width: 768px) {
+  .mobile-full-width {
+    width: 100%;
+  }
+  
+  .mobile-stack {
+    flex-direction: column;
+  }
+  
+  .mobile-large-touch {
+    min-height: 48px;
+    padding: 12px 24px;
+  }
+  
+  .mobile-spacing {
+    margin: 8px 0;
+  }
+}
+
+/* ========================================
+   Component Composition Patterns
+   ======================================== */
+.card-composition {
+  background-color: var(--md-sys-color-surface);
+  border-radius: var(--md-sys-shape-corner-medium);
+  box-shadow: var(--md-sys-elevation-level1);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 24px 24px 16px 24px;
+  border-bottom: 1px solid var(--md-sys-color-outline-variant);
+}
+
+.card-content {
+  padding: 16px 24px;
+}
+
+.card-actions {
+  padding: 16px 24px 24px 24px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.form-composition {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.button-group.mobile-stack {
+  flex-direction: column;
+}
+
+/* ========================================
+   Legacy Compatibility Classes
+   ======================================== */
 .card-enhanced { 
   background-color: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
@@ -384,7 +595,7 @@ body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 44px;
   padding: 0 24px;
   border: none;
   border-radius: var(--md-sys-shape-corner-large);
@@ -395,6 +606,11 @@ body {
   outline: none;
   text-decoration: none;
   transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.btn-enhanced:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
 }
 
 .btn-primary-enhanced { 

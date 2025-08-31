@@ -96,6 +96,18 @@ export default {
       transitionTimingFunction: {
         'md-standard': 'var(--md-sys-motion-easing-standard)',
       },
+      spacing: {
+        'xs': '4px',
+        'sm': '8px', 
+        'md': '12px',
+        'lg': '16px',
+        'xl': '24px',
+        '2xl': '32px',
+        '3xl': '48px',
+      },
+      opacity: {
+        '38': '0.38',
+      },
     },
   },
   plugins: [],
