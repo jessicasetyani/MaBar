@@ -1,90 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ========================================
-   Theme System - CSS Variables
+   Material Design 3 + MaBar Theme System
    ======================================== */
 
-/* Default Light Theme (MaBar Original) */
 :root {
-  /* MaBar Original Colors */
-  --background: #FEFCE8;
-  --foreground: #334155;
-  --card: #FFFFFF;
-  --card-foreground: #334155;
-  --primary: #FDE047;
-  --primary-foreground: #334155;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #334155;
-  --muted: #F8FAFC;
-  --muted-foreground: #64748B;
-  --accent: #84CC16;
-  --accent-foreground: #FFFFFF;
-  --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --input: #F1F5F9;
-  --ring: #84CC16;
-
-  /* Layout & Typography */
-  --radius: 0.625rem;
-  --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-
-  /* Spacing */
-  --spacing-xs: 0.25rem;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 0.75rem;
-  --spacing-lg: 1rem;
-  --spacing-xl: 1.5rem;
-  --spacing-2xl: 2rem;
-  --spacing-3xl: 3rem;
+  /* MaBar Color Palette (Material Design 3 Compliant) */
+  --md-sys-color-primary: #FDE047; /* MaBar Yellow */
+  --md-sys-color-on-primary: #334155; /* Charcoal */
+  --md-sys-color-primary-container: #FEF3C7;
+  --md-sys-color-on-primary-container: #1F2937;
+  
+  --md-sys-color-secondary: #84CC16; /* Padel Green */
+  --md-sys-color-on-secondary: #FFFFFF;
+  --md-sys-color-secondary-container: #ECFCCB;
+  --md-sys-color-on-secondary-container: #1A2E05;
+  
+  --md-sys-color-surface: #FFFFFF; /* White */
+  --md-sys-color-on-surface: #334155; /* Charcoal */
+  --md-sys-color-surface-variant: #F8FAFC;
+  --md-sys-color-on-surface-variant: #64748B; /* Slate Gray */
+  
+  --md-sys-color-background: #FEFCE8; /* Light Cream */
+  --md-sys-color-on-background: #334155; /* Charcoal */
+  
+  --md-sys-color-outline: #CBD5E1;
+  --md-sys-color-outline-variant: #E2E8F0;
+  
+  --md-sys-color-error: #DC2626;
+  --md-sys-color-on-error: #FFFFFF;
+  --md-sys-color-error-container: #FEE2E2;
+  --md-sys-color-on-error-container: #7F1D1D;
+  
+  /* Material Design 3 Typography Scale */
+  --md-sys-typescale-display-large-font: 'Roboto', sans-serif;
+  --md-sys-typescale-display-large-size: 3.5rem;
+  --md-sys-typescale-display-large-weight: 400;
+  --md-sys-typescale-display-large-line-height: 4rem;
+  
+  --md-sys-typescale-headline-large-font: 'Roboto', sans-serif;
+  --md-sys-typescale-headline-large-size: 2rem;
+  --md-sys-typescale-headline-large-weight: 400;
+  --md-sys-typescale-headline-large-line-height: 2.5rem;
+  
+  --md-sys-typescale-title-large-font: 'Roboto', sans-serif;
+  --md-sys-typescale-title-large-size: 1.375rem;
+  --md-sys-typescale-title-large-weight: 500;
+  --md-sys-typescale-title-large-line-height: 1.75rem;
+  
+  --md-sys-typescale-body-large-font: 'Roboto', sans-serif;
+  --md-sys-typescale-body-large-size: 1rem;
+  --md-sys-typescale-body-large-weight: 400;
+  --md-sys-typescale-body-large-line-height: 1.5rem;
+  
+  --md-sys-typescale-label-large-font: 'Roboto', sans-serif;
+  --md-sys-typescale-label-large-size: 0.875rem;
+  --md-sys-typescale-label-large-weight: 500;
+  --md-sys-typescale-label-large-line-height: 1.25rem;
+  
+  /* Material Design 3 Elevation */
+  --md-sys-elevation-level0: none;
+  --md-sys-elevation-level1: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level2: 0px 2px 6px 2px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level3: 0px 4px 8px 3px rgba(0, 0, 0, 0.15), 0px 1px 3px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level4: 0px 6px 10px 4px rgba(0, 0, 0, 0.15), 0px 2px 3px 0px rgba(0, 0, 0, 0.30);
+  --md-sys-elevation-level5: 0px 8px 12px 6px rgba(0, 0, 0, 0.15), 0px 4px 4px 0px rgba(0, 0, 0, 0.30);
+  
+  /* Material Design 3 Shape */
+  --md-sys-shape-corner-none: 0px;
+  --md-sys-shape-corner-extra-small: 4px;
+  --md-sys-shape-corner-small: 8px;
+  --md-sys-shape-corner-medium: 12px;
+  --md-sys-shape-corner-large: 16px;
+  --md-sys-shape-corner-extra-large: 28px;
+  
+  /* Material Design 3 Motion */
+  --md-sys-motion-duration-short2: 100ms;
+  --md-sys-motion-duration-short4: 200ms;
+  --md-sys-motion-duration-medium2: 300ms;
+  --md-sys-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  
+  /* Legacy Compatibility */
+  --background: var(--md-sys-color-background);
+  --foreground: var(--md-sys-color-on-background);
+  --card: var(--md-sys-color-surface);
+  --card-foreground: var(--md-sys-color-on-surface);
+  --primary: var(--md-sys-color-primary);
+  --primary-foreground: var(--md-sys-color-on-primary);
+  --secondary: var(--md-sys-color-secondary-container);
+  --secondary-foreground: var(--md-sys-color-on-secondary-container);
+  --muted: var(--md-sys-color-surface-variant);
+  --muted-foreground: var(--md-sys-color-on-surface-variant);
+  --accent: var(--md-sys-color-secondary);
+  --accent-foreground: var(--md-sys-color-on-secondary);
+  --destructive: var(--md-sys-color-error);
+  --destructive-foreground: var(--md-sys-color-on-error);
+  --border: var(--md-sys-color-outline-variant);
+  --input: var(--md-sys-color-surface-variant);
+  --ring: var(--md-sys-color-secondary);
+  --radius: var(--md-sys-shape-corner-medium);
 }
 
-/* Dark Mode Theme */
+/* Dark Mode Theme (Material Design 3 Dark) */
 [data-theme="dark"] {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-}
-
-/* Tennis Theme */
-[data-theme="tennis"] {
-  --background: oklch(0.9800 0.0200 120.0000);
-  --foreground: oklch(0.1500 0.0200 120.0000);
-  --card: oklch(0.9800 0.0200 120.0000);
-  --card-foreground: oklch(0.1500 0.0200 120.0000);
-  --primary: oklch(0.6200 0.1500 120.0000);
-  --primary-foreground: oklch(0.9800 0.0200 120.0000);
-  --secondary: oklch(0.9800 0.0200 120.0000);
-  --secondary-foreground: oklch(0.1500 0.0200 120.0000);
-  --muted: oklch(0.9800 0.0200 120.0000);
-  --muted-foreground: oklch(0.5500 0.0200 120.0000);
-  --accent: oklch(0.9800 0.0200 120.0000);
-  --accent-foreground: oklch(0.1500 0.0200 120.0000);
-  --destructive: oklch(0.5800 0.2400 28.0000);
-  --destructive-foreground: oklch(0.9800 0.0200 120.0000);
-  --border: oklch(0.9200 0.0200 120.0000);
-  --input: oklch(0.9200 0.0200 120.0000);
-  --ring: oklch(0.7000 0.0200 120.0000);
+  --md-sys-color-primary: #FDE047;
+  --md-sys-color-on-primary: #1F2937;
+  --md-sys-color-primary-container: #374151;
+  --md-sys-color-on-primary-container: #FEF3C7;
+  
+  --md-sys-color-secondary: #84CC16;
+  --md-sys-color-on-secondary: #1A2E05;
+  --md-sys-color-secondary-container: #2D5016;
+  --md-sys-color-on-secondary-container: #ECFCCB;
+  
+  --md-sys-color-surface: #111827;
+  --md-sys-color-on-surface: #F9FAFB;
+  --md-sys-color-surface-variant: #1F2937;
+  --md-sys-color-on-surface-variant: #9CA3AF;
+  
+  --md-sys-color-background: #0F172A;
+  --md-sys-color-on-background: #F1F5F9;
+  
+  --md-sys-color-outline: #4B5563;
+  --md-sys-color-outline-variant: #374151;
 }
 
 /* ========================================
-   Base Styles
+   Material Design 3 Base Styles
    ======================================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -92,93 +140,301 @@
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-family);
-  line-height: 1.6;
+  background-color: var(--md-sys-color-background);
+  color: var(--md-sys-color-on-background);
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  font-weight: var(--md-sys-typescale-body-large-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background-color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard),
+              color var(--md-sys-motion-duration-medium2) var(--md-sys-motion-easing-standard);
+}
+
+/* Material Design 3 Typography Classes */
+.md-display-large {
+  font-family: var(--md-sys-typescale-display-large-font);
+  font-size: var(--md-sys-typescale-display-large-size);
+  font-weight: var(--md-sys-typescale-display-large-weight);
+  line-height: var(--md-sys-typescale-display-large-line-height);
+}
+
+.md-headline-large {
+  font-family: var(--md-sys-typescale-headline-large-font);
+  font-size: var(--md-sys-typescale-headline-large-size);
+  font-weight: var(--md-sys-typescale-headline-large-weight);
+  line-height: var(--md-sys-typescale-headline-large-line-height);
+}
+
+.md-title-large {
+  font-family: var(--md-sys-typescale-title-large-font);
+  font-size: var(--md-sys-typescale-title-large-size);
+  font-weight: var(--md-sys-typescale-title-large-weight);
+  line-height: var(--md-sys-typescale-title-large-line-height);
+}
+
+.md-body-large {
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  font-weight: var(--md-sys-typescale-body-large-weight);
+  line-height: var(--md-sys-typescale-body-large-line-height);
+}
+
+.md-label-large {
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-label-large-weight);
+  line-height: var(--md-sys-typescale-label-large-line-height);
 }
 
 /* ========================================
-   Enhanced Component Classes
+   Material Design 3 Component Classes
    ======================================== */
 
-/* Card Components */
-.card-enhanced {
-  background-color: var(--card);
-  color: var(--card-foreground);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--spacing-xl);
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
-  transition: all 0.2s ease;
+/* Material Design 3 Cards */
+.md-card {
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  border-radius: var(--md-sys-shape-corner-medium);
+  box-shadow: var(--md-sys-elevation-level1);
+  transition: box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+  overflow: hidden;
 }
 
-.card-enhanced:hover {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+.md-card:hover {
+  box-shadow: var(--md-sys-elevation-level2);
 }
 
-/* Button Enhancements */
-.btn-enhanced {
+.md-card-elevated {
+  box-shadow: var(--md-sys-elevation-level3);
+}
+
+.md-card-filled {
+  background-color: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  box-shadow: none;
+}
+
+.md-card-outlined {
+  background-color: var(--md-sys-color-surface);
+  border: 1px solid var(--md-sys-color-outline-variant);
+  box-shadow: none;
+}
+
+/* Material Design 3 Buttons */
+.md-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-sm);
-  white-space: nowrap;
-  border-radius: var(--radius);
-  font-weight: 500;
-  transition: all 0.2s;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 24px;
   border: none;
+  border-radius: var(--md-sys-shape-corner-large);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-label-large-weight);
+  line-height: var(--md-sys-typescale-label-large-line-height);
   cursor: pointer;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  min-height: 2.25rem;
   outline: none;
   text-decoration: none;
+  transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+  position: relative;
+  overflow: hidden;
 }
 
-.btn-enhanced:disabled {
+.md-button:disabled {
   pointer-events: none;
-  opacity: 0.5;
+  opacity: 0.38;
 }
 
-.btn-primary-enhanced {
-  background-color: var(--primary);
-  color: var(--primary-foreground);
+.md-button:focus-visible {
+  outline: 2px solid var(--md-sys-color-primary);
+  outline-offset: 2px;
+}
+
+/* Material Design 3 Button Variants */
+.md-button-filled {
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level0);
+}
+
+.md-button-filled:hover {
+  box-shadow: var(--md-sys-elevation-level1);
+}
+
+.md-button-filled:active {
+  box-shadow: var(--md-sys-elevation-level0);
+}
+
+.md-button-outlined {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
+}
+
+.md-button-outlined:hover {
+  background-color: rgba(253, 224, 71, 0.08);
+}
+
+.md-button-text {
+  background-color: transparent;
+  color: var(--md-sys-color-primary);
+  padding: 0 12px;
+}
+
+.md-button-text:hover {
+  background-color: rgba(253, 224, 71, 0.08);
+}
+
+/* Material Design 3 Text Fields */
+.md-text-field {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.md-text-field-input {
+  width: 100%;
+  min-height: 56px;
+  padding: 16px;
+  background-color: var(--md-sys-color-surface-variant);
+  border: none;
+  border-radius: var(--md-sys-shape-corner-extra-small) var(--md-sys-shape-corner-extra-small) 0 0;
+  border-bottom: 1px solid var(--md-sys-color-outline);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
+  outline: none;
+  transition: border-bottom-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.md-text-field-input:focus {
+  border-bottom: 2px solid var(--md-sys-color-primary);
+}
+
+.md-text-field-input::placeholder {
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+.md-text-field-outlined .md-text-field-input {
+  background-color: transparent;
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+}
+
+.md-text-field-outlined .md-text-field-input:focus {
+  border: 2px solid var(--md-sys-color-primary);
+}
+
+/* Material Design 3 Navigation */
+.md-navigation-bar {
+  background-color: var(--md-sys-color-surface);
+  border-top: 1px solid var(--md-sys-color-outline-variant);
+  padding: 12px 0;
+}
+
+.md-navigation-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border-radius: var(--md-sys-shape-corner-medium);
+  color: var(--md-sys-color-on-surface-variant);
+  text-decoration: none;
+  transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.md-navigation-item:hover {
+  background-color: rgba(132, 204, 22, 0.08);
+}
+
+.md-navigation-item.active {
+  background-color: var(--md-sys-color-secondary-container);
+  color: var(--md-sys-color-on-secondary-container);
+}
+
+/* Material Design 3 Utility Classes */
+.md-elevation-0 { box-shadow: var(--md-sys-elevation-level0); }
+.md-elevation-1 { box-shadow: var(--md-sys-elevation-level1); }
+.md-elevation-2 { box-shadow: var(--md-sys-elevation-level2); }
+.md-elevation-3 { box-shadow: var(--md-sys-elevation-level3); }
+.md-elevation-4 { box-shadow: var(--md-sys-elevation-level4); }
+.md-elevation-5 { box-shadow: var(--md-sys-elevation-level5); }
+
+.md-surface { background-color: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); }
+.md-surface-variant { background-color: var(--md-sys-color-surface-variant); color: var(--md-sys-color-on-surface-variant); }
+.md-primary { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); }
+.md-secondary { background-color: var(--md-sys-color-secondary); color: var(--md-sys-color-on-secondary); }
+
+/* Legacy Compatibility Classes */
+.card-enhanced { 
+  background-color: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  border-radius: var(--md-sys-shape-corner-medium);
+  box-shadow: var(--md-sys-elevation-level1);
+  padding: 24px;
+  transition: box-shadow var(--md-sys-motion-duration-short4) var(--md-sys-motion-easing-standard);
+}
+
+.btn-enhanced { 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 24px;
+  border: none;
+  border-radius: var(--md-sys-shape-corner-large);
+  font-family: var(--md-sys-typescale-label-large-font);
+  font-size: var(--md-sys-typescale-label-large-size);
+  font-weight: var(--md-sys-typescale-label-large-weight);
+  cursor: pointer;
+  outline: none;
+  text-decoration: none;
+  transition: all var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
+}
+
+.btn-primary-enhanced { 
+  background-color: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+  box-shadow: var(--md-sys-elevation-level0);
 }
 
 .btn-primary-enhanced:hover {
-  opacity: 0.9;
+  box-shadow: var(--md-sys-elevation-level1);
 }
 
-.btn-outline-enhanced {
+.btn-outline-enhanced { 
   background-color: transparent;
-  border: 1px solid var(--border);
-  color: var(--foreground);
+  color: var(--md-sys-color-primary);
+  border: 1px solid var(--md-sys-color-outline);
 }
 
 .btn-outline-enhanced:hover {
-  background-color: var(--accent);
-  color: var(--accent-foreground);
+  background-color: rgba(253, 224, 71, 0.08);
 }
 
-/* Form Components */
-.form-input-enhanced {
+.form-input-enhanced { 
   width: 100%;
-  background: var(--input);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: var(--spacing-sm) var(--spacing-md);
-  color: var(--foreground);
+  min-height: 56px;
+  padding: 16px;
+  background-color: var(--md-sys-color-surface-variant);
+  border: 1px solid var(--md-sys-color-outline);
+  border-radius: var(--md-sys-shape-corner-extra-small);
+  color: var(--md-sys-color-on-surface);
+  font-family: var(--md-sys-typescale-body-large-font);
+  font-size: var(--md-sys-typescale-body-large-size);
   outline: none;
-  transition: all 0.2s;
+  transition: border-color var(--md-sys-motion-duration-short2) var(--md-sys-motion-easing-standard);
 }
 
 .form-input-enhanced:focus {
-  border-color: var(--ring);
-  box-shadow: 0 0 0 3px rgb(132 204 22 / 0.1);
+  border: 2px solid var(--md-sys-color-primary);
 }
 
 .form-input-enhanced::placeholder {
-  color: var(--muted-foreground);
+  color: var(--md-sys-color-on-surface-variant);
 }

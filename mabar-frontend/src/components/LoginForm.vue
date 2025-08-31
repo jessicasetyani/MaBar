@@ -1,22 +1,24 @@
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-6">
-    <div class="space-y-5">
-      <div>
+    <div class="space-y-4">
+      <div class="md-text-field md-text-field-outlined">
         <input
           v-model="email"
           type="email"
           placeholder="Email address"
           required
-          class="w-full px-4 py-4 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-slate-50 focus:bg-white text-slate-900 placeholder-slate-500"
+          class="md-text-field-input"
+          aria-label="Email address"
         />
       </div>
-      <div>
+      <div class="md-text-field md-text-field-outlined">
         <input
           v-model="password"
           type="password"
           placeholder="Password"
           required
-          class="w-full px-4 py-4 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 bg-slate-50 focus:bg-white text-slate-900 placeholder-slate-500"
+          class="md-text-field-input"
+          aria-label="Password"
         />
       </div>
     </div>
@@ -24,21 +26,19 @@
     <button
       type="submit"
       :disabled="authStore.isLoading"
-      class="w-full text-white py-4 px-6 rounded-2xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-lg"
-      :class="
-        authStore.isLoading
-          ? 'bg-slate-400'
-          : 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700'
-      "
+      class="w-full md-button md-button-filled md-title-large"
+      :aria-busy="authStore.isLoading"
     >
       {{ authStore.isLoading ? 'Signing in...' : 'Continue' }}
     </button>
 
     <div
       v-if="authStore.error"
-      class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-2xl text-sm"
+      class="md-card md-card-filled p-4 border-l-4 border-red-500"
+      role="alert"
+      aria-live="polite"
     >
-      {{ authStore.error }}
+      <p class="md-body-large text-red-700">{{ authStore.error }}</p>
     </div>
   </form>
 </template>
