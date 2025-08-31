@@ -137,8 +137,27 @@
 
             <!-- Calendar -->
             <div v-else>
-              <!-- Refresh Button -->
-              <div class="flex justify-end mb-4">
+              <!-- Action Buttons -->
+              <div class="flex justify-between items-center mb-4">
+                <button
+                  @click="handleFABClick"
+                  class="md-button md-button-filled"
+                >
+                  <svg
+                    class="w-5 h-5 mr-2"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                  Add Booking
+                </button>
                 <button
                   @click="refreshData"
                   class="inline-flex items-center px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
@@ -159,27 +178,6 @@
                   Refresh
                 </button>
               </div>
-
-              <!-- Fixed Add Booking Button -->
-              <button
-                @click="handleFABClick"
-                class="fixed bottom-20 right-6 z-50 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 text-slate-800"
-                title="Add Booking"
-              >
-                <svg
-                  class="w-6 h-6"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </button>
 
               <FullCalendar
                 :options="calendarOptions"
@@ -381,10 +379,10 @@
       </main>
     </div>
 
-    <!-- Fixed FAB for Creating Bookings -->
+    <!-- Fixed FAB for Creating Bookings - Always Visible for Testing -->
     <div
-      v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
-      class="fab-container fixed right-6 bottom-6 z-50"
+      v-if="activeTab === 'calendar'"
+      class="fab-container fixed top-32 right-6 z-[9999]"
     >
       <!-- Quick Create Popover -->
       <div
@@ -600,8 +598,9 @@
         <!-- Main FAB Button -->
         <button
           @click="handleFABClick"
-          class="w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group relative overflow-hidden bg-yellow-400 hover:bg-yellow-500 text-slate-800"
+          class="w-14 h-14 rounded-full md-elevation-3 hover:md-elevation-4 transition-all duration-300 flex items-center justify-center group relative overflow-hidden md-primary md:w-16 md:h-16"
           title="Add Booking"
+          aria-label="Add new booking"
         >
           <!-- Enhanced Tooltip -->
           <div
@@ -616,7 +615,7 @@
 
           <!-- Icon -->
           <svg
-            class="w-6 h-6 transition-transform duration-200 relative z-10"
+            class="w-6 h-6 md:w-7 md:h-7 transition-transform duration-200 relative z-10"
             :class="showQuickCreate ? 'rotate-45' : 'rotate-0'"
             fill="none"
             stroke="currentColor"
@@ -1562,9 +1561,24 @@ onMounted(async () => {
   }
 }
 
-/* FAB positioning - ensure it's always visible */
+/* FAB positioning - Google Calendar style at top of calendar */
 .fab-container {
   position: fixed !important;
   z-index: 9999 !important;
+}
+
+/* Responsive FAB positioning */
+@media (max-width: 768px) {
+  .fab-container {
+    top: 7.5rem !important;
+    right: 1rem !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .fab-container {
+    top: 7rem !important;
+    right: 0.75rem !important;
+  }
 }
 </style>
