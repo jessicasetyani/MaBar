@@ -127,25 +127,41 @@
           <!-- Instructions -->
           <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p class="text-sm text-blue-800 mb-2">
-              💡 <strong>How to Block/Unblock Time Slots:</strong>
+              💡 <strong>How to Manage Bookings:</strong>
             </p>
             <ul class="text-sm text-blue-700 space-y-1">
-              <li>• <strong>Block:</strong> Click and drag on empty time slots in Week/Day view</li>
-              <li>• <strong>Unblock:</strong> Click on red blocked slots and confirm</li>
-              <li>• <strong>View Bookings:</strong> Click on green/yellow booking events</li>
+              <li>
+                • <strong>Select Time Slots:</strong> Click on empty time slots
+                to select/deselect
+              </li>
+              <li>
+                • <strong>Create Booking:</strong> Select slots and fill the
+                booking form, or use the + button
+              </li>
+              <li>
+                • <strong>Edit Booking:</strong> Click on existing bookings to
+                edit or delete
+              </li>
+              <li>
+                • <strong>Block Slots:</strong> Use the booking form to block
+                time slots
+              </li>
             </ul>
 
-            <!-- Test Button for Debugging -->
-            <div class="mt-3 pt-3 border-t border-blue-200">
-              <button
-                @click="testBlockSlot"
-                class="px-3 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition-colors"
-              >
-                🧪 Test Block Tomorrow 2PM-3PM
-              </button>
-              <span class="ml-2 text-xs text-blue-600">
-                (Click to test blocking functionality)
-              </span>
+            <!-- Selected Slots Info -->
+            <div
+              v-if="selectedSlots.length > 0"
+              class="mt-3 pt-3 border-t border-blue-200"
+            >
+              <p class="text-sm text-blue-800">
+                ✓ {{ selectedSlots.length }} time slot(s) selected
+                <button
+                  @click="clearSelection"
+                  class="ml-2 text-blue-600 hover:text-blue-800 underline"
+                >
+                  Clear Selection
+                </button>
+              </p>
             </div>
           </div>
 
@@ -160,115 +176,64 @@
             />
           </div>
 
-          <!-- Booking Details Modal -->
+          <!-- Booking Form Modal -->
           <div
-            v-if="showBookingModal"
+            v-if="showBookingForm"
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-            @click="closeBookingModal"
+            @click="clearSelection"
           >
             <div
-              class="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+              class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
               @click.stop
             >
               <div class="p-6">
                 <div class="flex justify-between items-start mb-4">
                   <h3 class="text-lg font-semibold text-slate-900">
-                    Booking Details
+                    {{ isEditMode ? 'Edit Booking' : 'Create Booking' }}
                   </h3>
                   <button
-                    @click="closeBookingModal"
+                    @click="clearSelection"
                     class="text-slate-400 hover:text-slate-600"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div v-if="selectedBooking" class="space-y-4">
-                  <!-- Status Badge -->
-                  <div class="flex items-center space-x-2">
-                    <span
-                      :class="[
-                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        selectedBooking.status === 'confirmed'
-                          ? 'bg-lime-100 text-lime-800'
-                          : 'bg-yellow-100 text-yellow-800',
-                      ]"
-                    >
-                      {{
-                        selectedBooking.status === 'confirmed'
-                          ? '✓ Confirmed'
-                          : '⏳ Pending'
-                      }}
-                    </span>
-                    <span
-                      :class="[
-                        'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                        selectedBooking.paymentStatus === 'paid'
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800',
-                      ]"
-                    >
-                      {{
-                        selectedBooking.paymentStatus === 'paid'
-                          ? '💳 Paid'
-                          : '💳 Unpaid'
-                      }}
-                    </span>
-                  </div>
-
-                  <!-- Time & Court -->
-                  <div class="bg-slate-50 rounded-lg p-3">
-                    <div class="text-sm text-slate-600 mb-1">
-                      Time & Location
-                    </div>
-                    <div class="font-medium text-slate-900">
-                      {{ formatTime(selectedBooking.start) }} -
-                      {{ formatTime(selectedBooking.end) }}
-                    </div>
-                    <div class="text-sm text-slate-600">
-                      {{ selectedBooking.court }}
-                    </div>
-                  </div>
-
-                  <!-- Players -->
-                  <div>
-                    <div class="text-sm text-slate-600 mb-2">Players</div>
-                    <div class="space-y-1">
-                      <div
-                        v-for="player in selectedBooking.players"
-                        :key="player"
-                        class="text-sm text-slate-900"
-                      >
-                        👤 {{ player }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Contact Info -->
-                  <div>
-                    <div class="text-sm text-slate-600 mb-2">
-                      Contact Information
-                    </div>
-                    <div class="space-y-1">
-                      <div class="text-sm text-slate-900">
-                        📧 {{ selectedBooking.contact }}
-                      </div>
-                      <div class="text-sm text-slate-900">
-                        📱 {{ selectedBooking.phone }}
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Price -->
-                  <div class="bg-slate-50 rounded-lg p-3">
-                    <div class="text-sm text-slate-600 mb-1">Total Price</div>
-                    <div class="text-lg font-semibold text-slate-900">
-                      {{ formatPrice(selectedBooking.price) }}
-                    </div>
-                  </div>
-                </div>
+                <BookingForm
+                  :selected-slots="selectedSlots"
+                  :paddle-fields="paddleFields"
+                  :is-edit-mode="isEditMode"
+                  :editing-booking="editingBooking"
+                  @create="createBooking"
+                  @update="updateBooking"
+                  @delete="deleteBooking"
+                  @cancel="clearSelection"
+                />
               </div>
             </div>
+          </div>
+
+          <!-- Floating Action Button -->
+          <div class="fixed bottom-6 right-6 z-40">
+            <button
+              @click="openManualBookingForm"
+              class="w-14 h-14 bg-yellow-400 hover:bg-yellow-500 text-slate-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center"
+              title="Create New Booking"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -429,6 +394,7 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import Parse from '../services/back4app'
+import BookingForm from '../components/BookingForm.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -439,16 +405,28 @@ const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
 const bookings = ref<any[]>([])
 const blockedSlots = ref<any[]>([])
-const selectedBooking = ref<any>(null)
-const showBookingModal = ref(false)
+// const selectedBooking = ref<any>(null)
+// const showBookingModal = ref(false)
+const showBookingForm = ref(false)
+const selectedSlots = ref<any[]>([])
+const paddleFields = ref<string[]>(['Court 1', 'Court 2', 'Court 3', 'Court 4'])
 const liveQuerySubscriptions = ref<any[]>([])
+const isEditMode = ref(false)
+const editingBooking = ref<any>(null)
 
 const calendarOptions = computed(() => {
-  console.log('📅 Calendar options computed, plugins loaded:', {
-    dayGrid: !!dayGridPlugin,
-    timeGrid: !!timeGridPlugin,
-    interaction: !!interactionPlugin
-  })
+  const selectedSlotEvents = selectedSlots.value.map((slot) => ({
+    id: `selected-${slot.id}`,
+    start: slot.start,
+    end: slot.end,
+    backgroundColor: '#3B82F6',
+    borderColor: '#2563EB',
+    textColor: '#ffffff',
+    title: '✓ Selected',
+    extendedProps: {
+      type: 'selected',
+    },
+  }))
 
   return {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -459,9 +437,9 @@ const calendarOptions = computed(() => {
       right: 'dayGridMonth,timeGridWeek,timeGridDay',
     },
     height: 'auto',
-    events: [...bookings.value, ...blockedSlots.value],
+    events: [...bookings.value, ...blockedSlots.value, ...selectedSlotEvents],
     selectable: true,
-    selectMirror: true,
+    selectMirror: false,
     dayMaxEvents: true,
     weekends: true,
     slotMinTime: '06:00:00',
@@ -473,10 +451,9 @@ const calendarOptions = computed(() => {
     eventBorderColor: '#65A30D',
     select: handleSlotSelect,
     eventClick: handleEventClick,
-    selectAllow: () => {
-      console.log('🔍 selectAllow called - allowing selection')
-      return true
-    },
+    selectAllow: () => true,
+    eventOverlap: true,
+    selectOverlap: true,
   }
 })
 
@@ -511,6 +488,7 @@ const loadBookings = async () => {
           booking.get('status') === 'confirmed' ? '#65A30D' : '#FACC15',
         textColor:
           booking.get('status') === 'confirmed' ? '#ffffff' : '#334155',
+        resourceId: booking.get('court'), // For multi-field support
         extendedProps: {
           type: 'booking',
           status: booking.get('status'),
@@ -523,15 +501,17 @@ const loadBookings = async () => {
         },
       }))
     } else {
-      // Fallback to mock data
+      // Fallback to mock data with multiple fields
+      const today = new Date().toISOString().split('T')[0]
       bookings.value = [
         {
           id: '1',
-          title: 'Court 1 - John & Mike vs Sarah & Lisa',
-          start: new Date().toISOString().split('T')[0] + 'T10:00:00',
-          end: new Date().toISOString().split('T')[0] + 'T11:30:00',
+          title: 'John & Mike vs Sarah & Lisa',
+          start: `${today}T10:00:00`,
+          end: `${today}T11:30:00`,
           backgroundColor: '#84CC16',
           borderColor: '#65A30D',
+          resourceId: 'Court 1',
           extendedProps: {
             type: 'booking',
             status: 'confirmed',
@@ -545,12 +525,13 @@ const loadBookings = async () => {
         },
         {
           id: '2',
-          title: 'Court 2 - Training Session',
-          start: new Date().toISOString().split('T')[0] + 'T14:00:00',
-          end: new Date().toISOString().split('T')[0] + 'T15:30:00',
+          title: 'Training Session',
+          start: `${today}T10:00:00`,
+          end: `${today}T11:30:00`,
           backgroundColor: '#FDE047',
           borderColor: '#FACC15',
           textColor: '#334155',
+          resourceId: 'Court 2',
           extendedProps: {
             type: 'booking',
             status: 'pending',
@@ -562,19 +543,40 @@ const loadBookings = async () => {
             paymentStatus: 'pending',
           },
         },
+        {
+          id: '3',
+          title: 'Match Tournament',
+          start: `${today}T14:00:00`,
+          end: `${today}T15:30:00`,
+          backgroundColor: '#84CC16',
+          borderColor: '#65A30D',
+          resourceId: 'Court 3',
+          extendedProps: {
+            type: 'booking',
+            status: 'confirmed',
+            court: 'Court 3',
+            players: ['Player A', 'Player B', 'Player C', 'Player D'],
+            contact: 'tournament@example.com',
+            phone: '+62 814-1234-5678',
+            price: 200000,
+            paymentStatus: 'paid',
+          },
+        },
       ]
     }
   } catch (error) {
     console.error('Error loading bookings:', error)
     // Use mock data on error
+    const today = new Date().toISOString().split('T')[0]
     bookings.value = [
       {
         id: '1',
-        title: 'Court 1 - John & Mike vs Sarah & Lisa',
-        start: new Date().toISOString().split('T')[0] + 'T10:00:00',
-        end: new Date().toISOString().split('T')[0] + 'T11:30:00',
+        title: 'John & Mike vs Sarah & Lisa',
+        start: `${today}T10:00:00`,
+        end: `${today}T11:30:00`,
         backgroundColor: '#84CC16',
         borderColor: '#65A30D',
+        resourceId: 'Court 1',
         extendedProps: {
           type: 'booking',
           status: 'confirmed',
@@ -640,85 +642,34 @@ const loadBlockedSlots = async () => {
 const handleSlotSelect = async (selectInfo: any) => {
   console.log('🎯 handleSlotSelect called!', selectInfo)
   const { start, end } = selectInfo
-  console.log('🎯 Slot selected:', {
-    start: start.toISOString(),
-    end: end.toISOString(),
-    view: selectInfo.view.type
-  })
 
-  // Check if slot overlaps with existing bookings
-  const hasBooking = bookings.value.some((booking) => {
-    const bookingStart = new Date(booking.start)
-    const bookingEnd = new Date(booking.end)
-    return start < bookingEnd && end > bookingStart
-  })
+  // Add selected slot to selection array
+  const slotId = `${start.toISOString()}-${end.toISOString()}`
+  const existingIndex = selectedSlots.value.findIndex(
+    (slot) => slot.id === slotId
+  )
 
-  if (hasBooking) {
-    alert('❌ Cannot block slot - there is an existing booking in this time range')
-    selectInfo.view.calendar.unselect()
-    return
+  if (existingIndex >= 0) {
+    // Unselect slot
+    selectedSlots.value.splice(existingIndex, 1)
+  } else {
+    // Select slot
+    selectedSlots.value.push({
+      id: slotId,
+      start: start.toISOString(),
+      end: end.toISOString(),
+      startTime: start,
+      endTime: end,
+    })
   }
 
-  // Check if slot is already blocked
-  const existingBlockIndex = blockedSlots.value.findIndex((blocked) => {
-    const blockedStart = new Date(blocked.start)
-    const blockedEnd = new Date(blocked.end)
-    return (
-      start.getTime() === blockedStart.getTime() &&
-      end.getTime() === blockedEnd.getTime()
-    )
-  })
-
-  try {
-    if (existingBlockIndex >= 0) {
-      // Unblock the slot - remove from Parse
-      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-      const query = new Parse.Query(BlockedSlotClass)
-      const blockedSlot = await query.get(
-        blockedSlots.value[existingBlockIndex].id
-      )
-      await blockedSlot.destroy()
-
-      // Remove from local array (will be updated by LiveQuery)
-      blockedSlots.value.splice(existingBlockIndex, 1)
-      console.log('Slot unblocked')
-    } else {
-      // Block the slot - save to Parse
-      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-      const blockedSlot = new BlockedSlotClass()
-
-      blockedSlot.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
-      blockedSlot.set('startTime', start)
-      blockedSlot.set('endTime', end)
-      blockedSlot.set('reason', 'Manual Block')
-      blockedSlot.set('createdBy', Parse.User.current())
-
-      const savedSlot = await blockedSlot.save()
-
-      // Add to local array (will be updated by LiveQuery)
-      const newBlockedSlot = {
-        id: savedSlot.id,
-        title: '🚫 Blocked',
-        start: start.toISOString(),
-        end: end.toISOString(),
-        backgroundColor: '#EF4444',
-        borderColor: '#DC2626',
-        textColor: '#ffffff',
-        extendedProps: {
-          type: 'blocked',
-        },
-      }
-      blockedSlots.value.push(newBlockedSlot)
-      console.log('✅ Slot blocked successfully')
-      alert('✅ Time slot blocked successfully!')
-    }
-  } catch (error) {
-    console.error('Error updating blocked slot:', error)
-    alert('❌ Failed to update slot. Please try again.')
-  }
-
-  // Clear selection
+  // Clear calendar selection
   selectInfo.view.calendar.unselect()
+
+  // Show booking form if slots are selected
+  if (selectedSlots.value.length > 0) {
+    showBookingForm.value = true
+  }
 }
 
 const handleEventClick = async (clickInfo: any) => {
@@ -726,81 +677,183 @@ const handleEventClick = async (clickInfo: any) => {
 
   if (event.extendedProps?.type === 'blocked') {
     if (confirm('Do you want to unblock this time slot?')) {
-      try {
-        const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
-        const query = new Parse.Query(BlockedSlotClass)
-        const blockedSlot = await query.get(event.id)
-        await blockedSlot.destroy()
-
-        const blockIndex = blockedSlots.value.findIndex(
-          (blocked) => blocked.id === event.id
-        )
-        if (blockIndex >= 0) {
-          blockedSlots.value.splice(blockIndex, 1)
-          console.log('Slot unblocked')
-        }
-      } catch (error) {
-        console.error('Error unblocking slot:', error)
-        alert('Failed to unblock slot. Please try again.')
-      }
+      await unblockSlot(event.id)
     }
   } else if (event.extendedProps?.type === 'booking') {
-    selectedBooking.value = {
+    // Open edit mode for booking
+    editingBooking.value = {
       id: event.id,
       title: event.title,
       start: event.start,
       end: event.end,
       ...event.extendedProps,
     }
-    showBookingModal.value = true
+    isEditMode.value = true
+    showBookingForm.value = true
   }
 }
 
-const closeBookingModal = () => {
-  showBookingModal.value = false
-  selectedBooking.value = null
-}
+const unblockSlot = async (eventId: string) => {
+  try {
+    const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+    const query = new Parse.Query(BlockedSlotClass)
+    const blockedSlot = await query.get(eventId)
+    await blockedSlot.destroy()
 
-const formatTime = (date: Date) => {
-  return date.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: false,
-  })
-}
-
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-  }).format(price)
-}
-
-// Test function to verify blocking works
-const testBlockSlot = async () => {
-  console.log('🧪 Testing block slot functionality...')
-
-  const tomorrow = new Date()
-  tomorrow.setDate(tomorrow.getDate() + 1)
-  tomorrow.setHours(14, 0, 0, 0) // 2 PM
-
-  const endTime = new Date(tomorrow)
-  endTime.setHours(15, 0, 0, 0) // 3 PM
-
-  const mockSelectInfo = {
-    start: tomorrow,
-    end: endTime,
-    view: { calendar: { unselect: () => console.log('Calendar unselected') } }
+    const blockIndex = blockedSlots.value.findIndex(
+      (blocked) => blocked.id === eventId
+    )
+    if (blockIndex >= 0) {
+      blockedSlots.value.splice(blockIndex, 1)
+    }
+  } catch (error) {
+    console.error('Error unblocking slot:', error)
+    alert('Failed to unblock slot. Please try again.')
   }
-
-  await handleSlotSelect(mockSelectInfo)
 }
 
-// Calendar mounted callback
+const createBooking = async (bookingData: any) => {
+  try {
+    if (bookingData.type === 'blocked') {
+      // Create blocked slot
+      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+      const blockedSlot = new BlockedSlotClass()
+
+      blockedSlot.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+      blockedSlot.set('startTime', new Date(bookingData.start))
+      blockedSlot.set('endTime', new Date(bookingData.end))
+      blockedSlot.set('court', bookingData.court)
+      blockedSlot.set('reason', bookingData.reason)
+      blockedSlot.set('createdBy', Parse.User.current())
+
+      await blockedSlot.save()
+    } else {
+      // Create regular booking
+      const BookingClass = Parse.Object.extend('Booking')
+      const booking = new BookingClass()
+
+      booking.set('venueId', venueOwnerData.value?.objectId || 'mock-venue')
+      booking.set('title', bookingData.title)
+      booking.set('startTime', new Date(bookingData.start))
+      booking.set('endTime', new Date(bookingData.end))
+      booking.set('court', bookingData.court)
+      booking.set('players', bookingData.players || [])
+      booking.set('contact', bookingData.contact)
+      booking.set('phone', bookingData.phone)
+      booking.set('price', bookingData.price)
+      booking.set('status', bookingData.status || 'confirmed')
+      booking.set('paymentStatus', bookingData.paymentStatus || 'pending')
+      booking.set('createdBy', Parse.User.current())
+
+      await booking.save()
+    }
+
+    // Clear selected slots
+    selectedSlots.value = []
+    showBookingForm.value = false
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error creating booking/block:', error)
+    alert(
+      `Failed to create ${bookingData.type === 'blocked' ? 'block' : 'booking'}: ${(error as Error).message}`
+    )
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+const updateBooking = async (bookingId: string, bookingData: any) => {
+  try {
+    if (bookingData.type === 'blocked') {
+      // Update blocked slot
+      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+      const query = new Parse.Query(BlockedSlotClass)
+      const blockedSlot = await query.get(bookingId)
+
+      blockedSlot.set('startTime', new Date(bookingData.start))
+      blockedSlot.set('endTime', new Date(bookingData.end))
+      blockedSlot.set('court', bookingData.court)
+      blockedSlot.set('reason', bookingData.reason)
+
+      await blockedSlot.save()
+    } else {
+      // Update regular booking
+      const BookingClass = Parse.Object.extend('Booking')
+      const query = new Parse.Query(BookingClass)
+      const booking = await query.get(bookingId)
+
+      booking.set('title', bookingData.title)
+      booking.set('startTime', new Date(bookingData.start))
+      booking.set('endTime', new Date(bookingData.end))
+      booking.set('court', bookingData.court)
+      booking.set('players', bookingData.players || [])
+      booking.set('contact', bookingData.contact)
+      booking.set('phone', bookingData.phone)
+      booking.set('price', bookingData.price)
+      booking.set('status', bookingData.status)
+      booking.set('paymentStatus', bookingData.paymentStatus)
+
+      await booking.save()
+    }
+
+    // Reset edit mode
+    isEditMode.value = false
+    editingBooking.value = null
+    showBookingForm.value = false
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating booking/block:', error)
+    alert(
+      `Failed to update ${bookingData.type === 'blocked' ? 'block' : 'booking'}: ${(error as Error).message}`
+    )
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+const deleteBooking = async (bookingId: string) => {
+  try {
+    // Try to delete as booking first, then as blocked slot
+    try {
+      const BookingClass = Parse.Object.extend('Booking')
+      const query = new Parse.Query(BookingClass)
+      const booking = await query.get(bookingId)
+      await booking.destroy()
+    } catch {
+      // If not found as booking, try as blocked slot
+      const BlockedSlotClass = Parse.Object.extend('BlockedSlot')
+      const query = new Parse.Query(BlockedSlotClass)
+      const blockedSlot = await query.get(bookingId)
+      await blockedSlot.destroy()
+    }
+
+    // Reset edit mode
+    isEditMode.value = false
+    editingBooking.value = null
+    showBookingForm.value = false
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error deleting booking/block:', error)
+    alert(`Failed to delete: ${(error as Error).message}`)
+    return { success: false, error: (error as Error).message }
+  }
+}
+
+const clearSelection = () => {
+  selectedSlots.value = []
+  showBookingForm.value = false
+  isEditMode.value = false
+  editingBooking.value = null
+}
+
+const openManualBookingForm = () => {
+  clearSelection()
+  showBookingForm.value = true
+}
+
 const onCalendarMounted = () => {
   console.log('📅 FullCalendar mounted successfully')
-  console.log('🔍 Calendar options:', calendarOptions.value)
 }
 
 const setupLiveQueries = async () => {
@@ -955,7 +1008,7 @@ onMounted(async () => {
       console.log('📋 Venue data set:', {
         id: profile.id,
         status: profile.get('status'),
-        name: profile.get('venueDetails')?.name
+        name: profile.get('venueDetails')?.name,
       })
 
       const status = profile.get('status')
@@ -1018,7 +1071,7 @@ onUnmounted(() => {
 .venue-calendar .fc-timegrid-slot {
   cursor: crosshair !important;
   pointer-events: auto !important;
-  border: 1px solid rgba(0,0,0,0.05) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
 }
 
 .venue-calendar .fc-timegrid-slots {
@@ -1026,7 +1079,7 @@ onUnmounted(() => {
 }
 
 /* Make blocked slots more obvious */
-.venue-calendar .fc-event[style*="background-color: rgb(239, 68, 68)"] {
+.venue-calendar .fc-event[style*='background-color: rgb(239, 68, 68)'] {
   border: 2px solid #dc2626 !important;
   font-weight: bold;
 }
