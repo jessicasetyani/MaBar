@@ -213,272 +213,6 @@
               </div>
             </div>
           </div>
-
-          <!-- Enhanced Google Calendar-Style FAB System -->
-          <div
-            class="fab-container fixed right-4 lg:right-6 z-20 bottom-6 lg:bottom-6"
-          >
-            <!-- Quick Create Popover -->
-            <div
-              v-if="showQuickCreate"
-              class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-5 w-80 z-50 transform transition-all duration-200 scale-100"
-              @click.stop
-            >
-              <!-- Popover Header -->
-              <div class="flex justify-between items-center mb-4">
-                <div class="flex items-center space-x-2">
-                  <div
-                    class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center"
-                  >
-                    <span class="text-yellow-600 text-sm">⚡</span>
-                  </div>
-                  <h3 class="font-semibold text-slate-900">Quick Create</h3>
-                </div>
-                <button
-                  @click="showQuickCreate = false"
-                  class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Quick Form -->
-              <form @submit.prevent="handleQuickCreate" class="space-y-4">
-                <!-- Court Selection with Visual Indicators -->
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-2"
-                    >Court</label
-                  >
-                  <div class="grid grid-cols-2 gap-2">
-                    <button
-                      v-for="field in paddleFields"
-                      :key="field"
-                      type="button"
-                      @click="quickCreateData.court = field"
-                      :class="[
-                        'p-3 rounded-lg border-2 text-sm font-medium transition-all',
-                        quickCreateData.court === field
-                          ? 'border-yellow-400 bg-yellow-50 text-yellow-800'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50',
-                      ]"
-                    >
-                      {{ field }}
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Title with Smart Suggestions -->
-                <div>
-                  <label class="block text-sm font-medium text-slate-700 mb-2"
-                    >Title</label
-                  >
-                  <input
-                    v-model="quickCreateData.title"
-                    type="text"
-                    placeholder="e.g., Training Session, Match Game"
-                    class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-                    required
-                  />
-                  <!-- Quick Suggestions -->
-                  <div class="flex flex-wrap gap-1 mt-2">
-                    <button
-                      v-for="suggestion in [
-                        'Training',
-                        'Match',
-                        'Tournament',
-                        'Private',
-                      ]"
-                      :key="suggestion"
-                      type="button"
-                      @click="quickCreateData.title = suggestion + ' Session'"
-                      class="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-colors"
-                    >
-                      {{ suggestion }}
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Time Selection -->
-                <div class="grid grid-cols-2 gap-3">
-                  <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1"
-                      >Duration</label
-                    >
-                    <select
-                      v-model="quickCreateData.duration"
-                      class="w-full px-2 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    >
-                      <option :value="60">1 hour</option>
-                      <option :value="90">1.5 hours</option>
-                      <option :value="120">2 hours</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1"
-                      >Start Time</label
-                    >
-                    <select
-                      v-model="quickCreateData.startHour"
-                      class="w-full px-2 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                    >
-                      <option
-                        v-for="hour in availableHours"
-                        :key="hour"
-                        :value="hour"
-                      >
-                        {{ hour }}:00
-                      </option>
-                    </select>
-                  </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex space-x-2 pt-2">
-                  <button
-                    type="submit"
-                    :disabled="!quickCreateData.court || !quickCreateData.title"
-                    class="flex-1 px-4 py-2.5 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 disabled:bg-slate-200 disabled:text-slate-400 text-sm font-semibold transition-colors"
-                  >
-                    Create Booking
-                  </button>
-                  <button
-                    type="button"
-                    @click="openFullForm"
-                    class="px-4 py-2.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-                  >
-                    More Options
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Multi-Court Selection Panel -->
-            <div
-              v-if="showMultiCourtPanel"
-              class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 w-72 z-50"
-              @click.stop
-            >
-              <div class="flex justify-between items-center mb-3">
-                <h3 class="font-semibold text-slate-900">
-                  Multi-Court Booking
-                </h3>
-                <button
-                  @click="showMultiCourtPanel = false"
-                  class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100"
-                >
-                  <svg
-                    class="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M6 18L18 6M6 6l12 12"
-                    />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Selected Slots Summary -->
-              <div class="bg-blue-50 rounded-lg p-3 mb-3">
-                <div class="text-sm font-medium text-blue-800 mb-1">
-                  {{ selectedSlots.length }} slots selected
-                </div>
-                <div class="text-xs text-blue-600">
-                  {{ getSelectedCourts().join(', ') }}
-                </div>
-              </div>
-
-              <!-- Quick Actions -->
-              <div class="space-y-2">
-                <button
-                  @click="createBatchBooking"
-                  class="w-full px-3 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 text-sm font-medium transition-colors"
-                >
-                  Create All Bookings
-                </button>
-                <button
-                  @click="openFullForm"
-                  class="w-full px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors"
-                >
-                  Customize Each Booking
-                </button>
-              </div>
-            </div>
-
-            <!-- Main FAB with Enhanced Design -->
-            <div class="relative">
-              <!-- Selection Counter Badge -->
-              <div
-                v-if="selectedSlots.length > 0"
-                class="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold z-10 animate-pulse"
-              >
-                {{ selectedSlots.length }}
-              </div>
-
-              <!-- Main FAB Button -->
-              <button
-                @click="handleFABClick"
-                :class="[
-                  'w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group relative overflow-hidden',
-                  selectedSlots.length > 0
-                    ? 'bg-blue-500 hover:bg-blue-600 text-white'
-                    : 'bg-yellow-400 hover:bg-yellow-500 text-slate-800',
-                ]"
-                :title="
-                  selectedSlots.length > 0
-                    ? 'Add Booking from Selection'
-                    : 'Add Booking'
-                "
-              >
-                <!-- Enhanced Tooltip -->
-                <div
-                  class="absolute bottom-16 right-0 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
-                >
-                  Add Booking
-                </div>
-                <!-- Background Animation -->
-                <div
-                  class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"
-                ></div>
-
-                <!-- Icon -->
-                <svg
-                  :class="[
-                    'w-6 h-6 transition-transform duration-200 relative z-10',
-                    showQuickCreate || showMultiCourtPanel
-                      ? 'rotate-45'
-                      : 'rotate-0',
-                  ]"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M12 4v16m8-8H4"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
         </div>
 
         <!-- Profile Tab -->
@@ -625,11 +359,274 @@
         </div>
       </main>
     </div>
+
+    <!-- Enhanced Google Calendar-Style FAB System -->
+    <div
+      v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
+      class="fab-container fixed right-4 lg:right-6 z-50 bottom-6 lg:bottom-6"
+    >
+      <!-- Quick Create Popover -->
+      <div
+        v-if="showQuickCreate"
+        class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-5 w-80 z-50 transform transition-all duration-200 scale-100"
+        @click.stop
+      >
+        <!-- Popover Header -->
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center space-x-2">
+            <div
+              class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center"
+            >
+              <span class="text-yellow-600 text-sm">⚡</span>
+            </div>
+            <h3 class="font-semibold text-slate-900">Quick Create</h3>
+          </div>
+          <button
+            @click="showQuickCreate = false"
+            class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Quick Form -->
+        <form @submit.prevent="handleQuickCreate" class="space-y-4">
+          <!-- Court Selection with Visual Indicators -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2"
+              >Court</label
+            >
+            <div class="grid grid-cols-2 gap-2">
+              <button
+                v-for="field in paddleFields"
+                :key="field"
+                type="button"
+                @click="quickCreateData.court = field"
+                :class="[
+                  'p-3 rounded-lg border-2 text-sm font-medium transition-all',
+                  quickCreateData.court === field
+                    ? 'border-yellow-400 bg-yellow-50 text-yellow-800'
+                    : 'border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50',
+                ]"
+              >
+                {{ field }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Title with Smart Suggestions -->
+          <div>
+            <label class="block text-sm font-medium text-slate-700 mb-2"
+              >Title</label
+            >
+            <input
+              v-model="quickCreateData.title"
+              type="text"
+              placeholder="e.g., Training Session, Match Game"
+              class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
+              required
+            />
+            <!-- Quick Suggestions -->
+            <div class="flex flex-wrap gap-1 mt-2">
+              <button
+                v-for="suggestion in [
+                  'Training',
+                  'Match',
+                  'Tournament',
+                  'Private',
+                ]"
+                :key="suggestion"
+                type="button"
+                @click="quickCreateData.title = suggestion + ' Session'"
+                class="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-colors"
+              >
+                {{ suggestion }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Time Selection -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1"
+                >Duration</label
+              >
+              <select
+                v-model="quickCreateData.duration"
+                class="w-full px-2 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              >
+                <option :value="60">1 hour</option>
+                <option :value="90">1.5 hours</option>
+                <option :value="120">2 hours</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-slate-600 mb-1"
+                >Start Time</label
+              >
+              <select
+                v-model="quickCreateData.startHour"
+                class="w-full px-2 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              >
+                <option
+                  v-for="hour in availableHours"
+                  :key="hour"
+                  :value="hour"
+                >
+                  {{ hour }}:00
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex space-x-2 pt-2">
+            <button
+              type="submit"
+              :disabled="!quickCreateData.court || !quickCreateData.title"
+              class="flex-1 px-4 py-2.5 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 disabled:bg-slate-200 disabled:text-slate-400 text-sm font-semibold transition-colors"
+            >
+              Create Booking
+            </button>
+            <button
+              type="button"
+              @click="openFullForm"
+              class="px-4 py-2.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
+            >
+              More Options
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Multi-Court Selection Panel -->
+      <div
+        v-if="showMultiCourtPanel"
+        class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 w-72 z-50"
+        @click.stop
+      >
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-semibold text-slate-900">Multi-Court Booking</h3>
+          <button
+            @click="showMultiCourtPanel = false"
+            class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100"
+          >
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Selected Slots Summary -->
+        <div class="bg-blue-50 rounded-lg p-3 mb-3">
+          <div class="text-sm font-medium text-blue-800 mb-1">
+            {{ selectedSlots.length }} slots selected
+          </div>
+          <div class="text-xs text-blue-600">
+            {{ getSelectedCourts().join(', ') }}
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="space-y-2">
+          <button
+            @click="createBatchBooking"
+            class="w-full px-3 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 text-sm font-medium transition-colors"
+          >
+            Create All Bookings
+          </button>
+          <button
+            @click="openFullForm"
+            class="w-full px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors"
+          >
+            Customize Each Booking
+          </button>
+        </div>
+      </div>
+
+      <!-- Main FAB with Enhanced Design -->
+      <div class="relative">
+        <!-- Selection Counter Badge -->
+        <div
+          v-if="selectedSlots.length > 0"
+          class="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold z-10 animate-pulse"
+        >
+          {{ selectedSlots.length }}
+        </div>
+
+        <!-- Main FAB Button -->
+        <button
+          @click="handleFABClick"
+          :class="[
+            'w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group relative overflow-hidden',
+            selectedSlots.length > 0
+              ? 'bg-blue-500 hover:bg-blue-600 text-white'
+              : 'bg-yellow-400 hover:bg-yellow-500 text-slate-800',
+          ]"
+          :title="
+            selectedSlots.length > 0
+              ? 'Add Booking from Selection'
+              : 'Add Booking'
+          "
+        >
+          <!-- Enhanced Tooltip -->
+          <div
+            class="absolute bottom-16 right-0 bg-slate-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none"
+          >
+            Add Booking
+          </div>
+          <!-- Background Animation -->
+          <div
+            class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-full"
+          ></div>
+
+          <!-- Icon -->
+          <svg
+            :class="[
+              'w-6 h-6 transition-transform duration-200 relative z-10',
+              showQuickCreate || showMultiCourtPanel ? 'rotate-45' : 'rotate-0',
+            ]"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { VenueOwnerService } from '../services/venueOwnerService'
@@ -661,28 +658,32 @@ const venueOwnerData = ref<{
 const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
 // Direct calendar data management
-const bookings = ref<Array<{
-  id: string
-  title: string
-  start: Date
-  end: Date
-  backgroundColor: string
-  borderColor: string
-  textColor: string
-  resourceId?: string
-  extendedProps: Record<string, unknown>
-}>>([])
-const blockedSlots = ref<Array<{
-  id: string
-  title: string
-  start: Date
-  end: Date
-  backgroundColor: string
-  borderColor: string
-  textColor: string
-  resourceId?: string
-  extendedProps: Record<string, unknown>
-}>>([])
+const bookings = ref<
+  Array<{
+    id: string
+    title: string
+    start: Date
+    end: Date
+    backgroundColor: string
+    borderColor: string
+    textColor: string
+    resourceId?: string
+    extendedProps: Record<string, unknown>
+  }>
+>([])
+const blockedSlots = ref<
+  Array<{
+    id: string
+    title: string
+    start: Date
+    end: Date
+    backgroundColor: string
+    borderColor: string
+    textColor: string
+    resourceId?: string
+    extendedProps: Record<string, unknown>
+  }>
+>([])
 const calendarLoading = ref(false)
 const calendarError = ref<string | null>(null)
 const calendarRetrying = ref(false)
@@ -694,32 +695,35 @@ const loadBookings = async () => {
     console.warn('⚠️ No venue ID available')
     return
   }
-  
+
   console.log('🔍 Loading bookings for venue:', venueId)
   try {
     const bookingData = await BookingService.getBookings(venueId)
     console.log('📅 Raw booking data:', bookingData)
-    
-    bookings.value = bookingData.map(booking => {
+
+    bookings.value = bookingData.map((booking) => {
       const formatted = BookingService.formatBookingForCalendar(booking)
       console.log('📅 Formatted booking:', formatted)
       return formatted
     })
-    
+
     console.log('✅ Bookings loaded:', bookings.value.length)
   } catch (error) {
     console.error('❌ Error loading bookings:', error)
-    calendarError.value = error instanceof Error ? error.message : 'Failed to load bookings'
+    calendarError.value =
+      error instanceof Error ? error.message : 'Failed to load bookings'
   }
 }
 
 const loadBlockedSlots = async () => {
   const venueId = venueOwnerData.value?.objectId
   if (!venueId) return
-  
+
   try {
     const blockedData = await BookingService.getBlockedSlots(venueId)
-    blockedSlots.value = blockedData.map(slot => BookingService.formatBlockedSlotForCalendar(slot))
+    blockedSlots.value = blockedData.map((slot) =>
+      BookingService.formatBlockedSlotForCalendar(slot)
+    )
   } catch (error) {
     console.error('❌ Error loading blocked slots:', error)
   }
@@ -728,11 +732,12 @@ const loadBlockedSlots = async () => {
 const loadAllData = async () => {
   calendarLoading.value = true
   calendarError.value = null
-  
+
   try {
     await Promise.all([loadBookings(), loadBlockedSlots()])
   } catch (error) {
-    calendarError.value = error instanceof Error ? error.message : 'Failed to load calendar data'
+    calendarError.value =
+      error instanceof Error ? error.message : 'Failed to load calendar data'
   } finally {
     calendarLoading.value = false
   }
@@ -809,9 +814,9 @@ const calendarOptions = computed(() => {
   console.log('📅 Computing calendar options with:', {
     bookings: bookings.value.length,
     blockedSlots: blockedSlots.value.length,
-    selectedSlots: selectedSlots.value.length
+    selectedSlots: selectedSlots.value.length,
   })
-  
+
   const selectedSlotEvents = selectedSlots.value.map((slot) => ({
     id: `selected-${slot.id}`,
     start: slot.start,
@@ -824,8 +829,12 @@ const calendarOptions = computed(() => {
       type: 'selected',
     },
   }))
-  
-  const allEvents = [...bookings.value, ...blockedSlots.value, ...selectedSlotEvents]
+
+  const allEvents = [
+    ...bookings.value,
+    ...blockedSlots.value,
+    ...selectedSlotEvents,
+  ]
   console.log('📅 All calendar events:', allEvents)
 
   return {
@@ -1349,7 +1358,10 @@ onMounted(async () => {
           }
 
           // Load calendar data directly
-          console.log('🚀 Loading calendar data for approved venue:', profile.id)
+          console.log(
+            '🚀 Loading calendar data for approved venue:',
+            profile.id
+          )
           await loadAllData()
           break
         }
@@ -1597,8 +1609,9 @@ onMounted(async () => {
   }
 }
 
-/* FAB positioning */
+/* FAB positioning - ensure it's always visible */
 .fab-container {
-  bottom: 1.5rem;
+  position: fixed !important;
+  z-index: 9999 !important;
 }
 </style>
