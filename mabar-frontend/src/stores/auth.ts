@@ -38,12 +38,14 @@ export const useAuthStore = defineStore('auth', () => {
         console.warn(
           'Back4App unavailable, using mock registration for development'
         )
-        user.value = {
+        const mockUser = {
           id: 'mock-' + Date.now(),
           email: email,
           role: null,
           onboardingStatus: null,
         }
+        user.value = mockUser
+        localStorage.setItem('mabar_mock_user', JSON.stringify(mockUser))
         return { success: true }
       }
       error.value = err.message
@@ -70,12 +72,14 @@ export const useAuthStore = defineStore('auth', () => {
       // Fallback for development when Back4App is not available
       if (err.message.includes('unauthorized') || err.message.includes('403')) {
         console.warn('Back4App unavailable, using mock login for development')
-        user.value = {
+        const mockUser = {
           id: 'mock-' + Date.now(),
           email: email,
           role: null,
           onboardingStatus: null,
         }
+        user.value = mockUser
+        localStorage.setItem('mabar_mock_user', JSON.stringify(mockUser))
         return { success: true }
       }
       error.value = err.message
@@ -90,8 +94,14 @@ export const useAuthStore = defineStore('auth', () => {
       await Parse.User.logOut()
       user.value = null
       error.value = null
-    } catch (err: any) {
-      error.value = err.message
+      localStorage.removeItem('mabar_mock_user')
+      localStorage.removeItem('mabar_onboarding_status')
+    } catch {
+      // Clear mock data even if Parse logout fails
+      user.value = null
+      error.value = null
+      localStorage.removeItem('mabar_mock_user')
+      localStorage.removeItem('mabar_onboarding_status')
     }
   }
 
@@ -103,14 +113,26 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const currentUser = Parse.User.current()
-      if (!currentUser) throw new Error('No current user')
 
-      currentUser.set('role', role)
-      currentUser.set('onboardingStatus', 'pending')
-      await currentUser.save()
+      if (currentUser) {
+        // Real Parse user - save to backend
+        currentUser.set('role', role)
+        currentUser.set('onboardingStatus', 'pending')
+        await currentUser.save()
+      } else {
+        // Mock user - just update local state
+        console.log('🔧 Mock mode: Setting role locally')
+      }
 
+      // Update local state in both cases
       user.value.role = role
       user.value.onboardingStatus = 'pending'
+
+      // Persist mock user data if no Parse user
+      if (!currentUser) {
+        localStorage.setItem('mabar_mock_user', JSON.stringify(user.value))
+      }
+
       return { success: true }
     } catch (err: any) {
       error.value = err.message
@@ -135,6 +157,12 @@ export const useAuthStore = defineStore('auth', () => {
         role: currentUser.get('role') || null,
         onboardingStatus: onboardingStatus as 'pending' | 'completed' | null,
       }
+    } else {
+      // Check for mock user in localStorage
+      const mockUser = localStorage.getItem('mabar_mock_user')
+      if (mockUser) {
+        user.value = JSON.parse(mockUser)
+      }
     }
   }
 
@@ -143,16 +171,26 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       const currentUser = Parse.User.current()
-      if (!currentUser) throw new Error('No current user')
 
-      currentUser.set('onboardingStatus', status)
-      await currentUser.save()
+      if (currentUser) {
+        // Real Parse user - save to backend
+        currentUser.set('onboardingStatus', status)
+        await currentUser.save()
+      } else {
+        // Mock user - just update local state
+        console.log('🔧 Mock mode: Setting onboarding status locally')
+      }
 
-      // Update local state
+      // Update local state in both cases
       user.value.onboardingStatus = status
 
       // Store in localStorage as backup
       localStorage.setItem('mabar_onboarding_status', status)
+
+      // Persist mock user data if no Parse user
+      if (!currentUser) {
+        localStorage.setItem('mabar_mock_user', JSON.stringify(user.value))
+      }
 
       return { success: true }
     } catch (err: any) {
