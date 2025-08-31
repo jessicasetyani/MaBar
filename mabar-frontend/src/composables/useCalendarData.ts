@@ -1,4 +1,4 @@
-import { ref, onMounted, onUnmounted, isRef, type Ref } from 'vue'
+import { ref, onMounted, onUnmounted, isRef, watch, type Ref } from 'vue'
 import { BookingService } from '../services/bookingService'
 import Parse from '../services/back4app'
 
@@ -25,6 +25,8 @@ export function useCalendarData(venueId: string | Ref<string>) {
 
   const loadBookings = async (limit: number = 100, skip: number = 0) => {
     try {
+      console.log('🚀 loadBookings called with venueId:', reactiveVenueId.value)
+      
       if (!reactiveVenueId.value) {
         console.warn('⚠️ No venue ID available, showing empty calendar')
         bookings.value = []
@@ -37,15 +39,18 @@ export function useCalendarData(venueId: string | Ref<string>) {
         limit,
         skip
       )
-      console.log('📅 Found bookings:', bookingData.length)
+      console.log('📅 Found bookings from service:', bookingData.length, bookingData)
 
-      bookings.value = bookingData.map((booking) =>
-        BookingService.formatBookingForCalendar(booking)
-      )
-
-      console.log('📊 Bookings loaded and formatted:', bookings.value.length)
+      const formattedBookings = bookingData.map((booking) => {
+        const formatted = BookingService.formatBookingForCalendar(booking)
+        console.log('🔄 Formatted booking:', formatted)
+        return formatted
+      })
+      
+      bookings.value = formattedBookings
+      console.log('📊 Final bookings array:', bookings.value.length, bookings.value)
     } catch (err) {
-      console.error('Error loading bookings:', err)
+      console.error('❌ Error loading bookings:', err)
       bookings.value = []
       throw err
     }
@@ -222,8 +227,19 @@ export function useCalendarData(venueId: string | Ref<string>) {
     await loadAllData(false)
   }
 
+  // Watch for venue ID changes and load data
+  watch(reactiveVenueId, async (newVenueId) => {
+    console.log('🔄 Venue ID changed in composable:', newVenueId)
+    if (newVenueId) {
+      console.log('🚀 Auto-loading data for venue:', newVenueId)
+      await loadAllData()
+      await setupLiveQueries()
+    }
+  }, { immediate: true })
+  
   // Auto-setup when venueId is available
   onMounted(() => {
+    console.log('📍 Composable mounted with venueId:', reactiveVenueId.value)
     if (reactiveVenueId.value) {
       loadAllData()
       setupLiveQueries()

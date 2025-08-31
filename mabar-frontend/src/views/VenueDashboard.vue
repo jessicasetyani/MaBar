@@ -642,7 +642,6 @@ import Parse from '../services/back4app'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
 import { CalendarLoadingState, CalendarErrorState } from '../components/ui'
-import { useCalendarData } from '../composables/useCalendarData'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
 
@@ -661,31 +660,93 @@ const venueOwnerData = ref<{
 } | null>(null)
 const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
-// Calendar data management using composable
-const venueId = computed(() => venueOwnerData.value?.objectId || '')
-const {
-  bookings,
-  blockedSlots,
-  isLoading: calendarLoading,
-  error: calendarError,
-  isRetrying: calendarRetrying,
-  loadAllData,
-  retryLoad,
-  refreshData,
-  setupLiveQueries,
-} = useCalendarData(venueId.value)
+// Direct calendar data management
+const bookings = ref<Array<{
+  id: string
+  title: string
+  start: Date
+  end: Date
+  backgroundColor: string
+  borderColor: string
+  textColor: string
+  resourceId?: string
+  extendedProps: Record<string, unknown>
+}>>([])
+const blockedSlots = ref<Array<{
+  id: string
+  title: string
+  start: Date
+  end: Date
+  backgroundColor: string
+  borderColor: string
+  textColor: string
+  resourceId?: string
+  extendedProps: Record<string, unknown>
+}>>([])
+const calendarLoading = ref(false)
+const calendarError = ref<string | null>(null)
+const calendarRetrying = ref(false)
 
-// Watch for venue ID changes and reload data
-watch(
-  venueId,
-  async (newVenueId) => {
-    if (newVenueId && applicationStatus.value === 'Approved') {
-      await loadAllData()
-      await setupLiveQueries()
-    }
-  },
-  { immediate: false }
-)
+// Load booking data directly
+const loadBookings = async () => {
+  const venueId = venueOwnerData.value?.objectId
+  if (!venueId) {
+    console.warn('⚠️ No venue ID available')
+    return
+  }
+  
+  console.log('🔍 Loading bookings for venue:', venueId)
+  try {
+    const bookingData = await BookingService.getBookings(venueId)
+    console.log('📅 Raw booking data:', bookingData)
+    
+    bookings.value = bookingData.map(booking => {
+      const formatted = BookingService.formatBookingForCalendar(booking)
+      console.log('📅 Formatted booking:', formatted)
+      return formatted
+    })
+    
+    console.log('✅ Bookings loaded:', bookings.value.length)
+  } catch (error) {
+    console.error('❌ Error loading bookings:', error)
+    calendarError.value = error instanceof Error ? error.message : 'Failed to load bookings'
+  }
+}
+
+const loadBlockedSlots = async () => {
+  const venueId = venueOwnerData.value?.objectId
+  if (!venueId) return
+  
+  try {
+    const blockedData = await BookingService.getBlockedSlots(venueId)
+    blockedSlots.value = blockedData.map(slot => BookingService.formatBlockedSlotForCalendar(slot))
+  } catch (error) {
+    console.error('❌ Error loading blocked slots:', error)
+  }
+}
+
+const loadAllData = async () => {
+  calendarLoading.value = true
+  calendarError.value = null
+  
+  try {
+    await Promise.all([loadBookings(), loadBlockedSlots()])
+  } catch (error) {
+    calendarError.value = error instanceof Error ? error.message : 'Failed to load calendar data'
+  } finally {
+    calendarLoading.value = false
+  }
+}
+
+const retryLoad = async () => {
+  calendarRetrying.value = true
+  await loadAllData()
+  calendarRetrying.value = false
+}
+
+const refreshData = async () => {
+  await loadAllData()
+}
 // const selectedBooking = ref<any>(null)
 // const showBookingModal = ref(false)
 const showBookingForm = ref(false)
@@ -745,6 +806,12 @@ const availableHours = computed(() => {
 })
 
 const calendarOptions = computed(() => {
+  console.log('📅 Computing calendar options with:', {
+    bookings: bookings.value.length,
+    blockedSlots: blockedSlots.value.length,
+    selectedSlots: selectedSlots.value.length
+  })
+  
   const selectedSlotEvents = selectedSlots.value.map((slot) => ({
     id: `selected-${slot.id}`,
     start: slot.start,
@@ -757,6 +824,9 @@ const calendarOptions = computed(() => {
       type: 'selected',
     },
   }))
+  
+  const allEvents = [...bookings.value, ...blockedSlots.value, ...selectedSlotEvents]
+  console.log('📅 All calendar events:', allEvents)
 
   return {
     plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
@@ -767,7 +837,7 @@ const calendarOptions = computed(() => {
       right: 'dayGridMonth,timeGridWeek,timeGridDay',
     },
     height: 'auto',
-    events: [...bookings.value, ...blockedSlots.value, ...selectedSlotEvents],
+    events: allEvents,
     selectable: true,
     selectMirror: false,
     dayMaxEvents: true,
@@ -1278,7 +1348,8 @@ onMounted(async () => {
             await SeedDataService.createSampleBookings(profile.id)
           }
 
-          // Load calendar data using the composable
+          // Load calendar data directly
+          console.log('🚀 Loading calendar data for approved venue:', profile.id)
           await loadAllData()
           break
         }

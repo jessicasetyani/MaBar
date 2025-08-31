@@ -35,7 +35,10 @@ export class BookingService {
     skip: number = 0
   ): Promise<BookingData[]> {
     try {
+      console.log('🔍 BookingService.getBookings called with:', { venueId, limit, skip })
+      
       if (!ValidationUtils.isValidVenueId(venueId)) {
+        console.error('❌ Invalid venue ID:', venueId)
         throw new Error('Invalid venue ID')
       }
 
@@ -46,25 +49,34 @@ export class BookingService {
       query.limit(Math.min(limit, 100))
       query.skip(skip)
 
+      console.log('📡 Executing Parse query for bookings...')
       const results = await query.find()
+      console.log('📊 Raw booking results from Parse:', results.length, results)
 
-      return results.map((booking) => ({
-        id: booking.id,
-        venueId: booking.get('venueId'),
-        title: booking.get('title'),
-        startTime: booking.get('startTime'),
-        endTime: booking.get('endTime'),
-        court: booking.get('court'),
-        players: booking.get('players') || [],
-        playerPhones: booking.get('playerPhones') || [],
-        contact: booking.get('contact'),
-        phone: booking.get('phone'),
-        price: booking.get('price'),
-        status: booking.get('status'),
-        paymentStatus: booking.get('paymentStatus'),
-      }))
+      const mappedResults = results.map((booking) => {
+        const bookingData = {
+          id: booking.id,
+          venueId: booking.get('venueId'),
+          title: booking.get('title'),
+          startTime: booking.get('startTime'),
+          endTime: booking.get('endTime'),
+          court: booking.get('court'),
+          players: booking.get('players') || [],
+          playerPhones: booking.get('playerPhones') || [],
+          contact: booking.get('contact'),
+          phone: booking.get('phone'),
+          price: booking.get('price'),
+          status: booking.get('status'),
+          paymentStatus: booking.get('paymentStatus'),
+        }
+        console.log('📋 Mapped booking:', bookingData)
+        return bookingData
+      })
+      
+      console.log('✅ BookingService.getBookings returning:', mappedResults.length, 'bookings')
+      return mappedResults
     } catch (error) {
-      console.error('Error fetching bookings:', error)
+      console.error('❌ Error fetching bookings:', error)
       throw new Error(`Failed to fetch bookings: ${(error as Error).message}`)
     }
   }
@@ -311,13 +323,32 @@ export class BookingService {
   }
 
   static formatBookingForCalendar(booking: BookingData) {
+    console.log('🎨 Formatting booking for calendar:', booking)
+    
     const players = booking.players || []
-    const displayTitle =
-      players.length > 0
-        ? `${booking.court} - ${players.slice(0, 2).join(' & ')}${players.length > 2 ? ` +${players.length - 2}` : ''}`
-        : booking.title || `${booking.court} - Booking`
+    
+    // Enhanced title format with time and player info
+    let displayTitle = `🏓 ${booking.court}`
+    
+    if (players.length > 0) {
+      if (players.length <= 2) {
+        displayTitle += ` - ${players.join(' & ')}`
+      } else if (players.length === 3) {
+        displayTitle += ` - ${players[0]} & ${players[1]} +1`
+      } else {
+        displayTitle += ` - ${players[0]} & ${players[1]} +${players.length - 2}`
+      }
+    } else if (booking.title) {
+      displayTitle += ` - ${booking.title}`
+    } else {
+      displayTitle += ' - Booking'
+    }
+    
+    // Add status indicator
+    const statusIcon = booking.status === 'confirmed' ? '✓' : booking.status === 'pending' ? '⏳' : '❌'
+    displayTitle = `${statusIcon} ${displayTitle}`
 
-    return {
+    const calendarEvent = {
       id: booking.id!,
       title: displayTitle,
       start: booking.startTime,
@@ -336,8 +367,15 @@ export class BookingService {
         phone: booking.phone,
         price: booking.price,
         paymentStatus: booking.paymentStatus,
+        // Additional display info
+        timeSlot: `${booking.startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${booking.endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`,
+        playerCount: players.length,
+        formattedPrice: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(booking.price),
       },
     }
+    
+    console.log('📅 Calendar event created:', calendarEvent)
+    return calendarEvent
   }
 
   static formatBlockedSlotForCalendar(slot: BlockedSlotData) {
