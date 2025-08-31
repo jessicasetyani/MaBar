@@ -72,13 +72,14 @@
 
       <!-- Mobile Navigation -->
       <div
-        class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-10 shadow-lg safe-area-inset-bottom"
+        class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-30 shadow-lg"
+        style="padding-bottom: env(safe-area-inset-bottom, 0px)"
       >
         <nav class="flex">
           <button
             @click="activeTab = 'calendar'"
             :class="[
-              'flex-1 py-2 px-1 text-center text-xs font-medium transition-colors min-h-[56px] flex flex-col items-center justify-center',
+              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
               activeTab === 'calendar'
                 ? 'bg-yellow-100 text-yellow-800'
                 : 'text-slate-600 hover:bg-slate-50',
@@ -90,7 +91,7 @@
           <button
             @click="activeTab = 'profile'"
             :class="[
-              'flex-1 py-2 px-1 text-center text-xs font-medium transition-colors min-h-[56px] flex flex-col items-center justify-center',
+              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
               activeTab === 'profile'
                 ? 'bg-yellow-100 text-yellow-800'
                 : 'text-slate-600 hover:bg-slate-50',
@@ -102,7 +103,7 @@
           <button
             @click="activeTab = 'analytics'"
             :class="[
-              'flex-1 py-2 px-1 text-center text-xs font-medium transition-colors min-h-[56px] flex flex-col items-center justify-center',
+              'flex-1 py-3 px-1 text-center text-xs font-medium transition-colors min-h-[60px] flex flex-col items-center justify-center',
               activeTab === 'analytics'
                 ? 'bg-yellow-100 text-yellow-800'
                 : 'text-slate-600 hover:bg-slate-50',
@@ -115,7 +116,7 @@
       </div>
 
       <!-- Main Content -->
-      <main class="flex-1 overflow-auto pb-16 lg:pb-0">
+      <main class="flex-1 overflow-auto main-content">
         <!-- Calendar Tab -->
         <div v-if="activeTab === 'calendar'" class="p-6">
           <div class="mb-6">
@@ -217,7 +218,9 @@
           </div>
 
           <!-- Enhanced Google Calendar-Style FAB System -->
-          <div class="fixed bottom-20 lg:bottom-6 right-4 lg:right-6 z-20">
+          <div
+            class="fab-container fixed right-4 lg:right-6 z-20 bottom-6 lg:bottom-6"
+          >
             <!-- Quick Create Popover -->
             <div
               v-if="showQuickCreate"
@@ -1685,6 +1688,35 @@ onUnmounted(() => {
 @supports (padding: max(0px)) {
   .venue-calendar {
     padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  }
+}
+
+/* FAB positioning to avoid mobile navigation overlap */
+.fab-container {
+  bottom: 1.5rem;
+}
+
+@media (max-width: 1023px) {
+  .fab-container {
+    bottom: calc(5rem + env(safe-area-inset-bottom, 1rem)) !important;
+  }
+}
+
+/* Mobile navigation safe area */
+@media (max-width: 1023px) {
+  .mobile-nav {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}
+
+/* Main content padding to avoid mobile navigation overlap */
+.main-content {
+  padding-bottom: 0;
+}
+
+@media (max-width: 1023px) {
+  .main-content {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom, 1rem));
   }
 }
 </style>
