@@ -137,27 +137,8 @@
 
             <!-- Calendar -->
             <div v-else>
-              <!-- Action Buttons -->
-              <div class="flex justify-between items-center mb-4">
-                <button
-                  @click="handleFABClick"
-                  class="inline-flex items-center px-4 py-2 bg-yellow-400 hover:bg-yellow-500 text-slate-800 rounded-lg font-medium transition-colors"
-                >
-                  <svg
-                    class="w-4 h-4 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Add Booking
-                </button>
+              <!-- Refresh Button -->
+              <div class="flex justify-end mb-4">
                 <button
                   @click="refreshData"
                   class="inline-flex items-center px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
@@ -178,6 +159,27 @@
                   Refresh
                 </button>
               </div>
+
+              <!-- Fixed Add Booking Button -->
+              <button
+                @click="handleFABClick"
+                class="fixed bottom-20 right-6 z-50 w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center bg-yellow-400 hover:bg-yellow-500 text-slate-800"
+                title="Add Booking"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </button>
 
               <FullCalendar
                 :options="calendarOptions"
