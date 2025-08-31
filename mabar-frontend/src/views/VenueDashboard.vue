@@ -156,7 +156,7 @@
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  Add Booking
+                  Add Booking {{ showBookingForm ? '(Modal Open)' : '' }}
                 </button>
                 <button
                   @click="refreshData"
@@ -1137,6 +1137,10 @@ const clearSelection = () => {
   showMultiCourtPanel.value = false
   multiSelectMode.value = false
   isSubmitting.value = false
+  console.log(
+    '🧹 Selection cleared, showBookingForm remains:',
+    showBookingForm.value
+  )
   // Note: Don't close showBookingForm here as it might be intentionally opened
 }
 
@@ -1167,6 +1171,7 @@ const openManualBookingForm = () => {
   // Show the booking form
   showBookingForm.value = true
   console.log('📝 showBookingForm is now:', showBookingForm.value)
+  console.log('📝 Modal should be visible now')
 }
 
 const handleFABClick = () => {
