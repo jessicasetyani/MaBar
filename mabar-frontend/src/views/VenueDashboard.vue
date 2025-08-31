@@ -360,10 +360,10 @@
       </main>
     </div>
 
-    <!-- Enhanced Google Calendar-Style FAB System -->
+    <!-- Fixed FAB for Creating Bookings -->
     <div
       v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
-      class="fab-container fixed right-4 lg:right-6 z-50 bottom-6 lg:bottom-6"
+      class="fab-container fixed right-6 bottom-6 z-50"
     >
       <!-- Quick Create Popover -->
       <div
@@ -579,17 +579,8 @@
         <!-- Main FAB Button -->
         <button
           @click="handleFABClick"
-          :class="[
-            'w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group relative overflow-hidden',
-            selectedSlots.length > 0
-              ? 'bg-blue-500 hover:bg-blue-600 text-white'
-              : 'bg-yellow-400 hover:bg-yellow-500 text-slate-800',
-          ]"
-          :title="
-            selectedSlots.length > 0
-              ? 'Add Booking from Selection'
-              : 'Add Booking'
-          "
+          class="w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group relative overflow-hidden bg-yellow-400 hover:bg-yellow-500 text-slate-800"
+          title="Add Booking"
         >
           <!-- Enhanced Tooltip -->
           <div
@@ -604,10 +595,8 @@
 
           <!-- Icon -->
           <svg
-            :class="[
-              'w-6 h-6 transition-transform duration-200 relative z-10',
-              showQuickCreate || showMultiCourtPanel ? 'rotate-45' : 'rotate-0',
-            ]"
+            class="w-6 h-6 transition-transform duration-200 relative z-10"
+            :class="showQuickCreate ? 'rotate-45' : 'rotate-0'"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -847,7 +836,7 @@ const calendarOptions = computed(() => {
     },
     height: 'auto',
     events: allEvents,
-    selectable: true,
+    selectable: false,
     selectMirror: false,
     dayMaxEvents: true,
     weekends: true,
@@ -858,7 +847,7 @@ const calendarOptions = computed(() => {
     eventColor: MaBarColors.calendar.confirmed,
     eventTextColor: MaBarColors.surface,
     eventBorderColor: MaBarColors.hover.accent,
-    select: handleSlotSelect,
+
     eventClick: handleEventClick,
     selectAllow: () => true,
     eventOverlap: true,
@@ -891,58 +880,6 @@ const calendarOptions = computed(() => {
 // }
 
 // Data loading is now handled by the useCalendarData composable
-
-const handleSlotSelect = async (selectInfo: {
-  start: Date
-  end: Date
-  view: { calendar: { unselect: () => void } }
-}) => {
-  console.log('🎯 handleSlotSelect called!', selectInfo)
-  const { start, end } = selectInfo
-
-  // Add selected slot to selection array
-  const slotId = `${start.toISOString()}-${end.toISOString()}`
-  const existingIndex = selectedSlots.value.findIndex(
-    (slot) => slot.id === slotId
-  )
-
-  if (existingIndex >= 0) {
-    // Unselect slot
-    selectedSlots.value.splice(existingIndex, 1)
-  } else {
-    // Select slot
-    selectedSlots.value.push({
-      id: slotId,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      startTime: start,
-      endTime: end,
-    })
-  }
-
-  // Clear calendar selection
-  selectInfo.view.calendar.unselect()
-
-  // Enhanced Google Calendar-style behavior
-  if (selectedSlots.value.length === 1 && !multiSelectMode.value) {
-    // Single slot - show quick create popover for immediate action
-    setTimeout(() => {
-      showQuickCreate.value = true
-      showMultiCourtPanel.value = false
-    }, 100)
-  } else if (selectedSlots.value.length > 1) {
-    // Multiple slots - enable multi-select mode and show panel
-    multiSelectMode.value = true
-    showQuickCreate.value = false
-  }
-
-  // Auto-close popovers when selection changes
-  if (selectedSlots.value.length === 0) {
-    showQuickCreate.value = false
-    showMultiCourtPanel.value = false
-    multiSelectMode.value = false
-  }
-}
 
 const handleEventClick = async (clickInfo: {
   event: {
@@ -1209,13 +1146,8 @@ const openManualBookingForm = () => {
 }
 
 const handleFABClick = () => {
-  if (selectedSlots.value.length > 1) {
-    showMultiCourtPanel.value = !showMultiCourtPanel.value
-    showQuickCreate.value = false
-  } else {
-    showQuickCreate.value = !showQuickCreate.value
-    showMultiCourtPanel.value = false
-  }
+  showQuickCreate.value = !showQuickCreate.value
+  showMultiCourtPanel.value = false
 
   if (showQuickCreate.value) {
     // Reset quick create form with smart defaults
