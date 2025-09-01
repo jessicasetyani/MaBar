@@ -35,8 +35,12 @@ export class BookingService {
     skip: number = 0
   ): Promise<BookingData[]> {
     try {
-      console.log('🔍 BookingService.getBookings called with:', { venueId, limit, skip })
-      
+      console.log('🔍 BookingService.getBookings called with:', {
+        venueId,
+        limit,
+        skip,
+      })
+
       if (!ValidationUtils.isValidVenueId(venueId)) {
         console.error('❌ Invalid venue ID:', venueId)
         throw new Error('Invalid venue ID')
@@ -72,8 +76,12 @@ export class BookingService {
         console.log('📋 Mapped booking:', bookingData)
         return bookingData
       })
-      
-      console.log('✅ BookingService.getBookings returning:', mappedResults.length, 'bookings')
+
+      console.log(
+        '✅ BookingService.getBookings returning:',
+        mappedResults.length,
+        'bookings'
+      )
       return mappedResults
     } catch (error) {
       console.error('❌ Error fetching bookings:', error)
@@ -324,12 +332,12 @@ export class BookingService {
 
   static formatBookingForCalendar(booking: BookingData) {
     console.log('🎨 Formatting booking for calendar:', booking)
-    
+
     const players = booking.players || []
-    
-    // Enhanced title format with time and player info
-    let displayTitle = `🏓 ${booking.court}`
-    
+
+    // Enhanced title format with court and player info
+    let displayTitle = `${booking.court}`
+
     if (players.length > 0) {
       if (players.length <= 2) {
         displayTitle += ` - ${players.join(' & ')}`
@@ -343,19 +351,41 @@ export class BookingService {
     } else {
       displayTitle += ' - Booking'
     }
-    
+
     // Add status indicator
-    const statusIcon = booking.status === 'confirmed' ? '✓' : booking.status === 'pending' ? '⏳' : '❌'
+    const statusIcon =
+      booking.status === 'confirmed'
+        ? '✓'
+        : booking.status === 'pending'
+          ? '⏳'
+          : '❌'
     displayTitle = `${statusIcon} ${displayTitle}`
+
+    // Different colors for different courts to make them easier to distinguish
+    const getCourtColor = (court: string) => {
+      const courtColors = {
+        'Court 1': { confirmed: '#3B82F6', pending: '#93C5FD' }, // Blue
+        'Court 2': { confirmed: '#10B981', pending: '#6EE7B7' }, // Green
+        'Court 3': { confirmed: '#F59E0B', pending: '#FCD34D' }, // Orange
+        'Court 4': { confirmed: '#EF4444', pending: '#FCA5A5' }, // Red
+      }
+
+      const defaultColors = { confirmed: '#84CC16', pending: '#FDE047' }
+      return courtColors[court as keyof typeof courtColors] || defaultColors
+    }
+
+    const colors = getCourtColor(booking.court)
+    const bgColor =
+      colors[booking.status as keyof typeof colors] || colors.confirmed
 
     const calendarEvent = {
       id: booking.id!,
       title: displayTitle,
       start: booking.startTime,
       end: booking.endTime,
-      backgroundColor: booking.status === 'confirmed' ? '#84CC16' : '#FDE047',
-      borderColor: booking.status === 'confirmed' ? '#65A30D' : '#FACC15',
-      textColor: booking.status === 'confirmed' ? '#ffffff' : '#334155',
+      backgroundColor: bgColor,
+      borderColor: bgColor,
+      textColor: '#ffffff',
       resourceId: booking.court,
       extendedProps: {
         type: 'booking',
@@ -370,29 +400,14 @@ export class BookingService {
         // Additional display info
         timeSlot: `${booking.startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${booking.endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`,
         playerCount: players.length,
-        formattedPrice: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(booking.price),
+        formattedPrice: new Intl.NumberFormat('id-ID', {
+          style: 'currency',
+          currency: 'IDR',
+        }).format(booking.price),
       },
     }
-    
+
     console.log('📅 Calendar event created:', calendarEvent)
     return calendarEvent
-  }
-
-  static formatBlockedSlotForCalendar(slot: BlockedSlotData) {
-    return {
-      id: slot.id!,
-      title: '🚫 Blocked',
-      start: slot.startTime,
-      end: slot.endTime,
-      backgroundColor: '#EF4444',
-      borderColor: '#DC2626',
-      textColor: '#ffffff',
-      resourceId: slot.court,
-      extendedProps: {
-        type: 'blocked',
-        reason: slot.reason,
-        court: slot.court,
-      },
-    }
   }
 }

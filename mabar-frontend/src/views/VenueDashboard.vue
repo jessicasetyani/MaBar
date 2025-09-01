@@ -85,38 +85,18 @@
             </p>
             <ul class="text-sm text-blue-700 space-y-1">
               <li>
-                • <strong>Select Time Slots:</strong> Click on empty time slots
-                to select/deselect
+                • <strong>Add Booking:</strong> Click "Add Booking" button to
+                create new bookings
               </li>
               <li>
-                • <strong>Create Booking:</strong> Select slots and fill the
-                booking form, or use the + button
+                • <strong>View Details:</strong> Click on existing bookings to
+                view player details
               </li>
               <li>
-                • <strong>Edit Booking:</strong> Click on existing bookings to
-                edit or delete
-              </li>
-              <li>
-                • <strong>Block Slots:</strong> Use the booking form to block
-                time slots
+                • <strong>Edit Booking:</strong> Use the edit option in booking
+                details to modify
               </li>
             </ul>
-
-            <!-- Selected Slots Info -->
-            <div
-              v-if="selectedSlots.length > 0"
-              class="mt-3 pt-3 border-t border-blue-200"
-            >
-              <p class="text-sm text-blue-800">
-                ✓ {{ selectedSlots.length }} time slot(s) selected
-                <button
-                  @click="clearSelection"
-                  class="ml-2 text-blue-600 hover:text-blue-800 underline"
-                >
-                  Clear Selection
-                </button>
-              </p>
-            </div>
           </div>
 
           <!-- Calendar Container -->
@@ -140,8 +120,8 @@
               <!-- Action Buttons -->
               <div class="flex justify-between items-center mb-4">
                 <button
-                  @click="handleFABClick"
-                  class="inline-flex items-center px-4 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 font-semibold transition-colors"
+                  @click="openBookingForm"
+                  class="inline-flex items-center px-4 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 font-semibold transition-colors shadow-sm"
                 >
                   <svg
                     class="w-5 h-5 mr-2"
@@ -156,7 +136,7 @@
                       d="M12 4v16m8-8H4"
                     />
                   </svg>
-                  Add Booking {{ showBookingForm ? '(Modal Open)' : '' }}
+                  Add Booking
                 </button>
                 <button
                   @click="refreshData"
@@ -201,16 +181,16 @@
             <div
               v-if="showBookingForm"
               class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
-              @click="closeBookingForm"
+              @click.self="closeBookingForm"
             >
               <div
-                class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto"
+                class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
                 @click.stop
               >
                 <div class="p-6">
                   <div class="flex justify-between items-start mb-4">
                     <h3 class="text-lg font-semibold text-slate-900">
-                      {{ isEditMode ? 'Edit Booking' : 'Create Booking' }}
+                      {{ isEditMode ? 'Edit Booking' : 'Add New Booking' }}
                     </h3>
                     <button
                       @click="closeBookingForm"
@@ -401,230 +381,6 @@
         </div>
       </main>
     </div>
-
-    <!-- Fixed FAB for Creating Bookings - Always Visible for Testing -->
-    <div
-      v-if="activeTab === 'calendar'"
-      class="fab-container fixed top-1/2 right-4 transform -translate-y-1/2 z-[9999]"
-    >
-      <!-- Quick Create Popover -->
-      <div
-        v-if="showQuickCreate"
-        class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-5 w-80 z-50 transform transition-all duration-200 scale-100"
-        @click.stop
-      >
-        <!-- Popover Header -->
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex items-center space-x-2">
-            <div
-              class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center"
-            >
-              <span class="text-yellow-600 text-sm">⚡</span>
-            </div>
-            <h3 class="font-semibold text-slate-900">Quick Create</h3>
-          </div>
-          <button
-            @click="showQuickCreate = false"
-            class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100 transition-colors"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Quick Form -->
-        <form @submit.prevent="handleQuickCreate" class="space-y-4">
-          <!-- Court Selection with Visual Indicators -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2"
-              >Court</label
-            >
-            <div class="grid grid-cols-2 gap-2">
-              <button
-                v-for="field in paddleFields"
-                :key="field"
-                type="button"
-                @click="quickCreateData.court = field"
-                :class="[
-                  'p-3 rounded-lg border-2 text-sm font-medium transition-all',
-                  quickCreateData.court === field
-                    ? 'border-yellow-400 bg-yellow-50 text-yellow-800'
-                    : 'border-slate-200 hover:border-slate-300 text-slate-600 hover:bg-slate-50',
-                ]"
-              >
-                {{ field }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Title with Smart Suggestions -->
-          <div>
-            <label class="block text-sm font-medium text-slate-700 mb-2"
-              >Title</label
-            >
-            <input
-              v-model="quickCreateData.title"
-              type="text"
-              placeholder="e.g., Training Session, Match Game"
-              class="w-full px-3 py-2.5 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-transparent"
-              required
-            />
-            <!-- Quick Suggestions -->
-            <div class="flex flex-wrap gap-1 mt-2">
-              <button
-                v-for="suggestion in [
-                  'Training',
-                  'Match',
-                  'Tournament',
-                  'Private',
-                ]"
-                :key="suggestion"
-                type="button"
-                @click="quickCreateData.title = suggestion + ' Session'"
-                class="px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-md hover:bg-slate-200 transition-colors"
-              >
-                {{ suggestion }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Time Selection -->
-          <div class="grid grid-cols-2 gap-3">
-            <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1"
-                >Duration</label
-              >
-              <select
-                v-model="quickCreateData.duration"
-                class="w-full px-2 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              >
-                <option :value="60">1 hour</option>
-                <option :value="90">1.5 hours</option>
-                <option :value="120">2 hours</option>
-              </select>
-            </div>
-            <div>
-              <label class="block text-xs font-medium text-slate-600 mb-1"
-                >Start Time</label
-              >
-              <select
-                v-model="quickCreateData.startHour"
-                class="w-full px-2 py-2 border border-slate-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-yellow-400"
-              >
-                <option
-                  v-for="hour in availableHours"
-                  :key="hour"
-                  :value="hour"
-                >
-                  {{ hour }}:00
-                </option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex space-x-2 pt-2">
-            <button
-              type="submit"
-              :disabled="!quickCreateData.court || !quickCreateData.title"
-              class="flex-1 px-4 py-2.5 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 disabled:bg-slate-200 disabled:text-slate-400 text-sm font-semibold transition-colors"
-            >
-              Create Booking
-            </button>
-            <button
-              type="button"
-              @click="openFullForm"
-              class="px-4 py-2.5 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg text-sm font-medium transition-colors"
-            >
-              More Options
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Multi-Court Selection Panel -->
-      <div
-        v-if="showMultiCourtPanel"
-        class="absolute bottom-16 right-0 bg-white rounded-xl shadow-2xl border border-slate-200 p-4 w-72 z-50"
-        @click.stop
-      >
-        <div class="flex justify-between items-center mb-3">
-          <h3 class="font-semibold text-slate-900">Multi-Court Booking</h3>
-          <button
-            @click="showMultiCourtPanel = false"
-            class="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100"
-          >
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
-
-        <!-- Selected Slots Summary -->
-        <div class="bg-blue-50 rounded-lg p-3 mb-3">
-          <div class="text-sm font-medium text-blue-800 mb-1">
-            {{ selectedSlots.length }} slots selected
-          </div>
-          <div class="text-xs text-blue-600">
-            {{ getSelectedCourts().join(', ') }}
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="space-y-2">
-          <button
-            @click="createBatchBooking"
-            class="w-full px-3 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 text-sm font-medium transition-colors"
-          >
-            Create All Bookings
-          </button>
-          <button
-            @click="openFullForm"
-            class="w-full px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm transition-colors"
-          >
-            Customize Each Booking
-          </button>
-        </div>
-      </div>
-
-      <!-- Main FAB with Enhanced Design -->
-      <div class="relative">
-        <!-- Selection Counter Badge -->
-        <div
-          v-if="selectedSlots.length > 0"
-          class="absolute -top-2 -right-2 w-6 h-6 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold z-10 animate-pulse"
-        >
-          {{ selectedSlots.length }}
-        </div>
-
-        <!-- Main FAB Button -->
-        <FloatingActionButton
-          @click="handleFABClick"
-          aria-label="Add new booking"
-        />
-      </div>
-    </div>
   </div>
 </template>
 
@@ -640,11 +396,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
-import {
-  CalendarLoadingState,
-  CalendarErrorState,
-  FloatingActionButton,
-} from '../components/ui'
+import { CalendarLoadingState, CalendarErrorState } from '../components/ui'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
 
@@ -665,19 +417,6 @@ const applicationStatus = ref('Pending Verification')
 const activeTab = ref('calendar')
 // Direct calendar data management
 const bookings = ref<
-  Array<{
-    id: string
-    title: string
-    start: Date
-    end: Date
-    backgroundColor: string
-    borderColor: string
-    textColor: string
-    resourceId?: string
-    extendedProps: Record<string, unknown>
-  }>
->([])
-const blockedSlots = ref<
   Array<{
     id: string
     title: string
@@ -721,26 +460,12 @@ const loadBookings = async () => {
   }
 }
 
-const loadBlockedSlots = async () => {
-  const venueId = venueOwnerData.value?.objectId
-  if (!venueId) return
-
-  try {
-    const blockedData = await BookingService.getBlockedSlots(venueId)
-    blockedSlots.value = blockedData.map((slot) =>
-      BookingService.formatBlockedSlotForCalendar(slot)
-    )
-  } catch (error) {
-    console.error('❌ Error loading blocked slots:', error)
-  }
-}
-
 const loadAllData = async () => {
   calendarLoading.value = true
   calendarError.value = null
 
   try {
-    await Promise.all([loadBookings(), loadBlockedSlots()])
+    await loadBookings()
   } catch (error) {
     calendarError.value =
       error instanceof Error ? error.message : 'Failed to load calendar data'
@@ -787,9 +512,7 @@ const editingBooking = ref<{
   reason?: string
   court?: string
 } | null>(null)
-const showQuickCreate = ref(false)
-const showMultiCourtPanel = ref(false)
-const multiSelectMode = ref(false)
+
 const isSubmitting = ref(false)
 const showBookingDetails = ref(false)
 const selectedBookingForDetails = ref<{
@@ -810,20 +533,6 @@ const selectedBookingForDetails = ref<{
 } | null>(null)
 // const loadingBookings = ref(false)
 // const errorMessage = ref('')
-const quickCreateData = ref({
-  court: '',
-  title: '',
-  duration: 90, // minutes
-  startHour: new Date().getHours() + 1,
-})
-
-const availableHours = computed(() => {
-  const hours = []
-  for (let i = 6; i <= 22; i++) {
-    hours.push(i)
-  }
-  return hours
-})
 
 const calendarOptions = computed(() => {
   console.log('📅 Computing calendar options with:', {
@@ -832,24 +541,7 @@ const calendarOptions = computed(() => {
     selectedSlots: selectedSlots.value.length,
   })
 
-  const selectedSlotEvents = selectedSlots.value.map((slot) => ({
-    id: `selected-${slot.id}`,
-    start: slot.start,
-    end: slot.end,
-    backgroundColor: MaBarColors.calendar.selected,
-    borderColor: '#2563EB',
-    textColor: MaBarColors.surface,
-    title: '✓ Selected',
-    extendedProps: {
-      type: 'selected',
-    },
-  }))
-
-  const allEvents = [
-    ...bookings.value,
-    ...blockedSlots.value,
-    ...selectedSlotEvents,
-  ]
+  const allEvents = [...bookings.value]
   console.log('📅 All calendar events:', allEvents)
 
   return {
@@ -889,12 +581,10 @@ const calendarOptions = computed(() => {
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
     },
-    // Add click outside to clear selection
-    dateClick: () => {
-      // If clicking on empty space, clear selection
-      if (selectedSlots.value.length > 0) {
-        clearSelection()
-      }
+    // Handle empty slot clicks
+    dateClick: (info: { dateStr: string }) => {
+      console.log('📅 Empty slot clicked:', info.dateStr)
+      // Could be used for quick booking creation in the future
     },
   }
 })
@@ -917,34 +607,19 @@ const handleEventClick = async (clickInfo: {
   }
 }) => {
   const event = clickInfo.event
+  console.log('📅 Event clicked:', event)
 
-  // Close any open popovers
-  showQuickCreate.value = false
-  showMultiCourtPanel.value = false
-
-  if (event.extendedProps?.type === 'selected') {
-    // Handle selected slot click - remove from selection
-    const slotId = event.id.replace('selected-', '')
-    const index = selectedSlots.value.findIndex((slot) => slot.id === slotId)
-    if (index >= 0) {
-      selectedSlots.value.splice(index, 1)
-    }
-  } else if (event.extendedProps?.type === 'blocked') {
-    // Show edit/delete options for blocked slots
-    editingBooking.value = {
+  if (event.extendedProps?.type === 'booking') {
+    // Show booking details modal for bookings
+    selectedBookingForDetails.value = {
       id: event.id,
       title: event.title,
       start: event.start,
       end: event.end,
-      type: 'blocked',
-      ...event.extendedProps,
+      extendedProps: event.extendedProps,
     }
-    isEditMode.value = true
-    showBookingForm.value = true
-  } else if (event.extendedProps?.type === 'booking') {
-    // Show booking details modal first
-    selectedBookingForDetails.value = event
     showBookingDetails.value = true
+    console.log('📋 Showing booking details for:', event.title)
   }
 }
 
@@ -1133,15 +808,8 @@ const deleteBooking = async (bookingId: string) => {
 
 const clearSelection = () => {
   selectedSlots.value = []
-  showQuickCreate.value = false
-  showMultiCourtPanel.value = false
-  multiSelectMode.value = false
   isSubmitting.value = false
-  console.log(
-    '🧹 Selection cleared, showBookingForm remains:',
-    showBookingForm.value
-  )
-  // Note: Don't close showBookingForm here as it might be intentionally opened
+  console.log('🧹 Selection cleared')
 }
 
 const closeBookingForm = () => {
@@ -1149,91 +817,25 @@ const closeBookingForm = () => {
   showBookingForm.value = false
   isEditMode.value = false
   editingBooking.value = null
-  selectedSlots.value = []
 }
 
 const refreshCalendarData = async () => {
   await refreshData()
 }
 
-const openManualBookingForm = () => {
-  console.log('📝 Opening manual booking form')
+const openBookingForm = () => {
+  console.log('📝 Opening booking form')
   // Close any other modals first
-  showQuickCreate.value = false
-  showMultiCourtPanel.value = false
   showBookingDetails.value = false
 
-  // Clear selection and reset form state
-  clearSelection()
+  // Reset form state
   isEditMode.value = false
   editingBooking.value = null
+  selectedSlots.value = []
 
   // Show the booking form
   showBookingForm.value = true
-  console.log('📝 showBookingForm is now:', showBookingForm.value)
-  console.log('📝 Modal should be visible now')
-}
-
-const handleFABClick = () => {
-  console.log('🔘 FAB clicked, opening booking form')
-  openManualBookingForm()
-}
-
-const getSelectedCourts = () => {
-  const courts = new Set()
-  selectedSlots.value.forEach(() => {
-    // Extract court from slot if available, otherwise use default
-    courts.add('Court 1') // This would be dynamic based on actual slot data
-  })
-  return Array.from(courts)
-}
-
-const createBatchBooking = () => {
-  showMultiCourtPanel.value = false
-  showBookingForm.value = true
-  multiSelectMode.value = true
-}
-
-// Removed unused function toggleMultiSelectMode
-
-const handleQuickCreate = async () => {
-  if (!quickCreateData.value.court || !quickCreateData.value.title) {
-    return
-  }
-
-  // Create booking with selected time or smart default
-  const today = new Date()
-  today.setHours(quickCreateData.value.startHour, 0, 0, 0)
-  const startTime = today
-  const endTime = new Date(
-    startTime.getTime() + quickCreateData.value.duration * 60 * 1000
-  )
-
-  const bookingData = {
-    type: 'booking',
-    title: quickCreateData.value.title,
-    start: startTime.toISOString(),
-    end: endTime.toISOString(),
-    court: quickCreateData.value.court,
-    players: [],
-    contact: user?.email || '',
-    phone: '',
-    price: 150000,
-    status: 'confirmed',
-    paymentStatus: 'pending',
-  }
-
-  const result = await createBooking(bookingData)
-  if (result.success) {
-    showQuickCreate.value = false
-    await refreshData() // Refresh calendar
-  }
-}
-
-const openFullForm = () => {
-  showQuickCreate.value = false
-  showMultiCourtPanel.value = false
-  openManualBookingForm()
+  console.log('📝 Booking form opened')
 }
 
 const closeBookingDetails = () => {

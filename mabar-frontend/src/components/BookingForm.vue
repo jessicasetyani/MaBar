@@ -174,35 +174,8 @@
       </select>
     </div>
 
-    <!-- Booking Type -->
-    <div>
-      <label class="block text-sm font-medium text-slate-700 mb-2"
-        >Booking Type</label
-      >
-      <div class="flex space-x-4">
-        <label class="flex items-center">
-          <input
-            v-model="formData.type"
-            type="radio"
-            value="booking"
-            class="mr-2 text-yellow-400 focus:ring-yellow-400"
-          />
-          <span class="text-sm">Regular Booking</span>
-        </label>
-        <label class="flex items-center">
-          <input
-            v-model="formData.type"
-            type="radio"
-            value="blocked"
-            class="mr-2 text-red-500 focus:ring-red-400"
-          />
-          <span class="text-sm">Block Time Slot</span>
-        </label>
-      </div>
-    </div>
-
-    <!-- Booking Details (only for regular bookings) -->
-    <div v-if="formData.type === 'booking'" class="space-y-4">
+    <!-- Booking Details -->
+    <div class="space-y-4">
       <!-- Title -->
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1"
@@ -389,20 +362,6 @@
       </div>
     </div>
 
-    <!-- Block Reason (only for blocked slots) -->
-    <div v-if="formData.type === 'blocked'">
-      <label class="block text-sm font-medium text-slate-700 mb-1"
-        >Block Reason</label
-      >
-      <input
-        v-model="formData.blockReason"
-        type="text"
-        placeholder="e.g., Maintenance, Private Event"
-        class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-        required
-      />
-    </div>
-
     <!-- Action Buttons -->
     <div class="flex justify-end space-x-3 pt-4 border-t border-slate-200">
       <button
@@ -443,7 +402,7 @@
         </svg>
         <span>
           {{ isSubmitting ? 'Creating...' : isEditMode ? 'Update' : 'Create' }}
-          {{ formData.type === 'blocked' ? 'Block' : 'Booking' }}
+          Booking
           {{
             selectedSlots.length > 1 && batchMode
               ? ` (${selectedSlots.length})`
@@ -510,7 +469,6 @@ const formData = ref({
   price: 150000,
   status: 'confirmed',
   paymentStatus: 'pending',
-  blockReason: '',
 })
 
 const batchMode = ref(false)
@@ -608,33 +566,31 @@ const toggleBatchMode = () => {
 
 const handleSubmit = async () => {
   // Validate required fields
-  if (formData.value.type === 'booking') {
-    if (!validatePlayers()) {
-      return
-    }
+  if (!validatePlayers()) {
+    return
+  }
 
-    if (
-      !formData.value.contact ||
-      !ValidationUtils.isValidEmail(formData.value.contact)
-    ) {
-      alert('Please provide a valid email address.')
-      return
-    }
+  if (
+    !formData.value.contact ||
+    !ValidationUtils.isValidEmail(formData.value.contact)
+  ) {
+    alert('Please provide a valid email address.')
+    return
+  }
 
-    if (
-      !formData.value.phone ||
-      !ValidationUtils.isValidPhoneNumber(formData.value.phone)
-    ) {
-      alert(
-        'Please provide a valid Indonesian phone number (e.g., +62812345678 or 08123456789).'
-      )
-      return
-    }
+  if (
+    !formData.value.phone ||
+    !ValidationUtils.isValidPhoneNumber(formData.value.phone)
+  ) {
+    alert(
+      'Please provide a valid Indonesian phone number (e.g., +62812345678 or 08123456789).'
+    )
+    return
+  }
 
-    if (!ValidationUtils.isValidPrice(formData.value.price)) {
-      alert('Please provide a valid price.')
-      return
-    }
+  if (!ValidationUtils.isValidPrice(formData.value.price)) {
+    alert('Please provide a valid price.')
+    return
   }
 
   isSubmitting.value = true
@@ -642,88 +598,28 @@ const handleSubmit = async () => {
   try {
     const baseData = {
       court: formData.value.court,
-      type: formData.value.type,
+      type: 'booking',
     }
 
-    if (formData.value.type === 'blocked') {
-      // Handle blocked slots
-      if (props.selectedSlots.length > 1 && batchMode.value) {
-        // Batch create blocked slots
-        for (const slot of props.selectedSlots) {
-          const blockData = {
-            ...baseData,
-            title: `🚫 ${formData.value.blockReason}`,
-            reason: formData.value.blockReason,
-            start: slot.start,
-            end: slot.end,
-          }
-          await emit('create', blockData)
-        }
-      } else {
-        // Single or individual blocked slots
-        const blockData = {
-          ...baseData,
-          title: `🚫 ${formData.value.blockReason}`,
-          reason: formData.value.blockReason,
-          start:
-            props.selectedSlots.length > 0
-              ? props.selectedSlots[0].start
-              : formData.value.startTime,
-          end:
-            props.selectedSlots.length > 0
-              ? props.selectedSlots[props.selectedSlots.length - 1].end
-              : formData.value.endTime,
-        }
+    // Handle regular bookings
+    const validPlayers = formData.value.players.filter((p) => p && p.trim())
+    const validPlayerPhones = formData.value.playerPhones.filter(
+      (p, index) =>
+        formData.value.players[index] &&
+        formData.value.players[index].trim() &&
+        p &&
+        p.trim()
+    )
 
-        if (props.isEditMode && props.editingBooking) {
-          emit('update', props.editingBooking.id, blockData)
-        } else {
-          emit('create', blockData)
-        }
-      }
-    } else {
-      // Handle regular bookings
-      const validPlayers = formData.value.players.filter((p) => p && p.trim())
-      const validPlayerPhones = formData.value.playerPhones.filter(
-        (p, index) =>
-          formData.value.players[index] &&
-          formData.value.players[index].trim() &&
-          p &&
-          p.trim()
-      )
-
-      if (props.selectedSlots.length > 1 && batchMode.value) {
-        // Batch create bookings with sequential processing
-        for (let i = 0; i < props.selectedSlots.length; i++) {
-          const slot = props.selectedSlots[i]
-          const bookingData = {
-            ...baseData,
-            title: `${formData.value.title} ${props.selectedSlots.length > 1 ? `(${i + 1}/${props.selectedSlots.length})` : ''}`,
-            start: slot.start,
-            end: slot.end,
-            players: validPlayers,
-            playerPhones: validPlayerPhones,
-            contact: formData.value.contact,
-            phone: formData.value.phone,
-            price: formData.value.price,
-            status: formData.value.status,
-            paymentStatus: formData.value.paymentStatus,
-          }
-          await emit('create', bookingData)
-        }
-      } else {
-        // Single or individual bookings
+    if (props.selectedSlots.length > 1 && batchMode.value) {
+      // Batch create bookings with sequential processing
+      for (let i = 0; i < props.selectedSlots.length; i++) {
+        const slot = props.selectedSlots[i]
         const bookingData = {
           ...baseData,
-          title: formData.value.title,
-          start:
-            props.selectedSlots.length > 0
-              ? props.selectedSlots[0].start
-              : formData.value.startTime,
-          end:
-            props.selectedSlots.length > 0
-              ? props.selectedSlots[props.selectedSlots.length - 1].end
-              : formData.value.endTime,
+          title: `${formData.value.title} ${props.selectedSlots.length > 1 ? `(${i + 1}/${props.selectedSlots.length})` : ''}`,
+          start: slot.start,
+          end: slot.end,
           players: validPlayers,
           playerPhones: validPlayerPhones,
           contact: formData.value.contact,
@@ -732,12 +628,34 @@ const handleSubmit = async () => {
           status: formData.value.status,
           paymentStatus: formData.value.paymentStatus,
         }
+        await emit('create', bookingData)
+      }
+    } else {
+      // Single booking
+      const bookingData = {
+        ...baseData,
+        title: formData.value.title,
+        start:
+          props.selectedSlots.length > 0
+            ? props.selectedSlots[0].start
+            : formData.value.startTime,
+        end:
+          props.selectedSlots.length > 0
+            ? props.selectedSlots[props.selectedSlots.length - 1].end
+            : formData.value.endTime,
+        players: validPlayers,
+        playerPhones: validPlayerPhones,
+        contact: formData.value.contact,
+        phone: formData.value.phone,
+        price: formData.value.price,
+        status: formData.value.status,
+        paymentStatus: formData.value.paymentStatus,
+      }
 
-        if (props.isEditMode && props.editingBooking) {
-          emit('update', props.editingBooking.id, bookingData)
-        } else {
-          emit('create', bookingData)
-        }
+      if (props.isEditMode && props.editingBooking) {
+        emit('update', props.editingBooking.id, bookingData)
+      } else {
+        emit('create', bookingData)
       }
     }
   } finally {
@@ -774,7 +692,7 @@ watch(
       playerValidationError.value = ''
 
       formData.value = {
-        type: booking.type === 'blocked' ? 'blocked' : 'booking',
+        type: 'booking',
         title: booking.title || '',
         startTime: booking.start
           ? new Date(booking.start).toISOString().slice(0, 16)
@@ -790,7 +708,6 @@ watch(
         price: booking.price || 150000,
         status: booking.status || 'confirmed',
         paymentStatus: booking.paymentStatus || 'pending',
-        blockReason: booking.reason || '',
       }
     }
   },
