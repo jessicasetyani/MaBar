@@ -416,6 +416,21 @@ export class BookingService {
   static formatBookingForCalendar(booking: BookingData) {
     console.log('🎨 Formatting booking for calendar:', booking)
 
+    // Ensure exact time synchronization
+    const startTime = new Date(booking.startTime)
+    const endTime = new Date(booking.endTime)
+
+    // Validate 24-hour duration for display consistency
+    const duration = endTime.getTime() - startTime.getTime()
+    const is24Hour = Math.abs(duration - 24 * 60 * 60 * 1000) < 60000
+
+    console.log('⏰ Time sync check:', {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      duration: duration / (1000 * 60 * 60),
+      is24Hour,
+    })
+
     const players = booking.players || []
 
     // Enhanced title format with court and player info
@@ -435,14 +450,14 @@ export class BookingService {
       displayTitle += ' - Booking'
     }
 
-    // Add status indicator
+    // Add 24h indicator and status
     const statusIcon =
       booking.status === 'confirmed'
         ? '✓'
         : booking.status === 'pending'
           ? '⏳'
           : '❌'
-    displayTitle = `${statusIcon} ${displayTitle}`
+    displayTitle = `${statusIcon} ${displayTitle}${is24Hour ? ' (24h)' : ''}`
 
     // Different colors for different courts to make them easier to distinguish
     const getCourtColor = (court: string) => {
@@ -464,8 +479,8 @@ export class BookingService {
     const calendarEvent = {
       id: booking.id!,
       title: displayTitle,
-      start: booking.startTime,
-      end: booking.endTime,
+      start: startTime, // Use validated Date objects
+      end: endTime, // Use validated Date objects
       backgroundColor: bgColor,
       borderColor: bgColor,
       textColor: '#ffffff',
@@ -480,8 +495,22 @@ export class BookingService {
         phone: booking.phone,
         price: booking.price,
         paymentStatus: booking.paymentStatus,
-        // Additional display info
-        timeSlot: `${booking.startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${booking.endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`,
+        is24Hour,
+        duration: Math.round(duration / (1000 * 60 * 60)),
+        // Exact time display for verification
+        timeSlot: `${startTime.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })} - ${endTime.toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        })}`,
         playerCount: players.length,
         formattedPrice: new Intl.NumberFormat('id-ID', {
           style: 'currency',
@@ -490,7 +519,14 @@ export class BookingService {
       },
     }
 
-    console.log('📅 Calendar event created:', calendarEvent)
+    console.log('📅 Calendar event created with exact times:', {
+      id: calendarEvent.id,
+      start: calendarEvent.start,
+      end: calendarEvent.end,
+      duration: is24Hour
+        ? '24h'
+        : `${Math.round(duration / (1000 * 60 * 60))}h`,
+    })
     return calendarEvent
   }
 

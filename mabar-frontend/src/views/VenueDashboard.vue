@@ -372,7 +372,7 @@
         <!-- Multi-colored FAB with enhanced Google Calendar styling -->
         <button
           @click="openBookingForm"
-          class="w-16 h-16 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-400 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-500 text-slate-800 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 active:scale-95 transition-all duration-300 ease-out flex items-center justify-center group relative overflow-hidden"
+          class="fab-button bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-400 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-500 text-slate-800 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 active:scale-95 transition-all duration-300 ease-out flex items-center justify-center group relative overflow-hidden"
           title="Create 24-Hour Booking"
           aria-label="Create new 24-hour booking"
         >
@@ -466,7 +466,7 @@ const calendarLoading = ref(false)
 const calendarError = ref<string | null>(null)
 const calendarRetrying = ref(false)
 
-// Load booking data directly
+// Load booking data and blocked slots directly
 const loadBookings = async () => {
   const venueId = venueOwnerData.value?.objectId
   if (!venueId) {
@@ -474,22 +474,57 @@ const loadBookings = async () => {
     return
   }
 
-  console.log('🔍 Loading bookings for venue:', venueId)
+  console.log('🔍 Loading bookings and blocked slots for venue:', venueId)
   try {
-    const bookingData = await BookingService.getBookings(venueId)
-    console.log('📅 Raw booking data:', bookingData)
+    // Load both bookings and blocked slots for complete time synchronization
+    const [bookingData, blockedData] = await Promise.all([
+      BookingService.getBookings(venueId),
+      BookingService.getBlockedSlots(venueId),
+    ])
 
-    bookings.value = bookingData.map((booking) => {
+    console.log('📅 Raw booking data:', bookingData)
+    console.log('🚫 Raw blocked slots:', blockedData)
+
+    // Format bookings for calendar
+    const formattedBookings = bookingData.map((booking) => {
       const formatted = BookingService.formatBookingForCalendar(booking)
-      console.log('📅 Formatted booking:', formatted)
+      console.log('📅 Formatted booking:', {
+        id: formatted.id,
+        start: formatted.start,
+        end: formatted.end,
+        duration:
+          (formatted.end.getTime() - formatted.start.getTime()) /
+          (1000 * 60 * 60),
+      })
       return formatted
     })
 
-    console.log('✅ Bookings loaded:', bookings.value.length)
+    // Format blocked slots for calendar
+    const formattedBlocked = blockedData.map((blocked) => {
+      const formatted = BookingService.formatBlockedSlotForCalendar(blocked)
+      console.log('🚫 Formatted blocked slot:', {
+        id: formatted.id,
+        start: formatted.start,
+        end: formatted.end,
+        duration:
+          (formatted.end.getTime() - formatted.start.getTime()) /
+          (1000 * 60 * 60),
+      })
+      return formatted
+    })
+
+    // Combine all events for complete calendar synchronization
+    bookings.value = [...formattedBookings, ...formattedBlocked]
+
+    console.log('✅ All calendar events loaded:', {
+      bookings: formattedBookings.length,
+      blocked: formattedBlocked.length,
+      total: bookings.value.length,
+    })
   } catch (error) {
-    console.error('❌ Error loading bookings:', error)
+    console.error('❌ Error loading calendar data:', error)
     calendarError.value =
-      error instanceof Error ? error.message : 'Failed to load bookings'
+      error instanceof Error ? error.message : 'Failed to load calendar data'
   }
 }
 
@@ -583,40 +618,7 @@ const calendarOptions = computed(() => {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
     },
-    views: {
-      dayGridMonth: {
-        titleFormat: { year: 'numeric', month: 'long' },
-        dayMaxEvents: 3,
-        moreLinkClick: 'popover',
-      },
-      timeGridWeek: {
-        titleFormat: { year: 'numeric', month: 'short', day: 'numeric' },
-        slotLabelFormat: {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        },
-      },
-      timeGridDay: {
-        titleFormat: {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-          weekday: 'long',
-        },
-        slotLabelFormat: {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: false,
-        },
-      },
-      listWeek: {
-        titleFormat: { year: 'numeric', month: 'long', day: 'numeric' },
-        listDayFormat: { weekday: 'long', month: 'short', day: 'numeric' },
-        listDaySideFormat: false,
-        noEventsText: 'No 24-hour bookings scheduled for this week',
-      },
-    },
+
     height: 'auto',
     events: allEvents,
     selectable: false,
@@ -711,15 +713,7 @@ const calendarOptions = computed(() => {
 
 // Data loading is now handled by the useCalendarData composable
 
-const handleEventClick = async (clickInfo: {
-  event: {
-    id: string
-    title: string
-    start: Date
-    end: Date
-    extendedProps?: Record<string, unknown>
-  }
-}) => {
+const handleEventClick = async (clickInfo: any) => {
   const event = clickInfo.event
   console.log('📅 Event clicked:', event)
 
@@ -728,9 +722,18 @@ const handleEventClick = async (clickInfo: {
     selectedBookingForDetails.value = {
       id: event.id,
       title: event.title,
-      start: event.start,
-      end: event.end,
-      extendedProps: event.extendedProps,
+      start: event.start || new Date(),
+      end: event.end || new Date(),
+      extendedProps: {
+        type: event.extendedProps.type || 'booking',
+        status: event.extendedProps.status,
+        court: event.extendedProps.court,
+        players: event.extendedProps.players,
+        contact: event.extendedProps.contact,
+        phone: event.extendedProps.phone,
+        price: event.extendedProps.price,
+        paymentStatus: event.extendedProps.paymentStatus,
+      },
     }
     showBookingDetails.value = true
     console.log('📋 Showing booking details for:', event.title)
@@ -769,12 +772,34 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
       throw new Error('No venue ID available')
     }
 
+    // Ensure exact time synchronization
+    const startTime = new Date(bookingData.start as string)
+    const endTime = new Date(bookingData.end as string)
+
+    // Validate exact 24-hour duration
+    const duration = endTime.getTime() - startTime.getTime()
+    const expectedDuration = 24 * 60 * 60 * 1000
+
+    console.log('⏰ Booking time validation:', {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString(),
+      duration: duration / (1000 * 60 * 60),
+      expected: 24,
+      isValid: Math.abs(duration - expectedDuration) < 60000,
+    })
+
+    if (Math.abs(duration - expectedDuration) > 60000) {
+      throw new Error(
+        `Booking must be exactly 24 hours. Current duration: ${Math.round(duration / (1000 * 60 * 60))} hours`
+      )
+    }
+
     // Create regular booking using BookingService
     await BookingService.createBooking({
       venueId,
       title: bookingData.title as string,
-      startTime: new Date(bookingData.start as string),
-      endTime: new Date(bookingData.end as string),
+      startTime,
+      endTime,
       court: (bookingData.court as string) || '',
       players: (bookingData.players as string[]) || [],
       playerPhones: (bookingData.playerPhones as string[]) || [],
@@ -789,6 +814,7 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
         'pending',
     })
 
+    console.log('✓ Booking created successfully with exact 24h duration')
     return { success: true }
   } catch (error) {
     console.error('Error creating booking:', error)
@@ -895,14 +921,33 @@ const closeBookingDetails = () => {
 }
 
 const editBookingFromDetails = () => {
-  if (selectedBookingForDetails.value) {
+  if (
+    selectedBookingForDetails.value &&
+    selectedBookingForDetails.value.extendedProps
+  ) {
     editingBooking.value = {
       id: selectedBookingForDetails.value.id,
       title: selectedBookingForDetails.value.title,
       start: selectedBookingForDetails.value.start,
       end: selectedBookingForDetails.value.end,
       type: 'booking',
-      ...selectedBookingForDetails.value.extendedProps,
+      players:
+        (selectedBookingForDetails.value.extendedProps.players as string[]) ||
+        [],
+      contact:
+        (selectedBookingForDetails.value.extendedProps.contact as string) || '',
+      phone:
+        (selectedBookingForDetails.value.extendedProps.phone as string) || '',
+      price:
+        (selectedBookingForDetails.value.extendedProps.price as number) || 0,
+      status:
+        (selectedBookingForDetails.value.extendedProps.status as string) ||
+        'confirmed',
+      paymentStatus:
+        (selectedBookingForDetails.value.extendedProps
+          .paymentStatus as string) || 'pending',
+      court:
+        (selectedBookingForDetails.value.extendedProps.court as string) || '',
     }
     isEditMode.value = true
     showBookingDetails.value = false
@@ -911,7 +956,7 @@ const editBookingFromDetails = () => {
 }
 
 const deleteBookingFromDetails = async () => {
-  if (selectedBookingForDetails.value) {
+  if (selectedBookingForDetails.value?.id) {
     await deleteBooking(selectedBookingForDetails.value.id)
     closeBookingDetails()
   }
@@ -1320,38 +1365,103 @@ onMounted(async () => {
   }
 }
 
-/* Responsive FAB positioning with enhanced mobile experience */
-@media (max-width: 768px) {
+/* Responsive FAB sizing for optimal visibility */
+.fab-button {
+  /* Base size for desktop (1920px+) */
+  width: 4rem;
+  height: 4rem;
+}
+
+.fab-button svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+/* Large desktop (1440px-1919px) */
+@media (max-width: 1919px) and (min-width: 1440px) {
+  .fab-button {
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+  .fab-button svg {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+}
+
+/* Standard desktop (1024px-1439px) */
+@media (max-width: 1439px) and (min-width: 1024px) {
+  .fab-button {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+  .fab-button svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+/* Tablet landscape (768px-1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
   .fixed.bottom-6.right-6 {
     bottom: 1.5rem !important;
     right: 1.5rem !important;
   }
-
-  .fixed.bottom-6.right-6 button {
-    width: 3.5rem !important;
-    height: 3.5rem !important;
+  .fab-button {
+    width: 3.25rem;
+    height: 3.25rem;
   }
-
-  .fixed.bottom-6.right-6 button svg {
-    width: 1.5rem !important;
-    height: 1.5rem !important;
+  .fab-button svg {
+    width: 1.375rem;
+    height: 1.375rem;
   }
 }
 
-@media (max-width: 640px) {
+/* Tablet portrait and mobile landscape (640px-767px) */
+@media (max-width: 767px) and (min-width: 640px) {
+  .fixed.bottom-6.right-6 {
+    bottom: 1.25rem !important;
+    right: 1.25rem !important;
+  }
+  .fab-button {
+    width: 3rem;
+    height: 3rem;
+  }
+  .fab-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+/* Mobile portrait (320px-639px) */
+@media (max-width: 639px) {
   .fixed.bottom-6.right-6 {
     bottom: 1rem !important;
     right: 1rem !important;
   }
-
-  .fixed.bottom-6.right-6 button {
-    width: 3rem !important;
-    height: 3rem !important;
+  .fab-button {
+    width: 2.75rem;
+    height: 2.75rem;
   }
+  .fab-button svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
 
-  .fixed.bottom-6.right-6 button svg {
-    width: 1.25rem !important;
-    height: 1.25rem !important;
+/* Very small screens (below 320px) */
+@media (max-width: 319px) {
+  .fixed.bottom-6.right-6 {
+    bottom: 0.75rem !important;
+    right: 0.75rem !important;
+  }
+  .fab-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .fab-button svg {
+    width: 1rem;
+    height: 1rem;
   }
 }
 
