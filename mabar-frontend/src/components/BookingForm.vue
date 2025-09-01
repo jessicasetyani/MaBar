@@ -25,11 +25,11 @@
           </div>
           <div class="flex-1">
             <h4 class="text-base font-bold text-slate-800 mb-1">
-              24-Hour Court Booking
+              Flexible Duration Court Booking
             </h4>
             <p class="text-sm text-slate-600 leading-relaxed">
-              Reserve the court for a full 24-hour period. Perfect for
-              tournaments, extended training sessions, or special events.
+              Reserve the court for your desired duration (1-24 hours). Perfect for
+              training sessions, matches, tournaments, or special events.
             </p>
           </div>
         </div>
@@ -64,8 +64,45 @@
             />
           </div>
 
+          <!-- Duration Selection -->
+          <div>
+            <label
+              class="block text-sm font-semibold text-slate-700 mb-2 flex items-center space-x-2"
+            >
+              <svg
+                class="w-4 h-4 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>Booking Duration</span>
+            </label>
+            <select
+              v-model="selectedDuration"
+              @change="updateEndTime"
+              class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-white"
+              required
+            >
+              <option value="1">1 Hour</option>
+              <option value="2">2 Hours</option>
+              <option value="3">3 Hours</option>
+              <option value="4">4 Hours</option>
+              <option value="6">6 Hours</option>
+              <option value="8">8 Hours</option>
+              <option value="12">12 Hours</option>
+              <option value="24">24 Hours</option>
+            </select>
+          </div>
+
           <div
-            v-if="formData.startTime"
+            v-if="formData.startTime && selectedDuration"
             class="bg-white rounded-lg p-4 border-2 border-green-200 shadow-sm"
           >
             <div class="flex items-center space-x-2 mb-3">
@@ -91,7 +128,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
               <div class="flex justify-between">
                 <span class="text-slate-600 font-medium">Duration:</span>
-                <span class="text-slate-800 font-semibold">24 Hours</span>
+                <span class="text-slate-800 font-semibold">{{ selectedDuration }} {{ selectedDuration === 1 ? 'Hour' : 'Hours' }}</span>
               </div>
               <div class="flex justify-between">
                 <span class="text-slate-600 font-medium">Start:</span>
@@ -486,7 +523,7 @@
         </svg>
         <span>
           {{ isSubmitting ? 'Creating...' : isEditMode ? 'Update' : 'Create' }}
-          24-Hour Booking
+          Booking
           {{
             selectedSlots.length > 1 && batchMode
               ? ` (${selectedSlots.length})`
@@ -555,19 +592,22 @@ const formData = ref({
   paymentStatus: 'pending',
 })
 
-// Update end time to be exactly 24 hours after start time
+// Duration selection (default to 2 hours for better UX)
+const selectedDuration = ref(2)
+
+// Update end time based on selected duration
 const updateEndTime = () => {
-  if (formData.value.startTime) {
+  if (formData.value.startTime && selectedDuration.value) {
     const startDate = new Date(formData.value.startTime)
-    const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
+    const endDate = new Date(startDate.getTime() + selectedDuration.value * 60 * 60 * 1000) // Add selected hours
     formData.value.endTime = endDate.toISOString().slice(0, 16)
   }
 }
 
 const formatEndTime = () => {
-  if (formData.value.startTime) {
+  if (formData.value.startTime && selectedDuration.value) {
     const startDate = new Date(formData.value.startTime)
-    const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000)
+    const endDate = new Date(startDate.getTime() + selectedDuration.value * 60 * 60 * 1000)
     return endDate.toLocaleString('en-US', {
       weekday: 'short',
       month: 'short',
@@ -846,14 +886,14 @@ watch(
 )
 
 onMounted(() => {
-  // Set default times if no slots selected - default to next hour for 24-hour booking
+  // Set default times if no slots selected - default to next hour for flexible duration booking
   if (props.selectedSlots.length === 0 && !props.isEditMode) {
     const now = new Date()
     now.setMinutes(0, 0, 0)
     now.setHours(now.getHours() + 1) // Start from next hour
 
     formData.value.startTime = now.toISOString().slice(0, 16)
-    updateEndTime() // Set end time to 24 hours later
+    updateEndTime() // Set end time based on selected duration
   }
 
   // Initialize with minimum required player slots

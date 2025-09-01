@@ -363,7 +363,7 @@
       </main>
     </div>
 
-    <!-- Enhanced Floating Action Button (FAB) for 24-Hour Bookings -->
+    <!-- Enhanced Floating Action Button (FAB) for Flexible Duration Bookings -->
     <div
       v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
       class="fixed bottom-6 right-6 z-[9999]"
@@ -373,8 +373,8 @@
         <button
           @click="openBookingForm"
           class="fab-button bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-400 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-500 text-slate-800 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 active:scale-95 transition-all duration-300 ease-out flex items-center justify-center group relative overflow-hidden"
-          title="Create 24-Hour Booking"
-          aria-label="Create new 24-hour booking"
+          title="Create New Booking"
+          aria-label="Create new booking"
         >
           <!-- Animated background gradient -->
           <div
@@ -406,7 +406,7 @@
         <div
           class="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-slate-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"
         >
-          Create 24-Hour Booking
+          Create New Booking
           <div
             class="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800"
           ></div>
@@ -627,7 +627,7 @@ const calendarOptions = computed(() => {
     weekends: true,
     slotMinTime: '00:00:00',
     slotMaxTime: '24:00:00',
-    slotDuration: '01:00:00',
+    slotDuration: '00:30:00',
     allDaySlot: false,
     eventColor: MaBarColors.calendar.confirmed,
     eventTextColor: MaBarColors.surface,
@@ -648,13 +648,13 @@ const calendarOptions = computed(() => {
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
     },
-    // Enhanced empty slot clicks for 24-hour booking creation
+    // Enhanced empty slot clicks for flexible duration booking creation
     dateClick: (info: {
       dateStr: string
       date: Date
       view: { type: string }
     }) => {
-      console.log('📅 Calendar slot clicked for 24h booking:', {
+      console.log('📅 Calendar slot clicked for booking:', {
         dateStr: info.dateStr,
         viewType: info.view.type,
         date: info.date,
@@ -670,7 +670,7 @@ const calendarOptions = computed(() => {
         return
       }
 
-      // Set the clicked time as start time for 24-hour booking
+      // Set the clicked time as start time for flexible duration booking
       const clickedDate = new Date(info.date)
       clickedDate.setMinutes(0, 0, 0) // Round to nearest hour
 
@@ -776,21 +776,20 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
     const startTime = new Date(bookingData.start as string)
     const endTime = new Date(bookingData.end as string)
 
-    // Validate exact 24-hour duration
+    // Validate booking duration (1-24 hours)
     const duration = endTime.getTime() - startTime.getTime()
-    const expectedDuration = 24 * 60 * 60 * 1000
+    const durationHours = duration / (1000 * 60 * 60)
 
     console.log('⏰ Booking time validation:', {
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
-      duration: duration / (1000 * 60 * 60),
-      expected: 24,
-      isValid: Math.abs(duration - expectedDuration) < 60000,
+      durationHours: durationHours,
+      isValid: durationHours >= 1 && durationHours <= 24,
     })
 
-    if (Math.abs(duration - expectedDuration) > 60000) {
+    if (durationHours < 1 || durationHours > 24) {
       throw new Error(
-        `Booking must be exactly 24 hours. Current duration: ${Math.round(duration / (1000 * 60 * 60))} hours`
+        `Booking duration must be between 1 and 24 hours. Current duration: ${Math.round(durationHours)} hours`
       )
     }
 
@@ -1262,7 +1261,7 @@ onMounted(async () => {
   }
 }
 
-/* Enhanced 24-hour booking calendar styles */
+/* Enhanced flexible duration booking calendar styles */
 .venue-calendar .fc-timegrid-event {
   border-radius: 8px !important;
   border-width: 2px !important;
@@ -1274,8 +1273,9 @@ onMounted(async () => {
   min-height: 20px !important;
 }
 
-/* 24-hour booking specific styling */
-.venue-calendar .fc-event[title*='(24h)'] {
+/* Long duration booking specific styling (12+ hours) */
+.venue-calendar .fc-event[title*='(24h)'],
+.venue-calendar .fc-event[title*='(12h)'] {
   border-left-width: 4px !important;
   background: linear-gradient(
     135deg,
@@ -1320,7 +1320,7 @@ onMounted(async () => {
   --bg-color-dark: #dc2626;
 }
 
-/* Enhanced FAB styling for 24-hour bookings with Google Calendar design */
+/* Enhanced FAB styling for flexible duration bookings with Google Calendar design */
 .fixed.bottom-6.right-6 {
   filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
 }
