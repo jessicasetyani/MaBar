@@ -786,8 +786,6 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
       court: (bookingData.court as string) || '',
       players: (bookingData.players as string[]) || [],
       playerPhones: (bookingData.playerPhones as string[]) || [],
-      contact: bookingData.contact as string,
-      phone: bookingData.phone as string,
       price: bookingData.price as number,
       status:
         (bookingData.status as 'confirmed' | 'pending' | 'cancelled') ||
@@ -821,7 +819,7 @@ const updateBooking = async (
       players: (bookingData.players as string[]) || [],
       playerPhones: (bookingData.playerPhones as string[]) || [],
       contact: bookingData.contact as string,
-      phone: bookingData.phone as string,
+      // Note: Venue phone contact removed - only player phone numbers are used
       price: bookingData.price as number,
       status: bookingData.status as 'confirmed' | 'pending' | 'cancelled',
       paymentStatus: bookingData.paymentStatus as

@@ -8,10 +8,9 @@ export interface BookingData {
   startTime: Date
   endTime: Date
   court: string
-  players: string[]
-  playerPhones: string[]
-  contact: string
-  phone: string
+  players: string[]        // Customer/player names (manual input)
+  playerPhones: string[]   // Customer/player phone numbers (manual input)
+  contact?: string         // Venue contact email (from authenticated venue owner profile)
   price: number
   status: 'confirmed' | 'pending' | 'cancelled'
   paymentStatus: 'pending' | 'paid' | 'refunded'
@@ -67,8 +66,8 @@ export class BookingService {
           court: booking.get('court'),
           players: booking.get('players') || [],
           playerPhones: booking.get('playerPhones') || [],
-          contact: booking.get('contact'),
-          phone: booking.get('phone'),
+          contact: booking.get('contact') || undefined,
+          // Note: Venue phone contact removed - only player phone numbers are used
           price: booking.get('price'),
           status: booking.get('status'),
           paymentStatus: booking.get('paymentStatus'),
@@ -143,8 +142,10 @@ export class BookingService {
       booking.set('court', bookingData.court)
       booking.set('players', bookingData.players)
       booking.set('playerPhones', bookingData.playerPhones)
-      booking.set('contact', bookingData.contact)
-      booking.set('phone', bookingData.phone)
+      if (bookingData.contact) {
+        booking.set('contact', bookingData.contact)
+      }
+      // Note: Venue phone contact removed - only player phone numbers are stored
       booking.set('price', bookingData.price)
       booking.set('status', bookingData.status)
       booking.set('paymentStatus', bookingData.paymentStatus)
@@ -388,15 +389,22 @@ export class BookingService {
     if (!ValidationUtils.isValidCourt(data.court)) {
       throw new Error('Invalid court selection')
     }
-    if (!ValidationUtils.isValidEmail(data.contact)) {
-      throw new Error('Invalid email format')
+
+    // VENUE CONTACT VALIDATION (Optional):
+    // Venue contact email is automatically populated from authenticated venue owner profile
+    // and validated during profile creation. Phone contact is not used for venue.
+    // Only validate email here if contact field is provided (for backward compatibility).
+    if (data.contact && !ValidationUtils.isValidEmail(data.contact)) {
+      throw new Error('Invalid venue contact email format')
     }
-    if (!ValidationUtils.isValidPhoneNumber(data.phone)) {
-      throw new Error('Invalid phone number format')
-    }
+    // Note: Venue phone contact removed - only player phone numbers are validated
+
     if (!ValidationUtils.isValidPrice(data.price)) {
       throw new Error('Invalid price')
     }
+
+    // PLAYER VALIDATION (Required):
+    // Player information is manually entered during booking creation and must be validated.
     const playerValidation = ValidationUtils.validatePlayers(data.players)
     if (!playerValidation.isValid) {
       throw new Error(playerValidation.error!)
@@ -503,7 +511,7 @@ export class BookingService {
         players: players,
         playerPhones: booking.playerPhones,
         contact: booking.contact,
-        phone: booking.phone,
+        // Note: Venue phone contact removed - only player phone numbers are used
         price: booking.price,
         paymentStatus: booking.paymentStatus,
         duration: durationHours,

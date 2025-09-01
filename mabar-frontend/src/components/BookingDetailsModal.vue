@@ -88,21 +88,13 @@
             <div v-if="booking.extendedProps?.contact">
               <label
                 class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Contact</label
+                >Venue Contact</label
               >
               <p class="text-sm text-slate-900">
                 {{ booking.extendedProps.contact }}
               </p>
             </div>
-            <div v-if="booking.extendedProps?.phone">
-              <label
-                class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Phone</label
-              >
-              <p class="text-sm text-slate-900">
-                {{ booking.extendedProps.phone }}
-              </p>
-            </div>
+            <!-- Note: Venue phone contact removed - only player phone numbers are used -->
           </div>
 
           <!-- Status & Payment -->
@@ -168,7 +160,7 @@ interface Props {
       court?: string
       players?: string[]
       contact?: string
-      phone?: string
+      // Note: Venue phone contact removed - only player phone numbers are used
       price?: number
       paymentStatus?: string
     }
