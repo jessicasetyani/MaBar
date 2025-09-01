@@ -1016,6 +1016,26 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * BookingForm Component - Contact Information Data Sources
+ *
+ * VENUE CONTACT INFORMATION (Automatic):
+ * - Email: Populated from authenticated venue owner's profile (personalInfo.email)
+ * - Source: VenueOwnerService.getVenueOwnerProfile()
+ * - Validation: Validated during venue owner profile creation/update
+ *
+ * CUSTOMER/PLAYER INFORMATION (Manual Input):
+ * - Player Names: Manual input fields for up to 4 customers/players
+ * - Player Phone Numbers: Manual input fields for customer contact information
+ * - Source: Form input fields in this component
+ * - Validation: Validated during booking creation
+ *
+ * Note: Venue phone contact has been removed - only player phone numbers are used
+ *
+ * The booking system distinguishes between:
+ * 1. Venue contact details (for business communication) - from authenticated profile
+ * 2. Customer/player details (for booking participants) - from manual form input
+ */
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { ValidationUtils } from '../utils/validation'
 
@@ -1035,10 +1055,9 @@ interface Props {
     start: Date
     end: Date
     type: string
-    players?: string[]
-    playerPhones?: string[]
-    contact?: string
-    phone?: string
+    players?: string[]        // Customer/player names (manual input)
+    playerPhones?: string[]   // Customer/player phone numbers (manual input)
+    contact?: string          // Venue contact email (from authenticated venue owner profile)
     price?: number
     status?: string
     paymentStatus?: string

@@ -1,6 +1,16 @@
 import Parse from './back4app'
 import { ValidationUtils } from '../utils/validation'
 
+/**
+ * BookingData Interface - Contact Information Sources
+ *
+ * VENUE CONTACT FIELDS (Automatic from authenticated profile):
+ * - contact: Venue email from venue owner's personalInfo.email
+ *
+ * CUSTOMER/PLAYER FIELDS (Manual form input):
+ * - players: Customer/player names (up to 4)
+ * - playerPhones: Customer/player phone numbers (for players only)
+ */
 export interface BookingData {
   id?: string
   venueId: string

@@ -778,7 +778,7 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
     }
 
     // Create regular booking using BookingService
-    await BookingService.createBooking({
+    const bookingPayload: any = {
       venueId,
       title: bookingData.title as string,
       startTime,
@@ -793,7 +793,15 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
       paymentStatus:
         (bookingData.paymentStatus as 'pending' | 'paid' | 'refunded') ||
         'pending',
-    })
+    }
+
+    // Automatically populate venue contact email from authenticated venue owner profile
+    // Note: Phone contact is removed - only player phone numbers are used
+    if (venueOwnerData.value?.personalInfo?.email) {
+      bookingPayload.contact = venueOwnerData.value.personalInfo.email as string
+    }
+
+    await BookingService.createBooking(bookingPayload)
 
     console.log('✓ Booking created successfully with exact 24h duration')
     return { success: true }
