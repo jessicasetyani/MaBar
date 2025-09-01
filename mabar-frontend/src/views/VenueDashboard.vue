@@ -118,26 +118,7 @@
             <!-- Calendar -->
             <div v-else>
               <!-- Action Buttons -->
-              <div class="flex justify-between items-center mb-4">
-                <button
-                  @click="openBookingForm"
-                  class="inline-flex items-center px-4 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 font-semibold transition-colors shadow-sm"
-                >
-                  <svg
-                    class="w-5 h-5 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="M12 4v16m8-8H4"
-                    />
-                  </svg>
-                  Add Booking
-                </button>
+              <div class="flex justify-end items-center mb-4">
                 <button
                   @click="refreshData"
                   class="inline-flex items-center px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
@@ -381,6 +362,32 @@
         </div>
       </main>
     </div>
+
+    <!-- Floating Action Button (FAB) -->
+    <div
+      v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
+      class="fixed bottom-6 right-6 z-50"
+    >
+      <button
+        @click="openBookingForm"
+        class="w-14 h-14 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-slate-800 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center group"
+        title="Create 24-hour booking"
+      >
+        <svg
+          class="w-6 h-6 transition-transform group-hover:rotate-90 duration-200"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2.5"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+      </button>
+    </div>
   </div>
 </template>
 
@@ -556,9 +563,9 @@ const calendarOptions = computed(() => {
     selectMirror: false,
     dayMaxEvents: true,
     weekends: true,
-    slotMinTime: '06:00:00',
-    slotMaxTime: '23:00:00',
-    slotDuration: '00:30:00',
+    slotMinTime: '00:00:00',
+    slotMaxTime: '24:00:00',
+    slotDuration: '01:00:00',
     allDaySlot: false,
     eventColor: MaBarColors.calendar.confirmed,
     eventTextColor: MaBarColors.surface,
@@ -579,10 +586,29 @@ const calendarOptions = computed(() => {
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
     },
-    // Handle empty slot clicks
-    dateClick: (info: { dateStr: string }) => {
-      console.log('📅 Empty slot clicked:', info.dateStr)
-      // Could be used for quick booking creation in the future
+    // Handle empty slot clicks for quick 24-hour booking creation
+    dateClick: (info: { dateStr: string; date: Date }) => {
+      console.log('📅 Empty slot clicked for 24h booking:', info.dateStr)
+      // Set the clicked time as start time for 24-hour booking
+      const clickedDate = new Date(info.date)
+      clickedDate.setMinutes(0, 0, 0) // Round to nearest hour
+
+      // Pre-fill the booking form with clicked time
+      if (!showBookingForm.value) {
+        selectedSlots.value = []
+        openBookingForm()
+
+        // Set the start time after form opens
+        setTimeout(() => {
+          const startTimeInput = document.querySelector(
+            'input[type="datetime-local"]'
+          ) as HTMLInputElement
+          if (startTimeInput) {
+            startTimeInput.value = clickedDate.toISOString().slice(0, 16)
+            startTimeInput.dispatchEvent(new Event('change'))
+          }
+        }, 100)
+      }
     },
   }
 })
@@ -1090,32 +1116,109 @@ onMounted(async () => {
   }
 }
 
-/* Safe area for mobile devices */
+/* Safe area for mobile devices with FAB consideration */
 @supports (padding: max(0px)) {
   .venue-calendar {
-    padding-bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+    padding-bottom: max(5rem, env(safe-area-inset-bottom)) !important;
+  }
+
+  .fixed.bottom-6.right-6 {
+    bottom: max(1rem, env(safe-area-inset-bottom)) !important;
   }
 }
 
-/* FAB positioning - Sticky right side center */
-.fab-container {
-  position: fixed !important;
-  z-index: 9999 !important;
-  top: 50% !important;
-  right: 1rem !important;
-  transform: translateY(-50%) !important;
+/* Enhanced 24-hour booking calendar styles */
+.venue-calendar .fc-timegrid-event {
+  border-radius: 8px !important;
+  border-width: 2px !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  padding: 4px 8px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.3s ease !important;
+  min-height: 20px !important;
+}
+
+/* 24-hour booking specific styling */
+.venue-calendar .fc-event[title*='(24h)'] {
+  border-left-width: 4px !important;
+  background: linear-gradient(
+    135deg,
+    var(--bg-color),
+    var(--bg-color-dark)
+  ) !important;
+  position: relative;
+}
+
+.venue-calendar .fc-event[title*='(24h)']:before {
+  content: '24h';
+  position: absolute;
+  top: 2px;
+  right: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #334155;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  line-height: 1;
+}
+
+/* Court-specific 24-hour booking colors */
+.venue-calendar .fc-event[style*='background-color: rgb(59, 130, 246)'] {
+  --bg-color: #3b82f6;
+  --bg-color-dark: #2563eb;
+}
+
+.venue-calendar .fc-event[style*='background-color: rgb(16, 185, 129)'] {
+  --bg-color: #10b981;
+  --bg-color-dark: #059669;
+}
+
+.venue-calendar .fc-event[style*='background-color: rgb(245, 158, 11)'] {
+  --bg-color: #f59e0b;
+  --bg-color-dark: #d97706;
+}
+
+.venue-calendar .fc-event[style*='background-color: rgb(239, 68, 68)'] {
+  --bg-color: #ef4444;
+  --bg-color-dark: #dc2626;
+}
+
+/* Enhanced FAB styling for 24-hour bookings */
+.fixed.bottom-6.right-6 button {
+  box-shadow: 0 8px 25px rgba(253, 224, 71, 0.4) !important;
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.fixed.bottom-6.right-6 button:hover {
+  box-shadow: 0 12px 35px rgba(253, 224, 71, 0.6) !important;
+  transform: scale(1.05) translateY(-2px) !important;
 }
 
 /* Responsive FAB positioning */
 @media (max-width: 768px) {
-  .fab-container {
-    right: 0.75rem !important;
+  .fixed.bottom-6.right-6 {
+    bottom: 1rem !important;
+    right: 1rem !important;
+  }
+
+  .fixed.bottom-6.right-6 button {
+    width: 3rem !important;
+    height: 3rem !important;
+  }
+
+  .fixed.bottom-6.right-6 button svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
   }
 }
 
 @media (max-width: 640px) {
-  .fab-container {
-    right: 0.5rem !important;
+  .fixed.bottom-6.right-6 {
+    bottom: 0.75rem !important;
+    right: 0.75rem !important;
   }
 }
 </style>

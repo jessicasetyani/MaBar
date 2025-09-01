@@ -130,6 +130,9 @@ export class BookingService {
     try {
       BookingService.validateBookingData(bookingData)
 
+      // Check for conflicts with existing bookings on the same court
+      await BookingService.checkBookingConflicts(bookingData)
+
       const BookingClass = Parse.Object.extend('Booking')
       const booking = new BookingClass()
 
@@ -152,6 +155,55 @@ export class BookingService {
     } catch (error) {
       console.error('Error creating booking:', error)
       throw new Error(`Failed to create booking: ${(error as Error).message}`)
+    }
+  }
+
+  static async checkBookingConflicts(
+    bookingData: Omit<BookingData, 'id'>,
+    excludeBookingId?: string
+  ): Promise<void> {
+    try {
+      const BookingClass = Parse.Object.extend('Booking')
+      const query = new Parse.Query(BookingClass)
+
+      query.equalTo('venueId', bookingData.venueId)
+      query.equalTo('court', bookingData.court)
+      query.notEqualTo('status', 'cancelled')
+
+      if (excludeBookingId) {
+        query.notEqualTo('objectId', excludeBookingId)
+      }
+
+      // Check for time overlap
+      const startTime = bookingData.startTime
+      const endTime = bookingData.endTime
+
+      // Find bookings that overlap with the requested time slot
+      const orQuery1 = new Parse.Query(BookingClass)
+      orQuery1.lessThan('startTime', endTime)
+      orQuery1.greaterThan('endTime', startTime)
+
+      const combinedQuery = Parse.Query.and(query, orQuery1)
+      const conflictingBookings = await combinedQuery.find()
+
+      if (conflictingBookings.length > 0) {
+        const conflictDetails = conflictingBookings
+          .map(
+            (booking) =>
+              `${booking.get('title')} (${booking.get('startTime').toLocaleString()} - ${booking.get('endTime').toLocaleString()})`
+          )
+          .join(', ')
+
+        throw new Error(
+          `Court ${bookingData.court} is already booked during this time. Conflicting bookings: ${conflictDetails}`
+        )
+      }
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('already booked')) {
+        throw error
+      }
+      console.error('Error checking booking conflicts:', error)
+      throw new Error('Failed to check booking conflicts')
     }
   }
 
@@ -193,6 +245,28 @@ export class BookingService {
       const BookingClass = Parse.Object.extend('Booking')
       const query = new Parse.Query(BookingClass)
       const booking = await query.get(bookingId)
+
+      // If updating time or court, check for conflicts
+      if (bookingData.startTime || bookingData.endTime || bookingData.court) {
+        const currentData = {
+          venueId: booking.get('venueId'),
+          startTime: bookingData.startTime || booking.get('startTime'),
+          endTime: bookingData.endTime || booking.get('endTime'),
+          court: bookingData.court || booking.get('court'),
+        } as Omit<BookingData, 'id'>
+
+        // Validate 24-hour duration if times are being updated
+        if (bookingData.startTime || bookingData.endTime) {
+          const duration =
+            currentData.endTime.getTime() - currentData.startTime.getTime()
+          const expectedDuration = 24 * 60 * 60 * 1000
+          if (Math.abs(duration - expectedDuration) > 60000) {
+            throw new Error('Booking must be exactly 24 hours duration')
+          }
+        }
+
+        await BookingService.checkBookingConflicts(currentData, bookingId)
+      }
 
       const allowedFields = [
         'title',
@@ -297,6 +371,15 @@ export class BookingService {
     if (!ValidationUtils.isValidTimeRange(data.startTime, data.endTime)) {
       throw new Error('Invalid time range')
     }
+
+    // Validate 24-hour duration
+    const duration = data.endTime.getTime() - data.startTime.getTime()
+    const expectedDuration = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
+    if (Math.abs(duration - expectedDuration) > 60000) {
+      // Allow 1 minute tolerance
+      throw new Error('Booking must be exactly 24 hours duration')
+    }
+
     if (!ValidationUtils.isValidCourt(data.court)) {
       throw new Error('Invalid court selection')
     }
@@ -408,6 +491,48 @@ export class BookingService {
     }
 
     console.log('📅 Calendar event created:', calendarEvent)
+    return calendarEvent
+  }
+
+  static formatBlockedSlotForCalendar(blockedSlot: BlockedSlotData) {
+    console.log('🚫 Formatting blocked slot for calendar:', blockedSlot)
+
+    const duration =
+      blockedSlot.endTime.getTime() - blockedSlot.startTime.getTime()
+    const hours = Math.round(duration / (1000 * 60 * 60))
+
+    let displayTitle = `🚫 ${blockedSlot.court} - BLOCKED`
+
+    if (blockedSlot.reason) {
+      displayTitle += ` (${blockedSlot.reason})`
+    }
+
+    if (hours === 24) {
+      displayTitle += ' (24h)'
+    } else {
+      displayTitle += ` (${hours}h)`
+    }
+
+    const calendarEvent = {
+      id: blockedSlot.id!,
+      title: displayTitle,
+      start: blockedSlot.startTime,
+      end: blockedSlot.endTime,
+      backgroundColor: '#EF4444',
+      borderColor: '#DC2626',
+      textColor: '#ffffff',
+      resourceId: blockedSlot.court,
+      extendedProps: {
+        type: 'blocked',
+        court: blockedSlot.court,
+        reason: blockedSlot.reason,
+        duration: hours,
+        is24Hour: hours === 24,
+        timeSlot: `${blockedSlot.startTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${blockedSlot.startTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} - ${blockedSlot.endTime.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} ${blockedSlot.endTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}`,
+      },
+    }
+
+    console.log('📅 Blocked slot calendar event created:', calendarEvent)
     return calendarEvent
   }
 }

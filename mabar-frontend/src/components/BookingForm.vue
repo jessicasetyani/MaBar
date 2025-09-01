@@ -1,28 +1,61 @@
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-4">
-    <!-- Time Selection -->
+    <!-- 24-Hour Booking Time Selection -->
     <div v-if="!isEditMode && selectedSlots.length === 0" class="space-y-3">
-      <label class="block text-sm font-medium text-slate-700"
-        >Select Time</label
+      <div
+        class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200"
       >
-      <div class="grid grid-cols-2 gap-3">
+        <div class="flex items-center space-x-2 mb-3">
+          <div
+            class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center"
+          >
+            <svg
+              class="w-4 h-4 text-yellow-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold text-yellow-800">
+              24-Hour Booking
+            </h4>
+            <p class="text-xs text-yellow-600">
+              Fixed 24-hour duration from selected start time
+            </p>
+          </div>
+        </div>
+
         <div>
-          <label class="block text-xs text-slate-600 mb-1">Start Time</label>
+          <label class="block text-sm font-medium text-slate-700 mb-2"
+            >Start Time</label
+          >
           <input
             v-model="formData.startTime"
             type="datetime-local"
             class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
             required
+            @change="updateEndTime"
           />
         </div>
-        <div>
-          <label class="block text-xs text-slate-600 mb-1">End Time</label>
-          <input
-            v-model="formData.endTime"
-            type="datetime-local"
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            required
-          />
+
+        <div
+          v-if="formData.startTime"
+          class="mt-3 p-3 bg-white rounded-md border border-yellow-200"
+        >
+          <div class="text-sm text-slate-600">
+            <strong>Booking Duration:</strong> 24 hours
+          </div>
+          <div class="text-sm text-slate-600">
+            <strong>End Time:</strong> {{ formatEndTime() }}
+          </div>
         </div>
       </div>
     </div>
@@ -402,7 +435,7 @@
         </svg>
         <span>
           {{ isSubmitting ? 'Creating...' : isEditMode ? 'Update' : 'Create' }}
-          Booking
+          24-Hour Booking
           {{
             selectedSlots.length > 1 && batchMode
               ? ` (${selectedSlots.length})`
@@ -470,6 +503,31 @@ const formData = ref({
   status: 'confirmed',
   paymentStatus: 'pending',
 })
+
+// Update end time to be exactly 24 hours after start time
+const updateEndTime = () => {
+  if (formData.value.startTime) {
+    const startDate = new Date(formData.value.startTime)
+    const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000) // Add 24 hours
+    formData.value.endTime = endDate.toISOString().slice(0, 16)
+  }
+}
+
+const formatEndTime = () => {
+  if (formData.value.startTime) {
+    const startDate = new Date(formData.value.startTime)
+    const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000)
+    return endDate.toLocaleString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+  }
+  return ''
+}
 
 const batchMode = ref(false)
 const isSubmitting = ref(false)
@@ -715,15 +773,14 @@ watch(
 )
 
 onMounted(() => {
-  // Set default times if no slots selected
+  // Set default times if no slots selected - default to next hour for 24-hour booking
   if (props.selectedSlots.length === 0 && !props.isEditMode) {
     const now = new Date()
     now.setMinutes(0, 0, 0)
-    const later = new Date(now)
-    later.setHours(later.getHours() + 1)
+    now.setHours(now.getHours() + 1) // Start from next hour
 
     formData.value.startTime = now.toISOString().slice(0, 16)
-    formData.value.endTime = later.toISOString().slice(0, 16)
+    updateEndTime() // Set end time to 24 hours later
   }
 
   // Initialize with minimum required player slots
