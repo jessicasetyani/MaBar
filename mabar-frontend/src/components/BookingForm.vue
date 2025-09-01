@@ -516,7 +516,7 @@
                 {{
                   Math.max(
                     1,
-                    formData.players.filter((p) => p && p.trim()).length
+                    formData.players.filter((p) => p && typeof p === 'string' && p.trim()).length
                   )
                 }}/4 players
               </span>
@@ -652,6 +652,7 @@
                       index === 0 ||
                       !!(
                         formData.players[index] &&
+                        typeof formData.players[index] === 'string' &&
                         formData.players[index].trim()
                       )
                     "
@@ -1428,13 +1429,13 @@ const validateForm = () => {
   console.log('Running comprehensive form validation...')
 
   // Check court selection
-  if (!formData.value.court || !formData.value.court.trim()) {
+  if (!formData.value.court || typeof formData.value.court !== 'string' || !formData.value.court.trim()) {
     console.log('Validation failed: No court selected')
     return { isValid: false, error: 'Please select a court' }
   }
 
   // Check title
-  if (!formData.value.title || !formData.value.title.trim()) {
+  if (!formData.value.title || typeof formData.value.title !== 'string' || !formData.value.title.trim()) {
     console.log('Validation failed: No title provided')
     return { isValid: false, error: 'Please enter a booking title' }
   }
@@ -1457,7 +1458,7 @@ const validateForm = () => {
   }
 
   // Check players
-  const validPlayers = formData.value.players.filter((p) => p && p.trim())
+  const validPlayers = formData.value.players.filter((p) => p && typeof p === 'string' && p.trim())
   if (validPlayers.length === 0) {
     console.log('Validation failed: No players provided')
     return { isValid: false, error: 'At least one player is required' }
@@ -1548,10 +1549,10 @@ const removePlayer = (index: number) => {
 }
 
 const getPlayerValidationClass = (player: string, index: number) => {
-  if (index === 0 && (!player || !player.trim())) {
+  if (index === 0 && (!player || typeof player !== 'string' || !player.trim())) {
     return 'border-red-300 focus:ring-red-400 focus:border-red-400'
   }
-  if (player && player.trim()) {
+  if (player && typeof player === 'string' && player.trim()) {
     return 'border-green-300 focus:ring-green-400 focus:border-green-400'
   }
   return 'border-slate-300 focus:ring-yellow-400 focus:border-yellow-400'
@@ -1559,7 +1560,7 @@ const getPlayerValidationClass = (player: string, index: number) => {
 
 const validatePlayerName = (index: number) => {
   const player = formData.value.players[index]
-  if (index === 0 && (!player || !player.trim())) {
+  if (index === 0 && (!player || typeof player !== 'string' || !player.trim())) {
     playerValidationError.value = 'Main player name is required'
     return false
   }
@@ -1621,12 +1622,14 @@ const handleSubmit = async () => {
     console.log('Base data created:', baseData)
 
     // Handle regular bookings
-    const validPlayers = formData.value.players.filter((p) => p && p.trim())
+    const validPlayers = formData.value.players.filter((p) => p && typeof p === 'string' && p.trim())
     const validPlayerPhones = formData.value.playerPhones.filter(
       (p, index) =>
         formData.value.players[index] &&
+        typeof formData.value.players[index] === 'string' &&
         formData.value.players[index].trim() &&
         p &&
+        typeof p === 'string' &&
         p.trim()
     )
 

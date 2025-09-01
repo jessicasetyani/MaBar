@@ -7,6 +7,9 @@ export class ValidationUtils {
    * Validate email format
    */
   static isValidEmail(email: string): boolean {
+    if (!email || typeof email !== 'string') {
+      return false
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email.trim())
   }
@@ -16,6 +19,9 @@ export class ValidationUtils {
    * Supports formats: +62xxx, 08xxx, 62xxx
    */
   static isValidPhoneNumber(phone: string): boolean {
+    if (!phone || typeof phone !== 'string') {
+      return false
+    }
     const cleanPhone = phone.replace(/[\s-]/g, '')
     const phoneRegex = /^(\+62|62|0)8[1-9][0-9]{6,10}$/
     return phoneRegex.test(cleanPhone)
@@ -38,7 +44,12 @@ export class ValidationUtils {
     isValid: boolean
     error?: string
   } {
-    const validPlayers = players.filter((p) => p && p.trim())
+    // Ensure players is an array and filter out invalid entries
+    if (!Array.isArray(players)) {
+      return { isValid: false, error: 'Players must be an array' }
+    }
+
+    const validPlayers = players.filter((p) => p && typeof p === 'string' && p.trim())
 
     if (validPlayers.length === 0) {
       return { isValid: false, error: 'At least one player name is required' }
