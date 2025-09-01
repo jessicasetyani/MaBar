@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="handleSubmit" class="space-y-8">
+  <form @submit.prevent="handleSubmit" class="space-y-8" novalidate>
     <!-- Enhanced 24-Hour Booking Time Selection -->
     <div v-if="!isEditMode && selectedSlots.length === 0" class="mb-8">
       <div
@@ -74,7 +74,8 @@
                 lang="en-GB"
                 class="md-text-field-input md-text-field-input-with-icon"
                 required
-                @change="validateTimeRange"
+                @input="handleDateTimeChange('start-time-input')"
+                @change="handleDateTimeChange('start-time-input')"
                 @focus="onStartTimeFocus"
                 @blur="onStartTimeBlur"
                 :min="getMinDateTime()"
@@ -124,7 +125,7 @@
                 lang="en-GB"
                 class="md-text-field-input md-text-field-input-with-icon"
                 required
-                @change="validateTimeRange"
+                @change="handleDateTimeChange('end-time-input')"
                 @focus="onEndTimeFocus"
                 @blur="onEndTimeBlur"
                 :min="getMinEndDateTime()"
@@ -1126,6 +1127,48 @@ const getMinDateTime = () => {
   return now.toISOString().slice(0, 16)
 }
 
+// Helper function to handle datetime input changes and clear validation
+const handleDateTimeChange = (inputId: string) => {
+  const input = document.getElementById(inputId) as HTMLInputElement
+  if (input) {
+    input.setCustomValidity('')
+  }
+
+  // Special handling for start time changes
+  if (inputId === 'start-time-input') {
+    handleStartTimeChange()
+  } else {
+    validateTimeRange()
+  }
+}
+
+// Handle start time changes with dynamic end time validation
+const handleStartTimeChange = () => {
+  if (!formData.value.startTime || !formData.value.endTime) {
+    validateTimeRange()
+    return
+  }
+
+  const startDate = new Date(formData.value.startTime)
+  const endDate = new Date(formData.value.endTime)
+
+  // Check if start time is valid
+  if (isNaN(startDate.getTime())) {
+    validateTimeRange()
+    return
+  }
+
+  // If end time becomes invalid (before start time), auto-adjust it
+  if (!isNaN(endDate.getTime()) && endDate <= startDate) {
+    // Automatically set end time to 15 minutes after start time (minimum duration)
+    const newEndTime = new Date(startDate.getTime() + 15 * 60 * 1000)
+    formData.value.endTime = newEndTime.toISOString().slice(0, 16)
+    console.log('Auto-adjusted end time to:', formData.value.endTime)
+  }
+
+  validateTimeRange()
+}
+
 // Material Design 3 focus/blur handlers for enhanced UX
 const onStartTimeFocus = (event: Event) => {
   const container = (event.target as HTMLElement).closest(
@@ -1139,6 +1182,13 @@ const onStartTimeBlur = (event: Event) => {
     '.md-text-field-filled'
   )
   container?.classList.remove('md-text-field-focused')
+
+  // Clear HTML5 validation state
+  const input = event.target as HTMLInputElement
+  input.setCustomValidity('')
+
+  // Run custom validation
+  validateTimeRange()
 }
 
 const onCourtFocus = (event: Event) => {
@@ -1284,20 +1334,33 @@ const onEndTimeBlur = (event: Event) => {
     '.md-text-field-filled'
   )
   container?.classList.remove('md-text-field-focused')
+
+  // Clear HTML5 validation state
+  const input = event.target as HTMLInputElement
+  input.setCustomValidity('')
+
+  // Run custom validation
   validateTimeRange()
 }
 
 const getMinEndDateTime = () => {
   if (!formData.value.startTime) return ''
 
-  // Set minimum end time to 1 hour after start time
+  // Set minimum end time to 15 minutes after start time (matching validation logic)
   const startDate = new Date(formData.value.startTime)
-  startDate.setHours(startDate.getHours() + 1)
+  startDate.setMinutes(startDate.getMinutes() + 15)
 
   return startDate.toISOString().slice(0, 16)
 }
 
 const validateTimeRange = () => {
+  // Clear HTML5 validation state for both datetime inputs
+  const startInput = document.getElementById('start-time-input') as HTMLInputElement
+  const endInput = document.getElementById('end-time-input') as HTMLInputElement
+
+  if (startInput) startInput.setCustomValidity('')
+  if (endInput) endInput.setCustomValidity('')
+
   if (!formData.value.startTime || !formData.value.endTime) {
     timeRangeError.value = ''
     return true

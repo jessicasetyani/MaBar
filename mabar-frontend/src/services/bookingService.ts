@@ -387,7 +387,6 @@ export class BookingService {
     const duration = data.endTime.getTime() - data.startTime.getTime()
     const minimumDuration = 60 * 60 * 1000 // 1 hour in milliseconds
     const maximumDuration = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
-    const durationHours = duration / (60 * 60 * 1000)
 
     if (duration < minimumDuration) {
       throw new Error('Booking must be at least 1 hour duration')
