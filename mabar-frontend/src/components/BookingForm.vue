@@ -1,60 +1,111 @@
 <template>
   <form @submit.prevent="handleSubmit" class="space-y-4">
-    <!-- 24-Hour Booking Time Selection -->
+    <!-- Enhanced 24-Hour Booking Time Selection -->
     <div v-if="!isEditMode && selectedSlots.length === 0" class="space-y-3">
       <div
-        class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-4 border border-yellow-200"
+        class="bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-50 rounded-xl p-5 border-2 border-yellow-200 shadow-sm"
       >
-        <div class="flex items-center space-x-2 mb-3">
+        <div class="flex items-start space-x-3 mb-4">
           <div
-            class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center"
+            class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center shadow-sm"
           >
             <svg
-              class="w-4 h-4 text-yellow-600"
+              class="w-5 h-5 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              stroke-width="2.5"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
                 d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
           </div>
-          <div>
-            <h4 class="text-sm font-semibold text-yellow-800">
-              24-Hour Booking
+          <div class="flex-1">
+            <h4 class="text-base font-bold text-slate-800 mb-1">
+              24-Hour Court Booking
             </h4>
-            <p class="text-xs text-yellow-600">
-              Fixed 24-hour duration from selected start time
+            <p class="text-sm text-slate-600 leading-relaxed">
+              Reserve the court for a full 24-hour period. Perfect for
+              tournaments, extended training sessions, or special events.
             </p>
           </div>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-2"
-            >Start Time</label
-          >
-          <input
-            v-model="formData.startTime"
-            type="datetime-local"
-            class="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            required
-            @change="updateEndTime"
-          />
-        </div>
-
-        <div
-          v-if="formData.startTime"
-          class="mt-3 p-3 bg-white rounded-md border border-yellow-200"
-        >
-          <div class="text-sm text-slate-600">
-            <strong>Booking Duration:</strong> 24 hours
+        <div class="space-y-4">
+          <div>
+            <label
+              class="block text-sm font-semibold text-slate-700 mb-2 flex items-center space-x-2"
+            >
+              <svg
+                class="w-4 h-4 text-slate-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+              <span>Booking Start Time</span>
+            </label>
+            <input
+              v-model="formData.startTime"
+              type="datetime-local"
+              class="w-full px-4 py-3 border-2 border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:border-yellow-400 transition-all duration-200 bg-white"
+              required
+              @change="updateEndTime"
+              :min="getMinDateTime()"
+            />
           </div>
-          <div class="text-sm text-slate-600">
-            <strong>End Time:</strong> {{ formatEndTime() }}
+
+          <div
+            v-if="formData.startTime"
+            class="bg-white rounded-lg p-4 border-2 border-green-200 shadow-sm"
+          >
+            <div class="flex items-center space-x-2 mb-3">
+              <div
+                class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center"
+              >
+                <svg
+                  class="w-3 h-3 text-green-600"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </div>
+              <h5 class="text-sm font-semibold text-green-800">
+                Booking Confirmed Details
+              </h5>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              <div class="flex justify-between">
+                <span class="text-slate-600 font-medium">Duration:</span>
+                <span class="text-slate-800 font-semibold">24 Hours</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-slate-600 font-medium">Start:</span>
+                <span class="text-slate-800 font-semibold">{{
+                  formatStartTime()
+                }}</span>
+              </div>
+              <div class="flex justify-between md:col-span-2">
+                <span class="text-slate-600 font-medium">End:</span>
+                <span class="text-slate-800 font-semibold">{{
+                  formatEndTime()
+                }}</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -518,6 +569,7 @@ const formatEndTime = () => {
     const startDate = new Date(formData.value.startTime)
     const endDate = new Date(startDate.getTime() + 24 * 60 * 60 * 1000)
     return endDate.toLocaleString('en-US', {
+      weekday: 'short',
       month: 'short',
       day: 'numeric',
       year: 'numeric',
@@ -527,6 +579,27 @@ const formatEndTime = () => {
     })
   }
   return ''
+}
+
+const formatStartTime = () => {
+  if (formData.value.startTime) {
+    const startDate = new Date(formData.value.startTime)
+    return startDate.toLocaleString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+  }
+  return ''
+}
+
+const getMinDateTime = () => {
+  const now = new Date()
+  return now.toISOString().slice(0, 16)
 }
 
 const batchMode = ref(false)

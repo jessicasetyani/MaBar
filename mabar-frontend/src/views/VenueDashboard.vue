@@ -363,30 +363,55 @@
       </main>
     </div>
 
-    <!-- Floating Action Button (FAB) -->
+    <!-- Enhanced Floating Action Button (FAB) for 24-Hour Bookings -->
     <div
       v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
-      class="fixed bottom-6 right-6 z-50"
+      class="fixed bottom-6 right-6 z-[9999]"
     >
-      <button
-        @click="openBookingForm"
-        class="w-14 h-14 bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-slate-800 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 flex items-center justify-center group"
-        title="Create 24-hour booking"
-      >
-        <svg
-          class="w-6 h-6 transition-transform group-hover:rotate-90 duration-200"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
+      <div class="relative">
+        <!-- Multi-colored FAB with enhanced Google Calendar styling -->
+        <button
+          @click="openBookingForm"
+          class="w-16 h-16 bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-400 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-500 text-slate-800 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 active:scale-95 transition-all duration-300 ease-out flex items-center justify-center group relative overflow-hidden"
+          title="Create 24-Hour Booking"
+          aria-label="Create new 24-hour booking"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2.5"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-      </button>
+          <!-- Animated background gradient -->
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          ></div>
+
+          <!-- Plus icon with enhanced animation -->
+          <svg
+            class="w-7 h-7 transition-all duration-300 group-hover:rotate-180 group-hover:scale-110 relative z-10"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="3"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+
+          <!-- Ripple effect -->
+          <div
+            class="absolute inset-0 rounded-full bg-white/30 scale-0 group-active:scale-100 transition-transform duration-200"
+          ></div>
+        </button>
+
+        <!-- Tooltip -->
+        <div
+          class="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-slate-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"
+        >
+          Create 24-Hour Booking
+          <div
+            class="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800"
+          ></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -400,6 +425,7 @@ import { BookingService } from '../services/bookingService'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
+import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
@@ -550,12 +576,46 @@ const calendarOptions = computed(() => {
   console.log('📅 All calendar events:', allEvents)
 
   return {
-    plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
+    plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
     initialView: 'timeGridWeek',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,timeGridWeek,timeGridDay',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+    },
+    views: {
+      dayGridMonth: {
+        titleFormat: { year: 'numeric', month: 'long' },
+        dayMaxEvents: 3,
+        moreLinkClick: 'popover',
+      },
+      timeGridWeek: {
+        titleFormat: { year: 'numeric', month: 'short', day: 'numeric' },
+        slotLabelFormat: {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        },
+      },
+      timeGridDay: {
+        titleFormat: {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          weekday: 'long',
+        },
+        slotLabelFormat: {
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false,
+        },
+      },
+      listWeek: {
+        titleFormat: { year: 'numeric', month: 'long', day: 'numeric' },
+        listDayFormat: { weekday: 'long', month: 'short', day: 'numeric' },
+        listDaySideFormat: false,
+        noEventsText: 'No 24-hour bookings scheduled for this week',
+      },
     },
     height: 'auto',
     events: allEvents,
@@ -586,28 +646,58 @@ const calendarOptions = computed(() => {
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
     },
-    // Handle empty slot clicks for quick 24-hour booking creation
-    dateClick: (info: { dateStr: string; date: Date }) => {
-      console.log('📅 Empty slot clicked for 24h booking:', info.dateStr)
+    // Enhanced empty slot clicks for 24-hour booking creation
+    dateClick: (info: {
+      dateStr: string
+      date: Date
+      view: { type: string }
+    }) => {
+      console.log('📅 Calendar slot clicked for 24h booking:', {
+        dateStr: info.dateStr,
+        viewType: info.view.type,
+        date: info.date,
+      })
+
+      // Only allow booking creation on time grid views for better UX
+      if (info.view.type === 'dayGridMonth') {
+        // For month view, just open the form without pre-filling time
+        if (!showBookingForm.value) {
+          selectedSlots.value = []
+          openBookingForm()
+        }
+        return
+      }
+
       // Set the clicked time as start time for 24-hour booking
       const clickedDate = new Date(info.date)
       clickedDate.setMinutes(0, 0, 0) // Round to nearest hour
+
+      // Ensure the booking starts at least 1 hour from now
+      const now = new Date()
+      const minStartTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
+
+      if (clickedDate < minStartTime) {
+        clickedDate.setTime(minStartTime.getTime())
+        clickedDate.setMinutes(0, 0, 0) // Round to hour
+      }
 
       // Pre-fill the booking form with clicked time
       if (!showBookingForm.value) {
         selectedSlots.value = []
         openBookingForm()
 
-        // Set the start time after form opens
+        // Set the start time after form opens with better timing
         setTimeout(() => {
           const startTimeInput = document.querySelector(
             'input[type="datetime-local"]'
           ) as HTMLInputElement
           if (startTimeInput) {
-            startTimeInput.value = clickedDate.toISOString().slice(0, 16)
-            startTimeInput.dispatchEvent(new Event('change'))
+            const isoString = clickedDate.toISOString().slice(0, 16)
+            startTimeInput.value = isoString
+            startTimeInput.dispatchEvent(new Event('change', { bubbles: true }))
+            console.log('⏰ Pre-filled start time:', isoString)
           }
-        }, 100)
+        }, 150)
       }
     },
   }
@@ -1185,20 +1275,70 @@ onMounted(async () => {
   --bg-color-dark: #dc2626;
 }
 
-/* Enhanced FAB styling for 24-hour bookings */
+/* Enhanced FAB styling for 24-hour bookings with Google Calendar design */
+.fixed.bottom-6.right-6 {
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.15));
+}
+
 .fixed.bottom-6.right-6 button {
-  box-shadow: 0 8px 25px rgba(253, 224, 71, 0.4) !important;
+  box-shadow:
+    0 8px 25px rgba(253, 224, 71, 0.4),
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
 }
 
 .fixed.bottom-6.right-6 button:hover {
-  box-shadow: 0 12px 35px rgba(253, 224, 71, 0.6) !important;
-  transform: scale(1.05) translateY(-2px) !important;
+  box-shadow:
+    0 15px 40px rgba(253, 224, 71, 0.6),
+    0 8px 20px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
-/* Responsive FAB positioning */
+.fixed.bottom-6.right-6 button:active {
+  box-shadow:
+    0 5px 15px rgba(253, 224, 71, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Enhanced tooltip styling */
+.fixed.bottom-6.right-6 .group:hover .absolute.bottom-full {
+  animation: tooltip-appear 0.2s ease-out;
+}
+
+@keyframes tooltip-appear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive FAB positioning with enhanced mobile experience */
 @media (max-width: 768px) {
+  .fixed.bottom-6.right-6 {
+    bottom: 1.5rem !important;
+    right: 1.5rem !important;
+  }
+
+  .fixed.bottom-6.right-6 button {
+    width: 3.5rem !important;
+    height: 3.5rem !important;
+  }
+
+  .fixed.bottom-6.right-6 button svg {
+    width: 1.5rem !important;
+    height: 1.5rem !important;
+  }
+}
+
+@media (max-width: 640px) {
   .fixed.bottom-6.right-6 {
     bottom: 1rem !important;
     right: 1rem !important;
@@ -1215,10 +1355,25 @@ onMounted(async () => {
   }
 }
 
-@media (max-width: 640px) {
+/* Safe area support for devices with notches */
+@supports (padding: max(0px)) {
   .fixed.bottom-6.right-6 {
-    bottom: 0.75rem !important;
-    right: 0.75rem !important;
+    bottom: max(1.5rem, env(safe-area-inset-bottom) + 1rem) !important;
+    right: max(1.5rem, env(safe-area-inset-right) + 1rem) !important;
   }
+}
+
+/* Enhanced accessibility for FAB */
+.fixed.bottom-6.right-6 button:focus {
+  outline: none;
+  box-shadow:
+    0 15px 40px rgba(253, 224, 71, 0.6),
+    0 8px 20px rgba(0, 0, 0, 0.2),
+    0 0 0 3px rgba(59, 130, 246, 0.5) !important;
+}
+
+.fixed.bottom-6.right-6 button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 </style>
