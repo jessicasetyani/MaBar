@@ -255,13 +255,13 @@ export class BookingService {
           court: bookingData.court || booking.get('court'),
         } as Omit<BookingData, 'id'>
 
-        // Validate 24-hour duration if times are being updated
+        // Validate minimum duration if times are being updated
         if (bookingData.startTime || bookingData.endTime) {
           const duration =
             currentData.endTime.getTime() - currentData.startTime.getTime()
-          const expectedDuration = 24 * 60 * 60 * 1000
-          if (Math.abs(duration - expectedDuration) > 60000) {
-            throw new Error('Booking must be exactly 24 hours duration')
+          const minimumDuration = 60 * 60 * 1000
+          if (duration < minimumDuration) {
+            throw new Error('Booking must be at least 1 hour duration')
           }
         }
 
@@ -372,12 +372,11 @@ export class BookingService {
       throw new Error('Invalid time range')
     }
 
-    // Validate 24-hour duration
+    // Validate minimum duration (1 hour)
     const duration = data.endTime.getTime() - data.startTime.getTime()
-    const expectedDuration = 24 * 60 * 60 * 1000 // 24 hours in milliseconds
-    if (Math.abs(duration - expectedDuration) > 60000) {
-      // Allow 1 minute tolerance
-      throw new Error('Booking must be exactly 24 hours duration')
+    const minimumDuration = 60 * 60 * 1000 // 1 hour in milliseconds
+    if (duration < minimumDuration) {
+      throw new Error('Booking must be at least 1 hour duration')
     }
 
     if (!ValidationUtils.isValidCourt(data.court)) {
@@ -416,19 +415,25 @@ export class BookingService {
   static formatBookingForCalendar(booking: BookingData) {
     console.log('🎨 Formatting booking for calendar:', booking)
 
-    // Ensure exact time synchronization
-    const startTime = new Date(booking.startTime)
-    const endTime = new Date(booking.endTime)
+    // Ensure proper Date object handling
+    const startTime =
+      booking.startTime instanceof Date
+        ? booking.startTime
+        : new Date(booking.startTime)
+    const endTime =
+      booking.endTime instanceof Date
+        ? booking.endTime
+        : new Date(booking.endTime)
 
-    // Validate 24-hour duration for display consistency
+    // Calculate actual duration
     const duration = endTime.getTime() - startTime.getTime()
-    const is24Hour = Math.abs(duration - 24 * 60 * 60 * 1000) < 60000
+    const durationHours = Math.round(duration / (1000 * 60 * 60))
 
-    console.log('⏰ Time sync check:', {
+    console.log('⏰ Calendar event times:', {
       startTime: startTime.toISOString(),
       endTime: endTime.toISOString(),
-      duration: duration / (1000 * 60 * 60),
-      is24Hour,
+      durationMs: duration,
+      durationHours,
     })
 
     const players = booking.players || []
@@ -450,14 +455,14 @@ export class BookingService {
       displayTitle += ' - Booking'
     }
 
-    // Add 24h indicator and status
+    // Add duration indicator and status
     const statusIcon =
       booking.status === 'confirmed'
         ? '✓'
         : booking.status === 'pending'
           ? '⏳'
           : '❌'
-    displayTitle = `${statusIcon} ${displayTitle}${is24Hour ? ' (24h)' : ''}`
+    displayTitle = `${statusIcon} ${displayTitle} (${durationHours}h)`
 
     // Different colors for different courts to make them easier to distinguish
     const getCourtColor = (court: string) => {
@@ -495,8 +500,7 @@ export class BookingService {
         phone: booking.phone,
         price: booking.price,
         paymentStatus: booking.paymentStatus,
-        is24Hour,
-        duration: Math.round(duration / (1000 * 60 * 60)),
+        duration: durationHours,
         // Exact time display for verification
         timeSlot: `${startTime.toLocaleString('en-US', {
           month: 'short',
@@ -523,9 +527,7 @@ export class BookingService {
       id: calendarEvent.id,
       start: calendarEvent.start,
       end: calendarEvent.end,
-      duration: is24Hour
-        ? '24h'
-        : `${Math.round(duration / (1000 * 60 * 60))}h`,
+      duration: `${durationHours}h`,
     })
     return calendarEvent
   }
