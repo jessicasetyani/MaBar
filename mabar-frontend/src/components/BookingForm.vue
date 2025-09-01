@@ -28,8 +28,8 @@
               Flexible Duration Court Booking
             </h4>
             <p class="text-sm text-slate-600 leading-relaxed">
-              Reserve the court for your desired duration (1-24 hours). Perfect for
-              training sessions, matches, tournaments, or special events.
+              Reserve the court for your desired duration (1-24 hours). Perfect
+              for training sessions, matches, tournaments, or special events.
             </p>
           </div>
         </div>
@@ -38,7 +38,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
           <!-- Start Time Field - Material Design 3 Filled Text Field -->
           <div class="md-text-field-container">
-            <div class="md-text-field-filled md-text-field-clickable" @click="focusStartTimeInput">
+            <div
+              class="md-text-field-filled md-text-field-clickable"
+              @click="focusStartTimeInput"
+            >
               <div class="md-text-field-leading-icon">
                 <svg
                   class="w-5 h-5"
@@ -54,7 +57,10 @@
                   />
                 </svg>
               </div>
-              <label class="md-text-field-label md-text-field-label-with-icon" for="start-time-input">
+              <label
+                class="md-text-field-label md-text-field-label-with-icon"
+                for="start-time-input"
+              >
                 Start time
               </label>
               <input
@@ -82,7 +88,10 @@
 
           <!-- End Time Field - Material Design 3 Filled Text Field -->
           <div class="md-text-field-container">
-            <div class="md-text-field-filled md-text-field-clickable" @click="focusEndTimeInput">
+            <div
+              class="md-text-field-filled md-text-field-clickable"
+              @click="focusEndTimeInput"
+            >
               <div class="md-text-field-leading-icon">
                 <svg
                   class="w-5 h-5"
@@ -98,7 +107,10 @@
                   />
                 </svg>
               </div>
-              <label class="md-text-field-label md-text-field-label-with-icon" for="end-time-input">
+              <label
+                class="md-text-field-label md-text-field-label-with-icon"
+                for="end-time-input"
+              >
                 End time
               </label>
               <input
@@ -129,15 +141,16 @@
         </div>
 
         <!-- Material Design 3 Booking Summary Card -->
-        <div
-          v-if="formData.startTime && formData.endTime"
-          class="mt-8 mb-8"
-        >
-          <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl shadow-sm">
+        <div v-if="formData.startTime && formData.endTime" class="mt-8 mb-8">
+          <div
+            class="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-2xl shadow-sm"
+          >
             <div class="p-8">
               <!-- Header Section -->
               <div class="flex items-center mb-8">
-                <div class="w-14 h-14 rounded-full bg-yellow-200 flex items-center justify-center mr-5">
+                <div
+                  class="w-14 h-14 rounded-full bg-yellow-200 flex items-center justify-center mr-5"
+                >
                   <svg
                     class="w-7 h-7 text-yellow-700"
                     fill="none"
@@ -153,8 +166,12 @@
                   </svg>
                 </div>
                 <div>
-                  <h3 class="text-2xl font-bold text-slate-800 mb-2">Booking Summary</h3>
-                  <p class="text-slate-600">Review your booking details before confirming</p>
+                  <h3 class="text-2xl font-bold text-slate-800 mb-2">
+                    Booking Summary
+                  </h3>
+                  <p class="text-slate-600">
+                    Review your booking details before confirming
+                  </p>
                 </div>
               </div>
 
@@ -163,7 +180,9 @@
                 <!-- Duration Card -->
                 <div class="bg-white rounded-xl p-6 shadow-sm">
                   <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center mr-4">
+                    <div
+                      class="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center mr-4"
+                    >
                       <svg
                         class="w-5 h-5 text-white"
                         fill="none"
@@ -178,7 +197,10 @@
                         />
                       </svg>
                     </div>
-                    <span class="text-sm font-semibold text-slate-600 uppercase tracking-wide">Duration</span>
+                    <span
+                      class="text-sm font-semibold text-slate-600 uppercase tracking-wide"
+                      >Duration</span
+                    >
                   </div>
                   <div class="text-xl font-bold text-slate-800">
                     {{ calculateDuration() }}
@@ -188,7 +210,9 @@
                 <!-- Start Time Card -->
                 <div class="bg-white rounded-xl p-6 shadow-sm">
                   <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center mr-4">
+                    <div
+                      class="w-10 h-10 rounded-xl bg-green-500 flex items-center justify-center mr-4"
+                    >
                       <svg
                         class="w-5 h-5 text-white"
                         fill="none"
@@ -203,7 +227,10 @@
                         />
                       </svg>
                     </div>
-                    <span class="text-sm font-semibold text-slate-600 uppercase tracking-wide">Start Time</span>
+                    <span
+                      class="text-sm font-semibold text-slate-600 uppercase tracking-wide"
+                      >Start Time</span
+                    >
                   </div>
                   <div class="text-xl font-bold text-slate-800">
                     {{ formatStartTime() }}
@@ -211,9 +238,13 @@
                 </div>
 
                 <!-- End Time Card -->
-                <div class="bg-white rounded-xl p-6 shadow-sm sm:col-span-2 lg:col-span-1">
+                <div
+                  class="bg-white rounded-xl p-6 shadow-sm sm:col-span-2 lg:col-span-1"
+                >
                   <div class="flex items-center mb-4">
-                    <div class="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center mr-4">
+                    <div
+                      class="w-10 h-10 rounded-xl bg-purple-500 flex items-center justify-center mr-4"
+                    >
                       <svg
                         class="w-5 h-5 text-white"
                         fill="none"
@@ -228,7 +259,10 @@
                         />
                       </svg>
                     </div>
-                    <span class="text-sm font-semibold text-slate-600 uppercase tracking-wide">End Time</span>
+                    <span
+                      class="text-sm font-semibold text-slate-600 uppercase tracking-wide"
+                      >End Time</span
+                    >
                   </div>
                   <div class="text-xl font-bold text-slate-800">
                     {{ formatEndTime() }}
@@ -389,7 +423,10 @@
             />
           </svg>
         </div>
-        <label class="md-text-field-label md-text-field-label-with-icon" for="court-select">
+        <label
+          class="md-text-field-label md-text-field-label-with-icon"
+          for="court-select"
+        >
           Paddle Field
         </label>
         <select
@@ -406,8 +443,14 @@
           </option>
         </select>
         <div class="md-text-field-active-indicator"></div>
-        <svg class="md-select-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="m6 9 6 6 6-6"/>
+        <svg
+          class="md-select-dropdown-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="m6 9 6 6 6-6" />
         </svg>
       </div>
       <div class="md-text-field-supporting-text">
@@ -416,7 +459,7 @@
     </div>
 
     <!-- Booking Details -->
-    <div class="space-y-8">
+    <div class="space-y-10">
       <!-- Title - Material Design 3 -->
       <div class="md-text-field-container">
         <div class="md-text-field-filled">
@@ -435,7 +478,10 @@
               />
             </svg>
           </div>
-          <label class="md-text-field-label md-text-field-label-with-icon" for="title-input">
+          <label
+            class="md-text-field-label md-text-field-label-with-icon"
+            for="title-input"
+          >
             Booking Title
           </label>
           <input
@@ -463,8 +509,15 @@
             </h4>
             <p class="text-sm text-slate-600">
               Add up to 4 players (minimum 1 required)
-              <span class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
-                {{ getValidPlayerCount() }}/4 players
+              <span
+                class="ml-2 px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium"
+              >
+                {{
+                  Math.max(
+                    1,
+                    formData.players.filter((p) => p && p.trim()).length
+                  )
+                }}/4 players
               </span>
             </p>
           </div>
@@ -476,17 +529,8 @@
             :key="index"
             class="player-row flex items-start gap-4"
           >
-            <!-- Player Number Indicator -->
-            <div class="flex-shrink-0 mt-4">
-              <div
-                class="w-12 h-12 bg-gradient-to-br from-yellow-400 to-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md border-2 border-white"
-              >
-                {{ index + 1 }}
-              </div>
-            </div>
-
             <!-- Player Input Fields -->
-            <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4">
               <!-- Player Name - Material Design 3 -->
               <div class="md-text-field-container">
                 <div class="md-text-field-filled">
@@ -505,8 +549,15 @@
                       />
                     </svg>
                   </div>
-                  <label class="md-text-field-label md-text-field-label-with-icon" :for="`player-name-${index}`">
-                    {{ index === 0 ? 'Main Player Name' : `Player ${index + 1} Name` }}
+                  <label
+                    class="md-text-field-label md-text-field-label-with-icon"
+                    :for="`player-name-${index}`"
+                  >
+                    {{
+                      index === 0
+                        ? 'Main Player Name'
+                        : `Player ${index + 1} Name`
+                    }}
                   </label>
                   <input
                     :id="`player-name-${index}`"
@@ -520,7 +571,11 @@
                     :required="index === 0"
                     :class="[
                       'md-text-field-input md-text-field-input-with-icon',
-                      getPlayerValidationClass(player, index).includes('border-red') ? 'md-text-field-error' : ''
+                      getPlayerValidationClass(player, index).includes(
+                        'border-red'
+                      )
+                        ? 'md-text-field-error'
+                        : '',
                     ]"
                     @blur="validatePlayerName(index)"
                     @focus="onPlayerNameFocus"
@@ -528,11 +583,28 @@
                   <div class="md-text-field-active-indicator"></div>
                 </div>
                 <div class="md-text-field-supporting-text">
-                  {{ index === 0 ? 'Required - Enter the main player\'s full name' : `Optional - Enter player ${index + 1}\'s full name` }}
+                  {{
+                    index === 0
+                      ? "Required - Enter the main player's full name"
+                      : `Optional - Enter player ${index + 1}\'s full name`
+                  }}
                 </div>
-                <div v-if="index === 0 && playerValidationError" class="text-sm text-red-600 mt-1 flex items-center">
-                  <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div
+                  v-if="index === 0 && playerValidationError"
+                  class="text-sm text-red-600 mt-1 flex items-center"
+                >
+                  <svg
+                    class="w-4 h-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   {{ playerValidationError }}
                 </div>
@@ -556,19 +628,31 @@
                       />
                     </svg>
                   </div>
-                  <label class="md-text-field-label md-text-field-label-with-icon" :for="`player-phone-${index}`">
-                    {{ index === 0 ? 'Main Player Phone' : `Player ${index + 1} Phone` }}
+                  <label
+                    class="md-text-field-label md-text-field-label-with-icon"
+                    :for="`player-phone-${index}`"
+                  >
+                    {{
+                      index === 0
+                        ? 'Main Player Phone'
+                        : `Player ${index + 1} Phone`
+                    }}
                   </label>
                   <input
                     :id="`player-phone-${index}`"
                     v-model="formData.playerPhones[index]"
                     type="tel"
                     :placeholder="
-                      index === 0 ? '+62 812-3456-7890' : `Player ${index + 1} phone number`
+                      index === 0
+                        ? '+62 812-3456-7890'
+                        : `Player ${index + 1} phone number`
                     "
                     :required="
                       index === 0 ||
-                      !!(formData.players[index] && formData.players[index].trim())
+                      !!(
+                        formData.players[index] &&
+                        formData.players[index].trim()
+                      )
                     "
                     class="md-text-field-input md-text-field-input-with-icon"
                     @input="onPlayerPhoneInput"
@@ -579,7 +663,11 @@
                   <div class="md-text-field-active-indicator"></div>
                 </div>
                 <div class="md-text-field-supporting-text">
-                  {{ index === 0 ? 'Required - Indonesian phone number (e.g., +62812345678 or 08123456789)' : `Optional - Phone number for player ${index + 1}` }}
+                  {{
+                    index === 0
+                      ? 'Required - Indonesian phone number (e.g., +62812345678 or 08123456789)'
+                      : `Optional - Phone number for player ${index + 1}`
+                  }}
                 </div>
               </div>
             </div>
@@ -633,41 +721,27 @@
                 d="M12 6v6m0 0v6m0-6h6m-6 0H6"
               />
             </svg>
-            <span class="md-label-large">Add Player ({{ 4 - formData.players.length }} remaining)</span>
+            <span class="md-label-large"
+              >Add Player ({{ 4 - formData.players.length }} remaining)</span
+            >
           </button>
 
-          <div v-if="formData.players.length >= 4" class="text-sm text-slate-500 italic">
+          <div
+            v-if="formData.players.length >= 4"
+            class="text-sm text-slate-500 italic"
+          >
             Maximum of 4 players reached
-          </div>
-
-          <div class="mt-2 text-xs text-slate-500">
-            {{
-              getValidPlayerCount() === 1
-                ? 'Singles match'
-                : getValidPlayerCount() === 2
-                  ? 'Doubles match'
-                  : `${getValidPlayerCount()} players`
-            }}
           </div>
         </div>
 
         <!-- Global Player Validation Error -->
-        <div v-if="playerValidationError" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div
+          v-if="playerValidationError"
+          class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg"
+        >
           <div class="flex items-center">
-            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span class="text-sm text-red-700 font-medium">{{ playerValidationError }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Contact Information -->
-      <div class="md-text-field-container">
-        <div class="md-text-field-filled">
-          <div class="md-text-field-leading-icon">
             <svg
-              class="w-5 h-5"
+              class="w-5 h-5 text-red-500 mr-2"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -676,31 +750,13 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
+            <span class="text-sm text-red-700 font-medium">{{
+              playerValidationError
+            }}</span>
           </div>
-          <label class="md-text-field-label md-text-field-label-with-icon" for="phone-input">
-            Phone Number
-          </label>
-          <input
-            id="phone-input"
-            v-model="formData.phone"
-            type="tel"
-            placeholder="+62 812-3456-7890"
-            class="md-text-field-input md-text-field-input-with-icon"
-            required
-            @focus="onPhoneFocus"
-            @blur="onPhoneBlur"
-            @input="onPhoneInput"
-            pattern="[0-9+\-\s]*"
-          />
-        </div>
-        <div class="md-text-field-supporting-text">
-          Indonesian phone number (e.g., +62812345678 or 08123456789)
-        </div>
-        <div v-if="phoneError" class="text-sm text-red-600 mt-1">
-          {{ phoneError }}
         </div>
       </div>
 
@@ -724,7 +780,10 @@
                 />
               </svg>
             </div>
-            <label class="md-text-field-label md-text-field-label-with-icon" for="price-input">
+            <label
+              class="md-text-field-label md-text-field-label-with-icon"
+              for="price-input"
+            >
               Price (IDR)
             </label>
             <input
@@ -769,7 +828,10 @@
                 />
               </svg>
             </div>
-            <label class="md-text-field-label md-text-field-label-with-icon" for="status-select">
+            <label
+              class="md-text-field-label md-text-field-label-with-icon"
+              for="status-select"
+            >
               Status
             </label>
             <select
@@ -783,8 +845,14 @@
               <option value="pending">Pending</option>
             </select>
             <div class="md-text-field-active-indicator"></div>
-            <svg class="md-select-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m6 9 6 6 6-6"/>
+            <svg
+              class="md-select-dropdown-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="m6 9 6 6 6-6" />
             </svg>
           </div>
           <div class="md-text-field-supporting-text">
@@ -810,7 +878,10 @@
                 />
               </svg>
             </div>
-            <label class="md-text-field-label md-text-field-label-with-icon" for="payment-select">
+            <label
+              class="md-text-field-label md-text-field-label-with-icon"
+              for="payment-select"
+            >
               Payment
             </label>
             <select
@@ -824,8 +895,14 @@
               <option value="paid">Paid</option>
             </select>
             <div class="md-text-field-active-indicator"></div>
-            <svg class="md-select-dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="m6 9 6 6 6-6"/>
+            <svg
+              class="md-select-dropdown-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="m6 9 6 6 6-6" />
             </svg>
           </div>
           <div class="md-text-field-supporting-text">
@@ -835,14 +912,35 @@
       </div>
     </div>
 
+    <!-- General Error Display -->
+    <div
+      v-if="generalError"
+      class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg"
+    >
+      <div class="flex items-center">
+        <svg
+          class="w-5 h-5 text-red-600 mr-2"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span class="text-red-700 font-medium">{{ generalError }}</span>
+      </div>
+    </div>
+
     <!-- Action Buttons - Material Design 3 -->
-    <div class="flex justify-end items-center gap-4 pt-8 mt-8 border-t border-slate-200">
+    <div
+      class="flex justify-end items-center gap-4 pt-8 mt-8 border-t border-slate-200"
+    >
       <!-- Cancel Button - Material Design Text Button -->
-      <button
-        type="button"
-        @click="$emit('cancel')"
-        class="md-button-text"
-      >
+      <button type="button" @click="$emit('cancel')" class="md-button-text">
         <span class="md-label-large">Cancel</span>
       </button>
 
@@ -918,7 +1016,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, nextTick } from 'vue'
 import { ValidationUtils } from '../utils/validation'
 
 interface Props {
@@ -967,7 +1065,6 @@ const formData = ref({
   court: '',
   players: ['', '', '', ''],
   playerPhones: ['', '', '', ''],
-  phone: '',
   price: 150000,
   status: 'confirmed',
   paymentStatus: 'pending',
@@ -1012,90 +1109,107 @@ const getMinDateTime = () => {
 
 // Material Design 3 focus/blur handlers for enhanced UX
 const onStartTimeFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onStartTimeBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
 }
 
-
-
 const onCourtFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onCourtBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
 }
 
 const onTitleFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onTitleBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
-}
-
-const onPhoneFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
-  container?.classList.add('md-text-field-focused')
-}
-
-const onPhoneBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
-  container?.classList.remove('md-text-field-focused')
-  validatePhone()
 }
 
 const onPriceFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onPriceBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
 }
 
 const onStatusFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onStatusBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
 }
 
 const onPaymentFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onPaymentBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
 }
 
 const onPlayerNameFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onPlayerPhoneFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onPlayerPhoneBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
 }
 
@@ -1140,12 +1254,16 @@ const focusEndTimeInput = () => {
 }
 
 const onEndTimeFocus = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.add('md-text-field-focused')
 }
 
 const onEndTimeBlur = (event: Event) => {
-  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  const container = (event.target as HTMLElement).closest(
+    '.md-text-field-filled'
+  )
   container?.classList.remove('md-text-field-focused')
   validateTimeRange()
 }
@@ -1169,15 +1287,36 @@ const validateTimeRange = () => {
   const startDate = new Date(formData.value.startTime)
   const endDate = new Date(formData.value.endTime)
 
+  // Check for invalid dates
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    timeRangeError.value = 'Please select valid start and end times'
+    return false
+  }
+
+  // Check if end time is after start time
   if (endDate <= startDate) {
     timeRangeError.value = 'End time must be after start time'
     return false
   }
 
+  // Check minimum duration (15 minutes)
+  const diffMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60)
+  if (diffMinutes < 15) {
+    timeRangeError.value = 'Booking must be at least 15 minutes'
+    return false
+  }
+
   // Check if booking is longer than 24 hours
-  const diffHours = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60)
+  const diffHours = diffMinutes / 60
   if (diffHours > 24) {
     timeRangeError.value = 'Booking cannot exceed 24 hours'
+    return false
+  }
+
+  // Check if booking is in the past
+  const now = new Date()
+  if (startDate < now) {
+    timeRangeError.value = 'Booking cannot be in the past'
     return false
   }
 
@@ -1200,6 +1339,56 @@ const validatePrice = () => {
 
   priceError.value = ''
   return true
+}
+
+// Comprehensive form validation
+const validateForm = () => {
+  console.log('Running comprehensive form validation...')
+
+  // Check court selection
+  if (!formData.value.court || !formData.value.court.trim()) {
+    console.log('Validation failed: No court selected')
+    return { isValid: false, error: 'Please select a court' }
+  }
+
+  // Check title
+  if (!formData.value.title || !formData.value.title.trim()) {
+    console.log('Validation failed: No title provided')
+    return { isValid: false, error: 'Please enter a booking title' }
+  }
+
+  // Check datetime for flexible duration booking
+  if (props.selectedSlots.length === 0) {
+    if (!formData.value.startTime || !formData.value.endTime) {
+      console.log('Validation failed: Missing datetime values')
+      return { isValid: false, error: 'Please select both start and end times' }
+    }
+
+    // Validate time range for flexible bookings
+    if (!validateTimeRange()) {
+      console.log('Validation failed: Invalid time range')
+      return {
+        isValid: false,
+        error: timeRangeError.value || 'Invalid time range selected',
+      }
+    }
+  }
+
+  // Check players
+  const validPlayers = formData.value.players.filter((p) => p && p.trim())
+  if (validPlayers.length === 0) {
+    console.log('Validation failed: No players provided')
+    return { isValid: false, error: 'At least one player is required' }
+  }
+
+  // Validate price
+  if (!validatePrice()) {
+    console.log('Validation failed: Invalid price')
+    return { isValid: false, error: priceError.value || 'Invalid price' }
+  }
+
+  console.log('All form validations passed')
+  return { isValid: true }
 }
 
 const calculateDuration = () => {
@@ -1225,9 +1414,9 @@ const calculateDuration = () => {
 const batchMode = ref(false)
 const isSubmitting = ref(false)
 const playerValidationError = ref('')
-const phoneError = ref('')
 const timeRangeError = ref('')
 const priceError = ref('')
+const generalError = ref('')
 
 const formatDateTime = (date: Date) => {
   return date.toLocaleString('en-US', {
@@ -1276,10 +1465,6 @@ const removePlayer = (index: number) => {
   }
 }
 
-const getValidPlayerCount = () => {
-  return formData.value.players.filter((p) => p && p.trim()).length
-}
-
 const getPlayerValidationClass = (player: string, index: number) => {
   if (index === 0 && (!player || !player.trim())) {
     return 'border-red-300 focus:ring-red-400 focus:border-red-400'
@@ -1310,34 +1495,6 @@ const validatePlayers = () => {
   return true
 }
 
-const validatePhone = () => {
-  if (!formData.value.phone || !formData.value.phone.trim()) {
-    phoneError.value = 'Phone number is required'
-    return false
-  }
-
-  if (!ValidationUtils.isValidPhoneNumber(formData.value.phone)) {
-    phoneError.value = 'Please enter a valid Indonesian phone number (e.g., +62812345678 or 08123456789)'
-    return false
-  }
-
-  phoneError.value = ''
-  return true
-}
-
-const onPhoneInput = (event: Event) => {
-  const target = event.target as HTMLInputElement
-  const value = target.value
-
-  // Allow only numbers, +, -, and spaces
-  const sanitized = value.replace(/[^0-9+\-\s]/g, '')
-
-  if (sanitized !== value) {
-    formData.value.phone = sanitized
-    target.value = sanitized
-  }
-}
-
 const removeSlot = (index: number) => {
   emit('removeSlot', index)
 }
@@ -1347,23 +1504,31 @@ const toggleBatchMode = () => {
 }
 
 const handleSubmit = async () => {
-  // Validate required fields
+  console.log('Form submission started')
+  console.log('Form data:', formData.value)
+  console.log('Selected slots:', props.selectedSlots)
+
+  // Clear previous errors
+  generalError.value = ''
+  timeRangeError.value = ''
+  playerValidationError.value = ''
+  priceError.value = ''
+
+  // Run comprehensive validation
+  const validation = validateForm()
+  if (!validation.isValid) {
+    console.log('Form validation failed:', validation.error)
+    generalError.value = validation.error || 'Please check all required fields'
+    return
+  }
+
+  // Run specific validations only if not already validated in validateForm
   if (!validatePlayers()) {
+    console.log('Player validation failed')
     return
   }
 
-  if (!validatePhone()) {
-    return
-  }
-
-  if (!validateTimeRange()) {
-    return
-  }
-
-  if (!validatePrice()) {
-    return
-  }
-
+  console.log('All validations passed, starting submission...')
   isSubmitting.value = true
 
   try {
@@ -1371,6 +1536,7 @@ const handleSubmit = async () => {
       court: formData.value.court,
       type: 'booking',
     }
+    console.log('Base data created:', baseData)
 
     // Handle regular bookings
     const validPlayers = formData.value.players.filter((p) => p && p.trim())
@@ -1393,40 +1559,52 @@ const handleSubmit = async () => {
           end: slot.end,
           players: validPlayers,
           playerPhones: validPlayerPhones,
-          phone: formData.value.phone,
           price: formData.value.price,
           status: formData.value.status,
           paymentStatus: formData.value.paymentStatus,
         }
-        await emit('create', bookingData)
+        emit('create', bookingData)
       }
     } else {
       // Single booking
+      let startTime, endTime
+
+      if (props.selectedSlots.length > 0) {
+        startTime = props.selectedSlots[0].start
+        endTime = props.selectedSlots[props.selectedSlots.length - 1].end
+      } else {
+        // Convert datetime-local format to ISO string for backend
+        startTime = new Date(formData.value.startTime).toISOString()
+        endTime = new Date(formData.value.endTime).toISOString()
+      }
+
+      console.log('Converted datetime values:', { startTime, endTime })
+
       const bookingData = {
         ...baseData,
         title: formData.value.title,
-        start:
-          props.selectedSlots.length > 0
-            ? props.selectedSlots[0].start
-            : formData.value.startTime,
-        end:
-          props.selectedSlots.length > 0
-            ? props.selectedSlots[props.selectedSlots.length - 1].end
-            : formData.value.endTime,
+        start: startTime,
+        end: endTime,
         players: validPlayers,
         playerPhones: validPlayerPhones,
-        phone: formData.value.phone,
         price: formData.value.price,
         status: formData.value.status,
         paymentStatus: formData.value.paymentStatus,
       }
 
+      console.log('Final booking data:', bookingData)
+
       if (props.isEditMode && props.editingBooking) {
+        console.log('Emitting update event')
         emit('update', props.editingBooking.id, bookingData)
       } else {
+        console.log('Emitting create event')
         emit('create', bookingData)
       }
     }
+    console.log('Form submission completed successfully')
+  } catch (error) {
+    console.error('Form submission error:', error)
   } finally {
     isSubmitting.value = false
   }
@@ -1472,7 +1650,6 @@ watch(
         court: booking.court || '',
         players: playerSlots,
         playerPhones: phoneSlots,
-        phone: booking.phone || '',
         price: booking.price || 150000,
         status: booking.status || 'confirmed',
         paymentStatus: booking.paymentStatus || 'pending',
@@ -1482,22 +1659,57 @@ watch(
   { immediate: true }
 )
 
-// Force 24-hour format on datetime inputs
+// Force 24-hour format on datetime inputs - Enhanced
 const force24HourFormat = () => {
-  const startTimeInput = document.getElementById('start-time-input') as HTMLInputElement
-  const endTimeInput = document.getElementById('end-time-input') as HTMLInputElement
+  const startTimeInput = document.getElementById(
+    'start-time-input'
+  ) as HTMLInputElement
+  const endTimeInput = document.getElementById(
+    'end-time-input'
+  ) as HTMLInputElement
 
-  if (startTimeInput) {
-    startTimeInput.setAttribute('data-format', '24')
-    startTimeInput.setAttribute('data-time-format', '24')
-    startTimeInput.setAttribute('lang', 'en-GB')
+  const applyFormat = (input: HTMLInputElement) => {
+    if (input) {
+      // Multiple attributes for maximum browser compatibility
+      input.setAttribute('data-format', '24')
+      input.setAttribute('data-time-format', '24')
+      input.setAttribute('lang', 'en-GB')
+      input.setAttribute('locale', 'en-GB')
+
+      // Force step to ensure proper time increments
+      input.setAttribute('step', '900') // 15 minutes
+
+      // Set CSS custom property for styling
+      input.style.setProperty('--time-format', '24')
+
+      // Additional browser-specific attributes
+      input.setAttribute('data-locale', 'en-GB')
+      input.setAttribute('data-hour-format', '24')
+
+      // Add multiple event listeners to maintain format
+      const maintainFormat = () => {
+        input.setAttribute('lang', 'en-GB')
+        input.setAttribute('data-format', '24')
+      }
+
+      input.addEventListener('focus', maintainFormat)
+      input.addEventListener('click', maintainFormat)
+      input.addEventListener('input', maintainFormat)
+
+      // Force browser to recognize 24-hour format
+      if (input.value) {
+        const currentValue = input.value
+        input.value = ''
+        setTimeout(() => {
+          input.value = currentValue
+          maintainFormat()
+        }, 10)
+      }
+    }
   }
 
-  if (endTimeInput) {
-    endTimeInput.setAttribute('data-format', '24')
-    endTimeInput.setAttribute('data-time-format', '24')
-    endTimeInput.setAttribute('lang', 'en-GB')
-  }
+  applyFormat(startTimeInput)
+  applyFormat(endTimeInput)
 }
 
 onMounted(() => {
@@ -1524,6 +1736,22 @@ onMounted(() => {
   setTimeout(() => {
     force24HourFormat()
   }, 100)
+
+  // Re-apply format when component updates
+  setTimeout(() => {
+    force24HourFormat()
+  }, 500)
+})
+
+// Watch for changes and reapply 24-hour format
+watch([() => formData.value.startTime, () => formData.value.endTime], () => {
+  nextTick(() => {
+    force24HourFormat()
+    // Auto-validate time range when times change
+    if (formData.value.startTime && formData.value.endTime) {
+      validateTimeRange()
+    }
+  })
 })
 </script>
 
@@ -1534,7 +1762,10 @@ onMounted(() => {
 
 .md-text-field-container {
   width: 100%;
-  margin-bottom: 24px; /* 8dp grid: 3 units */
+  margin-bottom: 24px; /* 8dp grid: 3 units - Standard Material Design spacing */
+  position: relative;
+  z-index: 1;
+  isolation: isolate; /* Create new stacking context to prevent overlap */
 }
 
 .md-text-field-filled {
@@ -1542,22 +1773,22 @@ onMounted(() => {
   border-radius: 8px 8px 0 0;
   border-bottom: 2px solid;
   transition: all 200ms ease;
-  background-color: #FEFCE8; /* MaBar Light Cream background */
-  border-bottom-color: #64748B; /* MaBar Subtle Gray */
+  background-color: #fefce8; /* MaBar Light Cream background */
+  border-bottom-color: #64748b; /* MaBar Subtle Gray */
   min-height: 56px; /* Material Design 3 standard height */
   z-index: 1;
   display: flex;
   align-items: center;
 }
 
-/* Leading Icon Positioning */
+/* Leading Icon Positioning - Enhanced */
 .md-text-field-leading-icon {
   position: absolute;
-  left: 16px;
+  left: 18px; /* Slightly more spacing from edge */
   top: 50%;
   transform: translateY(-50%);
   z-index: 3;
-  color: #64748B; /* MaBar Subtle Gray */
+  color: #64748b; /* MaBar Subtle Gray */
   transition: color 200ms ease;
   pointer-events: none;
   width: 20px;
@@ -1568,34 +1799,36 @@ onMounted(() => {
 }
 
 .md-text-field-filled.md-text-field-focused .md-text-field-leading-icon {
-  color: #FDE047; /* MaBar Primary Yellow */
+  color: #fde047; /* MaBar Primary Yellow */
 }
 
-/* Label positioning with and without icons */
+/* Label positioning with and without icons - Fixed positioning */
 .md-text-field-label {
   position: absolute;
   left: 16px;
-  top: 16px;
-  color: #64748B; /* MaBar Subtle Gray */
+  top: 50%; /* Center vertically in the field */
+  transform: translateY(-50%); /* Perfect vertical centering */
+  color: #64748b; /* MaBar Subtle Gray */
   font-size: 16px;
   font-weight: 400;
   transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
-  z-index: 2;
+  z-index: 3; /* Increased z-index to prevent interference */
   background-color: transparent;
   padding: 0 4px;
-  transform-origin: left top;
+  transform-origin: left center;
+  isolation: isolate; /* Prevent interference with adjacent fields */
 }
 
 .md-text-field-label-with-icon {
-  left: 52px; /* 16px + 20px icon + 16px spacing */
+  left: 56px; /* 16px + 20px icon + 20px spacing to match input padding */
 }
 
-/* Input positioning with and without icons */
+/* Input positioning with and without icons - Fixed padding */
 .md-text-field-input {
   width: 100%;
   min-height: 56px;
-  padding: 24px 16px 8px 16px; /* Top padding for floating label */
+  padding: 28px 16px 12px 16px; /* Increased top padding for floating label clearance */
   background: transparent;
   border: none;
   color: #334155; /* MaBar Charcoal */
@@ -1604,20 +1837,21 @@ onMounted(() => {
   outline: none;
   z-index: 1;
   line-height: 1.5;
+  box-sizing: border-box;
 }
 
 .md-text-field-input-with-icon {
-  padding-left: 52px; /* 16px + 20px icon + 16px spacing */
+  padding-left: 56px; /* 16px + 20px icon + 20px spacing for better clearance */
 }
 
 .md-text-field-filled:hover {
-  background-color: #FEF3C7; /* Slightly darker cream on hover */
+  background-color: #fef3c7; /* Slightly darker cream on hover */
   border-bottom-color: #334155; /* MaBar Charcoal text color */
 }
 
 .md-text-field-filled.md-text-field-focused {
-  border-bottom-color: #FDE047; /* MaBar Primary Yellow */
-  background-color: #FFFBEB; /* Slightly warmer white on focus */
+  border-bottom-color: #fde047; /* MaBar Primary Yellow */
+  background-color: #fffbeb; /* Slightly warmer white on focus */
   z-index: 2;
   box-shadow: 0 2px 4px rgba(253, 224, 71, 0.1);
 }
@@ -1635,47 +1869,47 @@ onMounted(() => {
 }
 
 .md-text-field-filled.md-text-field-focused .md-text-field-active-indicator {
-  background-color: #FDE047; /* MaBar Primary Yellow */
+  background-color: #fde047; /* MaBar Primary Yellow */
   height: 3px;
 }
 
-
-
-/* Floating label behavior - Fixed for proper positioning */
+/* Floating label behavior - Enhanced positioning */
 .md-text-field-filled.md-text-field-focused .md-text-field-label,
-.md-text-field-filled:has(.md-text-field-input:not(:placeholder-shown)) .md-text-field-label {
-  transform: translateY(-24px) scale(0.75);
-  color: #FDE047; /* MaBar Primary Yellow */
-  background-color: #FEFCE8; /* Match field background */
+.md-text-field-filled:has(.md-text-field-input:not(:placeholder-shown))
+  .md-text-field-label {
+  transform: translateY(-40px) scale(0.75); /* Increased distance to prevent overlap */
+  color: #fde047; /* MaBar Primary Yellow */
+  background-color: #fefce8; /* Match field background */
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
-  top: 0px;
+  top: 0px; /* Positioned well above the field */
   z-index: 4;
 }
 
 .md-text-field-filled.md-text-field-focused .md-text-field-label-with-icon,
-.md-text-field-filled:has(.md-text-field-input:not(:placeholder-shown)) .md-text-field-label-with-icon {
-  transform: translateY(-24px) scale(0.75);
-  left: 52px; /* Maintain icon spacing when floating */
-  top: 0px;
+.md-text-field-filled:has(.md-text-field-input:not(:placeholder-shown))
+  .md-text-field-label-with-icon {
+  transform: translateY(-40px) scale(0.75); /* Increased distance to prevent overlap */
+  left: 56px; /* Match updated icon spacing */
+  top: 0px; /* Positioned well above the field */
   z-index: 4;
 }
 
 /* Alternative floating trigger for better browser compatibility */
 .md-text-field-input:focus ~ .md-text-field-label,
 .md-text-field-input:not(:placeholder-shown) ~ .md-text-field-label {
-  transform: translateY(-24px) scale(0.75);
-  color: #FDE047;
-  background-color: #FEFCE8;
-  top: 0px;
+  transform: translateY(-40px) scale(0.75); /* Increased distance to prevent overlap */
+  color: #fde047;
+  background-color: #fefce8;
+  top: 0px; /* Positioned well above the field */
   z-index: 4;
 }
 
 .md-text-field-input:focus ~ .md-text-field-label-with-icon,
 .md-text-field-input:not(:placeholder-shown) ~ .md-text-field-label-with-icon {
-  left: 52px;
-  top: 0px;
+  left: 56px;
+  top: 0px; /* Positioned well above the field */
 }
 
 .md-text-field-input::placeholder {
@@ -1702,26 +1936,26 @@ onMounted(() => {
   height: 20px;
   pointer-events: none;
   transition: transform 200ms ease;
-  color: #64748B; /* MaBar Subtle Gray */
+  color: #64748b; /* MaBar Subtle Gray */
   z-index: 3; /* Higher z-index to appear above icons and labels */
 }
 
 /* Ensure dropdown arrow doesn't overlap with leading icons */
-.md-text-field-filled:has(.md-text-field-leading-icon) .md-select-dropdown-icon {
+.md-text-field-filled:has(.md-text-field-leading-icon)
+  .md-select-dropdown-icon {
   right: 16px; /* Maintain right position regardless of leading icon */
 }
 
 .md-text-field-filled.md-text-field-focused .md-select-dropdown-icon {
   transform: translateY(-50%) rotate(180deg);
-  color: #FDE047; /* MaBar Primary Yellow */
+  color: #fde047; /* MaBar Primary Yellow */
 }
-
-
 
 .md-text-field-supporting-text {
   margin-top: 8px; /* 8dp grid: 1 unit */
+  margin-bottom: 4px; /* Prevent interference with adjacent elements */
   padding: 0 16px;
-  color: #64748B; /* MaBar Subtle Gray */
+  color: #64748b; /* MaBar Subtle Gray */
   font-size: 12px;
   font-weight: 400;
   line-height: 1.5; /* Improved readability */
@@ -1731,6 +1965,7 @@ onMounted(() => {
   clear: both;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 
 /* Focus states for accessibility */
@@ -1739,38 +1974,38 @@ onMounted(() => {
 }
 
 .md-text-field-filled:focus-within {
-  border-bottom-color: #FDE047; /* MaBar Primary Yellow */
-  background-color: #FFFFFF; /* MaBar Surface White */
+  border-bottom-color: #fde047; /* MaBar Primary Yellow */
+  background-color: #ffffff; /* MaBar Surface White */
   box-shadow: 0 2px 8px rgba(253, 224, 71, 0.2); /* Subtle yellow glow */
 }
 
 .md-text-field-filled:focus-within .md-text-field-label {
-  color: #FDE047; /* MaBar Primary Yellow */
+  color: #fde047; /* MaBar Primary Yellow */
 }
 
 /* Error states */
 .md-text-field-filled.md-text-field-error {
-  border-bottom-color: #EF4444; /* Red error color */
-  background-color: #FEF2F2; /* Light red background */
+  border-bottom-color: #ef4444; /* Red error color */
+  background-color: #fef2f2; /* Light red background */
 }
 
 .md-text-field-filled.md-text-field-error .md-text-field-label {
-  color: #EF4444; /* Red error color */
+  color: #ef4444; /* Red error color */
 }
 
 .md-text-field-filled.md-text-field-error .md-text-field-supporting-text {
-  color: #EF4444; /* Red error color */
+  color: #ef4444; /* Red error color */
 }
 
 /* Disabled states */
 .md-text-field-filled:has(.md-text-field-input:disabled) {
-  background-color: #F8FAFC; /* Light gray background */
-  border-bottom-color: #E2E8F0; /* Light gray border */
+  background-color: #f8fafc; /* Light gray background */
+  border-bottom-color: #e2e8f0; /* Light gray border */
   opacity: 0.6;
 }
 
 .md-text-field-filled:has(.md-text-field-input:disabled) .md-text-field-label {
-  color: #94A3B8; /* Muted gray text */
+  color: #94a3b8; /* Muted gray text */
 }
 
 /* Responsive adjustments */
@@ -1843,7 +2078,7 @@ onMounted(() => {
   border: none;
   border-radius: 20px;
   background: transparent;
-  color: #FDE047; /* MaBar Primary Yellow */
+  color: #fde047; /* MaBar Primary Yellow */
   font-family: inherit;
   font-size: 14px;
   font-weight: 500;
@@ -1883,62 +2118,70 @@ onMounted(() => {
   transition: all 200ms ease;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .md-button-filled:hover {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 2px 6px 2px rgba(0, 0, 0, 0.15);
 }
 
 .md-button-filled:focus {
   outline: none;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px 2px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 2px 6px 2px rgba(0, 0, 0, 0.15);
 }
 
 .md-button-filled:active {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px 1px rgba(0, 0, 0, 0.15);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 1px 3px 1px rgba(0, 0, 0, 0.15);
 }
 
 .md-button-primary {
-  background-color: #FDE047; /* MaBar Primary Yellow */
+  background-color: #fde047; /* MaBar Primary Yellow */
   color: #334155; /* MaBar Charcoal */
 }
 
 .md-button-primary:hover {
-  background-color: #FEF08A; /* Lighter yellow on hover */
+  background-color: #fef08a; /* Lighter yellow on hover */
 }
 
 .md-button-primary:disabled {
-  background-color: #E2E8F0; /* MaBar Light Gray */
-  color: #94A3B8; /* MaBar Muted Gray */
+  background-color: #e2e8f0; /* MaBar Light Gray */
+  color: #94a3b8; /* MaBar Muted Gray */
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .md-button-error {
-  background-color: #EF4444; /* Red */
-  color: #FFFFFF;
+  background-color: #ef4444; /* Red */
+  color: #ffffff;
 }
 
 .md-button-error:hover {
-  background-color: #DC2626; /* Darker red on hover */
+  background-color: #dc2626; /* Darker red on hover */
 }
 
 .md-button-secondary {
-  background-color: #F1F5F9; /* Light slate background */
+  background-color: #f1f5f9; /* Light slate background */
   color: #475569; /* Slate text */
-  border: 1px solid #CBD5E1; /* Slate border */
+  border: 1px solid #cbd5e1; /* Slate border */
 }
 
 .md-button-secondary:hover {
-  background-color: #E2E8F0; /* Darker slate on hover */
-  border-color: #94A3B8;
+  background-color: #e2e8f0; /* Darker slate on hover */
+  border-color: #94a3b8;
 }
 
 .md-button-secondary:disabled {
-  background-color: #F8FAFC;
-  color: #CBD5E1;
-  border-color: #E2E8F0;
+  background-color: #f8fafc;
+  color: #cbd5e1;
+  border-color: #e2e8f0;
   cursor: not-allowed;
 }
 
@@ -1977,19 +2220,19 @@ onMounted(() => {
 }
 
 .text-on-surface-variant {
-  color: #64748B; /* MaBar Subtle Gray */
+  color: #64748b; /* MaBar Subtle Gray */
 }
 
 .text-primary {
-  color: #FDE047; /* MaBar Primary Yellow */
+  color: #fde047; /* MaBar Primary Yellow */
 }
 
 .bg-surface-variant {
-  background-color: #F8FAFC; /* MaBar Light Background */
+  background-color: #f8fafc; /* MaBar Light Background */
 }
 
 .bg-primary {
-  background-color: #FDE047; /* MaBar Primary Yellow */
+  background-color: #fde047; /* MaBar Primary Yellow */
 }
 
 /* Responsive Design Improvements */
@@ -2005,19 +2248,24 @@ onMounted(() => {
   .md-text-field-input {
     font-size: 16px; /* Prevent zoom on iOS */
     min-height: 56px;
-    padding: 24px 16px 8px 16px; /* Maintain proper padding */
+    padding: 28px 16px 12px 16px; /* Match desktop padding */
   }
 
   .md-text-field-input-with-icon {
-    padding-left: 52px; /* Consistent with desktop */
+    padding-left: 56px; /* Match desktop spacing */
+  }
+
+  .md-text-field-label {
+    top: 50%; /* Match desktop positioning */
+    transform: translateY(-50%); /* Perfect vertical centering */
   }
 
   .md-text-field-label-with-icon {
-    left: 52px; /* Consistent with desktop */
+    left: 56px; /* Match desktop spacing */
   }
 
   .md-text-field-leading-icon {
-    left: 16px; /* Consistent positioning */
+    left: 18px; /* Match desktop positioning */
     width: 20px;
     height: 20px;
   }
@@ -2025,16 +2273,23 @@ onMounted(() => {
   /* Player section mobile improvements */
   .player-row {
     flex-direction: column;
-    gap: 16px;
+    gap: 16px; /* Consistent gap for mobile */
     padding: 16px;
-    background-color: #FEFCE8;
+    background-color: #fefce8;
     border-radius: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 24px; /* Consistent bottom margin */
   }
 
   .player-row .flex-1 {
     grid-template-columns: 1fr; /* Single column on mobile */
-    gap: 16px;
+    gap: 16px; /* Consistent gap for mobile */
+  }
+
+  /* Remove additional margins on mobile for cleaner layout */
+  .player-row .grid .md-text-field-container:first-child,
+  .player-row .grid .md-text-field-container:last-child {
+    margin-left: 0;
+    margin-right: 0;
   }
 
   /* Booking summary responsive improvements */
@@ -2058,7 +2313,7 @@ onMounted(() => {
 /* Focus improvements for accessibility */
 .md-text-field-input:focus,
 .md-select-input:focus {
-  outline: 2px solid #FDE047;
+  outline: 2px solid #fde047;
   outline-offset: 2px;
 }
 
@@ -2085,35 +2340,49 @@ onMounted(() => {
 }
 
 .md-text-field-clickable:hover {
-  background-color: #FFFBEB; /* Slightly lighter cream on hover */
+  background-color: #fffbeb; /* Slightly lighter cream on hover */
 }
 
 /* Enhanced datetime inputs for 24-hour format */
-input[type="datetime-local"] {
+input[type='datetime-local'] {
   color-scheme: light;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: textfield;
   font-variant-numeric: tabular-nums;
+  /* Force 24-hour format through locale */
+  -webkit-locale: 'en-GB';
 }
 
 /* Force 24-hour format in datetime picker - Enhanced */
-input[type="datetime-local"]::-webkit-datetime-edit-hour-field {
+input[type='datetime-local']::-webkit-datetime-edit-hour-field {
   color: #334155;
   font-weight: 600;
   min-width: 2ch;
   text-align: center;
 }
 
-input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+input[type='datetime-local']::-webkit-datetime-edit-minute-field {
   color: #334155;
   font-weight: 600;
   min-width: 2ch;
   text-align: center;
 }
 
-/* Completely hide AM/PM field to force 24-hour format */
-input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
+/* Completely hide AM/PM field to force 24-hour format - Enhanced */
+input[type='datetime-local']::-webkit-datetime-edit-ampm-field {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  position: absolute !important;
+  left: -9999px !important;
+  overflow: hidden !important;
+}
+
+/* Additional AM/PM hiding for different browser implementations */
+input[type='datetime-local']::-webkit-datetime-edit-meridiem-field {
   display: none !important;
   visibility: hidden !important;
   width: 0 !important;
@@ -2122,7 +2391,7 @@ input[type="datetime-local"]::-webkit-datetime-edit-ampm-field {
 }
 
 /* Hide the native calendar picker indicator */
-input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+input[type='datetime-local']::-webkit-calendar-picker-indicator {
   opacity: 0;
   position: absolute;
   right: 16px;
@@ -2134,7 +2403,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 }
 
 /* Enhanced datetime picker styling */
-input[type="datetime-local"]::-webkit-datetime-edit {
+input[type='datetime-local']::-webkit-datetime-edit {
   color: #334155;
   font-size: 16px;
   font-weight: 400;
@@ -2142,15 +2411,15 @@ input[type="datetime-local"]::-webkit-datetime-edit {
   align-items: center;
 }
 
-input[type="datetime-local"]::-webkit-datetime-edit-text {
-  color: #64748B;
+input[type='datetime-local']::-webkit-datetime-edit-text {
+  color: #64748b;
   padding: 0 3px;
   font-weight: 400;
 }
 
-input[type="datetime-local"]::-webkit-datetime-edit-month-field,
-input[type="datetime-local"]::-webkit-datetime-edit-day-field,
-input[type="datetime-local"]::-webkit-datetime-edit-year-field {
+input[type='datetime-local']::-webkit-datetime-edit-month-field,
+input[type='datetime-local']::-webkit-datetime-edit-day-field,
+input[type='datetime-local']::-webkit-datetime-edit-year-field {
   color: #334155;
   font-weight: 500;
   text-align: center;
@@ -2158,49 +2427,98 @@ input[type="datetime-local"]::-webkit-datetime-edit-year-field {
 
 /* Firefox specific 24-hour format support */
 @-moz-document url-prefix() {
-  input[type="datetime-local"] {
+  input[type='datetime-local'] {
     appearance: textfield;
     -moz-appearance: textfield;
   }
 }
 
+/* Force 24-hour format across all browsers */
+input[type='datetime-local'][data-format='24'] {
+  /* Ensure 24-hour format is maintained */
+  --time-format: 24;
+}
+
+/* Safari specific 24-hour format */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  input[type='datetime-local'] {
+    -webkit-locale: 'en-GB';
+  }
+}
+
+/* Edge/IE specific 24-hour format */
+@supports (-ms-ime-align: auto) {
+  input[type='datetime-local'] {
+    -ms-locale: 'en-GB';
+  }
+}
+
 /* Error states for Material Design fields */
 .md-text-field-error {
-  border-bottom-color: #EF4444 !important; /* Red border for errors */
+  border-bottom-color: #ef4444 !important; /* Red border for errors */
 }
 
 .md-text-field-filled:has(.md-text-field-error) {
-  border-bottom-color: #EF4444 !important;
+  border-bottom-color: #ef4444 !important;
 }
 
 .md-text-field-filled:has(.md-text-field-error) .md-text-field-leading-icon {
-  color: #EF4444 !important;
+  color: #ef4444 !important;
 }
 
 .md-text-field-filled:has(.md-text-field-error) .md-text-field-label {
-  color: #EF4444 !important;
+  color: #ef4444 !important;
 }
 
-/* Player section specific styling */
+/* Player section specific styling - Enhanced */
 .player-row {
   transition: all 200ms ease;
+  margin-bottom: 28px; /* Increased spacing between player rows for better separation */
 }
 
 .player-row:hover {
-  background-color: #FEFCE8; /* Very light yellow on hover */
+  background-color: #fefce8; /* Very light yellow on hover */
   border-radius: 12px;
-  padding: 8px;
-  margin: -8px;
+  padding: 16px; /* Increased padding for better hover effect */
+  margin: -16px -16px 12px -16px; /* Compensate for padding while maintaining bottom margin */
 }
 
-/* Improved spacing for player section - override default spacing in grid */
+/* Improved spacing for player section */
 .player-row .md-text-field-container {
-  margin-bottom: 0; /* Remove default margin in grid layout */
+  margin-bottom: 20px; /* Increased spacing within player row for better separation */
 }
+
+/* Ensure proper spacing between name and phone fields in player rows */
+.player-row .grid .md-text-field-container:first-child {
+  margin-right: 8px; /* Additional spacing between name and phone fields */
+}
+
+.player-row .grid .md-text-field-container:last-child {
+  margin-left: 8px; /* Additional spacing between name and phone fields */
+}
+
+/* Ensure proper spacing in grid layout */
+.player-row .grid {
+  gap: 16px; /* Material Design standard spacing */
+}
+
+/* Enhanced field container spacing - merged with existing selector */
+
+/* Form section spacing improvements */
+.space-y-10 > * + * {
+  margin-top: 2.5rem; /* 40px - Better separation between major sections */
+}
+
+/* Prevent excessive spacing in nested elements */
+.space-y-10 .md-text-field-container + .md-text-field-container {
+  margin-top: 1.5rem; /* 24px - Standard field spacing */
+}
+
+/* Enhanced field separation to prevent overlap - merged with existing selectors */
 
 /* Enhanced focus states for better accessibility */
 .md-text-field-input:focus-visible {
-  outline: 2px solid #FDE047;
+  outline: 2px solid #fde047;
   outline-offset: 2px;
 }
 
