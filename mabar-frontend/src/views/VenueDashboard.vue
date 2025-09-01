@@ -227,6 +227,7 @@
                         @update="updateBooking"
                         @delete="deleteBooking"
                         @cancel="closeBookingForm"
+                        @close="closeBookingForm"
                       />
                     </div>
                   </div>

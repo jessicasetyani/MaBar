@@ -1075,6 +1075,7 @@ const emit = defineEmits<{
   update: [bookingId: string, bookingData: Record<string, unknown>]
   delete: [bookingId: string]
   cancel: []
+  close: []
   removeSlot: [index: number]
 }>()
 
@@ -1688,6 +1689,9 @@ const handleSubmit = async () => {
       }
     }
     console.log('Form submission completed successfully')
+
+    // Auto-close modal after successful booking creation/update
+    emit('close')
   } catch (error) {
     console.error('Form submission error:', error)
   } finally {
