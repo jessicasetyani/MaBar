@@ -157,55 +157,82 @@
             @delete="deleteBookingFromDetails"
           />
 
-          <!-- Booking Form Modal -->
+          <!-- Enhanced Google Calendar-Style Booking Modal -->
           <Teleport to="body">
-            <div
-              v-if="showBookingForm"
-              class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
-              @click.self="closeBookingForm"
+            <!-- Enhanced Modal Backdrop with Transitions -->
+            <Transition
+              enter-active-class="transition-opacity duration-300 ease-out"
+              enter-from-class="opacity-0"
+              enter-to-class="opacity-100"
+              leave-active-class="transition-opacity duration-200 ease-in"
+              leave-from-class="opacity-100"
+              leave-to-class="opacity-0"
             >
               <div
-                class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-                @click.stop
+                v-if="showBookingForm"
+                class="enhanced-modal-backdrop"
+                @click.self="closeBookingForm"
               >
-                <div class="p-6">
-                  <div class="flex justify-between items-start mb-4">
-                    <h3 class="text-lg font-semibold text-slate-900">
-                      {{ isEditMode ? 'Edit Booking' : 'Add New Booking' }}
-                    </h3>
-                    <button
-                      @click="closeBookingForm"
-                      class="text-slate-400 hover:text-slate-600 p-1 hover:bg-slate-100 rounded-md transition-colors"
-                    >
-                      <svg
-                        class="w-5 h-5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M6 18L18 6M6 6l12 12"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                <!-- Enhanced Modal Content with Transitions -->
+                <Transition
+                  enter-active-class="transition-all duration-300 ease-out"
+                  enter-from-class="opacity-0 scale-95"
+                  enter-to-class="opacity-100 scale-100"
+                  leave-active-class="transition-all duration-200 ease-in"
+                  leave-from-class="opacity-100 scale-100"
+                  leave-to-class="opacity-0 scale-95"
+                >
+                  <div
+                    v-if="showBookingForm"
+                    class="enhanced-modal-content"
+                    @click.stop
+                  >
+                    <!-- Enhanced Modal Header -->
+                    <div class="enhanced-modal-header">
+                      <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center shadow-sm">
+                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h2 class="text-xl font-semibold text-slate-900">
+                            {{ isEditMode ? 'Edit Booking' : 'Create New Booking' }}
+                          </h2>
+                          <p class="text-sm text-slate-600 mt-0.5">
+                            {{ isEditMode ? 'Update booking details' : 'Fill in the details below to create your booking' }}
+                          </p>
+                        </div>
+                      </div>
 
-                  <BookingForm
-                    :selected-slots="selectedSlots"
-                    :paddle-fields="paddleFields"
-                    :is-edit-mode="isEditMode"
-                    :editing-booking="editingBooking"
-                    @create="createBooking"
-                    @update="updateBooking"
-                    @delete="deleteBooking"
-                    @cancel="closeBookingForm"
-                  />
-                </div>
+                      <button
+                        @click="closeBookingForm"
+                        class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        aria-label="Close modal"
+                      >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- Enhanced Modal Body -->
+                    <div class="enhanced-modal-body">
+                      <BookingForm
+                        :selected-slots="selectedSlots"
+                        :paddle-fields="paddleFields"
+                        :is-edit-mode="isEditMode"
+                        :editing-booking="editingBooking"
+                        @create="createBooking"
+                        @update="updateBooking"
+                        @delete="deleteBooking"
+                        @cancel="closeBookingForm"
+                      />
+                    </div>
+                  </div>
+                </Transition>
               </div>
-            </div>
+            </Transition>
           </Teleport>
         </div>
 
@@ -363,56 +390,12 @@
       </main>
     </div>
 
-    <!-- Enhanced Floating Action Button (FAB) for Flexible Duration Bookings -->
-    <div
+    <!-- Enhanced Floating Action Button (FAB) with Contextual Menu -->
+    <EnhancedFloatingActionButton
       v-if="activeTab === 'calendar' && applicationStatus === 'Approved'"
-      class="fixed bottom-6 right-6 z-[9999]"
-    >
-      <div class="relative">
-        <!-- Multi-colored FAB with enhanced Google Calendar styling -->
-        <button
-          @click="openBookingForm"
-          class="fab-button bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-400 hover:from-yellow-500 hover:via-yellow-600 hover:to-orange-500 text-slate-800 rounded-full shadow-2xl hover:shadow-3xl transform hover:scale-110 active:scale-95 transition-all duration-300 ease-out flex items-center justify-center group relative overflow-hidden"
-          title="Create New Booking"
-          aria-label="Create new booking"
-        >
-          <!-- Animated background gradient -->
-          <div
-            class="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          ></div>
-
-          <!-- Plus icon with enhanced animation -->
-          <svg
-            class="w-7 h-7 transition-all duration-300 group-hover:rotate-180 group-hover:scale-110 relative z-10"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            stroke-width="3"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
-
-          <!-- Ripple effect -->
-          <div
-            class="absolute inset-0 rounded-full bg-white/30 scale-0 group-active:scale-100 transition-transform duration-200"
-          ></div>
-        </button>
-
-        <!-- Tooltip -->
-        <div
-          class="absolute bottom-full right-0 mb-2 px-3 py-1.5 bg-slate-800 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap pointer-events-none"
-        >
-          Create New Booking
-          <div
-            class="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800"
-          ></div>
-        </div>
-      </div>
-    </div>
+      @quick-booking="openBookingModal"
+      @multiple-slots="openMultipleSlotBooking"
+    />
   </div>
 </template>
 
@@ -429,7 +412,7 @@ import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import BookingForm from '../components/BookingForm.vue'
 import BookingDetailsModal from '../components/BookingDetailsModal.vue'
-import { CalendarLoadingState, CalendarErrorState } from '../components/ui'
+import { CalendarLoadingState, CalendarErrorState, EnhancedFloatingActionButton } from '../components/ui'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
 
@@ -552,7 +535,6 @@ const refreshData = async () => {
   await loadAllData()
 }
 // const selectedBooking = ref<any>(null)
-// const showBookingModal = ref(false)
 const showBookingForm = ref(false)
 const selectedSlots = ref<
   Array<{
@@ -662,10 +644,10 @@ const calendarOptions = computed(() => {
 
       // Only allow booking creation on time grid views for better UX
       if (info.view.type === 'dayGridMonth') {
-        // For month view, just open the form without pre-filling time
+        // For month view, just open the enhanced modal without pre-filling time
         if (!showBookingForm.value) {
           selectedSlots.value = []
-          openBookingForm()
+          openBookingModal()
         }
         return
       }
@@ -683,12 +665,12 @@ const calendarOptions = computed(() => {
         clickedDate.setMinutes(0, 0, 0) // Round to hour
       }
 
-      // Pre-fill the booking form with clicked time
+      // Pre-fill the booking modal with clicked time
       if (!showBookingForm.value) {
         selectedSlots.value = []
-        openBookingForm()
+        openBookingModal()
 
-        // Set the start time after form opens with better timing
+        // Set the start time after modal opens with better timing
         setTimeout(() => {
           const startTimeInput = document.querySelector(
             'input[type="datetime-local"]'
@@ -749,6 +731,8 @@ const createBooking = async (bookingData: Record<string, unknown>) => {
 
     if (result.success) {
       await refreshCalendarData()
+      // Close both modals to ensure proper cleanup
+      closeBookingModal()
       closeBookingForm()
       alert('Booking created successfully!')
     } else {
@@ -847,6 +831,8 @@ const updateBooking = async (
     })
 
     await refreshCalendarData()
+    // Close both modals to ensure proper cleanup
+    closeBookingModal()
     closeBookingForm()
     alert('Booking updated successfully!')
 
@@ -875,6 +861,8 @@ const deleteBooking = async (bookingId: string) => {
     await BookingService.deleteBooking(bookingId)
 
     await refreshCalendarData()
+    // Close both modals to ensure proper cleanup
+    closeBookingModal()
     closeBookingForm()
     alert('Booking deleted successfully!')
 
@@ -914,6 +902,72 @@ const openBookingForm = () => {
   console.log('📝 Booking form opened')
 }
 
+const openBookingModal = () => {
+  console.log('📝 Opening enhanced booking modal')
+  // Close any other modals first
+  showBookingDetails.value = false
+
+  // Reset form state
+  isEditMode.value = false
+  editingBooking.value = null
+  selectedSlots.value = []
+
+  // Show the enhanced booking modal
+  showBookingForm.value = true
+  console.log('📝 Enhanced booking modal opened, showBookingForm:', showBookingForm.value)
+
+  // Enhanced Debug: Check modal positioning and DOM structure
+  setTimeout(() => {
+    const modalElement = document.querySelector('.enhanced-modal-backdrop')
+    console.log('🔍 Modal element found:', modalElement)
+
+    if (modalElement) {
+      const computedStyle = window.getComputedStyle(modalElement)
+      const rect = modalElement.getBoundingClientRect()
+
+      console.log('🎨 Modal computed styles:')
+      console.log('  - position:', computedStyle.position)
+      console.log('  - display:', computedStyle.display)
+      console.log('  - z-index:', computedStyle.zIndex)
+      console.log('  - top:', computedStyle.top)
+      console.log('  - left:', computedStyle.left)
+      console.log('  - width:', computedStyle.width)
+      console.log('  - height:', computedStyle.height)
+
+      console.log('📐 Modal bounding rect:')
+      console.log('  - top:', rect.top)
+      console.log('  - left:', rect.left)
+      console.log('  - width:', rect.width)
+      console.log('  - height:', rect.height)
+
+      console.log('🌍 Viewport dimensions:')
+      console.log('  - window.innerWidth:', window.innerWidth)
+      console.log('  - window.innerHeight:', window.innerHeight)
+
+      console.log('🏠 Modal parent element:', modalElement.parentElement)
+      console.log('🏠 Modal parent tag:', modalElement.parentElement?.tagName)
+
+      // Check if modal is actually teleported to body
+      const isInBody = document.body.contains(modalElement) && modalElement.parentElement === document.body
+      console.log('📡 Modal teleported to body:', isInBody)
+    }
+  }, 100)
+}
+
+const closeBookingModal = () => {
+  console.log('🚪 Closing enhanced booking modal')
+  showBookingForm.value = false
+  isEditMode.value = false
+  editingBooking.value = null
+}
+
+const openMultipleSlotBooking = () => {
+  console.log('📅 Opening multiple slot booking')
+  // For now, open the enhanced booking modal
+  // This can be enhanced later to support multiple time slots
+  openBookingModal()
+}
+
 const closeBookingDetails = () => {
   showBookingDetails.value = false
   selectedBookingForDetails.value = null
@@ -950,6 +1004,7 @@ const editBookingFromDetails = () => {
     }
     isEditMode.value = true
     showBookingDetails.value = false
+    // Use the enhanced modal for editing
     showBookingForm.value = true
   }
 }
@@ -1485,5 +1540,170 @@ onMounted(async () => {
 .fixed.bottom-6.right-6 button:focus-visible {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+}
+
+/* Enhanced Modal Styles - Bulletproof Viewport Centering */
+/* Target modals teleported to body with highest specificity */
+body > .enhanced-modal-backdrop,
+body .enhanced-modal-backdrop,
+.enhanced-modal-backdrop {
+  /* Force fixed positioning to viewport */
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+
+  /* Background and z-index */
+  background-color: rgba(0, 0, 0, 0.5) !important;
+  z-index: 99999 !important;
+
+  /* Perfect centering with CSS Grid */
+  display: grid !important;
+  place-items: center !important;
+  place-content: center !important;
+
+  /* Padding and overflow */
+  padding: 1rem !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+
+  /* Reset all possible inherited styles */
+  margin: 0 !important;
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+  isolation: isolate !important;
+
+  /* Ensure it's always on top */
+  contain: layout style paint !important;
+
+  /* Additional properties to ensure proper positioning */
+  float: none !important;
+  clear: both !important;
+}
+
+body > .enhanced-modal-backdrop .enhanced-modal-content,
+body .enhanced-modal-content,
+.enhanced-modal-content {
+  background-color: white !important;
+  border-radius: 1rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  max-width: 42rem !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  max-height: 90dvh !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative !important;
+  box-sizing: border-box !important;
+  
+  /* Reset positioning to ensure grid centering works */
+  margin: 0 !important;
+  transform: none !important;
+  translate: none !important;
+  scale: none !important;
+  rotate: none !important;
+
+  /* Override any Tailwind transform classes */
+  --tw-translate-x: 0 !important;
+  --tw-translate-y: 0 !important;
+  --tw-scale-x: 1 !important;
+  --tw-scale-y: 1 !important;
+  --tw-rotate: 0 !important;
+
+  /* Ensure proper grid child behavior */
+  justify-self: center !important;
+  align-self: center !important;
+}
+
+.enhanced-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgb(226 232 240);
+  background: linear-gradient(to right, rgb(254 249 195), rgb(255 237 213));
+}
+
+.enhanced-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+/* Ensure proper centering on all devices */
+@media (max-height: 600px) {
+  .enhanced-modal-content {
+    max-height: 95vh !important;
+    max-height: 95dvh !important;
+  }
+
+  .enhanced-modal-backdrop {
+    /* Keep centered even on short screens */
+    place-items: center !important;
+    padding: 1rem !important;
+    overflow-y: auto !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .enhanced-modal-backdrop {
+    padding: 0.5rem;
+    /* Ensure centering on mobile */
+    place-items: center;
+  }
+
+  .enhanced-modal-content {
+    max-height: 95vh;
+    max-height: 95dvh;
+    border-radius: 0.75rem;
+    /* Ensure mobile content doesn't overflow */
+    min-height: 0;
+  }
+
+  .enhanced-modal-header {
+    padding: 1rem;
+    flex-shrink: 0;
+  }
+
+  .enhanced-modal-body {
+    padding: 1rem;
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .enhanced-modal-backdrop {
+    padding: 0.25rem;
+  }
+
+  .enhanced-modal-content {
+    max-height: 98vh;
+    max-height: 98dvh;
+    border-radius: 0.5rem;
+  }
+}
+
+/* Landscape orientation on mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+  .enhanced-modal-backdrop {
+    /* Keep centered even in landscape */
+    place-items: center !important;
+    padding: 0.5rem !important;
+    overflow-y: auto !important;
+  }
+
+  .enhanced-modal-content {
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+  }
 }
 </style>
