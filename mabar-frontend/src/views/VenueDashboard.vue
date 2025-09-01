@@ -537,8 +537,6 @@ const selectedBookingForDetails = ref<{
 const calendarOptions = computed(() => {
   console.log('📅 Computing calendar options with:', {
     bookings: bookings.value.length,
-    blockedSlots: blockedSlots.value.length,
-    selectedSlots: selectedSlots.value.length,
   })
 
   const allEvents = [...bookings.value]
@@ -626,45 +624,19 @@ const handleEventClick = async (clickInfo: {
 const createBooking = async (bookingData: Record<string, unknown>) => {
   try {
     isSubmitting.value = true
+    console.log('📝 Creating booking with data:', bookingData)
 
-    // Handle batch operations
-    if (bookingData.type === 'batch' && bookingData.items) {
-      const results = []
-      for (const item of bookingData.items as Record<string, unknown>[]) {
-        const result = await createSingleBooking(item)
-        results.push(result)
-      }
+    const result = await createSingleBooking(bookingData)
 
-      const successCount = results.filter((r) => r.success).length
-      const failCount = results.length - successCount
-
-      if (failCount > 0) {
-        alert(
-          `Created ${successCount} bookings successfully. ${failCount} failed.`
-        )
-      }
-
-      clearSelection()
+    if (result.success) {
       await refreshCalendarData()
-      return { success: successCount > 0, successCount, failCount }
+      closeBookingForm()
+      alert('Booking created successfully!')
     } else {
-      // Single booking/block
-      const result = await createSingleBooking(bookingData)
-
-      if (result.success) {
-        clearSelection()
-        await refreshCalendarData()
-        alert(
-          `${bookingData.type === 'blocked' ? 'Time slot blocked' : 'Booking created'} successfully!`
-        )
-      } else {
-        alert(
-          `Failed to create ${bookingData.type === 'blocked' ? 'block' : 'booking'}: ${result.error}`
-        )
-      }
-
-      return result
+      alert(`Failed to create booking: ${result.error}`)
     }
+
+    return result
   } catch (error) {
     console.error('Error in createBooking:', error)
     alert(`Failed to create booking: ${(error as Error).message}`)
@@ -681,40 +653,29 @@ const createSingleBooking = async (bookingData: Record<string, unknown>) => {
       throw new Error('No venue ID available')
     }
 
-    if (bookingData.type === 'blocked') {
-      // Create blocked slot using BookingService
-      await BookingService.createBlockedSlot({
-        venueId,
-        startTime: new Date(bookingData.start as string),
-        endTime: new Date(bookingData.end as string),
-        court: (bookingData.court as string) || '',
-        reason: (bookingData.reason as string) || '',
-      })
-    } else {
-      // Create regular booking using BookingService
-      await BookingService.createBooking({
-        venueId,
-        title: bookingData.title as string,
-        startTime: new Date(bookingData.start as string),
-        endTime: new Date(bookingData.end as string),
-        court: (bookingData.court as string) || '',
-        players: (bookingData.players as string[]) || [],
-        playerPhones: (bookingData.playerPhones as string[]) || [],
-        contact: bookingData.contact as string,
-        phone: bookingData.phone as string,
-        price: bookingData.price as number,
-        status:
-          (bookingData.status as 'confirmed' | 'pending' | 'cancelled') ||
-          'confirmed',
-        paymentStatus:
-          (bookingData.paymentStatus as 'pending' | 'paid' | 'refunded') ||
-          'pending',
-      })
-    }
+    // Create regular booking using BookingService
+    await BookingService.createBooking({
+      venueId,
+      title: bookingData.title as string,
+      startTime: new Date(bookingData.start as string),
+      endTime: new Date(bookingData.end as string),
+      court: (bookingData.court as string) || '',
+      players: (bookingData.players as string[]) || [],
+      playerPhones: (bookingData.playerPhones as string[]) || [],
+      contact: bookingData.contact as string,
+      phone: bookingData.phone as string,
+      price: bookingData.price as number,
+      status:
+        (bookingData.status as 'confirmed' | 'pending' | 'cancelled') ||
+        'confirmed',
+      paymentStatus:
+        (bookingData.paymentStatus as 'pending' | 'paid' | 'refunded') ||
+        'pending',
+    })
 
     return { success: true }
   } catch (error) {
-    console.error('Error creating single booking/block:', error)
+    console.error('Error creating booking:', error)
     return { success: false, error: (error as Error).message }
   }
 }
@@ -726,46 +687,32 @@ const updateBooking = async (
   try {
     isSubmitting.value = true
 
-    if (bookingData.type === 'blocked') {
-      // Update blocked slot using BookingService
-      await BookingService.updateBlockedSlot(bookingId, {
-        startTime: new Date(bookingData.start as string),
-        endTime: new Date(bookingData.end as string),
-        court: (bookingData.court as string) || '',
-        reason: (bookingData.reason as string) || '',
-      })
-    } else {
-      // Update regular booking using BookingService
-      await BookingService.updateBooking(bookingId, {
-        title: bookingData.title as string,
-        startTime: new Date(bookingData.start as string),
-        endTime: new Date(bookingData.end as string),
-        court: (bookingData.court as string) || '',
-        players: (bookingData.players as string[]) || [],
-        playerPhones: (bookingData.playerPhones as string[]) || [],
-        contact: bookingData.contact as string,
-        phone: bookingData.phone as string,
-        price: bookingData.price as number,
-        status: bookingData.status as 'confirmed' | 'pending' | 'cancelled',
-        paymentStatus: bookingData.paymentStatus as
-          | 'pending'
-          | 'paid'
-          | 'refunded',
-      })
-    }
+    // Update regular booking using BookingService
+    await BookingService.updateBooking(bookingId, {
+      title: bookingData.title as string,
+      startTime: new Date(bookingData.start as string),
+      endTime: new Date(bookingData.end as string),
+      court: (bookingData.court as string) || '',
+      players: (bookingData.players as string[]) || [],
+      playerPhones: (bookingData.playerPhones as string[]) || [],
+      contact: bookingData.contact as string,
+      phone: bookingData.phone as string,
+      price: bookingData.price as number,
+      status: bookingData.status as 'confirmed' | 'pending' | 'cancelled',
+      paymentStatus: bookingData.paymentStatus as
+        | 'pending'
+        | 'paid'
+        | 'refunded',
+    })
 
-    clearSelection()
     await refreshCalendarData()
-    alert(
-      `${bookingData.type === 'blocked' ? 'Block' : 'Booking'} updated successfully!`
-    )
+    closeBookingForm()
+    alert('Booking updated successfully!')
 
     return { success: true }
   } catch (error) {
-    console.error('Error updating booking/block:', error)
-    alert(
-      `Failed to update ${bookingData.type === 'blocked' ? 'block' : 'booking'}: ${(error as Error).message}`
-    )
+    console.error('Error updating booking:', error)
+    alert(`Failed to update booking: ${(error as Error).message}`)
     return { success: false, error: (error as Error).message }
   } finally {
     isSubmitting.value = false
@@ -784,32 +731,20 @@ const deleteBooking = async (bookingId: string) => {
   try {
     isSubmitting.value = true
 
-    // Try to delete as booking first, then as blocked slot using BookingService
-    try {
-      await BookingService.deleteBooking(bookingId)
-    } catch {
-      // If not found as booking, try as blocked slot
-      await BookingService.deleteBlockedSlot(bookingId)
-    }
+    await BookingService.deleteBooking(bookingId)
 
-    clearSelection()
     await refreshCalendarData()
+    closeBookingForm()
     alert('Booking deleted successfully!')
 
     return { success: true }
   } catch (error) {
-    console.error('Error deleting booking/block:', error)
-    alert(`Failed to delete: ${(error as Error).message}`)
+    console.error('Error deleting booking:', error)
+    alert(`Failed to delete booking: ${(error as Error).message}`)
     return { success: false, error: (error as Error).message }
   } finally {
     isSubmitting.value = false
   }
-}
-
-const clearSelection = () => {
-  selectedSlots.value = []
-  isSubmitting.value = false
-  console.log('🧹 Selection cleared')
 }
 
 const closeBookingForm = () => {
