@@ -125,6 +125,7 @@
                 lang="en-GB"
                 class="md-text-field-input md-text-field-input-with-icon"
                 required
+                @input="handleDateTimeChange('end-time-input')"
                 @change="handleDateTimeChange('end-time-input')"
                 @focus="onEndTimeFocus"
                 @blur="onEndTimeBlur"
@@ -137,6 +138,23 @@
             </div>
             <div v-if="timeRangeError" class="text-sm text-red-600 mt-1">
               {{ timeRangeError }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Time Adjustment Feedback Message -->
+        <div v-if="timeAdjustmentMessage" class="mt-4 mb-4">
+          <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div class="flex items-start space-x-3">
+              <div class="flex-shrink-0">
+                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-medium text-blue-800 mb-1">Time Automatically Adjusted</h4>
+                <p class="text-sm text-blue-700">{{ timeAdjustmentMessage }}</p>
+              </div>
             </div>
           </div>
         </div>
@@ -1136,23 +1154,29 @@ const handleDateTimeChange = (inputId: string) => {
     input.setCustomValidity('')
   }
 
-  // Special handling for start time changes
+  // Special handling for time changes
   if (inputId === 'start-time-input') {
     handleStartTimeChange()
+  } else if (inputId === 'end-time-input') {
+    handleEndTimeChange()
   } else {
     validateTimeRange()
   }
 }
 
-// Handle start time changes with dynamic end time validation
+// Enhanced time validation feedback
+const timeAdjustmentMessage = ref('')
+
+// Handle start time changes with automatic end time adjustment
 const handleStartTimeChange = () => {
-  if (!formData.value.startTime || !formData.value.endTime) {
+  timeAdjustmentMessage.value = ''
+
+  if (!formData.value.startTime) {
     validateTimeRange()
     return
   }
 
   const startDate = new Date(formData.value.startTime)
-  const endDate = new Date(formData.value.endTime)
 
   // Check if start time is valid
   if (isNaN(startDate.getTime())) {
@@ -1160,12 +1184,111 @@ const handleStartTimeChange = () => {
     return
   }
 
-  // If end time becomes invalid (before start time), auto-adjust it
-  if (!isNaN(endDate.getTime()) && endDate <= startDate) {
-    // Automatically set end time to 15 minutes after start time (minimum duration)
-    const newEndTime = new Date(startDate.getTime() + 15 * 60 * 1000)
+  // If end time exists, check if it needs adjustment
+  if (formData.value.endTime) {
+    const endDate = new Date(formData.value.endTime)
+
+    if (!isNaN(endDate.getTime())) {
+      const durationMs = endDate.getTime() - startDate.getTime()
+      const durationHours = durationMs / (1000 * 60 * 60)
+
+      // If end time is before or equal to start time, or duration is less than 1 hour
+      if (endDate <= startDate || durationHours < 1) {
+        // Automatically adjust end time to maintain 1-hour minimum duration
+        const newEndTime = new Date(startDate.getTime() + 60 * 60 * 1000) // 1 hour later
+        const oldEndTime = formData.value.endTime
+        formData.value.endTime = newEndTime.toISOString().slice(0, 16)
+
+        // Show user-friendly feedback
+        const oldEndFormatted = new Date(oldEndTime).toLocaleString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+        })
+        const newEndFormatted = newEndTime.toLocaleString('en-US', {
+          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+        })
+
+        timeAdjustmentMessage.value = `End time automatically adjusted from ${oldEndFormatted} to ${newEndFormatted} to maintain 1-hour minimum duration`
+
+        console.log('🕐 Auto-adjusted end time:', {
+          reason: endDate <= startDate ? 'End time was before start time' : 'Duration was less than 1 hour',
+          oldEndTime: oldEndTime,
+          newEndTime: formData.value.endTime,
+          duration: '1 hour'
+        })
+
+        // Clear the message after 5 seconds
+        setTimeout(() => {
+          timeAdjustmentMessage.value = ''
+        }, 5000)
+      }
+    }
+  } else {
+    // If no end time is set, automatically set it to 1 hour after start time
+    const defaultEndTime = new Date(startDate.getTime() + 60 * 60 * 1000)
+    formData.value.endTime = defaultEndTime.toISOString().slice(0, 16)
+
+    timeAdjustmentMessage.value = 'End time automatically set to 1 hour after start time'
+    setTimeout(() => {
+      timeAdjustmentMessage.value = ''
+    }, 3000)
+  }
+
+  validateTimeRange()
+}
+
+// Handle end time changes with validation
+const handleEndTimeChange = () => {
+  timeAdjustmentMessage.value = ''
+
+  if (!formData.value.endTime || !formData.value.startTime) {
+    validateTimeRange()
+    return
+  }
+
+  const startDate = new Date(formData.value.startTime)
+  const endDate = new Date(formData.value.endTime)
+
+  // Check if both times are valid
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    validateTimeRange()
+    return
+  }
+
+  const durationMs = endDate.getTime() - startDate.getTime()
+  const durationHours = durationMs / (1000 * 60 * 60)
+
+  // If end time creates zero, negative, or less than 1-hour duration
+  if (durationHours <= 0 || durationHours < 1) {
+    // Automatically adjust end time to maintain 1-hour minimum duration
+    const newEndTime = new Date(startDate.getTime() + 60 * 60 * 1000)
+    const oldEndTime = formData.value.endTime
     formData.value.endTime = newEndTime.toISOString().slice(0, 16)
-    console.log('Auto-adjusted end time to:', formData.value.endTime)
+
+    // Show user-friendly feedback
+    const oldEndFormatted = new Date(oldEndTime).toLocaleString('en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+    })
+    const newEndFormatted = newEndTime.toLocaleString('en-US', {
+      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
+    })
+
+    const reason = durationHours <= 0 ?
+      'End time cannot be before or equal to start time' :
+      'Minimum booking duration is 1 hour'
+
+    timeAdjustmentMessage.value = `${reason}. End time adjusted from ${oldEndFormatted} to ${newEndFormatted}`
+
+    console.log('🕐 Auto-adjusted end time:', {
+      reason: reason,
+      oldEndTime: oldEndTime,
+      newEndTime: formData.value.endTime,
+      duration: '1 hour minimum'
+    })
+
+    // Clear the message after 5 seconds
+    setTimeout(() => {
+      timeAdjustmentMessage.value = ''
+    }, 5000)
   }
 
   validateTimeRange()
@@ -1348,11 +1471,11 @@ const onEndTimeBlur = (event: Event) => {
 const getMinEndDateTime = () => {
   if (!formData.value.startTime) return ''
 
-  // Set minimum end time to 15 minutes after start time (matching validation logic)
+  // Set minimum end time to 1 hour after start time (matching validation logic)
   const startDate = new Date(formData.value.startTime)
-  startDate.setMinutes(startDate.getMinutes() + 15)
+  const minEndTime = new Date(startDate.getTime() + 60 * 60 * 1000) // 1 hour later
 
-  return startDate.toISOString().slice(0, 16)
+  return minEndTime.toISOString().slice(0, 16)
 }
 
 const validateTimeRange = () => {
@@ -1383,15 +1506,15 @@ const validateTimeRange = () => {
     return false
   }
 
-  // Check minimum duration (15 minutes)
+  // Check minimum duration (1 hour) and maximum duration (24 hours)
   const diffMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60)
-  if (diffMinutes < 15) {
-    timeRangeError.value = 'Booking must be at least 15 minutes'
+  const diffHours = diffMinutes / 60
+
+  if (diffHours < 1) {
+    timeRangeError.value = 'Booking must be at least 1 hour'
     return false
   }
 
-  // Check if booking is longer than 24 hours
-  const diffHours = diffMinutes / 60
   if (diffHours > 24) {
     timeRangeError.value = 'Booking cannot exceed 24 hours'
     return false
@@ -1810,8 +1933,8 @@ onMounted(() => {
 
     formData.value.startTime = now.toISOString().slice(0, 16)
 
-    // Set default end time to 2 hours after start time
-    const endTime = new Date(now.getTime() + 2 * 60 * 60 * 1000)
+    // Set default end time to 1 hour after start time (minimum duration)
+    const endTime = new Date(now.getTime() + 60 * 60 * 1000)
     formData.value.endTime = endTime.toISOString().slice(0, 16)
   }
 
@@ -1832,7 +1955,27 @@ onMounted(() => {
   }, 500)
 })
 
-// Watch for changes and reapply 24-hour format
+// Watch for start time changes
+watch(() => formData.value.startTime, (newStartTime, oldStartTime) => {
+  if (newStartTime !== oldStartTime && newStartTime) {
+    nextTick(() => {
+      force24HourFormat()
+      handleStartTimeChange()
+    })
+  }
+})
+
+// Watch for end time changes
+watch(() => formData.value.endTime, (newEndTime, oldEndTime) => {
+  if (newEndTime !== oldEndTime && newEndTime) {
+    nextTick(() => {
+      force24HourFormat()
+      handleEndTimeChange()
+    })
+  }
+})
+
+// Watch for changes and reapply 24-hour format (fallback)
 watch([() => formData.value.startTime, () => formData.value.endTime], () => {
   nextTick(() => {
     force24HourFormat()

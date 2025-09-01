@@ -148,14 +148,48 @@
             </div>
           </div>
 
-          <!-- Booking Details Modal -->
-          <BookingDetailsModal
+          <!-- Booking Details Modal - Temporarily disabled -->
+          <!-- TODO: Create BookingDetailsModal component -->
+          <div
             v-if="showBookingDetails && selectedBookingForDetails"
-            :booking="selectedBookingForDetails"
-            @close="closeBookingDetails"
-            @edit="editBookingFromDetails"
-            @delete="deleteBookingFromDetails"
-          />
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            @click.self="closeBookingDetails"
+          >
+            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+              <h3 class="text-lg font-semibold mb-4">Booking Details</h3>
+              <div class="space-y-2">
+                <p><strong>Title:</strong> {{ selectedBookingForDetails.title }}</p>
+                <p><strong>Start:</strong> {{ selectedBookingForDetails.start.toLocaleString() }}</p>
+                <p><strong>End:</strong> {{ selectedBookingForDetails.end.toLocaleString() }}</p>
+                <p v-if="selectedBookingForDetails.extendedProps?.court">
+                  <strong>Court:</strong> {{ selectedBookingForDetails.extendedProps.court }}
+                </p>
+                <p v-if="selectedBookingForDetails.extendedProps?.status">
+                  <strong>Status:</strong> {{ selectedBookingForDetails.extendedProps.status }}
+                </p>
+              </div>
+              <div class="flex justify-end space-x-2 mt-6">
+                <button
+                  @click="editBookingFromDetails"
+                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Edit
+                </button>
+                <button
+                  @click="deleteBookingFromDetails"
+                  class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+                <button
+                  @click="closeBookingDetails"
+                  class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
 
           <!-- Enhanced Google Calendar-Style Booking Modal -->
           <Teleport to="body">
@@ -412,7 +446,6 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import BookingForm from '../components/BookingForm.vue'
-import BookingDetailsModal from '../components/BookingDetailsModal.vue'
 import { CalendarLoadingState, CalendarErrorState, EnhancedFloatingActionButton } from '../components/ui'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
@@ -604,8 +637,8 @@ const calendarOptions = computed(() => {
 
     height: 'auto',
     events: allEvents,
-    selectable: false,
-    selectMirror: false,
+    selectable: true,
+    selectMirror: true,
     dayMaxEvents: true,
     weekends: true,
     slotMinTime: '00:00:00',
@@ -617,6 +650,7 @@ const calendarOptions = computed(() => {
     eventBorderColor: MaBarColors.hover.accent,
 
     eventClick: handleEventClick,
+    dateSelect: handleDateSelect,
     selectAllow: () => true,
     eventOverlap: true,
     selectOverlap: true,
@@ -631,7 +665,7 @@ const calendarOptions = computed(() => {
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
     },
-    // Enhanced empty slot clicks for flexible duration booking creation
+    // Enhanced empty slot clicks for quick single-slot booking creation
     dateClick: (info: {
       dateStr: string
       date: Date
@@ -645,7 +679,7 @@ const calendarOptions = computed(() => {
 
       // Only allow booking creation on time grid views for better UX
       if (info.view.type === 'dayGridMonth') {
-        // For month view, just open the enhanced modal without pre-filling time
+        // For month view, just open the modal without pre-filling time
         if (!showBookingForm.value) {
           selectedSlots.value = []
           openBookingModal()
@@ -653,7 +687,7 @@ const calendarOptions = computed(() => {
         return
       }
 
-      // Set the clicked time as start time for flexible duration booking
+      // Create a 1-hour slot starting from the clicked time
       const clickedDate = new Date(info.date)
       clickedDate.setMinutes(0, 0, 0) // Round to nearest hour
 
@@ -661,28 +695,31 @@ const calendarOptions = computed(() => {
       const now = new Date()
       const minStartTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
 
-      if (clickedDate < minStartTime) {
-        clickedDate.setTime(minStartTime.getTime())
-        clickedDate.setMinutes(0, 0, 0) // Round to hour
+      let startTime = new Date(clickedDate)
+      if (startTime < minStartTime) {
+        startTime = new Date(minStartTime)
+        startTime.setMinutes(0, 0, 0) // Round to hour
       }
 
-      // Pre-fill the booking modal with clicked time
-      if (!showBookingForm.value) {
-        selectedSlots.value = []
-        openBookingModal()
+      // Create a 1-hour slot
+      const endTime = new Date(startTime.getTime() + 60 * 60 * 1000)
 
-        // Set the start time after modal opens with better timing
-        setTimeout(() => {
-          const startTimeInput = document.querySelector(
-            'input[type="datetime-local"]'
-          ) as HTMLInputElement
-          if (startTimeInput) {
-            const isoString = clickedDate.toISOString().slice(0, 16)
-            startTimeInput.value = isoString
-            startTimeInput.dispatchEvent(new Event('change', { bubbles: true }))
-            console.log('⏰ Pre-filled start time:', isoString)
-          }
-        }, 150)
+      // Create selected slots data for single click
+      const slotData = {
+        id: `slot-${Date.now()}`,
+        start: startTime.toISOString(),
+        end: endTime.toISOString(),
+        startTime: startTime,
+        endTime: endTime,
+      }
+
+      selectedSlots.value = [slotData]
+
+      console.log('📅 Single click slot data:', slotData)
+
+      // Open the booking modal with pre-filled time slot
+      if (!showBookingForm.value) {
+        openBookingModal()
       }
     },
   }
@@ -720,6 +757,64 @@ const handleEventClick = async (clickInfo: any) => {
     }
     showBookingDetails.value = true
     console.log('📋 Showing booking details for:', event.title)
+  }
+}
+
+const handleDateSelect = (selectInfo: {
+  start: Date
+  end: Date
+  startStr: string
+  endStr: string
+  allDay: boolean
+  view: { type: string }
+}) => {
+  console.log('📅 Time slots selected:', {
+    start: selectInfo.start,
+    end: selectInfo.end,
+    startStr: selectInfo.startStr,
+    endStr: selectInfo.endStr,
+    viewType: selectInfo.view.type,
+  })
+
+  // Only allow booking creation on time grid views for better UX
+  if (selectInfo.view.type === 'dayGridMonth') {
+    // For month view, just open the modal without pre-filling time
+    if (!showBookingForm.value) {
+      selectedSlots.value = []
+      openBookingModal()
+    }
+    return
+  }
+
+  // Ensure the booking starts at least 1 hour from now
+  const now = new Date()
+  const minStartTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
+
+  let startTime = new Date(selectInfo.start)
+  let endTime = new Date(selectInfo.end)
+
+  if (startTime < minStartTime) {
+    const timeDiff = endTime.getTime() - startTime.getTime()
+    startTime = new Date(minStartTime)
+    endTime = new Date(startTime.getTime() + timeDiff)
+  }
+
+  // Create selected slots data
+  const slotData = {
+    id: `slot-${Date.now()}`,
+    start: startTime.toISOString(),
+    end: endTime.toISOString(),
+    startTime: startTime,
+    endTime: endTime,
+  }
+
+  selectedSlots.value = [slotData]
+
+  console.log('📅 Selected slot data:', slotData)
+
+  // Open the booking modal with pre-filled time slots
+  if (!showBookingForm.value) {
+    openBookingModal()
   }
 }
 
@@ -894,20 +989,7 @@ const refreshCalendarData = async () => {
   await refreshData()
 }
 
-const openBookingForm = () => {
-  console.log('📝 Opening booking form')
-  // Close any other modals first
-  showBookingDetails.value = false
 
-  // Reset form state
-  isEditMode.value = false
-  editingBooking.value = null
-  selectedSlots.value = []
-
-  // Show the booking form
-  showBookingForm.value = true
-  console.log('📝 Booking form opened')
-}
 
 const openBookingModal = () => {
   console.log('📝 Opening enhanced booking modal')
@@ -1033,7 +1115,7 @@ onMounted(async () => {
   try {
     const profile = await VenueOwnerService.getVenueOwnerProfile()
     console.log('🏢 VenueOwner profile loaded:', profile ? profile.id : 'null')
-    if (profile) {
+    if (profile && profile.id) {
       venueOwnerData.value = {
         objectId: profile.id,
         personalInfo: profile.get('personalInfo'),
