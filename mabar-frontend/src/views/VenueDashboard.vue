@@ -118,7 +118,15 @@
             <!-- Calendar -->
             <div v-else>
               <!-- Action Buttons -->
-              <div class="flex justify-end items-center mb-4">
+              <div class="flex justify-end items-center mb-4 space-x-2">
+                <!-- Debug Test Button -->
+                <button
+                  @click="testModal"
+                  class="inline-flex items-center px-3 py-1.5 text-sm bg-red-500 text-white hover:bg-red-600 rounded-md transition-colors"
+                >
+                  Test Modal
+                </button>
+
                 <button
                   @click="refreshData"
                   class="inline-flex items-center px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
@@ -1156,6 +1164,61 @@ const openMultipleSlotBooking = () => {
 const closeBookingDetails = () => {
   showBookingDetails.value = false
   selectedBookingForDetails.value = null
+}
+
+// Debug function to test modal
+const testModal = () => {
+  console.log('🧪 Testing modal manually...')
+
+  // Reset first
+  showBookingDetails.value = false
+  selectedBookingForDetails.value = null
+
+  // Create test data with proper Date objects
+  const testBooking = {
+    id: 'test-123',
+    title: 'Test Booking',
+    start: new Date(),
+    end: new Date(Date.now() + 60 * 60 * 1000),
+    extendedProps: {
+      type: 'booking',
+      status: 'confirmed',
+      court: 'Court 1',
+      players: ['Test Player 1', 'Test Player 2'],
+      contact: 'test@example.com',
+      price: 150000,
+      paymentStatus: 'paid'
+    }
+  }
+
+  console.log('🧪 Test booking object:', testBooking)
+  console.log('🧪 Test booking validation:', {
+    hasId: !!testBooking.id,
+    hasTitle: !!testBooking.title,
+    hasValidStart: testBooking.start instanceof Date && !isNaN(testBooking.start.getTime()),
+    hasValidEnd: testBooking.end instanceof Date && !isNaN(testBooking.end.getTime()),
+    hasExtendedProps: !!testBooking.extendedProps
+  })
+
+  selectedBookingForDetails.value = testBooking
+
+  setTimeout(() => {
+    showBookingDetails.value = true
+    console.log('🧪 Modal state set:', {
+      showBookingDetails: showBookingDetails.value,
+      selectedBookingForDetails: !!selectedBookingForDetails.value,
+      bothConditions: showBookingDetails.value && !!selectedBookingForDetails.value
+    })
+
+    // Check DOM after a delay
+    setTimeout(() => {
+      const modals = document.querySelectorAll('[style*="z-index: 99999"], [style*="z-index: 100000"]')
+      console.log('🧪 Modals found after test:', modals.length)
+      modals.forEach((modal, index) => {
+        console.log(`🧪 Modal ${index}:`, modal.tagName, modal.textContent?.substring(0, 50))
+      })
+    }, 100)
+  }, 10)
 }
 
 const editBookingFromDetails = () => {
