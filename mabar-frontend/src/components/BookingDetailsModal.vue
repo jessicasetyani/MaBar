@@ -1,27 +1,36 @@
 <template>
-  <Teleport to="body">
-    <div
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4"
-      @click="$emit('close')"
+  <!-- Debug indicator for BookingDetailsModal -->
+  <div style="position: fixed; top: 50px; right: 10px; background: lime; color: black; padding: 5px; z-index: 100001; font-size: 10px;">
+    ✅ BookingDetailsModal RENDERED!
+  </div>
+
+  <div
+    style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 1rem;"
+    @click="$emit('close')"
+  >
+      <div
+      style="background: white; border-radius: 0.75rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-width: 28rem; width: 100%; max-height: 90vh; overflow: hidden; position: relative;"
+      @click.stop
     >
-      <div class="bg-white rounded-xl shadow-2xl max-w-md w-full" @click.stop>
         <!-- Header -->
-        <div class="p-6 border-b border-slate-200">
-          <div class="flex justify-between items-start">
+        <div style="padding: 1.5rem; border-bottom: 1px solid #e2e8f0;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
             <div>
-              <h3 class="text-lg font-semibold text-slate-900">
-                {{ booking.title }}
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin: 0;">
+                {{ formatTitle(booking) }}
               </h3>
-              <p class="text-sm text-slate-600 mt-1">
+              <p style="font-size: 0.875rem; color: #64748b; margin: 0.25rem 0 0 0;">
                 {{ formatDate(booking.start) }}
               </p>
             </div>
             <button
               @click="$emit('close')"
-              class="text-slate-400 hover:text-slate-600"
+              style="color: #94a3b8; background: none; border: none; cursor: pointer; padding: 0.25rem; border-radius: 0.25rem; transition: color 0.2s;"
+              @mouseover="$event.target.style.color = '#64748b'"
+              @mouseout="$event.target.style.color = '#94a3b8'"
             >
               <svg
-                class="w-5 h-5"
+                style="width: 1.25rem; height: 1.25rem;"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -38,24 +47,22 @@
         </div>
 
         <!-- Content -->
-        <div class="p-6 space-y-4">
+        <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">
           <!-- Time & Court -->
-          <div class="grid grid-cols-2 gap-4">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div>
-              <label
-                class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Time</label
-              >
-              <p class="text-sm font-medium text-slate-900">
+              <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+                Time
+              </div>
+              <p style="font-size: 0.875rem; font-weight: 500; color: #0f172a; margin: 0;">
                 {{ formatTime(booking.start) }} - {{ formatTime(booking.end) }}
               </p>
             </div>
             <div>
-              <label
-                class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Court</label
-              >
-              <p class="text-sm font-medium text-slate-900">
+              <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+                Court
+              </div>
+              <p style="font-size: 0.875rem; font-weight: 500; color: #0f172a; margin: 0;">
                 {{ booking.extendedProps?.court }}
               </p>
             </div>
@@ -63,64 +70,79 @@
 
           <!-- Players -->
           <div v-if="booking.extendedProps?.players?.length">
-            <label
-              class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-              >Players</label
-            >
-            <div class="mt-2 space-y-2">
+            <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+              Players
+            </div>
+            <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
               <div
                 v-for="(player, index) in booking.extendedProps.players"
                 :key="index"
-                class="flex items-center space-x-2"
+                style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;"
               >
-                <div
-                  class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center text-xs font-medium text-yellow-800"
-                >
+                <div style="width: 1.5rem; height: 1.5rem; background-color: #fef3c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 500; color: #92400e; flex-shrink: 0;">
                   {{ index + 1 }}
                 </div>
-                <span class="text-sm text-slate-900">{{ player }}</span>
+                <span style="font-size: 0.875rem; color: #0f172a; font-weight: 500;">{{ player }}</span>
+                <span
+                  v-if="booking.extendedProps.playerPhones && booking.extendedProps.playerPhones[index]"
+                  style="font-size: 0.875rem; color: #64748b; margin-left: 0.5rem; font-weight: 400;"
+                >
+                  - {{ booking.extendedProps.playerPhones[index] }}
+                </span>
               </div>
             </div>
           </div>
 
           <!-- Contact Info -->
-          <div class="grid grid-cols-1 gap-3">
+          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
             <div v-if="booking.extendedProps?.contact">
-              <label
-                class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Venue Contact</label
-              >
-              <p class="text-sm text-slate-900">
+              <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+                Venue Contact
+              </div>
+              <p style="font-size: 0.875rem; color: #0f172a; margin: 0;">
                 {{ booking.extendedProps.contact }}
               </p>
             </div>
             <!-- Note: Venue phone contact removed - only player phone numbers are used -->
           </div>
 
+          <!-- Blocked Slot Reason -->
+          <div v-if="booking.extendedProps?.type === 'blocked' && booking.extendedProps?.reason" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.75rem;">
+            <div style="font-size: 0.75rem; font-weight: 500; color: #dc2626; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+              Blocked Reason
+            </div>
+            <p style="font-size: 0.875rem; color: #991b1b; margin: 0;">
+              {{ booking.extendedProps.reason }}
+            </p>
+          </div>
+
           <!-- Status & Payment -->
-          <div class="grid grid-cols-2 gap-4">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div>
-              <label
-                class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Status</label
-              >
+              <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+                Status
+              </div>
               <span
-                :class="[
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-1',
-                  booking.extendedProps?.status === 'confirmed'
-                    ? 'bg-green-100 text-green-800'
-                    : 'bg-yellow-100 text-yellow-800',
-                ]"
+                :style="{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  padding: '0.125rem 0.625rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.75rem',
+                  fontWeight: '500',
+                  marginTop: '0.25rem',
+                  backgroundColor: booking.extendedProps?.status === 'confirmed' ? '#dcfce7' : '#fef3c7',
+                  color: booking.extendedProps?.status === 'confirmed' ? '#166534' : '#92400e'
+                }"
               >
                 {{ booking.extendedProps?.status || 'pending' }}
               </span>
             </div>
             <div v-if="booking.extendedProps?.price">
-              <label
-                class="text-xs font-medium text-slate-500 uppercase tracking-wide"
-                >Price</label
-              >
-              <p class="text-sm font-medium text-slate-900">
+              <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
+                Price
+              </div>
+              <p style="font-size: 0.875rem; font-weight: 500; color: #0f172a; margin: 0;">
                 Rp {{ formatPrice(booking.extendedProps.price) }}
               </p>
             </div>
@@ -128,26 +150,46 @@
         </div>
 
         <!-- Actions -->
-        <div class="p-6 border-t border-slate-200 flex space-x-3">
-          <button
-            @click="$emit('edit')"
-            class="flex-1 px-4 py-2 bg-yellow-400 text-slate-800 rounded-lg hover:bg-yellow-500 font-medium transition-colors"
-          >
-            Edit Booking
-          </button>
-          <button
-            @click="$emit('delete')"
-            class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors"
-          >
-            Delete
-          </button>
+        <div style="padding: 1.5rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.75rem;">
+          <!-- Actions for regular bookings -->
+          <template v-if="booking.extendedProps?.type !== 'blocked'">
+            <button
+              @click="$emit('edit')"
+              style="flex: 1; padding: 0.5rem 1rem; background-color: #facc15; color: #1e293b; border-radius: 0.5rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
+              @mouseover="$event.target.style.backgroundColor = '#eab308'"
+              @mouseout="$event.target.style.backgroundColor = '#facc15'"
+            >
+              Edit Booking
+            </button>
+            <button
+              @click="$emit('delete')"
+              style="padding: 0.5rem 1rem; background-color: #dc2626; color: white; border-radius: 0.5rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
+              @mouseover="$event.target.style.backgroundColor = '#b91c1c'"
+              @mouseout="$event.target.style.backgroundColor = '#dc2626'"
+            >
+              Delete
+            </button>
+          </template>
+
+          <!-- Actions for blocked slots -->
+          <template v-else>
+            <button
+              @click="$emit('delete')"
+              style="flex: 1; padding: 0.5rem 1rem; background-color: #dc2626; color: white; border-radius: 0.5rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
+              @mouseover="$event.target.style.backgroundColor = '#b91c1c'"
+              @mouseout="$event.target.style.backgroundColor = '#dc2626'"
+            >
+              Remove Block
+            </button>
+          </template>
         </div>
       </div>
     </div>
-  </Teleport>
 </template>
 
 <script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
+
 interface Props {
   booking: {
     id: string
@@ -159,20 +201,70 @@ interface Props {
       status?: string
       court?: string
       players?: string[]
+      playerPhones?: string[] // Phone numbers corresponding to each player
       contact?: string
       // Note: Venue phone contact removed - only player phone numbers are used
       price?: number
       paymentStatus?: string
+      reason?: string // For blocked slots
     }
   }
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 defineEmits<{
   close: []
   edit: []
   delete: []
 }>()
+
+// Debug logging
+console.log('🟢 BookingDetailsModal component created with props:', props.booking)
+
+onMounted(() => {
+  console.log('🟢 BookingDetailsModal component mounted')
+  console.log('🟢 Booking data:', {
+    id: props.booking.id,
+    title: props.booking.title,
+    start: props.booking.start,
+    end: props.booking.end,
+    startType: typeof props.booking.start,
+    endType: typeof props.booking.end,
+    startValid: props.booking.start instanceof Date && !isNaN(props.booking.start.getTime()),
+    endValid: props.booking.end instanceof Date && !isNaN(props.booking.end.getTime())
+  })
+})
+
+onUnmounted(() => {
+  console.log('🔴 BookingDetailsModal component unmounted')
+})
+
+const formatTitle = (booking: Props['booking']) => {
+  const courtName = booking.extendedProps?.court || 'Unknown Court'
+  const duration = calculateDuration(booking.start, booking.end)
+  return `${courtName} - ${duration}`
+}
+
+const calculateDuration = (start: Date, end: Date) => {
+  const startTime = new Date(start).getTime()
+  const endTime = new Date(end).getTime()
+  const durationMs = endTime - startTime
+  const durationHours = durationMs / (1000 * 60 * 60)
+
+  if (durationHours === 1) {
+    return '1 hour'
+  } else if (durationHours % 1 === 0) {
+    // Whole hours
+    return `${durationHours} hours`
+  } else if (durationHours % 0.5 === 0) {
+    // Half hours (e.g., 1.5, 2.5)
+    return `${durationHours} hours`
+  } else {
+    // Round to nearest 0.25 hour for display
+    const roundedHours = Math.round(durationHours * 4) / 4
+    return `${roundedHours} hours`
+  }
+}
 
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('en-US', {
