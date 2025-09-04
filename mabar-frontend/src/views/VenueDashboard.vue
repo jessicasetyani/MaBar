@@ -741,29 +741,118 @@ const calendarOptions = computed(() => {
 // Data loading is now handled by the useCalendarData composable
 
 const handleEventClick = async (clickInfo: any) => {
+  console.log('🔥 EVENT CLICK HANDLER TRIGGERED!')
   const event = clickInfo.event
-  console.log('📅 Event clicked:', event)
+  console.log('📅 Full event object:', event)
+  console.log('📅 Event ID:', event.id)
+  console.log('📅 Event title:', event.title)
+  console.log('📅 Event extendedProps:', event.extendedProps)
+  console.log('📅 Event start:', event.start, 'Type:', typeof event.start)
+  console.log('📅 Event end:', event.end, 'Type:', typeof event.end)
 
-  if (event.extendedProps?.type === 'booking') {
-    // Show booking details modal for bookings
-    selectedBookingForDetails.value = {
-      id: event.id,
-      title: event.title,
-      start: event.start || new Date(),
-      end: event.end || new Date(),
-      extendedProps: {
-        type: event.extendedProps.type || 'booking',
-        status: event.extendedProps.status,
-        court: event.extendedProps.court,
-        players: event.extendedProps.players,
-        contact: event.extendedProps.contact,
-        phone: event.extendedProps.phone,
-        price: event.extendedProps.price,
-        paymentStatus: event.extendedProps.paymentStatus,
-      },
+  // Close any existing modals first
+  showBookingForm.value = false
+  showBookingDetails.value = false
+  selectedBookingForDetails.value = null
+
+  // Handle different types of calendar events
+  const eventType = event.extendedProps?.type || 'booking'
+  console.log('📅 Detected event type:', eventType)
+
+  if (eventType === 'booking' || eventType === 'blocked') {
+    console.log('✅ Event type is valid, creating modal data...')
+
+    try {
+      // Ensure proper Date object conversion
+      const startDate = event.start instanceof Date ? event.start : new Date(event.start || Date.now())
+      const endDate = event.end instanceof Date ? event.end : new Date(event.end || Date.now())
+
+      console.log('📅 Converted dates:', {
+        start: startDate,
+        end: endDate,
+        startValid: startDate instanceof Date && !isNaN(startDate.getTime()),
+        endValid: endDate instanceof Date && !isNaN(endDate.getTime())
+      })
+
+      // Create booking details object with proper Date objects
+      const bookingDetails = {
+        id: event.id || `event-${Date.now()}`,
+        title: event.title || 'Untitled Event',
+        start: startDate,
+        end: endDate,
+        extendedProps: {
+          type: eventType,
+          status: event.extendedProps?.status || (eventType === 'blocked' ? 'blocked' : 'pending'),
+          court: event.extendedProps?.court || 'Unknown Court',
+          players: event.extendedProps?.players || [],
+          contact: event.extendedProps?.contact || '',
+          phone: event.extendedProps?.phone || '',
+          price: event.extendedProps?.price || 0,
+          paymentStatus: event.extendedProps?.paymentStatus || 'pending',
+          reason: event.extendedProps?.reason || '', // For blocked slots
+        },
+      }
+
+      console.log('📋 Created booking details object:', bookingDetails)
+      console.log('📋 Booking details validation:', {
+        hasId: !!bookingDetails.id,
+        hasTitle: !!bookingDetails.title,
+        hasValidStart: bookingDetails.start instanceof Date && !isNaN(bookingDetails.start.getTime()),
+        hasValidEnd: bookingDetails.end instanceof Date && !isNaN(bookingDetails.end.getTime()),
+        hasExtendedProps: !!bookingDetails.extendedProps
+      })
+
+      // Set the booking details first
+      selectedBookingForDetails.value = bookingDetails
+      console.log('📋 selectedBookingForDetails set to:', selectedBookingForDetails.value)
+
+      // Wait a tick to ensure reactivity updates
+      await new Promise(resolve => setTimeout(resolve, 10))
+
+      // Now show the modal
+      showBookingDetails.value = true
+      console.log('📋 showBookingDetails set to:', showBookingDetails.value)
+
+      // Comprehensive debugging after modal should be visible
+      setTimeout(() => {
+        console.log('🔍 POST-MODAL DEBUG CHECK:')
+        console.log('  - showBookingDetails:', showBookingDetails.value)
+        console.log('  - selectedBookingForDetails exists:', !!selectedBookingForDetails.value)
+        console.log('  - Both conditions met:', showBookingDetails.value && !!selectedBookingForDetails.value)
+
+        // Check for BookingDetailsModal specifically
+        const modalElements = document.querySelectorAll('[style*="z-index: 99999"]')
+        console.log('  - Elements with z-index 99999:', modalElements.length)
+        modalElements.forEach((el, index) => {
+          console.log(`    Element ${index}:`, el.tagName, el.className)
+          const rect = el.getBoundingClientRect()
+          console.log(`    Position:`, { top: rect.top, left: rect.left, width: rect.width, height: rect.height, visible: rect.width > 0 && rect.height > 0 })
+        })
+
+        // Check for any elements that might contain BookingDetailsModal
+        const teleportedElements = document.body.children
+        console.log('  - Direct body children count:', teleportedElements.length)
+        for (let i = 0; i < teleportedElements.length; i++) {
+          const el = teleportedElements[i] as HTMLElement
+          if (el.tagName === 'DIV' && el.style && el.style.position === 'fixed') {
+            console.log(`    Fixed positioned div ${i}:`, el.className, el.style.zIndex)
+          }
+        }
+      }, 200)
+
+      console.log('📋 Showing details for:', {
+        type: eventType,
+        title: event.title,
+        status: event.extendedProps?.status,
+        court: event.extendedProps?.court,
+      })
+    } catch (error) {
+      console.error('❌ Error in handleEventClick:', error)
+      console.error('❌ Event data that caused error:', event)
     }
-    showBookingDetails.value = true
-    console.log('📋 Showing booking details for:', event.title)
+  } else {
+    console.log('⚠️ Unknown event type clicked:', eventType)
+    console.log('⚠️ Available extendedProps keys:', Object.keys(event.extendedProps || {}))
   }
 }
 
