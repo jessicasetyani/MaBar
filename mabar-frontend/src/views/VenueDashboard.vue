@@ -233,10 +233,10 @@
 
                       <button
                         @click="closeBookingForm"
-                        class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                        class="p-2.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all duration-200 hover:scale-105"
                         aria-label="Close modal"
                       >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                       </button>
@@ -1920,6 +1920,22 @@ body .enhanced-modal-content,
   background: linear-gradient(to right, rgb(254 249 195), rgb(255 237 213));
 }
 
+/* Enhanced close button styling */
+.enhanced-modal-header button[aria-label="Close modal"] {
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.enhanced-modal-header button[aria-label="Close modal"] svg {
+  width: 1.5rem !important;
+  height: 1.5rem !important;
+  stroke-width: 2.5;
+}
+
 .enhanced-modal-body {
   flex: 1;
   overflow-y: auto;
@@ -1961,6 +1977,18 @@ body .enhanced-modal-content,
     flex-shrink: 0;
   }
 
+  /* Ensure close button remains properly sized on mobile */
+  .enhanced-modal-header button[aria-label="Close modal"] {
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+    padding: 0.5rem;
+  }
+
+  .enhanced-modal-header button[aria-label="Close modal"] svg {
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+  }
+
   .enhanced-modal-body {
     padding: 1rem;
     flex: 1;
@@ -1978,6 +2006,18 @@ body .enhanced-modal-content,
     max-height: 98vh;
     max-height: 98dvh;
     border-radius: 0.5rem;
+  }
+
+  /* Ensure close button remains accessible on very small screens */
+  .enhanced-modal-header button[aria-label="Close modal"] {
+    min-width: 2rem;
+    min-height: 2rem;
+    padding: 0.375rem;
+  }
+
+  .enhanced-modal-header button[aria-label="Close modal"] svg {
+    width: 1.125rem !important;
+    height: 1.125rem !important;
   }
 }
 
