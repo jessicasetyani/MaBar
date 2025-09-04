@@ -1607,6 +1607,19 @@ const validateForm = () => {
         error: timeRangeError.value || 'Invalid time range selected',
       }
     }
+  } else {
+    // Validate selected slots for past time
+    const now = new Date()
+    for (const slot of props.selectedSlots) {
+      const slotStartTime = new Date(slot.start)
+      if (slotStartTime <= now) {
+        console.log('Validation failed: Selected slot is in the past', slot)
+        return {
+          isValid: false,
+          error: 'Cannot create booking for past time slots',
+        }
+      }
+    }
   }
 
   // Check players
