@@ -178,7 +178,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, computed } from 'vue'
 
 interface Props {
   booking: {
@@ -207,6 +207,27 @@ defineEmits<{
   edit: []
   delete: []
 }>()
+
+// Computed property to determine if booking is historical (past)
+const isHistoricalBooking = computed(() => {
+  const now = new Date()
+  const bookingEnd = props.booking.end
+
+  // Ensure we have a valid Date object
+  if (!(bookingEnd instanceof Date) || isNaN(bookingEnd.getTime())) {
+    console.warn('⚠️ Invalid booking end date:', bookingEnd)
+    return false // Default to allowing edits if date is invalid
+  }
+
+  const isHistorical = bookingEnd <= now
+  console.log('📅 Booking time check:', {
+    bookingEnd: bookingEnd.toISOString(),
+    currentTime: now.toISOString(),
+    isHistorical
+  })
+
+  return isHistorical
+})
 
 // Debug logging
 console.log('🟢 BookingDetailsModal component created with props:', props.booking)
