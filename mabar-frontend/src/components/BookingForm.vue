@@ -34,110 +34,198 @@
           </div>
         </div>
 
-        <!-- Material Design 3 Time & Duration Fields with Proper Spacing -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-          <!-- Start Time Field - Material Design 3 Filled Text Field -->
-          <div class="md-text-field-container">
-            <div
-              class="md-text-field-filled md-text-field-clickable"
-              @click="focusStartTimeInput"
-            >
-              <div class="md-text-field-leading-icon">
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-              <label
-                class="md-text-field-label md-text-field-label-with-icon"
-                for="start-time-input"
+        <!-- Single Row Date and Time Selector -->
+        <div class="space-y-4 mt-6">
+          <h4 class="text-sm font-semibold text-slate-800">Booking Date & Time</h4>
+
+          <!-- Horizontal Layout: Date + Start Time + End Time -->
+          <div class="flex items-center space-x-4 bg-white rounded-lg p-4 border border-gray-200">
+            <!-- Booking Date Dropdown -->
+            <div class="relative">
+              <button
+                type="button"
+                @click="toggleDateDropdown"
+                class="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
               >
-                Start time
-              </label>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span class="font-medium">{{ formatSelectedDate() || 'Select date' }}</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <!-- Hidden date input for native picker -->
               <input
-                ref="startTimeInput"
-                id="start-time-input"
-                v-model="formData.startTime"
-                type="datetime-local"
-                step="900"
-                data-format="24"
-                data-time-format="24"
-                lang="en-GB"
-                class="md-text-field-input md-text-field-input-with-icon"
+                ref="dateInput"
+                id="booking-date-input"
+                v-model="formData.bookingDate"
+                type="date"
+                class="absolute opacity-0 pointer-events-none"
                 required
-                @input="handleDateTimeChange('start-time-input')"
-                @change="handleDateTimeChange('start-time-input')"
-                @focus="onStartTimeFocus"
-                @blur="onStartTimeBlur"
-                :min="getMinDateTime()"
+                @input="handleDateChange"
+                @change="handleDateChange"
+                :min="getMinDate()"
               />
-              <div class="md-text-field-active-indicator"></div>
             </div>
-            <div class="md-text-field-supporting-text">
-              Select your preferred booking start time
+
+            <!-- Start Time Dropdown -->
+            <div class="relative flex flex-col">
+              <button
+                type="button"
+                @click="toggleStartTimeDropdown"
+                class="flex items-center justify-content-space-between min-w-[120px] px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                :class="{ 'ring-2 ring-red-500': timeRangeError && !formData.startTime }"
+                style="justify-content: space-between;"
+              >
+                <span class="font-medium whitespace-nowrap">{{ formatDisplayTime24(formData.startTime) || 'Select time' }}</span>
+                <svg class="w-4 h-4 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <!-- Start Time Dropdown Menu -->
+              <div
+                v-if="showStartTimeDropdown"
+                class="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-gray-300 z-50 max-h-[200px] overflow-y-auto"
+                style="background-color: #ffffff; box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);"
+                ref="startTimeDropdownRef"
+              >
+                <div class="py-1" style="background-color: #ffffff;">
+                  <div
+                    v-for="timeOption in timeOptions"
+                    :key="timeOption.value"
+                    @click="selectStartTime(timeOption.value)"
+                    class="flex items-center justify-between py-2 px-3 text-sm cursor-pointer transition-colors"
+                    :style="{
+                      'background-color': formData.startTime === timeOption.value ? '#dbeafe' : 'inherit',
+                      'color': formData.startTime === timeOption.value ? '#1e40af' : '#111827',
+                      'font-weight': formData.startTime === timeOption.value ? '600' : 'normal',
+                      'border-left': formData.startTime === timeOption.value ? '4px solid #2563eb' : 'none'
+                    }"
+                    @mouseover="handleStartTimeHover($event, timeOption.value, true)"
+                    @mouseout="handleStartTimeHover($event, timeOption.value, false)"
+                    :data-value="timeOption.value"
+                  >
+                    <span style="white-space: nowrap;">{{ timeOption.display }}</span>
+                    <span v-if="formData.startTime === timeOption.value" style="color: #2563eb; font-size: 12px; font-weight: 500;">✓</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Start Time Error Message -->
+              <div v-if="timeRangeError && !formData.startTime" class="mt-1 max-h-6 overflow-hidden">
+                <div class="flex items-start space-x-1 text-xs text-red-600 leading-tight">
+                  <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span class="flex-1">Please select a start time</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- "to" separator -->
+            <span class="text-gray-500 font-medium">to</span>
+
+            <!-- End Time Dropdown -->
+            <div class="relative flex flex-col">
+              <button
+                type="button"
+                @click="toggleEndTimeDropdown"
+                class="flex items-center justify-between min-w-[140px] px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                :class="{ 'ring-2 ring-red-500 border-red-500': timeRangeError && formData.startTime && !formData.endTime }"
+                :disabled="!formData.startTime"
+                style="justify-content: space-between;"
+              >
+                <span class="font-medium whitespace-nowrap" :class="formData.startTime ? 'text-gray-900' : 'text-gray-400'">
+                  {{ formatDisplayTime24(formData.endTime) || 'Select end time' }}
+                </span>
+                <svg class="w-4 h-4 ml-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <!-- End Time Dropdown Menu with Duration Display -->
+              <div
+                v-if="showEndTimeDropdown && formData.startTime"
+                class="absolute top-full left-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-300 z-50 max-h-[200px] overflow-y-auto"
+                style="background-color: #ffffff; box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);"
+                ref="endTimeDropdownRef"
+              >
+                <div class="py-1" style="background-color: #ffffff;">
+                  <div
+                    v-for="endOption in endTimeOptions"
+                    :key="endOption.value"
+                    @click="selectEndTime(endOption.value)"
+                    class="flex items-center justify-between py-2 px-3 text-sm cursor-pointer transition-colors"
+                    :style="{
+                      'background-color': formData.endTime === endOption.value ? '#dbeafe' : 'inherit',
+                      'color': formData.endTime === endOption.value ? '#1e40af' : '#111827',
+                      'font-weight': formData.endTime === endOption.value ? '600' : 'normal',
+                      'border-left': formData.endTime === endOption.value ? '4px solid #2563eb' : 'none'
+                    }"
+                    @mouseover="handleEndTimeHover($event, endOption.value, true)"
+                    @mouseout="handleEndTimeHover($event, endOption.value, false)"
+                    :data-value="endOption.value"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <span style="white-space: nowrap;">{{ endOption.display }}</span>
+                      <span v-if="formData.endTime === endOption.value" style="color: #2563eb; font-size: 12px; font-weight: 500;">✓</span>
+                    </div>
+                    <span style="font-size: 12px; color: #6b7280; white-space: nowrap;">({{ endOption.duration }})</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- End Time Error Message -->
+              <div v-if="timeRangeError && formData.startTime && !formData.endTime" class="mt-1 max-h-6 overflow-hidden">
+                <div class="flex items-start space-x-1 text-xs text-red-600 leading-tight">
+                  <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span class="flex-1">Please select an end time</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- End Time Field - Material Design 3 Filled Text Field -->
-          <div class="md-text-field-container">
-            <div
-              class="md-text-field-filled md-text-field-clickable"
-              @click="focusEndTimeInput"
-            >
-              <div class="md-text-field-leading-icon">
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  stroke-width="2"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a8.996 8.996 0 008.354-5.646z"
-                  />
-                </svg>
+          <!-- Error Display - Material Design 3 Compliant -->
+          <div v-if="timeRangeError" class="mt-2 max-h-6 overflow-hidden">
+            <div class="flex items-start space-x-1 text-xs text-red-600 leading-tight">
+              <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span class="flex-1">{{ timeRangeError }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Booking Summary Display - Following Google Calendar Style -->
+        <div v-if="formData.startTime && formData.endTime" class="mt-6">
+          <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+            <div class="flex items-start space-x-3">
+              <!-- Clock Icon -->
+              <div class="flex-shrink-0 mt-1">
+                <div class="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center">
+                  <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
               </div>
-              <label
-                class="md-text-field-label md-text-field-label-with-icon"
-                for="end-time-input"
-              >
-                End time
-              </label>
-              <input
-                ref="endTimeInput"
-                id="end-time-input"
-                v-model="formData.endTime"
-                type="datetime-local"
-                step="900"
-                data-format="24"
-                data-time-format="24"
-                lang="en-GB"
-                class="md-text-field-input md-text-field-input-with-icon"
-                required
-                @input="handleDateTimeChange('end-time-input')"
-                @change="handleDateTimeChange('end-time-input')"
-                @focus="onEndTimeFocus"
-                @blur="onEndTimeBlur"
-                :min="getMinEndDateTime()"
-              />
-              <div class="md-text-field-active-indicator"></div>
-            </div>
-            <div class="md-text-field-supporting-text">
-              Select when your booking ends
-            </div>
-            <div v-if="timeRangeError" class="text-sm text-red-600 mt-1">
-              {{ timeRangeError }}
+
+              <!-- Booking Details -->
+              <div class="flex-1 min-w-0">
+                <!-- Main booking time display - Google Calendar style -->
+                <div class="text-sm font-medium text-gray-900 leading-tight">
+                  {{ formatBookingDateTime() }}
+                </div>
+
+                <!-- Additional details -->
+                <div class="text-xs text-gray-600 mt-1">
+                  Duration: {{ calculateDuration() }} • Does not repeat
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1056,7 +1144,7 @@
  * 1. Venue contact details (for business communication) - from authenticated profile
  * 2. Customer/player details (for booking participants) - from manual form input
  */
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, watch, onMounted, nextTick, computed } from 'vue'
 import { ValidationUtils } from '../utils/validation'
 
 interface Props {
@@ -1100,6 +1188,7 @@ const emit = defineEmits<{
 const formData = ref({
   type: 'booking',
   title: '',
+  bookingDate: '',
   startTime: '',
   endTime: '',
   court: '',
@@ -1109,6 +1198,34 @@ const formData = ref({
   status: 'confirmed',
   paymentStatus: 'pending',
 })
+
+// Initialize default date and times
+const initializeDefaultTimes = () => {
+  if (props.selectedSlots.length === 0 && !formData.value.bookingDate) {
+    const now = new Date()
+
+    // Set default date to today
+    formData.value.bookingDate = now.toISOString().slice(0, 10)
+
+    // Round to next 30-minute interval for better UX
+    const minutes = now.getMinutes()
+    const roundedMinutes = Math.ceil(minutes / 30) * 30
+    now.setMinutes(roundedMinutes, 0, 0)
+
+    // Set time in HH:MM format
+    formData.value.startTime = now.toTimeString().slice(0, 5)
+
+    // Automatically set end time to 1 hour later (ensuring 30-minute alignment)
+    const endTime = new Date(now.getTime() + 60 * 60 * 1000)
+    formData.value.endTime = endTime.toTimeString().slice(0, 5)
+
+    console.log('🕐 Initialized default date and times (30-min intervals):', {
+      bookingDate: formData.value.bookingDate,
+      startTime: formData.value.startTime,
+      endTime: formData.value.endTime
+    })
+  }
+}
 
 const formatEndTime = () => {
   if (formData.value.endTime) {
@@ -1142,26 +1259,62 @@ const formatStartTime = () => {
   return ''
 }
 
-const getMinDateTime = () => {
+// Get minimum date (today)
+const getMinDate = () => {
   const now = new Date()
-  return now.toISOString().slice(0, 16)
+  return now.toISOString().slice(0, 10)
 }
 
-// Helper function to handle datetime input changes and clear validation
-const handleDateTimeChange = (inputId: string) => {
-  const input = document.getElementById(inputId) as HTMLInputElement
+// Get minimum time based on selected date
+const getMinTime = () => {
+  if (!formData.value.startTime) return ''
+
+  // Parse start time and add 1 hour
+  const [hours, minutes] = formData.value.startTime.split(':').map(Number)
+  const startMinutes = hours * 60 + minutes
+  const endMinutes = startMinutes + 60 // Add 1 hour
+
+  const endHours = Math.floor(endMinutes / 60) % 24
+  const endMins = endMinutes % 60
+
+  return `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`
+}
+
+// Focus handlers for new inputs
+const focusDateInput = () => {
+  const input = document.getElementById('booking-date-input') as HTMLInputElement
   if (input) {
-    input.setCustomValidity('')
+    input.focus()
+    input.showPicker?.()
+  }
+}
+
+const onDateFocus = (event: Event) => {
+  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  container?.classList.add('md-text-field-focused')
+}
+
+const onDateBlur = (event: Event) => {
+  const container = (event.target as HTMLElement).closest('.md-text-field-filled')
+  container?.classList.remove('md-text-field-focused')
+}
+
+// Handle date changes
+const handleDateChange = () => {
+  // Validate that the selected date is not in the past
+  if (formData.value.bookingDate) {
+    const selectedDate = new Date(formData.value.bookingDate)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (selectedDate < today) {
+      timeRangeError.value = 'Booking date cannot be in the past'
+      return
+    }
   }
 
-  // Special handling for time changes
-  if (inputId === 'start-time-input') {
-    handleStartTimeChange()
-  } else if (inputId === 'end-time-input') {
-    handleEndTimeChange()
-  } else {
-    validateTimeRange()
-  }
+  timeRangeError.value = ''
+  validateTimeRange()
 }
 
 // Enhanced time validation feedback
@@ -1169,128 +1322,56 @@ const timeAdjustmentMessage = ref('')
 
 // Handle start time changes with automatic end time adjustment
 const handleStartTimeChange = () => {
+  // Clear previous messages and validation errors
   timeAdjustmentMessage.value = ''
+  timeRangeError.value = ''
 
   if (!formData.value.startTime) {
-    validateTimeRange()
     return
   }
 
-  const startDate = new Date(formData.value.startTime)
+  // Parse start time (HH:MM format)
+  const [hours, minutes] = formData.value.startTime.split(':').map(Number)
 
-  // Check if start time is valid
-  if (isNaN(startDate.getTime())) {
-    validateTimeRange()
+  // Check if time is valid
+  if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+    timeRangeError.value = 'Please select a valid start time'
     return
   }
 
-  // If end time exists, check if it needs adjustment
-  if (formData.value.endTime) {
-    const endDate = new Date(formData.value.endTime)
+  // Calculate end time (1 hour later)
+  const startMinutes = hours * 60 + minutes
+  const endMinutes = startMinutes + 60 // Add 1 hour
 
-    if (!isNaN(endDate.getTime())) {
-      const durationMs = endDate.getTime() - startDate.getTime()
-      const durationHours = durationMs / (1000 * 60 * 60)
+  const endHours = Math.floor(endMinutes / 60) % 24
+  const endMins = endMinutes % 60
 
-      // If end time is before or equal to start time, or duration is less than 1 hour
-      if (endDate <= startDate || durationHours < 1) {
-        // Automatically adjust end time to maintain 1-hour minimum duration
-        const newEndTime = new Date(startDate.getTime() + 60 * 60 * 1000) // 1 hour later
-        const oldEndTime = formData.value.endTime
-        formData.value.endTime = newEndTime.toISOString().slice(0, 16)
+  formData.value.endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`
 
-        // Show user-friendly feedback
-        const oldEndFormatted = new Date(oldEndTime).toLocaleString('en-US', {
-          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
-        })
-        const newEndFormatted = newEndTime.toLocaleString('en-US', {
-          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
-        })
+  // Show user-friendly feedback
+  timeAdjustmentMessage.value = 'End time automatically set to 1 hour after start time'
 
-        timeAdjustmentMessage.value = `End time automatically adjusted from ${oldEndFormatted} to ${newEndFormatted} to maintain 1-hour minimum duration`
+  console.log('🕐 Auto-set end time:', {
+    startTime: formData.value.startTime,
+    endTime: formData.value.endTime,
+    duration: '1 hour'
+  })
 
-        console.log('🕐 Auto-adjusted end time:', {
-          reason: endDate <= startDate ? 'End time was before start time' : 'Duration was less than 1 hour',
-          oldEndTime: oldEndTime,
-          newEndTime: formData.value.endTime,
-          duration: '1 hour'
-        })
+  // Clear the message after 3 seconds
+  setTimeout(() => {
+    timeAdjustmentMessage.value = ''
+  }, 3000)
 
-        // Clear the message after 5 seconds
-        setTimeout(() => {
-          timeAdjustmentMessage.value = ''
-        }, 5000)
-      }
-    }
-  } else {
-    // If no end time is set, automatically set it to 1 hour after start time
-    const defaultEndTime = new Date(startDate.getTime() + 60 * 60 * 1000)
-    formData.value.endTime = defaultEndTime.toISOString().slice(0, 16)
-
-    timeAdjustmentMessage.value = 'End time automatically set to 1 hour after start time'
-    setTimeout(() => {
-      timeAdjustmentMessage.value = ''
-    }, 3000)
-  }
-
+  // Validate the new time range
   validateTimeRange()
 }
 
 // Handle end time changes with validation
 const handleEndTimeChange = () => {
+  // Clear previous messages
   timeAdjustmentMessage.value = ''
 
-  if (!formData.value.endTime || !formData.value.startTime) {
-    validateTimeRange()
-    return
-  }
-
-  const startDate = new Date(formData.value.startTime)
-  const endDate = new Date(formData.value.endTime)
-
-  // Check if both times are valid
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    validateTimeRange()
-    return
-  }
-
-  const durationMs = endDate.getTime() - startDate.getTime()
-  const durationHours = durationMs / (1000 * 60 * 60)
-
-  // If end time creates zero, negative, or less than 1-hour duration
-  if (durationHours <= 0 || durationHours < 1) {
-    // Automatically adjust end time to maintain 1-hour minimum duration
-    const newEndTime = new Date(startDate.getTime() + 60 * 60 * 1000)
-    const oldEndTime = formData.value.endTime
-    formData.value.endTime = newEndTime.toISOString().slice(0, 16)
-
-    // Show user-friendly feedback
-    const oldEndFormatted = new Date(oldEndTime).toLocaleString('en-US', {
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
-    })
-    const newEndFormatted = newEndTime.toLocaleString('en-US', {
-      month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false
-    })
-
-    const reason = durationHours <= 0 ?
-      'End time cannot be before or equal to start time' :
-      'Minimum booking duration is 1 hour'
-
-    timeAdjustmentMessage.value = `${reason}. End time adjusted from ${oldEndFormatted} to ${newEndFormatted}`
-
-    console.log('🕐 Auto-adjusted end time:', {
-      reason: reason,
-      oldEndTime: oldEndTime,
-      newEndTime: formData.value.endTime,
-      duration: '1 hour minimum'
-    })
-
-    // Clear the message after 5 seconds
-    setTimeout(() => {
-      timeAdjustmentMessage.value = ''
-    }, 5000)
-  }
-
+  // Just validate the time range - no auto-adjustment for end time changes
   validateTimeRange()
 }
 
@@ -1468,46 +1549,41 @@ const onEndTimeBlur = (event: Event) => {
   validateTimeRange()
 }
 
-const getMinEndDateTime = () => {
-  if (!formData.value.startTime) return ''
 
-  // Set minimum end time to 1 hour after start time (matching validation logic)
-  const startDate = new Date(formData.value.startTime)
-  const minEndTime = new Date(startDate.getTime() + 60 * 60 * 1000) // 1 hour later
-
-  return minEndTime.toISOString().slice(0, 16)
-}
 
 const validateTimeRange = () => {
-  // Clear HTML5 validation state for both datetime inputs
+  // Clear HTML5 validation state for inputs
+  const dateInput = document.getElementById('booking-date-input') as HTMLInputElement
   const startInput = document.getElementById('start-time-input') as HTMLInputElement
   const endInput = document.getElementById('end-time-input') as HTMLInputElement
 
+  if (dateInput) dateInput.setCustomValidity('')
   if (startInput) startInput.setCustomValidity('')
   if (endInput) endInput.setCustomValidity('')
 
-  if (!formData.value.startTime || !formData.value.endTime) {
+  if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
     timeRangeError.value = ''
     return true
   }
 
-  const startDate = new Date(formData.value.startTime)
-  const endDate = new Date(formData.value.endTime)
+  // Combine date and time to create full datetime objects
+  const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
+  const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
 
   // Check for invalid dates
-  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
-    timeRangeError.value = 'Please select valid start and end times'
+  if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+    timeRangeError.value = 'Please select valid date and times'
     return false
   }
 
   // Check if end time is after start time
-  if (endDate <= startDate) {
+  if (endDateTime <= startDateTime) {
     timeRangeError.value = 'End time must be after start time'
     return false
   }
 
   // Check minimum duration (1 hour) and maximum duration (24 hours)
-  const diffMinutes = (endDate.getTime() - startDate.getTime()) / (1000 * 60)
+  const diffMinutes = (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60)
   const diffHours = diffMinutes / 60
 
   if (diffHours < 1) {
@@ -1522,7 +1598,7 @@ const validateTimeRange = () => {
 
   // Check if booking is in the past
   const now = new Date()
-  if (startDate < now) {
+  if (startDateTime < now) {
     timeRangeError.value = 'Booking cannot be in the past'
     return false
   }
@@ -1564,11 +1640,11 @@ const validateForm = () => {
     return { isValid: false, error: 'Please enter a booking title' }
   }
 
-  // Check datetime for flexible duration booking
+  // Check date and time for flexible duration booking
   if (props.selectedSlots.length === 0) {
-    if (!formData.value.startTime || !formData.value.endTime) {
-      console.log('Validation failed: Missing datetime values')
-      return { isValid: false, error: 'Please select both start and end times' }
+    if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
+      console.log('Validation failed: Missing date or time values')
+      return { isValid: false, error: 'Please select booking date, start time, and end time' }
     }
 
     // Validate time range for flexible bookings
@@ -1599,24 +1675,79 @@ const validateForm = () => {
 }
 
 const calculateDuration = () => {
-  if (!formData.value.startTime || !formData.value.endTime) {
+  if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
     return 'Not set'
   }
 
-  const startDate = new Date(formData.value.startTime)
-  const endDate = new Date(formData.value.endTime)
-  const diffMs = endDate.getTime() - startDate.getTime()
-  const diffHours = diffMs / (1000 * 60 * 60)
-  const diffMinutes = (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+  // Combine date and time to create full datetime objects
+  const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
+  const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
 
-  if (diffHours < 1) {
-    return `${Math.round(diffMinutes)} minutes`
-  } else if (diffMinutes === 0) {
-    return `${Math.floor(diffHours)} ${diffHours === 1 ? 'hour' : 'hours'}`
+  // Check for invalid dates
+  if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+    return 'Invalid time'
+  }
+
+  const diffMs = endDateTime.getTime() - startDateTime.getTime()
+
+  // Handle negative duration
+  if (diffMs < 0) {
+    return 'Invalid duration'
+  }
+
+  // Calculate total minutes and then extract hours and minutes
+  const totalMinutes = Math.floor(diffMs / (1000 * 60))
+  const hours = Math.floor(totalMinutes / 60)
+  const minutes = totalMinutes % 60
+
+  if (hours === 0) {
+    return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'}`
+  } else if (minutes === 0) {
+    return `${hours} ${hours === 1 ? 'hour' : 'hours'}`
   } else {
-    return `${Math.floor(diffHours)}h ${Math.round(diffMinutes)}m`
+    return `${hours}h ${minutes}m`
   }
 }
+
+const formatBookingDateTime = () => {
+  if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
+    return 'Select booking date and times'
+  }
+
+  // Create datetime objects from separate date and time fields
+  const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
+  const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
+
+  if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+    return 'Invalid booking times'
+  }
+
+  // Format following the requested style: "Start date, start time - end time" (24-hour format)
+  const formatTime = (date: Date) => {
+    return date.toLocaleString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    })
+  }
+
+  const formatDayDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
+  const startTime = formatTime(startDateTime)
+  const endTime = formatTime(endDateTime)
+  const dayDate = formatDayDate(startDateTime)
+
+  // Format: "Saturday, March 1, 12:00pm - 1:00pm"
+  return `${dayDate}, ${startTime} - ${endTime}`
+}
+
+
 
 const batchMode = ref(false)
 const isSubmitting = ref(false)
@@ -1624,6 +1755,240 @@ const playerValidationError = ref('')
 const timeRangeError = ref('')
 const priceError = ref('')
 const generalError = ref('')
+
+// Dropdown states
+const showDateDropdown = ref(false)
+const showStartTimeDropdown = ref(false)
+const showEndTimeDropdown = ref(false)
+
+// Dropdown refs for scrolling to selected option
+const startTimeDropdownRef = ref<HTMLElement | null>(null)
+const endTimeDropdownRef = ref<HTMLElement | null>(null)
+const selectedStartOption = ref<HTMLElement | null>(null)
+const selectedEndOption = ref<HTMLElement | null>(null)
+
+// Generate time options (30-minute intervals) - 24-hour format
+const timeOptions = computed(() => {
+  const options = []
+  for (let hour = 0; hour < 24; hour++) {
+    for (let minute = 0; minute < 60; minute += 30) {
+      const timeValue = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+      const displayTime = formatDisplayTime24(timeValue)
+      options.push({
+        value: timeValue,
+        display: displayTime
+      })
+    }
+  }
+  return options
+})
+
+// Generate end time options with duration display
+const endTimeOptions = computed(() => {
+  if (!formData.value.startTime) return []
+
+  const startTime = formData.value.startTime
+  const [startHour, startMinute] = startTime.split(':').map(Number)
+  const startTotalMinutes = startHour * 60 + startMinute
+
+  const options = []
+
+  // Generate options from 1 hour after start time up to end of day (30-minute intervals)
+  for (let duration = 60; duration <= 24 * 60; duration += 30) {
+    const endTotalMinutes = startTotalMinutes + duration
+
+    // Skip if it goes beyond 24 hours
+    if (endTotalMinutes >= 24 * 60) break
+
+    const endHour = Math.floor(endTotalMinutes / 60)
+    const endMinute = endTotalMinutes % 60
+
+    const timeValue = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}`
+    const displayTime = formatDisplayTime24(timeValue)
+
+    // Calculate duration display
+    const hours = Math.floor(duration / 60)
+    const minutes = duration % 60
+    let durationText = ''
+    if (hours > 0 && minutes > 0) {
+      durationText = `${hours}h ${minutes}m`
+    } else if (hours > 0) {
+      durationText = `${hours} hr${hours > 1 ? 's' : ''}`
+    } else {
+      durationText = `${minutes} mins`
+    }
+
+    options.push({
+      value: timeValue,
+      display: displayTime,
+      duration: durationText
+    })
+  }
+
+  return options
+})
+
+// Format time for display (24-hour format)
+const formatDisplayTime24 = (timeValue: string) => {
+  if (!timeValue) return ''
+
+  const [hour, minute] = timeValue.split(':').map(Number)
+  return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
+}
+
+// Format selected date for display
+const formatSelectedDate = () => {
+  if (!formData.value.bookingDate) return ''
+
+  const date = new Date(formData.value.bookingDate)
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  })
+}
+
+// Dropdown toggle functions
+const toggleDateDropdown = () => {
+  // Trigger the native date picker
+  const dateInput = document.getElementById('booking-date-input') as HTMLInputElement
+  if (dateInput) {
+    dateInput.showPicker?.()
+  }
+  closeDropdowns()
+}
+
+const toggleStartTimeDropdown = () => {
+  showStartTimeDropdown.value = !showStartTimeDropdown.value
+  showEndTimeDropdown.value = false // Close other dropdown
+
+  // Enhanced scroll to selected option when dropdown opens
+  if (showStartTimeDropdown.value) {
+    nextTick(() => {
+      // Wait a bit longer to ensure dropdown is fully rendered and visible
+      setTimeout(() => {
+        scrollToSelectedOption('start')
+      }, 100)
+    })
+  }
+}
+
+const toggleEndTimeDropdown = () => {
+  if (!formData.value.startTime) return
+  showEndTimeDropdown.value = !showEndTimeDropdown.value
+  showStartTimeDropdown.value = false // Close other dropdown
+
+  // Enhanced scroll to selected option when dropdown opens
+  if (showEndTimeDropdown.value) {
+    nextTick(() => {
+      // Wait a bit longer to ensure dropdown is fully rendered and visible
+      setTimeout(() => {
+        scrollToSelectedOption('end')
+      }, 100)
+    })
+  }
+}
+
+// Time selection functions
+const selectStartTime = (timeValue: string) => {
+  formData.value.startTime = timeValue
+  showStartTimeDropdown.value = false
+
+  // Auto-set end time to 1 hour later (ensuring 30-minute alignment)
+  const [hour, minute] = timeValue.split(':').map(Number)
+  const startMinutes = hour * 60 + minute
+  const endMinutes = startMinutes + 60 // 1 hour later
+
+  if (endMinutes < 24 * 60) {
+    const endHour = Math.floor(endMinutes / 60)
+    const endMin = endMinutes % 60
+
+    // Ensure end time is on 30-minute boundary
+    const alignedEndMin = Math.round(endMin / 30) * 30
+    const finalEndHour = alignedEndMin >= 60 ? endHour + 1 : endHour
+    const finalEndMin = alignedEndMin >= 60 ? 0 : alignedEndMin
+
+    formData.value.endTime = `${finalEndHour.toString().padStart(2, '0')}:${finalEndMin.toString().padStart(2, '0')}`
+  }
+
+  // Show feedback message
+  timeAdjustmentMessage.value = 'End time automatically set to 1 hour after start time'
+  setTimeout(() => {
+    timeAdjustmentMessage.value = ''
+  }, 3000)
+
+  validateTimeRange()
+}
+
+const selectEndTime = (timeValue: string) => {
+  formData.value.endTime = timeValue
+  showEndTimeDropdown.value = false
+  validateTimeRange()
+}
+
+// Enhanced hover handlers for dropdown options with improved UX
+const handleStartTimeHover = (event: Event, optionValue: string, isHover: boolean) => {
+  const target = event.currentTarget as HTMLElement
+  if (formData.value.startTime !== optionValue) {
+    if (isHover) {
+      target.style.backgroundColor = '#f3f4f6'
+      target.style.transition = 'background-color 0.2s ease'
+    } else {
+      target.style.backgroundColor = 'inherit'
+    }
+  }
+}
+
+const handleEndTimeHover = (event: Event, optionValue: string, isHover: boolean) => {
+  const target = event.currentTarget as HTMLElement
+  if (formData.value.endTime !== optionValue) {
+    if (isHover) {
+      target.style.backgroundColor = '#f3f4f6'
+      target.style.transition = 'background-color 0.2s ease'
+    } else {
+      target.style.backgroundColor = 'inherit'
+    }
+  }
+}
+
+// Enhanced scroll to selected option in dropdown with auto-centering
+const scrollToSelectedOption = (type: 'start' | 'end') => {
+  const dropdownRef = type === 'start' ? startTimeDropdownRef.value : endTimeDropdownRef.value
+  if (!dropdownRef) return
+
+  const selectedValue = type === 'start' ? formData.value.startTime : formData.value.endTime
+  if (!selectedValue) return
+
+  // Use setTimeout to ensure DOM is fully rendered
+  setTimeout(() => {
+    // Find the selected option element
+    const selectedElement = dropdownRef.querySelector(`[data-value="${selectedValue}"]`) as HTMLElement
+    if (selectedElement) {
+      // Calculate the position to center the selected element
+      const dropdownHeight = dropdownRef.clientHeight
+      const elementHeight = selectedElement.offsetHeight
+      const elementTop = selectedElement.offsetTop
+
+      // Calculate scroll position to center the element
+      const scrollTop = elementTop - (dropdownHeight / 2) + (elementHeight / 2)
+
+      // Smooth scroll to the calculated position
+      dropdownRef.scrollTo({
+        top: Math.max(0, scrollTop),
+        behavior: 'smooth'
+      })
+    }
+  }, 50) // Small delay to ensure dropdown is fully rendered
+}
+
+// Close dropdowns when clicking outside
+const closeDropdowns = () => {
+  showDateDropdown.value = false
+  showStartTimeDropdown.value = false
+  showEndTimeDropdown.value = false
+}
+
+// Click outside handler will be added to the main onMounted function
 
 const formatDateTime = (date: Date) => {
   return date.toLocaleString('en-US', {
@@ -1782,9 +2147,11 @@ const handleSubmit = async () => {
         startTime = props.selectedSlots[0].start
         endTime = props.selectedSlots[props.selectedSlots.length - 1].end
       } else {
-        // Convert datetime-local format to ISO string for backend
-        startTime = new Date(formData.value.startTime).toISOString()
-        endTime = new Date(formData.value.endTime).toISOString()
+        // Combine separate date and time fields to create ISO string for backend
+        const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
+        const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
+        startTime = startDateTime.toISOString()
+        endTime = endDateTime.toISOString()
       }
 
       console.log('Converted datetime values:', { startTime, endTime })
@@ -1853,11 +2220,14 @@ watch(
       formData.value = {
         type: 'booking',
         title: booking.title || '',
+        bookingDate: booking.start
+          ? new Date(booking.start).toISOString().slice(0, 10)
+          : '',
         startTime: booking.start
-          ? new Date(booking.start).toISOString().slice(0, 16)
+          ? new Date(booking.start).toTimeString().slice(0, 5)
           : '',
         endTime: booking.end
-          ? new Date(booking.end).toISOString().slice(0, 16)
+          ? new Date(booking.end).toTimeString().slice(0, 5)
           : '',
         court: booking.court || '',
         players: playerSlots,
@@ -1925,17 +2295,9 @@ const force24HourFormat = () => {
 }
 
 onMounted(() => {
-  // Set default times if no slots selected - default to next hour for flexible duration booking
-  if (props.selectedSlots.length === 0 && !props.isEditMode) {
-    const now = new Date()
-    now.setMinutes(0, 0, 0)
-    now.setHours(now.getHours() + 1) // Start from next hour
-
-    formData.value.startTime = now.toISOString().slice(0, 16)
-
-    // Set default end time to 1 hour after start time (minimum duration)
-    const endTime = new Date(now.getTime() + 60 * 60 * 1000)
-    formData.value.endTime = endTime.toISOString().slice(0, 16)
+  // Initialize default times for new bookings
+  if (!props.isEditMode) {
+    initializeDefaultTimes()
   }
 
   // Initialize with minimum required player slots
@@ -1943,6 +2305,15 @@ onMounted(() => {
     formData.value.players = ['', '', '', '']
     formData.value.playerPhones = ['', '', '', '']
   }
+
+  // Add click outside listener for dropdowns
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement
+    const isDropdownClick = target.closest('.relative')
+    if (!isDropdownClick) {
+      closeDropdowns()
+    }
+  })
 
   // Ensure 24-hour format is applied after DOM is ready
   setTimeout(() => {
@@ -1955,36 +2326,12 @@ onMounted(() => {
   }, 500)
 })
 
-// Watch for start time changes
-watch(() => formData.value.startTime, (newStartTime, oldStartTime) => {
-  if (newStartTime !== oldStartTime && newStartTime) {
-    nextTick(() => {
-      force24HourFormat()
-      handleStartTimeChange()
-    })
-  }
-})
-
-// Watch for end time changes
-watch(() => formData.value.endTime, (newEndTime, oldEndTime) => {
-  if (newEndTime !== oldEndTime && newEndTime) {
-    nextTick(() => {
-      force24HourFormat()
-      handleEndTimeChange()
-    })
-  }
-})
-
-// Watch for changes and reapply 24-hour format (fallback)
+// Watch for changes and reapply 24-hour format (simplified to avoid race conditions)
 watch([() => formData.value.startTime, () => formData.value.endTime], () => {
   nextTick(() => {
     force24HourFormat()
-    // Auto-validate time range when times change
-    if (formData.value.startTime && formData.value.endTime) {
-      validateTimeRange()
-    }
   })
-})
+}, { flush: 'post' })
 </script>
 
 <style scoped>
@@ -2735,6 +3082,62 @@ input[type='datetime-local'][data-format='24'] {
 }
 
 /* Enhanced field container spacing - merged with existing selector */
+
+/* Enhanced dropdown button styling for consistent widths */
+.time-dropdown-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  white-space: nowrap !important;
+  transition: all 0.2s ease !important;
+}
+
+.time-dropdown-button span {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.time-dropdown-button svg {
+  flex-shrink: 0 !important;
+  margin-left: 8px !important;
+}
+
+/* Enhanced dropdown menu styling */
+.time-dropdown-menu {
+  background-color: #ffffff !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  z-index: 50 !important;
+}
+
+.time-dropdown-option {
+  padding: 8px 12px !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
+
+.time-dropdown-option:hover:not(.selected) {
+  background-color: #f3f4f6 !important;
+}
+
+.time-dropdown-option.selected {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  font-weight: 600 !important;
+  border-left: 4px solid #2563eb !important;
+}
+
+.time-dropdown-option.selected .checkmark {
+  color: #2563eb !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
 
 /* Form section spacing improvements */
 .space-y-10 > * + * {
