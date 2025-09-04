@@ -723,9 +723,18 @@ const calendarOptions = computed(() => {
         date: info.date,
       })
 
+      // Validate that the clicked time is not in the past (FullCalendar constraints should prevent this, but double-check)
+      const clickedDate = new Date(info.date)
+      const now = new Date()
+
+      if (clickedDate <= now) {
+        console.log('⚠️ Past time slot clicked - should be prevented by FullCalendar constraints')
+        return
+      }
+
       // Only allow booking creation on time grid views for better UX
       if (info.view.type === 'dayGridMonth') {
-        // For month view, just open the modal without pre-filling time
+        // Open the modal without pre-filling time for month view
         if (!showBookingForm.value) {
           selectedSlots.value = []
           openBookingModal()
@@ -734,20 +743,8 @@ const calendarOptions = computed(() => {
       }
 
       // Create a 1-hour slot starting from the clicked time
-      const clickedDate = new Date(info.date)
       clickedDate.setMinutes(0, 0, 0) // Round to nearest hour
-
-      // Ensure the booking starts at least 1 hour from now
-      const now = new Date()
-      const minStartTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
-
-      let startTime = new Date(clickedDate)
-      if (startTime < minStartTime) {
-        startTime = new Date(minStartTime)
-        startTime.setMinutes(0, 0, 0) // Round to hour
-      }
-
-      // Create a 1-hour slot
+      const startTime = new Date(clickedDate)
       const endTime = new Date(startTime.getTime() + 60 * 60 * 1000)
 
       // Create selected slots data for single click
@@ -923,9 +920,18 @@ const handleDateSelect = (selectInfo: {
     viewType: selectInfo.view.type,
   })
 
+  // Validate that the selected time is not in the past (FullCalendar constraints should prevent this, but double-check)
+  const startTime = new Date(selectInfo.start)
+  const now = new Date()
+
+  if (startTime <= now) {
+    console.log('⚠️ Past time selection - should be prevented by FullCalendar constraints')
+    return
+  }
+
   // Only allow booking creation on time grid views for better UX
   if (selectInfo.view.type === 'dayGridMonth') {
-    // For month view, just open the modal without pre-filling time
+    // Open the modal without pre-filling time for month view
     if (!showBookingForm.value) {
       selectedSlots.value = []
       openBookingModal()
@@ -933,18 +939,7 @@ const handleDateSelect = (selectInfo: {
     return
   }
 
-  // Ensure the booking starts at least 1 hour from now
-  const now = new Date()
-  const minStartTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
-
-  let startTime = new Date(selectInfo.start)
-  let endTime = new Date(selectInfo.end)
-
-  if (startTime < minStartTime) {
-    const timeDiff = endTime.getTime() - startTime.getTime()
-    startTime = new Date(minStartTime)
-    endTime = new Date(startTime.getTime() + timeDiff)
-  }
+  const endTime = new Date(selectInfo.end)
 
   // Create selected slots data
   const slotData = {
