@@ -26,7 +26,7 @@ export function useCalendarData(venueId: string | Ref<string>) {
   const loadBookings = async (limit: number = 100, skip: number = 0) => {
     try {
       console.log('🚀 loadBookings called with venueId:', reactiveVenueId.value)
-      
+
       if (!reactiveVenueId.value) {
         console.warn('⚠️ No venue ID available, showing empty calendar')
         bookings.value = []
@@ -39,16 +39,24 @@ export function useCalendarData(venueId: string | Ref<string>) {
         limit,
         skip
       )
-      console.log('📅 Found bookings from service:', bookingData.length, bookingData)
+      console.log(
+        '📅 Found bookings from service:',
+        bookingData.length,
+        bookingData
+      )
 
       const formattedBookings = bookingData.map((booking) => {
         const formatted = BookingService.formatBookingForCalendar(booking)
         console.log('🔄 Formatted booking:', formatted)
         return formatted
       })
-      
+
       bookings.value = formattedBookings
-      console.log('📊 Final bookings array:', bookings.value.length, bookings.value)
+      console.log(
+        '📊 Final bookings array:',
+        bookings.value.length,
+        bookings.value
+      )
     } catch (err) {
       console.error('❌ Error loading bookings:', err)
       bookings.value = []
@@ -136,7 +144,6 @@ export function useCalendarData(venueId: string | Ref<string>) {
           players: booking.get('players') || [],
           playerPhones: booking.get('playerPhones') || [],
           contact: booking.get('contact'),
-          phone: booking.get('phone'),
           price: booking.get('price'),
           status: booking.get('status'),
           paymentStatus: booking.get('paymentStatus'),
@@ -158,7 +165,6 @@ export function useCalendarData(venueId: string | Ref<string>) {
             players: booking.get('players') || [],
             playerPhones: booking.get('playerPhones') || [],
             contact: booking.get('contact'),
-            phone: booking.get('phone'),
             price: booking.get('price'),
             status: booking.get('status'),
             paymentStatus: booking.get('paymentStatus'),
@@ -228,15 +234,19 @@ export function useCalendarData(venueId: string | Ref<string>) {
   }
 
   // Watch for venue ID changes and load data
-  watch(reactiveVenueId, async (newVenueId) => {
-    console.log('🔄 Venue ID changed in composable:', newVenueId)
-    if (newVenueId) {
-      console.log('🚀 Auto-loading data for venue:', newVenueId)
-      await loadAllData()
-      await setupLiveQueries()
-    }
-  }, { immediate: true })
-  
+  watch(
+    reactiveVenueId,
+    async (newVenueId) => {
+      console.log('🔄 Venue ID changed in composable:', newVenueId)
+      if (newVenueId) {
+        console.log('🚀 Auto-loading data for venue:', newVenueId)
+        await loadAllData()
+        await setupLiveQueries()
+      }
+    },
+    { immediate: true }
+  )
+
   // Auto-setup when venueId is available
   onMounted(() => {
     console.log('📍 Composable mounted with venueId:', reactiveVenueId.value)

@@ -36,13 +36,21 @@
 
         <!-- Single Row Date and Time Selector -->
         <div class="space-y-4 mt-6">
-          <h4 class="text-sm font-semibold text-slate-800">Booking Date & Time</h4>
+          <h4 class="text-sm font-semibold text-slate-800">
+            Booking Date & Time
+          </h4>
 
           <!-- Single Row Layout: Date + Start Time + End Time -->
-          <div class="flex flex-row items-end gap-6 bg-white rounded-lg p-4 border border-gray-200 overflow-x-auto">
+          <div
+            class="flex flex-row items-end gap-6 bg-white rounded-lg p-4 border border-gray-200 overflow-x-auto"
+          >
             <!-- Booking Date Input -->
             <div class="relative flex-shrink-0 mr-2">
-              <label for="bookingDate" class="block text-sm font-medium text-gray-700 mb-1">Booking Date</label>
+              <label
+                for="bookingDate"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Booking Date</label
+              >
               <input
                 ref="dateInput"
                 id="bookingDate"
@@ -58,14 +66,21 @@
             </div>
             <!-- Start Time Input -->
             <div class="relative flex-shrink-0 mx-1">
-              <label for="startTime" class="block text-sm font-medium text-gray-700 mb-1">Start Time</label>
+              <label
+                for="startTime"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >Start Time</label
+              >
               <input
                 id="startTime"
                 type="time"
                 v-model="formData.startTime"
                 @change="handleStartTimeChange"
                 class="w-auto min-w-[140px] h-[42px] px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                :class="{ 'border-red-500 ring-2 ring-red-500': timeRangeError && !formData.startTime }"
+                :class="{
+                  'border-red-500 ring-2 ring-red-500':
+                    timeRangeError && !formData.startTime,
+                }"
                 placeholder="Select start time"
                 step="1800"
               />
@@ -73,12 +88,18 @@
 
             <!-- "to" separator -->
             <div class="flex items-center justify-center px-6 h-[42px] mx-2">
-              <span class="text-gray-500 font-medium text-sm whitespace-nowrap"> to </span>
+              <span class="text-gray-500 font-medium text-sm whitespace-nowrap">
+                to
+              </span>
             </div>
 
             <!-- End Time Input -->
             <div class="relative flex-shrink-0 ml-1">
-              <label for="endTime" class="block text-sm font-medium text-gray-700 mb-1">End Time</label>
+              <label
+                for="endTime"
+                class="block text-sm font-medium text-gray-700 mb-1"
+                >End Time</label
+              >
               <input
                 id="endTime"
                 type="time"
@@ -86,7 +107,10 @@
                 @change="handleEndTimeChange"
                 :disabled="!formData.startTime"
                 class="w-auto min-w-[160px] h-[42px] px-4 py-2 border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors disabled:bg-gray-100 disabled:text-gray-400 disabled:cursor-not-allowed"
-                :class="{ 'border-red-500 ring-2 ring-red-500': timeRangeError && formData.startTime && !formData.endTime }"
+                :class="{
+                  'border-red-500 ring-2 ring-red-500':
+                    timeRangeError && formData.startTime && !formData.endTime,
+                }"
                 placeholder="Select end time"
                 step="1800"
               />
@@ -100,10 +124,25 @@
 
             <!-- Start Time Error Message -->
             <div class="flex-shrink-0 min-w-[140px] mx-1">
-              <div v-if="timeRangeError && !formData.startTime" class="max-h-6 overflow-hidden">
-                <div class="flex items-start gap-1 text-xs text-red-600 leading-tight">
-                  <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div
+                v-if="timeRangeError && !formData.startTime"
+                class="max-h-6 overflow-hidden"
+              >
+                <div
+                  class="flex items-start gap-1 text-xs text-red-600 leading-tight"
+                >
+                  <svg
+                    class="w-4 h-4 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <span class="flex-1">Please select a start time</span>
                 </div>
@@ -115,10 +154,25 @@
 
             <!-- End Time Error Message -->
             <div class="flex-shrink-0 min-w-[160px] ml-1">
-              <div v-if="timeRangeError && formData.startTime && !formData.endTime" class="max-h-6 overflow-hidden">
-                <div class="flex items-start gap-1 text-xs text-red-600 leading-tight">
-                  <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <div
+                v-if="timeRangeError && formData.startTime && !formData.endTime"
+                class="max-h-6 overflow-hidden"
+              >
+                <div
+                  class="flex items-start gap-1 text-xs text-red-600 leading-tight"
+                >
+                  <svg
+                    class="w-4 h-4 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <span class="flex-1">Please select an end time</span>
                 </div>
@@ -128,9 +182,21 @@
 
           <!-- Error Display - Material Design 3 Compliant -->
           <div v-if="timeRangeError" class="mt-2 max-h-6 overflow-hidden">
-            <div class="flex items-start gap-1 text-xs text-red-600 leading-tight">
-              <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <div
+              class="flex items-start gap-1 text-xs text-red-600 leading-tight"
+            >
+              <svg
+                class="w-4 h-4 flex-shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
               </svg>
               <span class="flex-1">{{ timeRangeError }}</span>
             </div>
@@ -143,9 +209,21 @@
             <div class="flex items-start space-x-3">
               <!-- Clock Icon -->
               <div class="flex-shrink-0 mt-1">
-                <div class="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center">
-                  <svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <div
+                  class="w-5 h-5 rounded-full bg-gray-400 flex items-center justify-center"
+                >
+                  <svg
+                    class="w-3 h-3 text-white"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
               </div>
@@ -171,12 +249,24 @@
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div class="flex items-start space-x-3">
               <div class="flex-shrink-0">
-                <svg class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  class="w-5 h-5 text-blue-600 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </div>
               <div class="flex-1">
-                <h4 class="text-sm font-medium text-blue-800 mb-1">Time Automatically Adjusted</h4>
+                <h4 class="text-sm font-medium text-blue-800 mb-1">
+                  Time Automatically Adjusted
+                </h4>
                 <p class="text-sm text-blue-700">{{ timeAdjustmentMessage }}</p>
               </div>
             </div>
@@ -558,7 +648,9 @@
                 {{
                   Math.max(
                     1,
-                    formData.players.filter((p) => p && typeof p === 'string' && p.trim()).length
+                    formData.players.filter(
+                      (p) => p && typeof p === 'string' && p.trim()
+                    ).length
                   )
                 }}/4 players
               </span>
@@ -1099,9 +1191,9 @@ interface Props {
     start: Date
     end: Date
     type: string
-    players?: string[]        // Customer/player names (manual input)
-    playerPhones?: string[]   // Customer/player phone numbers (manual input)
-    contact?: string          // Venue contact email (from authenticated venue owner profile)
+    players?: string[] // Customer/player names (manual input)
+    playerPhones?: string[] // Customer/player phone numbers (manual input)
+    contact?: string // Venue contact email (from authenticated venue owner profile)
     price?: number
     status?: string
     paymentStatus?: string
@@ -1158,7 +1250,7 @@ const initializeDefaultTimes = () => {
     console.log('🕐 Initialized default date and times (30-min intervals):', {
       bookingDate: formData.value.bookingDate,
       startTime: formData.value.startTime,
-      endTime: formData.value.endTime
+      endTime: formData.value.endTime,
     })
   }
 }
@@ -1201,23 +1293,6 @@ const getMinDate = () => {
   return now.toISOString().slice(0, 10)
 }
 
-// Get minimum time based on selected date
-const getMinTime = () => {
-  if (!formData.value.startTime) return ''
-
-  // Parse start time and add 1 hour
-  const [hours, minutes] = formData.value.startTime.split(':').map(Number)
-  const startMinutes = hours * 60 + minutes
-  const endMinutes = startMinutes + 60 // Add 1 hour
-
-  const endHours = Math.floor(endMinutes / 60) % 24
-  const endMins = endMinutes % 60
-
-  return `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`
-}
-
-
-
 // Handle date changes
 const handleDateChange = () => {
   // Validate that the selected date is not in the past
@@ -1253,7 +1328,14 @@ const handleStartTimeChange = () => {
   const [hours, minutes] = formData.value.startTime.split(':').map(Number)
 
   // Check if time is valid
-  if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
+  if (
+    isNaN(hours) ||
+    isNaN(minutes) ||
+    hours < 0 ||
+    hours > 23 ||
+    minutes < 0 ||
+    minutes > 59
+  ) {
     timeRangeError.value = 'Please select a valid start time'
     return
   }
@@ -1268,12 +1350,13 @@ const handleStartTimeChange = () => {
   formData.value.endTime = `${endHours.toString().padStart(2, '0')}:${endMins.toString().padStart(2, '0')}`
 
   // Show user-friendly feedback
-  timeAdjustmentMessage.value = 'End time automatically set to 1 hour after start time'
+  timeAdjustmentMessage.value =
+    'End time automatically set to 1 hour after start time'
 
   console.log('🕐 Auto-set end time:', {
     startTime: formData.value.startTime,
     endTime: formData.value.endTime,
-    duration: '1 hour'
+    duration: '1 hour',
   })
 
   // Clear the message after 3 seconds
@@ -1293,8 +1376,6 @@ const handleEndTimeChange = () => {
   // Just validate the time range - no auto-adjustment for end time changes
   validateTimeRange()
 }
-
-
 
 const onCourtFocus = (event: Event) => {
   const container = (event.target as HTMLElement).closest(
@@ -1404,10 +1485,6 @@ const onPlayerPhoneInput = (event: Event) => {
   }
 }
 
-
-
-
-
 const validateTimeRange = () => {
   // Clear HTML5 validation state for inputs
   const dateInput = document.getElementById('bookingDate') as HTMLInputElement
@@ -1418,14 +1495,22 @@ const validateTimeRange = () => {
   if (startInput) startInput.setCustomValidity('')
   if (endInput) endInput.setCustomValidity('')
 
-  if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
+  if (
+    !formData.value.bookingDate ||
+    !formData.value.startTime ||
+    !formData.value.endTime
+  ) {
     timeRangeError.value = ''
     return true
   }
 
   // Combine date and time to create full datetime objects
-  const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
-  const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
+  const startDateTime = new Date(
+    `${formData.value.bookingDate}T${formData.value.startTime}:00`
+  )
+  const endDateTime = new Date(
+    `${formData.value.bookingDate}T${formData.value.endTime}:00`
+  )
 
   // Check for invalid dates
   if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
@@ -1440,7 +1525,8 @@ const validateTimeRange = () => {
   }
 
   // Check minimum duration (1 hour) and maximum duration (24 hours)
-  const diffMinutes = (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60)
+  const diffMinutes =
+    (endDateTime.getTime() - startDateTime.getTime()) / (1000 * 60)
   const diffHours = diffMinutes / 60
 
   if (diffHours < 1) {
@@ -1486,22 +1572,37 @@ const validateForm = () => {
   console.log('Running comprehensive form validation...')
 
   // Check court selection
-  if (!formData.value.court || typeof formData.value.court !== 'string' || !formData.value.court.trim()) {
+  if (
+    !formData.value.court ||
+    typeof formData.value.court !== 'string' ||
+    !formData.value.court.trim()
+  ) {
     console.log('Validation failed: No court selected')
     return { isValid: false, error: 'Please select a court' }
   }
 
   // Check title
-  if (!formData.value.title || typeof formData.value.title !== 'string' || !formData.value.title.trim()) {
+  if (
+    !formData.value.title ||
+    typeof formData.value.title !== 'string' ||
+    !formData.value.title.trim()
+  ) {
     console.log('Validation failed: No title provided')
     return { isValid: false, error: 'Please enter a booking title' }
   }
 
   // Check date and time for flexible duration booking
   if (props.selectedSlots.length === 0) {
-    if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
+    if (
+      !formData.value.bookingDate ||
+      !formData.value.startTime ||
+      !formData.value.endTime
+    ) {
       console.log('Validation failed: Missing date or time values')
-      return { isValid: false, error: 'Please select booking date, start time, and end time' }
+      return {
+        isValid: false,
+        error: 'Please select booking date, start time, and end time',
+      }
     }
 
     // Validate time range for flexible bookings
@@ -1515,7 +1616,9 @@ const validateForm = () => {
   }
 
   // Check players
-  const validPlayers = formData.value.players.filter((p) => p && typeof p === 'string' && p.trim())
+  const validPlayers = formData.value.players.filter(
+    (p) => p && typeof p === 'string' && p.trim()
+  )
   if (validPlayers.length === 0) {
     console.log('Validation failed: No players provided')
     return { isValid: false, error: 'At least one player is required' }
@@ -1532,13 +1635,21 @@ const validateForm = () => {
 }
 
 const calculateDuration = () => {
-  if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
+  if (
+    !formData.value.bookingDate ||
+    !formData.value.startTime ||
+    !formData.value.endTime
+  ) {
     return 'Not set'
   }
 
   // Combine date and time to create full datetime objects
-  const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
-  const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
+  const startDateTime = new Date(
+    `${formData.value.bookingDate}T${formData.value.startTime}:00`
+  )
+  const endDateTime = new Date(
+    `${formData.value.bookingDate}T${formData.value.endTime}:00`
+  )
 
   // Check for invalid dates
   if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
@@ -1567,13 +1678,21 @@ const calculateDuration = () => {
 }
 
 const formatBookingDateTime = () => {
-  if (!formData.value.bookingDate || !formData.value.startTime || !formData.value.endTime) {
+  if (
+    !formData.value.bookingDate ||
+    !formData.value.startTime ||
+    !formData.value.endTime
+  ) {
     return 'Select booking date and times'
   }
 
   // Create datetime objects from separate date and time fields
-  const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
-  const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
+  const startDateTime = new Date(
+    `${formData.value.bookingDate}T${formData.value.startTime}:00`
+  )
+  const endDateTime = new Date(
+    `${formData.value.bookingDate}T${formData.value.endTime}:00`
+  )
 
   if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
     return 'Invalid booking times'
@@ -1604,8 +1723,6 @@ const formatBookingDateTime = () => {
   return `${dayDate}, ${startTime} - ${endTime}`
 }
 
-
-
 const batchMode = ref(false)
 const isSubmitting = ref(false)
 const playerValidationError = ref('')
@@ -1616,17 +1733,7 @@ const generalError = ref('')
 // Dropdown states (only date dropdown is still used)
 const showDateDropdown = ref(false)
 
-
-
-
-
-
-
-
-
 // Time input change handlers (using existing functions above)
-
-
 
 // Close dropdowns when clicking outside
 const closeDropdowns = () => {
@@ -1683,7 +1790,10 @@ const removePlayer = (index: number) => {
 }
 
 const getPlayerValidationClass = (player: string, index: number) => {
-  if (index === 0 && (!player || typeof player !== 'string' || !player.trim())) {
+  if (
+    index === 0 &&
+    (!player || typeof player !== 'string' || !player.trim())
+  ) {
     return 'border-red-300 focus:ring-red-400 focus:border-red-400'
   }
   if (player && typeof player === 'string' && player.trim()) {
@@ -1694,7 +1804,10 @@ const getPlayerValidationClass = (player: string, index: number) => {
 
 const validatePlayerName = (index: number) => {
   const player = formData.value.players[index]
-  if (index === 0 && (!player || typeof player !== 'string' || !player.trim())) {
+  if (
+    index === 0 &&
+    (!player || typeof player !== 'string' || !player.trim())
+  ) {
     playerValidationError.value = 'Main player name is required'
     return false
   }
@@ -1756,7 +1869,9 @@ const handleSubmit = async () => {
     console.log('Base data created:', baseData)
 
     // Handle regular bookings
-    const validPlayers = formData.value.players.filter((p) => p && typeof p === 'string' && p.trim())
+    const validPlayers = formData.value.players.filter(
+      (p) => p && typeof p === 'string' && p.trim()
+    )
     const validPlayerPhones = formData.value.playerPhones.filter(
       (p, index) =>
         formData.value.players[index] &&
@@ -1793,8 +1908,12 @@ const handleSubmit = async () => {
         endTime = props.selectedSlots[props.selectedSlots.length - 1].end
       } else {
         // Combine separate date and time fields to create ISO string for backend
-        const startDateTime = new Date(`${formData.value.bookingDate}T${formData.value.startTime}:00`)
-        const endDateTime = new Date(`${formData.value.bookingDate}T${formData.value.endTime}:00`)
+        const startDateTime = new Date(
+          `${formData.value.bookingDate}T${formData.value.startTime}:00`
+        )
+        const endDateTime = new Date(
+          `${formData.value.bookingDate}T${formData.value.endTime}:00`
+        )
         startTime = startDateTime.toISOString()
         endTime = endDateTime.toISOString()
       }
@@ -1972,11 +2091,15 @@ onMounted(() => {
 })
 
 // Watch for changes and reapply 24-hour format (simplified to avoid race conditions)
-watch([() => formData.value.startTime, () => formData.value.endTime], () => {
-  nextTick(() => {
-    force24HourFormat()
-  })
-}, { flush: 'post' })
+watch(
+  [() => formData.value.startTime, () => formData.value.endTime],
+  () => {
+    nextTick(() => {
+      force24HourFormat()
+    })
+  },
+  { flush: 'post' }
+)
 </script>
 
 <style scoped>
@@ -2729,13 +2852,13 @@ input[type='datetime-local'][data-format='24'] {
 /* Enhanced field container spacing - merged with existing selector */
 
 /* Time input field styling */
-input[type="time"] {
+input[type='time'] {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: textfield;
 }
 
-input[type="time"]::-webkit-calendar-picker-indicator {
+input[type='time']::-webkit-calendar-picker-indicator {
   background: transparent;
   bottom: 0;
   color: transparent;
@@ -2749,7 +2872,7 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 /* Enhanced time input focus states */
-input[type="time"]:focus {
+input[type='time']:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
@@ -2784,15 +2907,16 @@ input[type="time"]:focus {
 }
 
 /* Date and Time Input Styling */
-input[type="date"], input[type="time"] {
+input[type='date'],
+input[type='time'] {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: textfield;
 }
 
 /* Enhanced date input styling */
-input[type="date"]::-webkit-calendar-picker-indicator,
-input[type="time"]::-webkit-calendar-picker-indicator {
+input[type='date']::-webkit-calendar-picker-indicator,
+input[type='time']::-webkit-calendar-picker-indicator {
   background: transparent;
   bottom: 0;
   color: transparent;
@@ -2812,7 +2936,8 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 }
 
 /* Consistent input heights */
-input[type="date"], input[type="time"] {
+input[type='date'],
+input[type='time'] {
   height: 42px !important;
   box-sizing: border-box;
 }

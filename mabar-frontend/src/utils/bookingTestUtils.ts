@@ -26,7 +26,6 @@ export class BookingTestUtils {
         players: ['Test Player 1', 'Test Player 2'],
         playerPhones: ['+6281234567890', '+6281234567891'],
         contact: 'test@example.com',
-        phone: '+6281234567890',
         price: 150000,
         status: 'confirmed',
         paymentStatus: 'pending',

@@ -118,7 +118,13 @@
             <!-- Calendar -->
             <div v-else>
               <!-- Action Buttons -->
-              <div class="flex justify-end items-center mb-4">
+              <div class="flex justify-end items-center mb-4 space-x-2">
+                <button
+                  @click="testEventClick"
+                  class="inline-flex items-center px-3 py-1.5 text-sm text-white bg-blue-500 hover:bg-blue-600 rounded-md transition-colors"
+                >
+                  Test Modal
+                </button>
                 <button
                   @click="refreshData"
                   class="inline-flex items-center px-3 py-1.5 text-sm text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-md transition-colors"
@@ -158,14 +164,24 @@
             <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
               <h3 class="text-lg font-semibold mb-4">Booking Details</h3>
               <div class="space-y-2">
-                <p><strong>Title:</strong> {{ selectedBookingForDetails.title }}</p>
-                <p><strong>Start:</strong> {{ selectedBookingForDetails.start.toLocaleString() }}</p>
-                <p><strong>End:</strong> {{ selectedBookingForDetails.end.toLocaleString() }}</p>
+                <p>
+                  <strong>Title:</strong> {{ selectedBookingForDetails.title }}
+                </p>
+                <p>
+                  <strong>Start:</strong>
+                  {{ selectedBookingForDetails.start.toLocaleString() }}
+                </p>
+                <p>
+                  <strong>End:</strong>
+                  {{ selectedBookingForDetails.end.toLocaleString() }}
+                </p>
                 <p v-if="selectedBookingForDetails.extendedProps?.court">
-                  <strong>Court:</strong> {{ selectedBookingForDetails.extendedProps.court }}
+                  <strong>Court:</strong>
+                  {{ selectedBookingForDetails.extendedProps.court }}
                 </p>
                 <p v-if="selectedBookingForDetails.extendedProps?.status">
-                  <strong>Status:</strong> {{ selectedBookingForDetails.extendedProps.status }}
+                  <strong>Status:</strong>
+                  {{ selectedBookingForDetails.extendedProps.status }}
                 </p>
               </div>
               <div class="flex justify-end space-x-2 mt-6">
@@ -224,17 +240,35 @@
                     <!-- Enhanced Modal Header -->
                     <div class="enhanced-modal-header">
                       <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center shadow-sm">
-                          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <div
+                          class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center shadow-sm"
+                        >
+                          <svg
+                            class="w-5 h-5 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
                           </svg>
                         </div>
                         <div>
                           <h2 class="text-xl font-semibold text-slate-900">
-                            {{ isEditMode ? 'Edit Booking' : 'Create New Booking' }}
+                            {{
+                              isEditMode ? 'Edit Booking' : 'Create New Booking'
+                            }}
                           </h2>
                           <p class="text-sm text-slate-600 mt-0.5">
-                            {{ isEditMode ? 'Update booking details' : 'Fill in the details below to create your booking' }}
+                            {{
+                              isEditMode
+                                ? 'Update booking details'
+                                : 'Fill in the details below to create your booking'
+                            }}
                           </p>
                         </div>
                       </div>
@@ -244,8 +278,18 @@
                         class="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                         aria-label="Close modal"
                       >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          class="w-5 h-5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          stroke-width="2"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </button>
                     </div>
@@ -446,7 +490,11 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import BookingForm from '../components/BookingForm.vue'
-import { CalendarLoadingState, CalendarErrorState, EnhancedFloatingActionButton } from '../components/ui'
+import {
+  CalendarLoadingState,
+  CalendarErrorState,
+  EnhancedFloatingActionButton,
+} from '../components/ui'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
 
@@ -507,8 +555,11 @@ const loadBookings = async () => {
       const formatted = BookingService.formatBookingForCalendar(booking)
       console.log('📅 Formatted booking:', {
         id: formatted.id,
+        title: formatted.title,
         start: formatted.start,
         end: formatted.end,
+        extendedProps: formatted.extendedProps,
+        type: formatted.extendedProps.type,
         duration:
           (formatted.end.getTime() - formatted.start.getTime()) /
           (1000 * 60 * 60),
@@ -521,8 +572,11 @@ const loadBookings = async () => {
       const formatted = BookingService.formatBlockedSlotForCalendar(blocked)
       console.log('🚫 Formatted blocked slot:', {
         id: formatted.id,
+        title: formatted.title,
         start: formatted.start,
         end: formatted.end,
+        extendedProps: formatted.extendedProps,
+        type: formatted.extendedProps.type,
         duration:
           (formatted.end.getTime() - formatted.start.getTime()) /
           (1000 * 60 * 60),
@@ -625,6 +679,14 @@ const calendarOptions = computed(() => {
 
   const allEvents = [...bookings.value]
   console.log('📅 All calendar events:', allEvents)
+  console.log(
+    '📅 Event types in calendar:',
+    allEvents.map((e) => ({
+      id: e.id,
+      type: e.extendedProps?.type,
+      title: e.title,
+    }))
+  )
 
   return {
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -734,10 +796,22 @@ const calendarOptions = computed(() => {
 // Data loading is now handled by the useCalendarData composable
 
 const handleEventClick = async (clickInfo: any) => {
+  console.log('🔥 EVENT CLICK HANDLER TRIGGERED!')
   const event = clickInfo.event
-  console.log('📅 Event clicked:', event)
+  console.log('📅 Event clicked - Full event object:', event)
+  console.log('📅 Event ID:', event.id)
+  console.log('📅 Event title:', event.title)
+  console.log('📅 Event extendedProps:', event.extendedProps)
+  console.log('📅 Event extendedProps.type:', event.extendedProps?.type)
+  console.log('📅 Event start:', event.start)
+  console.log('📅 Event end:', event.end)
 
-  if (event.extendedProps?.type === 'booking') {
+  // Check if this is a booking event
+  const isBookingEvent = event.extendedProps?.type === 'booking'
+  console.log('📅 Is booking event?', isBookingEvent)
+
+  if (isBookingEvent) {
+    console.log('📋 Processing booking event click...')
     // Show booking details modal for bookings
     selectedBookingForDetails.value = {
       id: event.id,
@@ -757,6 +831,10 @@ const handleEventClick = async (clickInfo: any) => {
     }
     showBookingDetails.value = true
     console.log('📋 Showing booking details for:', event.title)
+    console.log('📋 showBookingDetails.value set to:', showBookingDetails.value)
+  } else {
+    console.log('⚠️ Event is not a booking type, ignoring click')
+    console.log('⚠️ Event type found:', event.extendedProps?.type)
   }
 }
 
@@ -989,8 +1067,6 @@ const refreshCalendarData = async () => {
   await refreshData()
 }
 
-
-
 const openBookingModal = () => {
   console.log('📝 Opening enhanced booking modal')
   // Close any other modals first
@@ -1003,7 +1079,10 @@ const openBookingModal = () => {
 
   // Show the enhanced booking modal
   showBookingForm.value = true
-  console.log('📝 Enhanced booking modal opened, showBookingForm:', showBookingForm.value)
+  console.log(
+    '📝 Enhanced booking modal opened, showBookingForm:',
+    showBookingForm.value
+  )
 
   // Enhanced Debug: Check modal positioning and DOM structure
   setTimeout(() => {
@@ -1037,7 +1116,9 @@ const openBookingModal = () => {
       console.log('🏠 Modal parent tag:', modalElement.parentElement?.tagName)
 
       // Check if modal is actually teleported to body
-      const isInBody = document.body.contains(modalElement) && modalElement.parentElement === document.body
+      const isInBody =
+        document.body.contains(modalElement) &&
+        modalElement.parentElement === document.body
       console.log('📡 Modal teleported to body:', isInBody)
     }
   }, 100)
@@ -1107,6 +1188,31 @@ const deleteBookingFromDetails = async () => {
 
 const onCalendarMounted = () => {
   console.log('📅 FullCalendar mounted successfully')
+}
+
+const testEventClick = () => {
+  console.log('🧪 Testing event click with sample booking data')
+
+  // Create a sample booking event to test the modal
+  const sampleEvent = {
+    id: 'test-booking-123',
+    title: 'Test Booking - Court 1',
+    start: new Date(),
+    end: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+    extendedProps: {
+      type: 'booking',
+      status: 'confirmed',
+      court: 'Court 1',
+      players: ['John Doe', 'Jane Smith'],
+      contact: 'venue@example.com',
+      phone: '+62123456789',
+      price: 150000,
+      paymentStatus: 'paid',
+    },
+  }
+
+  // Simulate the event click
+  handleEventClick({ event: sampleEvent })
 }
 
 // LiveQuery management is now handled by the useCalendarData composable
@@ -1691,7 +1797,7 @@ body .enhanced-modal-content,
   flex-direction: column !important;
   position: relative !important;
   box-sizing: border-box !important;
-  
+
   /* Reset positioning to ensure grid centering works */
   margin: 0 !important;
   transform: none !important;
