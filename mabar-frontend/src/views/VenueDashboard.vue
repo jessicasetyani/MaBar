@@ -148,47 +148,31 @@
             </div>
           </div>
 
-          <!-- Booking Details Modal - Temporarily disabled -->
-          <!-- TODO: Create BookingDetailsModal component -->
-          <div
-            v-if="showBookingDetails && selectedBookingForDetails"
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-            @click.self="closeBookingDetails"
-          >
-            <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-              <h3 class="text-lg font-semibold mb-4">Booking Details</h3>
-              <div class="space-y-2">
-                <p><strong>Title:</strong> {{ selectedBookingForDetails.title }}</p>
-                <p><strong>Start:</strong> {{ selectedBookingForDetails.start.toLocaleString() }}</p>
-                <p><strong>End:</strong> {{ selectedBookingForDetails.end.toLocaleString() }}</p>
-                <p v-if="selectedBookingForDetails.extendedProps?.court">
-                  <strong>Court:</strong> {{ selectedBookingForDetails.extendedProps.court }}
-                </p>
-                <p v-if="selectedBookingForDetails.extendedProps?.status">
-                  <strong>Status:</strong> {{ selectedBookingForDetails.extendedProps.status }}
-                </p>
-              </div>
-              <div class="flex justify-end space-x-2 mt-6">
-                <button
-                  @click="editBookingFromDetails"
-                  class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Edit
-                </button>
-                <button
-                  @click="deleteBookingFromDetails"
-                  class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                >
-                  Delete
-                </button>
-                <button
-                  @click="closeBookingDetails"
-                  class="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+          <!-- Enhanced Booking Details Modal -->
+          <!-- Debug: showBookingDetails = {{ showBookingDetails }}, selectedBookingForDetails = {{ !!selectedBookingForDetails }} -->
+          <Teleport to="body">
+            <BookingDetailsModal
+              v-if="showBookingDetails && selectedBookingForDetails"
+              :booking="selectedBookingForDetails"
+              @close="closeBookingDetails"
+              @edit="editBookingFromDetails"
+              @delete="deleteBookingFromDetails"
+            />
+          </Teleport>
+
+
+
+          <!-- Enhanced Debug Modal State -->
+          <div v-if="showBookingDetails || selectedBookingForDetails" style="position: fixed; top: 10px; right: 10px; background: red; color: white; padding: 10px; z-index: 9999; font-size: 12px; max-width: 300px;">
+            <strong>🐛 MODAL DEBUG INFO</strong><br>
+            showBookingDetails: {{ showBookingDetails }}<br>
+            selectedBookingForDetails exists: {{ !!selectedBookingForDetails }}<br>
+            selectedBookingForDetails.id: {{ selectedBookingForDetails?.id }}<br>
+            Both conditions met: {{ showBookingDetails && selectedBookingForDetails }}<br>
+            selectedBookingForDetails.start type: {{ selectedBookingForDetails?.start ? typeof selectedBookingForDetails.start : 'undefined' }}<br>
+            selectedBookingForDetails.end type: {{ selectedBookingForDetails?.end ? typeof selectedBookingForDetails.end : 'undefined' }}<br>
+            <span v-if="showBookingDetails && selectedBookingForDetails" style="color: lime;">✅ Modal SHOULD render</span>
+            <span v-else style="color: orange;">❌ Modal will NOT render</span>
           </div>
 
           <!-- Enhanced Google Calendar-Style Booking Modal -->
@@ -446,6 +430,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import BookingForm from '../components/BookingForm.vue'
+import BookingDetailsModal from '../components/BookingDetailsModal.vue'
 import { CalendarLoadingState, CalendarErrorState, EnhancedFloatingActionButton } from '../components/ui'
 import { SeedDataService } from '../services/seedData'
 import { MaBarColors } from '../config/colors'
@@ -613,6 +598,7 @@ const selectedBookingForDetails = ref<{
     phone?: string
     price?: number
     paymentStatus?: string
+    reason?: string // For blocked slots
   }
 } | null>(null)
 // const loadingBookings = ref(false)
@@ -625,6 +611,22 @@ const calendarOptions = computed(() => {
 
   const allEvents = [...bookings.value]
   console.log('📅 All calendar events:', allEvents)
+  console.log('📅 Sample event extendedProps:', allEvents[0]?.extendedProps)
+  console.log('📅 Event types in calendar:', allEvents.map(e => e.extendedProps?.type))
+  console.log('📅 Events being passed to FullCalendar:', allEvents.length, 'events')
+
+  // Log each event's clickable properties
+  allEvents.forEach((event, index) => {
+    if (index < 3) { // Only log first 3 events to avoid spam
+      console.log(`📅 Event ${index}:`, {
+        id: event.id,
+        title: event.title,
+        type: event.extendedProps?.type,
+        hasExtendedProps: !!event.extendedProps,
+        clickable: true
+      })
+    }
+  })
 
   return {
     plugins: [dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin],
@@ -649,18 +651,23 @@ const calendarOptions = computed(() => {
     eventTextColor: MaBarColors.surface,
     eventBorderColor: MaBarColors.hover.accent,
 
-    eventClick: handleEventClick,
+    eventClick: (clickInfo: any) => {
+      console.log('🎯 FullCalendar eventClick triggered!', clickInfo)
+      return handleEventClick(clickInfo)
+    },
     dateSelect: handleDateSelect,
     selectAllow: () => true,
     eventOverlap: true,
     selectOverlap: true,
     // Enhanced Google Calendar-style interactions
     eventMouseEnter: (info: { el: HTMLElement }) => {
+      console.log('🖱️ Mouse enter event:', info.event?.title)
       info.el.style.cursor = 'pointer'
       info.el.style.transform = 'translateY(-1px)'
       info.el.style.zIndex = '10'
     },
     eventMouseLeave: (info: { el: HTMLElement }) => {
+      console.log('🖱️ Mouse leave event:', info.event?.title)
       info.el.style.cursor = 'default'
       info.el.style.transform = 'translateY(0)'
       info.el.style.zIndex = 'auto'
@@ -1107,6 +1114,19 @@ const deleteBookingFromDetails = async () => {
 
 const onCalendarMounted = () => {
   console.log('📅 FullCalendar mounted successfully')
+
+  // Add global click debugging
+  setTimeout(() => {
+    const calendarEl = document.querySelector('.venue-calendar')
+    if (calendarEl) {
+      console.log('🔍 Adding global click listener to calendar')
+      calendarEl.addEventListener('click', (e) => {
+        console.log('🖱️ Global click detected on calendar:', e.target)
+        console.log('🖱️ Click target classes:', (e.target as HTMLElement)?.className)
+        console.log('🖱️ Click target closest fc-event:', (e.target as HTMLElement)?.closest('.fc-event'))
+      })
+    }
+  }, 1000)
 }
 
 // LiveQuery management is now handled by the useCalendarData composable
