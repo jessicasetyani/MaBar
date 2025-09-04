@@ -140,7 +140,7 @@
         </div>
 
         <!-- Actions -->
-        <div style="padding: 1.5rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.75rem;">
+        <div v-if="!isHistoricalBooking" style="padding: 1.5rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.75rem;">
           <!-- Actions for regular bookings -->
           <template v-if="booking.extendedProps?.type !== 'blocked'">
             <button
