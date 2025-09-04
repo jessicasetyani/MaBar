@@ -8,7 +8,7 @@
     style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.5); z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 1rem;"
     @click="$emit('close')"
   >
-      <div
+    <div
       style="background: white; border-radius: 0.75rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); max-width: 28rem; width: 100%; max-height: 90vh; overflow: hidden; position: relative;"
       @click.stop
     >
@@ -94,17 +94,7 @@
           </div>
 
           <!-- Contact Info -->
-          <div style="display: flex; flex-direction: column; gap: 0.75rem;">
-            <div v-if="booking.extendedProps?.contact">
-              <div style="font-size: 0.75rem; font-weight: 500; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem;">
-                Venue Contact
-              </div>
-              <p style="font-size: 0.875rem; color: #0f172a; margin: 0;">
-                {{ booking.extendedProps.contact }}
-              </p>
-            </div>
-            <!-- Note: Venue phone contact removed - only player phone numbers are used -->
-          </div>
+          <!-- Note: Venue phone contact removed - only player phone numbers are used -->
 
           <!-- Blocked Slot Reason -->
           <div v-if="booking.extendedProps?.type === 'blocked' && booking.extendedProps?.reason" style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: 0.5rem; padding: 0.75rem;">
@@ -233,6 +223,25 @@ onMounted(() => {
     startValid: props.booking.start instanceof Date && !isNaN(props.booking.start.getTime()),
     endValid: props.booking.end instanceof Date && !isNaN(props.booking.end.getTime())
   })
+
+  // Enhanced debugging for player phone data in modal
+  console.log('📞 MODAL PLAYER PHONE DEBUG:', {
+    extendedProps: props.booking.extendedProps,
+    players: props.booking.extendedProps?.players,
+    playerPhones: props.booking.extendedProps?.playerPhones,
+    playersLength: props.booking.extendedProps?.players?.length,
+    playerPhonesLength: props.booking.extendedProps?.playerPhones?.length,
+    playerPhonesType: typeof props.booking.extendedProps?.playerPhones,
+    hasPlayerPhones: !!props.booking.extendedProps?.playerPhones,
+    playerPhonesArray: Array.isArray(props.booking.extendedProps?.playerPhones)
+  })
+
+  // Log each player and corresponding phone
+  if (props.booking.extendedProps?.players) {
+    props.booking.extendedProps.players.forEach((player, index) => {
+      console.log(`📞 Player ${index + 1}: "${player}" - Phone: "${props.booking.extendedProps?.playerPhones?.[index] || 'NO PHONE'}"`)
+    })
+  }
 })
 
 onUnmounted(() => {

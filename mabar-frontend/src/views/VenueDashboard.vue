@@ -497,6 +497,14 @@ const loadBookings = async () => {
 
     // Format bookings for calendar
     const formattedBookings = bookingData.map((booking) => {
+      console.log('📞 Raw booking before formatting:', {
+        id: booking.id,
+        players: booking.players,
+        playerPhones: booking.playerPhones,
+        playerPhonesType: typeof booking.playerPhones,
+        playerPhonesLength: booking.playerPhones?.length
+      })
+
       const formatted = BookingService.formatBookingForCalendar(booking)
       console.log('📅 Formatted booking:', {
         id: formatted.id,
@@ -505,6 +513,12 @@ const loadBookings = async () => {
         duration:
           (formatted.end.getTime() - formatted.start.getTime()) /
           (1000 * 60 * 60),
+        extendedProps: {
+          players: formatted.extendedProps.players,
+          playerPhones: formatted.extendedProps.playerPhones,
+          playerPhonesType: typeof formatted.extendedProps.playerPhones,
+          playerPhonesLength: formatted.extendedProps.playerPhones?.length
+        }
       })
       return formatted
     })
@@ -793,6 +807,7 @@ const handleEventClick = async (clickInfo: any) => {
           status: event.extendedProps?.status || (eventType === 'blocked' ? 'blocked' : 'pending'),
           court: event.extendedProps?.court || 'Unknown Court',
           players: event.extendedProps?.players || [],
+          playerPhones: event.extendedProps?.playerPhones || [],
           contact: event.extendedProps?.contact || '',
           phone: event.extendedProps?.phone || '',
           price: event.extendedProps?.price || 0,
@@ -808,6 +823,17 @@ const handleEventClick = async (clickInfo: any) => {
         hasValidStart: bookingDetails.start instanceof Date && !isNaN(bookingDetails.start.getTime()),
         hasValidEnd: bookingDetails.end instanceof Date && !isNaN(bookingDetails.end.getTime()),
         hasExtendedProps: !!bookingDetails.extendedProps
+      })
+
+      // Enhanced debugging for player phone data
+      console.log('📞 PLAYER PHONE DEBUG:', {
+        originalEventPlayerPhones: event.extendedProps?.playerPhones,
+        originalEventPlayers: event.extendedProps?.players,
+        bookingDetailsPlayerPhones: bookingDetails.extendedProps.playerPhones,
+        bookingDetailsPlayers: bookingDetails.extendedProps.players,
+        playerPhonesType: typeof bookingDetails.extendedProps.playerPhones,
+        playerPhonesLength: bookingDetails.extendedProps.playerPhones?.length,
+        playersLength: bookingDetails.extendedProps.players?.length
       })
 
       // Set the booking details first
@@ -1184,7 +1210,8 @@ const testModal = () => {
       type: 'booking',
       status: 'confirmed',
       court: 'Court 1',
-      players: ['Test Player 1', 'Test Player 2'],
+      players: ['Test Player 1', 'Test Player 2', 'Test Player 3'],
+      playerPhones: ['+1234567890', '', '+0987654321'], // Test with some phones missing
       contact: 'test@example.com',
       price: 150000,
       paymentStatus: 'paid'
