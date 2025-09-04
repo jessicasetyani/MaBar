@@ -1331,16 +1331,52 @@ const deleteBookingFromDetails = async () => {
 const onCalendarMounted = () => {
   console.log('📅 FullCalendar mounted successfully')
 
-  // Add global click debugging
+  // Add styling for past time slots
   setTimeout(() => {
     const calendarEl = document.querySelector('.venue-calendar')
     if (calendarEl) {
-      console.log('🔍 Adding global click listener to calendar')
-      calendarEl.addEventListener('click', (e) => {
-        console.log('🖱️ Global click detected on calendar:', e.target)
-        console.log('🖱️ Click target classes:', (e.target as HTMLElement)?.className)
-        console.log('🖱️ Click target closest fc-event:', (e.target as HTMLElement)?.closest('.fc-event'))
+      console.log('🔍 Adding past time slot styling')
+
+      // Function to mark past time slots
+      const markPastTimeSlots = () => {
+        const now = new Date()
+        const timeSlots = calendarEl.querySelectorAll('.fc-timegrid-slot[data-time]')
+
+        timeSlots.forEach((slot: Element) => {
+          const timeAttr = slot.getAttribute('data-time')
+          if (timeAttr) {
+            // Get the current view date and combine with time
+            const currentViewDate = new Date()
+            const [hours, minutes] = timeAttr.split(':').map(Number)
+            const slotDateTime = new Date(currentViewDate)
+            slotDateTime.setHours(hours, minutes, 0, 0)
+
+            if (slotDateTime <= now) {
+              slot.classList.add('fc-slot-past')
+            } else {
+              slot.classList.remove('fc-slot-past')
+            }
+          }
+        })
+      }
+
+      // Mark past slots initially
+      markPastTimeSlots()
+
+      // Re-mark past slots when view changes or time passes
+      const observer = new MutationObserver(() => {
+        markPastTimeSlots()
       })
+
+      observer.observe(calendarEl, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['data-time']
+      })
+
+      // Update every minute to handle time progression
+      setInterval(markPastTimeSlots, 60000)
     }
   }, 1000)
 }
@@ -2072,5 +2108,46 @@ body .enhanced-modal-content,
     max-height: 90vh !important;
     max-height: 90dvh !important;
   }
+}
+
+/* Past time slots styling - make them visually disabled */
+.venue-calendar .fc-timegrid-slot[data-time] {
+  position: relative;
+}
+
+/* Style for past time slots - grayed out and non-interactive */
+.venue-calendar .fc-timegrid-slot.fc-slot-past {
+  background-color: #f8fafc !important;
+  opacity: 0.5 !important;
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+}
+
+.venue-calendar .fc-timegrid-slot.fc-slot-past::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 2px,
+    rgba(148, 163, 184, 0.1) 2px,
+    rgba(148, 163, 184, 0.1) 4px
+  );
+  pointer-events: none;
+}
+
+/* Disable selection highlighting for past slots */
+.venue-calendar .fc-highlight.fc-highlight-past {
+  background-color: transparent !important;
+  opacity: 0.3 !important;
+}
+
+/* Make past time labels appear disabled */
+.venue-calendar .fc-timegrid-axis-cushion {
+  color: #94a3b8;
 }
 </style>
