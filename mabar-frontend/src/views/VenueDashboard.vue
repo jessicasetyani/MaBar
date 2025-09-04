@@ -1107,6 +1107,36 @@ const deleteBooking = async (bookingId: string) => {
   }
 }
 
+const deleteBlockedSlot = async (slotId: string) => {
+  if (
+    !confirm(
+      'Are you sure you want to remove this blocked slot? This action cannot be undone.'
+    )
+  ) {
+    return { success: false, cancelled: true }
+  }
+
+  try {
+    isSubmitting.value = true
+
+    await BookingService.deleteBlockedSlot(slotId)
+
+    await refreshCalendarData()
+    // Close both modals to ensure proper cleanup
+    closeBookingModal()
+    closeBookingForm()
+    alert('Blocked slot removed successfully!')
+
+    return { success: true }
+  } catch (error) {
+    console.error('Error deleting blocked slot:', error)
+    alert(`Failed to remove blocked slot: ${(error as Error).message}`)
+    return { success: false, error: (error as Error).message }
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
 const closeBookingForm = () => {
   console.log('🚪 Closing booking form')
   showBookingForm.value = false
@@ -1285,7 +1315,15 @@ const editBookingFromDetails = () => {
 
 const deleteBookingFromDetails = async () => {
   if (selectedBookingForDetails.value?.id) {
-    await deleteBooking(selectedBookingForDetails.value.id)
+    const booking = selectedBookingForDetails.value
+    const isBlockedSlot = booking.extendedProps?.type === 'blocked'
+
+    // Use appropriate deletion method based on booking type
+    if (isBlockedSlot) {
+      await deleteBlockedSlot(booking.id)
+    } else {
+      await deleteBooking(booking.id)
+    }
     closeBookingDetails()
   }
 }
