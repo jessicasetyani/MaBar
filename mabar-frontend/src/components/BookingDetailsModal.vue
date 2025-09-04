@@ -143,7 +143,9 @@
         <div v-if="!isHistoricalBooking" style="padding: 1.5rem; border-top: 1px solid #e2e8f0; display: flex; gap: 0.75rem;">
           <!-- Actions for regular bookings -->
           <template v-if="booking.extendedProps?.type !== 'blocked'">
+            <!-- Edit button - hidden if within 1 hour of start time -->
             <button
+              v-if="!isEditingRestricted"
               @click="$emit('edit')"
               style="flex: 1; padding: 0.5rem 1rem; background-color: #facc15; color: #1e293b; border-radius: 0.5rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
               @mouseover="$event.target.style.backgroundColor = '#eab308'"
@@ -151,7 +153,9 @@
             >
               Edit Booking
             </button>
+            <!-- Delete button - hidden if within 1 hour of start time -->
             <button
+              v-if="!isEditingRestricted"
               @click="$emit('delete')"
               style="padding: 0.5rem 1rem; background-color: #dc2626; color: white; border-radius: 0.5rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
               @mouseover="$event.target.style.backgroundColor = '#b91c1c'"
@@ -163,7 +167,9 @@
 
           <!-- Actions for blocked slots -->
           <template v-else>
+            <!-- Remove block button - hidden if within 1 hour of start time -->
             <button
+              v-if="!isEditingRestricted"
               @click="$emit('delete')"
               style="flex: 1; padding: 0.5rem 1rem; background-color: #dc2626; color: white; border-radius: 0.5rem; font-weight: 500; border: none; cursor: pointer; transition: background-color 0.2s;"
               @mouseover="$event.target.style.backgroundColor = '#b91c1c'"
@@ -227,6 +233,31 @@ const isHistoricalBooking = computed(() => {
   })
 
   return isHistorical
+})
+
+// Computed property to determine if booking is within 1 hour of start time (editing restricted)
+const isEditingRestricted = computed(() => {
+  const now = new Date()
+  const bookingStart = props.booking.start
+
+  // Ensure we have a valid Date object
+  if (!(bookingStart instanceof Date) || isNaN(bookingStart.getTime())) {
+    console.warn('⚠️ Invalid booking start date:', bookingStart)
+    return false // Default to allowing edits if date is invalid
+  }
+
+  // Calculate 1 hour before start time
+  const oneHourBeforeStart = new Date(bookingStart.getTime() - (60 * 60 * 1000))
+  const isWithinOneHour = now >= oneHourBeforeStart
+
+  console.log('⏰ Edit restriction check:', {
+    bookingStart: bookingStart.toISOString(),
+    oneHourBefore: oneHourBeforeStart.toISOString(),
+    currentTime: now.toISOString(),
+    isWithinOneHour
+  })
+
+  return isWithinOneHour
 })
 
 // Debug logging

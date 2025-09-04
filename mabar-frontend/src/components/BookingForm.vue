@@ -1533,10 +1533,10 @@ const validateTimeRange = () => {
     return false
   }
 
-  // Check if booking is in the past
+  // Check if booking is in the past (use <= to prevent current time bookings)
   const now = new Date()
-  if (startDateTime < now) {
-    timeRangeError.value = 'Booking cannot be in the past'
+  if (startDateTime <= now) {
+    timeRangeError.value = 'Cannot create booking for past time slots'
     return false
   }
 
@@ -1837,6 +1837,21 @@ const handleSubmit = async () => {
   timeRangeError.value = ''
   playerValidationError.value = ''
   priceError.value = ''
+
+  // Additional validation for edit mode - check if booking is within 1 hour of start time
+  if (props.isEditMode && props.editingBooking) {
+    const now = new Date()
+    const bookingStart = props.editingBooking.start
+
+    if (bookingStart instanceof Date && !isNaN(bookingStart.getTime())) {
+      const oneHourBeforeStart = new Date(bookingStart.getTime() - (60 * 60 * 1000))
+      if (now >= oneHourBeforeStart) {
+        console.log('Edit validation failed: Within 1 hour of start time')
+        generalError.value = 'Cannot edit booking within 1 hour of start time'
+        return
+      }
+    }
+  }
 
   // Run comprehensive validation
   const validation = validateForm()
