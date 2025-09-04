@@ -672,12 +672,30 @@ const calendarOptions = computed(() => {
     eventTextColor: MaBarColors.surface,
     eventBorderColor: MaBarColors.hover.accent,
 
+    // Prevent selection of past time slots
+    selectConstraint: {
+      start: new Date().toISOString(), // Only allow selection from current time onwards
+    },
+    selectAllow: (selectInfo: any) => {
+      const now = new Date()
+      const selectedStart = new Date(selectInfo.start)
+
+      // Allow selection only if start time is in the future
+      const isAllowed = selectedStart > now
+      console.log('📅 Selection validation:', {
+        selectedStart: selectedStart.toISOString(),
+        currentTime: now.toISOString(),
+        isAllowed
+      })
+
+      return isAllowed
+    },
+
     eventClick: (clickInfo: any) => {
       console.log('🎯 FullCalendar eventClick triggered!', clickInfo)
       return handleEventClick(clickInfo)
     },
     dateSelect: handleDateSelect,
-    selectAllow: () => true,
     eventOverlap: true,
     selectOverlap: true,
     // Enhanced Google Calendar-style interactions
