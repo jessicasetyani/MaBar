@@ -66,7 +66,7 @@
 
     <div class="h-[calc(100vh-6.5rem)]">
       <!-- Main Content -->
-      <main class="overflow-auto main-content h-full">
+      <main class="overflow-auto main-content h-full" style="position: relative; z-index: 1;">
         <!-- Calendar Tab -->
         <div v-if="activeTab === 'calendar'" class="p-6">
           <div class="mb-6">
@@ -1426,6 +1426,8 @@ onMounted(async () => {
   padding: 2px 6px !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
   transition: all 0.2s ease !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 .venue-calendar .fc-event:hover {
