@@ -1075,11 +1075,6 @@
     <div
       class="flex justify-end items-center gap-4 pt-8 mt-8 border-t border-slate-200"
     >
-      <!-- Cancel Button - Material Design Text Button -->
-      <button type="button" @click="$emit('cancel')" class="md-button-text">
-        <span class="md-label-large">Cancel</span>
-      </button>
-
       <!-- Delete Button - Material Design Filled Button (Error) -->
       <button
         v-if="isEditMode"
@@ -1208,7 +1203,6 @@ const emit = defineEmits<{
   create: [bookingData: Record<string, unknown>]
   update: [bookingId: string, bookingData: Record<string, unknown>]
   delete: [bookingId: string]
-  cancel: []
   close: []
   removeSlot: [index: number]
 }>()
