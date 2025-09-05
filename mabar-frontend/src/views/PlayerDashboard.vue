@@ -58,10 +58,9 @@
           </RouterLink>
 
           <!-- Book Courts Card -->
-          <RouterLink 
-            :to="{ name: 'BrowseCourts' }"
-            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2" 
-            role="button" 
+          <button
+            @click="browseCourts"
+            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2 text-left w-full"
             aria-label="Browse available courts"
             style="background-color: #FFFFFF;"
           >
@@ -94,13 +93,12 @@
                 <span class="md-label-large font-medium">Browse Courts</span>
               </div>
             </div>
-          </RouterLink>
+          </button>
 
           <!-- My Sessions Card -->
-          <RouterLink 
-            :to="{ name: 'PlayerSessions' }"
-            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2 md:col-span-2 lg:col-span-1" 
-            role="button" 
+          <button
+            @click="viewSessions"
+            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2 md:col-span-2 lg:col-span-1 text-left w-full"
             aria-label="View your game sessions"
             style="background-color: #FFFFFF;"
           >
@@ -133,7 +131,7 @@
                 <span class="md-label-large font-medium">View Sessions</span>
               </div>
             </div>
-          </RouterLink>
+          </button>
         </div>
 
         <!-- Quick Stats Section -->
@@ -198,22 +196,14 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
-
 // Player dashboard functionality
-const router = useRouter()
-
-const startMatching = () => {
-  router.push('/ai-chat')
-}
-
 const browseCourts = () => {
   // TODO: Navigate to court browsing interface
-  console.log('Browsing courts...')
+  alert('Court browsing feature is coming soon! 🏟️')
 }
 
 const viewSessions = () => {
   // TODO: Navigate to sessions view
-  console.log('Viewing sessions...')
+  alert('Session management feature is coming soon! 📅')
 }
 </script>
