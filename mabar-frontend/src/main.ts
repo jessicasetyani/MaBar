@@ -40,37 +40,45 @@ testBack4AppConnection()
     console.error('❌ Back4App connection test failed:', error)
   })
 
-const app = createApp(App)
-const pinia = createPinia()
+// Initialize app asynchronously to handle session check
+async function initializeApp() {
+  const app = createApp(App)
+  const pinia = createPinia()
 
-app.use(pinia)
-app.use(router)
+  app.use(pinia)
+  app.use(router)
 
-// Initialize auth session
-const authStore = useAuthStore()
-authStore.checkSession().catch(error => {
-  console.warn('Failed to check session:', error)
-})
+  // Initialize auth session and wait for it to complete
+  const authStore = useAuthStore()
+  await authStore.checkSession().catch(error => {
+    console.warn('Failed to check session:', error)
+  })
 
-// Test auth flow in development
-if (import.meta.env.DEV) {
-  import('./utils/authTest').then(({ testAuthFlow }) => {
-    testAuthFlow().then((result) => {
-      console.log('🧪 Auth Test Result:', result)
+  // Test auth flow in development
+  if (import.meta.env.DEV) {
+    import('./utils/authTest').then(({ testAuthFlow }) => {
+      testAuthFlow().then((result) => {
+        console.log('🧪 Auth Test Result:', result)
+      })
     })
-  })
+  }
+
+  // Register service worker only in production
+  if ('serviceWorker' in navigator && import.meta.env.PROD) {
+    registerSW({
+      onNeedRefresh() {
+        console.log('New content available, please refresh.')
+      },
+      onOfflineReady() {
+        console.log('App ready to work offline.')
+      },
+    })
+  }
+
+  app.mount('#app')
 }
 
-// Register service worker only in production
-if ('serviceWorker' in navigator && import.meta.env.PROD) {
-  registerSW({
-    onNeedRefresh() {
-      console.log('New content available, please refresh.')
-    },
-    onOfflineReady() {
-      console.log('App ready to work offline.')
-    },
-  })
-}
-
-app.mount('#app')
+// Start the app
+initializeApp().catch(error => {
+  console.error('Failed to initialize app:', error)
+})
