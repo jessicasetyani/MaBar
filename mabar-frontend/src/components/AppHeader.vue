@@ -1,53 +1,75 @@
 <template>
-  <header class="bg-white shadow-sm border-b border-gray-200">
+  <header
+    class="md-surface md-elevation-1 border-b border-outline-variant"
+    role="banner"
+  >
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
         <div class="flex items-center">
-          <router-link to="/" class="text-2xl font-bold text-text">
+          <router-link
+            to="/"
+            class="md-headline-large font-bold text-primary focus:outline-2 focus:outline-primary rounded"
+            aria-label="MaBar home"
+          >
             MaBar
           </router-link>
         </div>
 
         <!-- Desktop Navigation -->
-        <nav class="hidden md:flex space-x-8">
-          <router-link
-            v-if="user?.role === 'player'"
-            to="/dashboard"
-            class="text-subtle hover:text-text px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            :class="{ 'text-text bg-background': $route.path === '/dashboard' }"
-          >
-            Dashboard
-          </router-link>
-          <router-link
-            v-if="user?.role === 'venue_owner'"
-            to="/venue-dashboard"
-            class="text-subtle hover:text-text px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            :class="{
-              'text-text bg-background': $route.path === '/venue-dashboard',
-            }"
-          >
-            Dashboard
-          </router-link>
-          <router-link
-            v-if="user?.role === 'player'"
-            to="/profile"
-            class="text-subtle hover:text-text px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            :class="{ 'text-text bg-background': $route.path === '/profile' }"
-          >
-            Profile
-          </router-link>
+        <nav
+          class="hidden md:flex"
+          role="navigation"
+          aria-label="Main navigation"
+        >
+          <ul class="flex space-x-2">
+            <li v-if="user?.role === 'player'">
+              <router-link
+                to="/dashboard"
+                class="md-navigation-item"
+                :class="{ active: $route.path === '/dashboard' }"
+                aria-current="page"
+              >
+                Dashboard
+              </router-link>
+            </li>
+            <li v-if="user?.role === 'venue_owner'">
+              <router-link
+                to="/venue-dashboard"
+                class="md-navigation-item"
+                :class="{ active: $route.path === '/venue-dashboard' }"
+              >
+                Dashboard
+              </router-link>
+            </li>
+            <li v-if="user?.role === 'player'">
+              <router-link
+                to="/profile"
+                class="md-navigation-item"
+                :class="{ active: $route.path === '/profile' }"
+              >
+                Profile
+              </router-link>
+            </li>
+          </ul>
         </nav>
 
         <!-- User Menu -->
         <div class="flex items-center space-x-4">
-          <span v-if="user" class="text-sm text-subtle">
+          <!-- Theme Switcher -->
+          <ThemeSwitcher />
+
+          <span
+            v-if="user"
+            class="md-body-large text-muted-foreground hidden sm:block"
+          >
             {{ user.email }}
           </span>
           <button
             v-if="user"
             @click="handleLogout"
-            class="bg-text text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-700 transition-colors"
+            class="md-button md-button-filled"
+            type="button"
           >
             Logout
           </button>
@@ -55,13 +77,18 @@
           <!-- Mobile menu button -->
           <button
             @click="mobileMenuOpen = !mobileMenuOpen"
-            class="md:hidden inline-flex items-center justify-center p-2 rounded-md text-subtle hover:text-text hover:bg-background"
+            class="md:hidden md-button md-button-text p-2"
+            type="button"
+            :aria-expanded="mobileMenuOpen"
+            aria-controls="mobile-menu"
+            aria-label="Toggle navigation menu"
           >
             <svg
               class="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              aria-hidden="true"
             >
               <path
                 v-if="!mobileMenuOpen"
@@ -84,16 +111,20 @@
     </div>
 
     <!-- Mobile Navigation -->
-    <div v-if="mobileMenuOpen" class="md:hidden">
-      <div
-        class="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-background border-t border-gray-200"
-      >
+    <div
+      v-if="mobileMenuOpen"
+      id="mobile-menu"
+      class="md:hidden md-navigation-bar"
+      role="navigation"
+      aria-label="Mobile navigation"
+    >
+      <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <router-link
           v-if="user?.role === 'player'"
           to="/dashboard"
           @click="mobileMenuOpen = false"
-          class="text-subtle hover:text-text block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          :class="{ 'text-text bg-surface': $route.path === '/dashboard' }"
+          class="md-navigation-item block w-full text-left"
+          :class="{ active: $route.path === '/dashboard' }"
         >
           Dashboard
         </router-link>
@@ -101,10 +132,8 @@
           v-if="user?.role === 'venue_owner'"
           to="/venue-dashboard"
           @click="mobileMenuOpen = false"
-          class="text-subtle hover:text-text block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          :class="{
-            'text-text bg-surface': $route.path === '/venue-dashboard',
-          }"
+          class="md-navigation-item block w-full text-left"
+          :class="{ active: $route.path === '/venue-dashboard' }"
         >
           Dashboard
         </router-link>
@@ -112,10 +141,10 @@
           v-if="user?.role === 'player'"
           to="/profile"
           @click="mobileMenuOpen = false"
-          class="text-subtle hover:text-text block px-3 py-2 rounded-md text-base font-medium transition-colors"
-          :class="{ 'text-text bg-surface': $route.path === '/profile' }"
+          class="md-navigation-item block w-full text-left"
+          :class="{ active: $route.path === '/profile' }"
         >
-          > Profile
+          Profile
         </router-link>
       </div>
     </div>

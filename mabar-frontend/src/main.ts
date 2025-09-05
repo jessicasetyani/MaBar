@@ -48,7 +48,9 @@ app.use(router)
 
 // Initialize auth session
 const authStore = useAuthStore()
-authStore.checkSession()
+authStore.checkSession().catch(error => {
+  console.warn('Failed to check session:', error)
+})
 
 // Test auth flow in development
 if (import.meta.env.DEV) {
@@ -59,8 +61,8 @@ if (import.meta.env.DEV) {
   })
 }
 
-// Register service worker
-if ('serviceWorker' in navigator) {
+// Register service worker only in production
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
   registerSW({
     onNeedRefresh() {
       console.log('New content available, please refresh.')

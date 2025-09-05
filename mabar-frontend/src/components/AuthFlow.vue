@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+  <div class="min-h-screen md-surface flex items-center justify-center p-4">
     <div class="w-full max-w-md">
       <!-- Role Selection for users without role -->
       <RoleSelection
@@ -10,18 +10,17 @@
       <!-- Auth Forms for non-authenticated users -->
       <div
         v-else-if="!authStore.user"
-        class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden"
+        class="md-card md-elevation-3 overflow-hidden"
       >
         <!-- Header -->
-        <div class="bg-emerald-500 px-8 py-12 text-center">
-          <div
-            class="w-20 h-20 mx-auto bg-white/20 rounded-full flex items-center justify-center mb-6"
-          >
+        <div class="md-primary p-6 text-center">
+          <div class="w-10 h-10 mx-auto mb-4 flex items-center justify-center">
             <svg
-              class="w-10 h-10 text-white"
+              class="w-8 h-8 text-md-sys-color-on-primary"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
+              aria-hidden="true"
             >
               <path
                 stroke-linecap="round"
@@ -31,67 +30,99 @@
               />
             </svg>
           </div>
-          <h1 class="text-3xl font-bold text-white mb-2">MaBar</h1>
-          <p class="text-emerald-100">Badminton Match & Venue Booking</p>
+          <h1
+            class="md-headline-medium font-medium text-md-sys-color-on-primary mb-1"
+          >
+            MaBar
+          </h1>
+          <p class="md-body-medium text-md-sys-color-on-primary opacity-80">
+            Smart Padel Matchmaking
+          </p>
         </div>
 
         <!-- Form Content -->
-        <div class="p-8">
+        <div class="p-6">
           <!-- Tab Toggle -->
-          <div class="flex bg-slate-100 rounded-2xl p-1 mb-8">
+          <div
+            class="flex bg-slate-100 rounded-lg p-1 mb-6"
+            role="tablist"
+            aria-label="Authentication options"
+          >
             <button
               @click="isLogin = true"
-              :class="
-                isLogin ? 'bg-white shadow-sm text-slate-900' : 'text-slate-600'
-              "
-              class="flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-200"
+              :class="[
+                'flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2',
+                isLogin
+                  ? 'bg-white text-slate-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              ]"
+              role="tab"
+              :aria-selected="isLogin"
+              :tabindex="isLogin ? 0 : -1"
+              id="signin-tab"
             >
               Sign In
             </button>
             <button
               @click="isLogin = false"
-              :class="
+              :class="[
+                'flex-1 py-2.5 px-4 rounded-md text-sm font-medium transition-all duration-200',
+                'focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2',
                 !isLogin
-                  ? 'bg-white shadow-sm text-slate-900'
-                  : 'text-slate-600'
-              "
-              class="flex-1 py-3 px-4 rounded-xl font-medium transition-all duration-200"
+                  ? 'bg-white text-slate-700 shadow-sm'
+                  : 'text-slate-500 hover:text-slate-700',
+              ]"
+              role="tab"
+              :aria-selected="!isLogin"
+              :tabindex="!isLogin ? 0 : -1"
+              id="signup-tab"
             >
               Sign Up
             </button>
           </div>
 
-          <LoginForm v-if="isLogin" @success="handleAuthSuccess" />
-          <RegisterForm v-else @success="handleAuthSuccess" />
+          <!-- Form Section -->
+          <div
+            role="tabpanel"
+            :aria-labelledby="isLogin ? 'signin-tab' : 'signup-tab'"
+          >
+            <LoginForm v-if="isLogin" @success="handleAuthSuccess" />
+            <RegisterForm v-else @success="handleAuthSuccess" />
+          </div>
         </div>
       </div>
 
       <!-- Authenticated user with completed onboarding -->
       <div
         v-else-if="authStore.user && authStore.hasCompletedOnboarding"
-        class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center"
+        class="md-card md-elevation-2 p-xl text-center"
       >
         <div
-          class="w-20 h-20 mx-auto bg-emerald-500 rounded-full flex items-center justify-center mb-6"
+          class="w-16 h-16 mx-auto md-secondary rounded-full flex items-center justify-center mb-6"
         >
           <svg
-            class="w-10 h-10 text-white"
+            class="w-8 h-8 text-md-sys-color-on-secondary"
             fill="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
             />
           </svg>
         </div>
-        <h2 class="text-2xl font-bold text-slate-900 mb-2">Welcome back!</h2>
-        <p class="text-slate-600 mb-2">{{ authStore.user.email }}</p>
-        <p class="text-emerald-600 font-medium mb-8 capitalize">
+        <h2 class="md-headline-large mb-2">Welcome back!</h2>
+        <p class="md-body-large text-md-sys-color-on-surface-variant mb-2">
+          {{ authStore.user.email }}
+        </p>
+        <p class="md-label-large text-md-sys-color-secondary mb-6 capitalize">
           {{ authStore.user.role?.replace('_', ' ') }}
         </p>
         <button
           @click="authStore.logout"
-          class="bg-slate-900 hover:bg-slate-800 text-white px-8 py-3 rounded-2xl transition-all duration-200 font-medium"
+          class="md-button md-button-outlined"
+          type="button"
         >
           Sign Out
         </button>
@@ -104,19 +135,15 @@
           authStore.user.role &&
           !authStore.hasCompletedOnboarding
         "
-        class="bg-white rounded-3xl shadow-xl border border-slate-200 p-8 text-center"
+        class="md-card md-elevation-2 p-xl text-center"
       >
-        <div class="text-4xl mb-4">⏳</div>
-        <h2 class="text-xl font-semibold text-slate-700 mb-4">
-          Redirecting to Onboarding...
-        </h2>
-        <p class="text-slate-600 mb-4">
+        <div class="text-4xl mb-4" aria-hidden="true">⏳</div>
+        <h2 class="md-title-large mb-4">Redirecting to Onboarding...</h2>
+        <p class="md-body-large text-md-sys-color-on-surface-variant mb-6">
           Please complete your
           {{ authStore.user.role?.replace('_', ' ') }} profile setup.
         </p>
-        <div
-          class="animate-spin h-6 w-6 border-2 border-emerald-500 border-t-transparent rounded-full mx-auto"
-        ></div>
+        <LoadingSpinner size="md" :show-text="false" />
       </div>
     </div>
   </div>
@@ -129,6 +156,7 @@ import { useAuthStore } from '../stores/auth'
 import LoginForm from './LoginForm.vue'
 import RegisterForm from './RegisterForm.vue'
 import RoleSelection from './RoleSelection.vue'
+import LoadingSpinner from './ui/LoadingSpinner.vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
@@ -156,6 +184,22 @@ watch(
         router.push('/onboarding/player')
       } else if (user.role === 'venue_owner') {
         router.push('/onboarding/venue-owner')
+      }
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for users who have completed onboarding and should go to dashboard
+watch(
+  () => [authStore.user, authStore.hasCompletedOnboarding],
+  ([user, hasCompletedOnboarding]) => {
+    if (user && user.role && hasCompletedOnboarding) {
+      console.log('🎯 Auto-redirecting completed user to dashboard for role:', user.role)
+      if (user.role === 'player') {
+        router.push('/dashboard')
+      } else if (user.role === 'venue_owner') {
+        router.push('/venue-dashboard')
       }
     }
   },

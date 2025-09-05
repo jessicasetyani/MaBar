@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Centering Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+        }
+
+        .test-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .test-button:hover {
+            background: #4338ca;
+        }
+
+        /* Enhanced Modal Styles - Latest bulletproof version */
+        .enhanced-modal-backdrop {
+            /* Force fixed positioning to viewport */
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+            height: 100dvh !important;
+
+            /* Background and z-index */
+            background-color: rgba(0, 0, 0, 0.5) !important;
+            z-index: 99999 !important;
+
+            /* Perfect centering with CSS Grid */
+            display: grid !important;
+            place-items: center !important;
+            place-content: center !important;
+
+            /* Padding and overflow */
+            padding: 1rem !important;
+            box-sizing: border-box !important;
+            overflow-y: auto !important;
+
+            /* Reset all possible inherited styles */
+            margin: 0 !important;
+            transform: none !important;
+            translate: none !important;
+            scale: none !important;
+            rotate: none !important;
+            isolation: isolate !important;
+
+            /* Additional properties to ensure proper positioning */
+            float: none !important;
+            clear: both !important;
+        }
+
+        .enhanced-modal-content {
+            /* Appearance */
+            background-color: white !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+
+            /* Sizing */
+            max-width: 42rem !important;
+            width: 100% !important;
+            max-height: 90vh !important;
+            max-height: 90dvh !important;
+
+            /* Layout */
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+
+            /* Reset all possible inherited positioning */
+            margin: 0 !important;
+            transform: none !important;
+            translate: none !important;
+            scale: none !important;
+            rotate: none !important;
+
+            /* Grid child positioning */
+            place-self: center !important;
+            justify-self: center !important;
+            align-self: center !important;
+        }
+
+        .enhanced-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid rgb(226 232 240);
+            background: linear-gradient(to right, rgb(254 249 195), rgb(255 237 213));
+        }
+
+        .enhanced-modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .modal-icon {
+            width: 2.5rem;
+            height: 2.5rem;
+            background: linear-gradient(to bottom right, rgb(251 191 36), rgb(251 146 60));
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: rgb(15 23 42);
+            margin: 0;
+        }
+
+        .modal-subtitle {
+            font-size: 0.875rem;
+            color: rgb(71 85 105);
+            margin: 0.125rem 0 0 0;
+        }
+
+        .close-button {
+            padding: 0.5rem;
+            color: rgb(148 163 184);
+            background: none;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-button:hover {
+            color: rgb(71 85 105);
+            background: rgb(241 245 249);
+        }
+
+        .form-content {
+            line-height: 1.6;
+            color: rgb(51 65 85);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Responsive styles */
+        @media (max-height: 600px) {
+            .enhanced-modal-content {
+                max-height: 95vh;
+                max-height: 95dvh;
+            }
+            
+            .enhanced-modal-backdrop {
+                align-items: flex-start;
+                padding-top: 2rem;
+                padding-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .enhanced-modal-backdrop {
+                padding: 0.5rem;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .enhanced-modal-content {
+                max-height: 95vh;
+                max-height: 95dvh;
+                border-radius: 0.75rem;
+                min-height: 0;
+            }
+            
+            .enhanced-modal-header {
+                padding: 1rem;
+                flex-shrink: 0;
+            }
+            
+            .enhanced-modal-body {
+                padding: 1rem;
+                flex: 1;
+                min-height: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .enhanced-modal-backdrop {
+                padding: 0.25rem;
+            }
+            
+            .enhanced-modal-content {
+                max-height: 98vh;
+                max-height: 98dvh;
+                border-radius: 0.5rem;
+            }
+        }
+
+        @media (max-height: 500px) and (orientation: landscape) {
+            .enhanced-modal-backdrop {
+                align-items: flex-start;
+                padding: 0.5rem;
+                overflow-y: auto;
+            }
+            
+            .enhanced-modal-content {
+                max-height: 95vh;
+                max-height: 95dvh;
+                margin-top: auto;
+                margin-bottom: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="test-button" onclick="openModal()">Open Test Modal</button>
+
+    <!-- Modal -->
+    <div id="modal" class="enhanced-modal-backdrop hidden" onclick="closeModal(event)">
+        <div class="enhanced-modal-content" onclick="event.stopPropagation()">
+            <!-- Modal Header -->
+            <div class="enhanced-modal-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <div class="modal-icon">
+                        <svg width="20" height="20" fill="white" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="modal-title">Create New Booking</h2>
+                        <p class="modal-subtitle">Fill in the details below to create your booking</p>
+                    </div>
+                </div>
+                
+                <button class="close-button" onclick="closeModal()" aria-label="Close modal">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="enhanced-modal-body">
+                <div class="form-content">
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600;">Modal Centering Test</h3>
+                    <p style="margin-bottom: 1rem;">This modal should be perfectly centered both horizontally and vertically in the viewport.</p>
+                    <p style="margin-bottom: 1rem;">Test this on different screen sizes:</p>
+                    <ul style="margin-left: 1.5rem; margin-bottom: 1rem;">
+                        <li>Desktop (large screens)</li>
+                        <li>Tablet (medium screens)</li>
+                        <li>Mobile (small screens)</li>
+                        <li>Landscape orientation</li>
+                        <li>Portrait orientation</li>
+                    </ul>
+                    <p style="margin-bottom: 1rem;">The modal should maintain proper spacing from screen edges and remain centered regardless of content height.</p>
+                    <div style="height: 200px; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; margin: 1rem 0;">
+                        <span style="color: #6b7280; font-weight: 500;">Sample Content Area</span>
+                    </div>
+                    <p>If you can see this modal perfectly centered with equal spacing on all sides, the centering is working correctly!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('modal').classList.remove('hidden');
+        }
+
+        function closeModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('modal').classList.add('hidden');
+        }
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
