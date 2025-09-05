@@ -19,12 +19,9 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           
           <!-- Find Players Card -->
-          <article 
+          <RouterLink 
+            :to="{ name: 'PlayerMatching' }"
             class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2" 
-            @click="startMatching" 
-            @keydown.enter="startMatching" 
-            @keydown.space="startMatching" 
-            tabindex="0" 
             role="button" 
             aria-label="Start player matching"
             style="background-color: #FFFFFF;"
@@ -50,24 +47,20 @@
                 Connect with other players for your next game
               </p>
               
-              <!-- Action Button -->
-              <button 
-                class="md-button md-button-filled w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2" 
+              <!-- Action CTA -->
+              <div 
+                class="md-button md-button-filled w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2 flex items-center justify-center" 
                 style="background-color: #FDE047; color: #334155;"
-                aria-label="Start matching with other players"
               >
                 <span class="md-label-large font-medium">Start Matching</span>
-              </button>
+              </div>
             </div>
-          </article>
+          </RouterLink>
 
           <!-- Book Courts Card -->
-          <article 
+          <RouterLink 
+            :to="{ name: 'BrowseCourts' }"
             class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2" 
-            @click="browseCourts" 
-            @keydown.enter="browseCourts" 
-            @keydown.space="browseCourts" 
-            tabindex="0" 
             role="button" 
             aria-label="Browse available courts"
             style="background-color: #FFFFFF;"
@@ -93,24 +86,20 @@
                 Find and book available courts near you
               </p>
               
-              <!-- Action Button -->
-              <button 
-                class="md-button md-button-outlined w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2" 
+              <!-- Action CTA -->
+              <div 
+                class="md-button md-button-outlined w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2 flex items-center justify-center" 
                 style="border-color: #84CC16; color: #84CC16; background-color: transparent;"
-                aria-label="Browse available courts"
               >
                 <span class="md-label-large font-medium">Browse Courts</span>
-              </button>
+              </div>
             </div>
-          </article>
+          </RouterLink>
 
           <!-- My Sessions Card -->
-          <article 
+          <RouterLink 
+            :to="{ name: 'PlayerSessions' }"
             class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2 md:col-span-2 lg:col-span-1" 
-            @click="viewSessions" 
-            @keydown.enter="viewSessions" 
-            @keydown.space="viewSessions" 
-            tabindex="0" 
             role="button" 
             aria-label="View your game sessions"
             style="background-color: #FFFFFF;"
@@ -136,16 +125,15 @@
                 View your upcoming and past games
               </p>
               
-              <!-- Action Button -->
-              <button 
-                class="md-button md-button-text w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2" 
+              <!-- Action CTA -->
+              <div 
+                class="md-button md-button-text w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2 flex items-center justify-center" 
                 style="color: #334155; background-color: transparent;"
-                aria-label="View your game sessions"
               >
                 <span class="md-label-large font-medium">View Sessions</span>
-              </button>
+              </div>
             </div>
-          </article>
+          </RouterLink>
         </div>
 
         <!-- Quick Stats Section -->
@@ -210,19 +198,5 @@
 </template>
 
 <script setup lang="ts">
-// Player dashboard functionality with preserved behavior
-const startMatching = () => {
-  // TODO: Navigate to player matching interface
-  console.log('Starting player matching...')
-}
-
-const browseCourts = () => {
-  // TODO: Navigate to court browsing interface
-  console.log('Browsing courts...')
-}
-
-const viewSessions = () => {
-  // TODO: Navigate to sessions view
-  console.log('Viewing sessions...')
-}
+// Player dashboard with RouterLink navigation
 </script>
