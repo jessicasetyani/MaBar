@@ -44,7 +44,6 @@ export class PlayerService {
       playerProfile.set('personalInfo', playerData.personalInfo)
       playerProfile.set('preferences', playerData.preferences)
       playerProfile.set('status', 'active')
-      playerProfile.set('createdAt', new Date())
 
       // Save to Back4App
       await playerProfile.save()
@@ -115,8 +114,6 @@ export class PlayerService {
       if (updates.preferences) {
         playerProfile.set('preferences', updates.preferences)
       }
-
-      playerProfile.set('updatedAt', new Date())
 
       // Save to Back4App
       await playerProfile.save()
