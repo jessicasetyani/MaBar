@@ -198,5 +198,22 @@
 </template>
 
 <script setup lang="ts">
-// Player dashboard with RouterLink navigation
+import { useRouter } from 'vue-router'
+
+// Player dashboard functionality
+const router = useRouter()
+
+const startMatching = () => {
+  router.push('/ai-chat')
+}
+
+const browseCourts = () => {
+  // TODO: Navigate to court browsing interface
+  console.log('Browsing courts...')
+}
+
+const viewSessions = () => {
+  // TODO: Navigate to sessions view
+  console.log('Viewing sessions...')
+}
 </script>

@@ -32,6 +32,11 @@ const routes = [
     component: () => import('../views/PlayerOnboarding.vue'), // Placeholder for now
     meta: { requiresAuth: true, requiresRole: 'player' },
   },
+  {
+    path: '/ai-chat',
+    component: () => import('../views/AIChat.vue'),
+    meta: { requiresAuth: true, requiresRole: 'player' },
+  },
 ]
 
 export const router = createRouter({
