@@ -548,7 +548,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { PlayerService } from '../services/playerService'
@@ -842,12 +842,7 @@ const goToDashboard = () => {
   router.push('/dashboard')
 }
 
-// Pre-fill email from auth store if available
-onMounted(() => {
-  if (authStore.user?.email) {
-    // Email is already set in the auth store, no need to duplicate in form
-  }
-})
+
 
 
 </script>
