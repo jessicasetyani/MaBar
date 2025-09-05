@@ -3,7 +3,6 @@
   "version": "2.0.0-beta",
   "description": "Smart Padel Matchmaking Platform",
   "private": true,
-  "main": "index.js",
   "scripts": {
     "dev": "cd mabar-frontend && npm run dev",
     "build": "cd mabar-frontend && npm run build",
