@@ -477,3 +477,9 @@ dmypy.json
 # Amazon Q - exclude everything except rules
 .amazonq/
 !.amazonq/rules/
+
+# Environment variables
+
+# Task files
+# tasks.json
+# tasks/ 

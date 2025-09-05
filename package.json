@@ -1,101 +1,26 @@
 {
   "name": "mabar",
   "version": "2.0.0-beta",
-  "description": "MaBar - Smart Padel Matchmaking Platform",
-  "private": true,
+  "description": "Smart Padel Matchmaking Platform",
+  "main": "index.js",
   "scripts": {
-    "install": "npm install --prefix mabar-frontend && npm install --prefix cloud",
-    "dev": "npm run dev --prefix mabar-frontend",
-    "start": "npm run dev --prefix mabar-frontend",
-    "build": "npm run build --prefix mabar-frontend",
-    "build:prod": "NODE_ENV=production npm run build --prefix mabar-frontend",
-    "preview": "npm run preview --prefix mabar-frontend",
-    "test": "npm test --prefix mabar-frontend",
-    "lint": "npm run lint --prefix mabar-frontend",
-    "lint:fix": "npm run lint:fix --prefix mabar-frontend",
-    "format": "npm run format --prefix mabar-frontend",
-    "format:check": "npm run format:check --prefix mabar-frontend",
-    "db:setup": "node scripts/setup-db.js",
-    "db:schema": "node scripts/setup-back4app-schema.js",
-    "db:test": "node scripts/test-venue-owner.js",
-    "db:demo-data": "node scripts/generate-venue-dashboard-data.js",
-    "db:debug": "node scripts/debug-venue-data.js",
-    "generate-secrets": "node scripts/generate-secure-secrets.js",
-    "audit": "npm audit",
-    "security:audit": "npm audit --prefix cloud && npm audit --prefix mabar-frontend && node scripts/security-audit.js",
-    "security:fix": "npm audit fix --prefix cloud && npm audit fix --prefix mabar-frontend",
-    "security:generate-secrets": "node scripts/generate-secure-secrets.js",
-    "demo": "node scripts/start-demo.js",
-    "portfolio:demo": "echo 'Starting MaBar Portfolio Demo...' && npm run build:prod && npm run preview",
-    "task:list": "npx task-master-ai get-tasks --project-root=.",
-    "task:next": "npx task-master-ai next-task --project-root=.",
-    "task:show": "npx task-master-ai get-task --project-root=. --id",
-    "task:done": "npx task-master-ai set-task-status --project-root=. --status=done --id",
-    "task:add": "npx task-master-ai add-task --project-root=. --research",
-    "task:expand": "npx task-master-ai expand-task --project-root=. --research --id",
-    "task:analyze": "npx task-master-ai analyze-project-complexity --project-root=. --research",
-    "task:report": "npx task-master-ai complexity-report --project-root=.",
-    "task:status": "npx task-master-ai set-task-status --project-root=. --id",
-    "task:update": "npx task-master-ai update-task --project-root=. --id",
-    "task:update-subtask": "npx task-master-ai update-subtask --project-root=. --id",
-    "task:generate": "npx task-master-ai generate --project-root=.",
-    "task:validate": "npx task-master-ai validate-dependencies --project-root=.",
-    "task:config": "npx task-master-ai models --project-root=.",
-    "prepare": "husky"
+    "dev": "cd mabar-frontend && npm run dev",
+    "build": "cd mabar-frontend && npm run build",
+    "preview": "cd mabar-frontend && npm run preview",
+    "lint": "cd mabar-frontend && npm run lint",
+    "format": "cd mabar-frontend && npm run format",
+    "test": "cd mabar-frontend && npm run test",
+    "seed:data": "node scripts/generate-venue-dashboard-data.js",
+    "validate:db": "node scripts/validate-database.js",
+    "setup:db": "node scripts/setup-db.js",
+    "task:list": "taskmaster get-tasks",
+    "task:next": "taskmaster next-task",
+    "task:done": "taskmaster set-status"
   },
-  "keywords": [
-    "padel",
-    "matchmaking",
-    "booking",
-    "pwa",
-    "vue",
-    "typescript",
-    "back4app",
-    "parse-server",
-    "ai",
-    "task-management"
-  ],
+  "keywords": ["padel", "matchmaking", "pwa", "vue", "back4app"],
   "author": "MaBar Team",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/your-org/mabar.git"
-  },
-  "bugs": {
-    "url": "https://github.com/your-org/mabar/issues"
-  },
-  "homepage": "https://github.com/your-org/mabar#readme",
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=8.0.0"
-  },
   "devDependencies": {
-    "@eslint/js": "^9.34.0",
-    "@vue/eslint-config-typescript": "^14.6.0",
-    "concurrently": "^9.2.0",
-    "eslint": "^9.34.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-vue": "^10.4.0",
-    "husky": "^9.1.7",
-    "lint-staged": "^16.1.5",
-    "prettier": "^3.6.2"
-  },
-  "workspaces": [
-    "mabar-frontend",
-    "cloud"
-  ],
-  "dependencies": {
-    "dotenv": "^17.2.1",
-    "mongoose": "^8.18.0",
-    "parse": "^6.1.1"
-  },
-  "lint-staged": {
-    "mabar-frontend/src/**/*.{js,ts,vue}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md}": [
-      "prettier --write"
-    ]
+    "parse": "^4.2.0"
   }
 }
