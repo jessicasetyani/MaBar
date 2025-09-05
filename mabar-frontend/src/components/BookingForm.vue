@@ -1241,11 +1241,7 @@ const initializeDefaultTimes = () => {
     const endTime = new Date(now.getTime() + 60 * 60 * 1000)
     formData.value.endTime = endTime.toTimeString().slice(0, 5)
 
-    console.log('🕐 Initialized default date and times (30-min intervals):', {
-      bookingDate: formData.value.bookingDate,
-      startTime: formData.value.startTime,
-      endTime: formData.value.endTime,
-    })
+    console.log('🕐 Initialized default date and times (30-min intervals)')
   }
 }
 
@@ -1347,11 +1343,7 @@ const handleStartTimeChange = () => {
   timeAdjustmentMessage.value =
     'End time automatically set to 1 hour after start time'
 
-  console.log('🕐 Auto-set end time:', {
-    startTime: formData.value.startTime,
-    endTime: formData.value.endTime,
-    duration: '1 hour',
-  })
+  console.log('🕐 Auto-set end time: 1 hour duration')
 
   // Clear the message after 3 seconds
   setTimeout(() => {
@@ -1842,7 +1834,6 @@ const toggleBatchMode = () => {
 
 const handleSubmit = async () => {
   console.log('Form submission started')
-  console.log('Form data:', formData.value)
   console.log('Selected slots:', props.selectedSlots)
 
   // Clear previous errors

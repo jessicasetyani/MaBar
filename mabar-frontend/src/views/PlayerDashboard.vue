@@ -1,40 +1,202 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-3xl font-bold text-text mb-6">Player Dashboard</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold mb-4">Find Players</h2>
-        <p class="text-subtle mb-4">
-          Connect with other players for your next game
+  <div class="min-h-screen" style="background-color: #FEFCE8;">
+    <!-- Header Section -->
+    <header class="px-4 py-6 md:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
+        <h1 class="md-headline-large mb-2" style="color: #334155;">
+          Player Dashboard
+        </h1>
+        <p class="md-body-large" style="color: #64748B;">
+          Find players, book courts, and manage your padel sessions
         </p>
-        <button
-          class="bg-primary text-text px-4 py-2 rounded-lg font-medium hover:bg-yellow-300 transition-colors"
-        >
-          Start Matching
-        </button>
       </div>
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold mb-4">Book Courts</h2>
-        <p class="text-subtle mb-4">Find and book available courts near you</p>
-        <button
-          class="bg-accent text-white px-4 py-2 rounded-lg font-medium hover:bg-green-600 transition-colors"
-        >
-          Browse Courts
-        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="px-4 pb-8 md:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
+        <!-- Action Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          
+          <!-- Find Players Card -->
+          <RouterLink 
+            :to="{ name: 'PlayerMatching' }"
+            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2" 
+            role="button" 
+            aria-label="Start player matching"
+            style="background-color: #FFFFFF;"
+          >
+            <div class="p-6">
+              <!-- Icon Container -->
+              <div class="mb-4">
+                <div 
+                  class="w-12 h-12 rounded-full flex items-center justify-center" 
+                  style="background-color: #FDE047;"
+                >
+                  <svg class="w-6 h-6" style="color: #334155;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.196-2.121M17 20H7m10 0v-2c0-5.523-3.477-10-10-10s-10 4.477-10 10v2m10 0H7m0 0H2v-2a3 3 0 015.196-2.121M7 20v-2m5-10a3 3 0 100-6 3 3 0 000 6z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <!-- Content -->
+              <h2 class="md-title-large mb-2" style="color: #334155;">
+                Find Players
+              </h2>
+              <p class="md-body-large mb-6" style="color: #64748B; line-height: 1.5;">
+                Connect with other players for your next game
+              </p>
+              
+              <!-- Action CTA -->
+              <div 
+                class="md-button md-button-filled w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2 flex items-center justify-center" 
+                style="background-color: #FDE047; color: #334155;"
+              >
+                <span class="md-label-large font-medium">Start Matching</span>
+              </div>
+            </div>
+          </RouterLink>
+
+          <!-- Book Courts Card -->
+          <RouterLink 
+            :to="{ name: 'BrowseCourts' }"
+            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2" 
+            role="button" 
+            aria-label="Browse available courts"
+            style="background-color: #FFFFFF;"
+          >
+            <div class="p-6">
+              <!-- Icon Container -->
+              <div class="mb-4">
+                <div 
+                  class="w-12 h-12 rounded-full flex items-center justify-center" 
+                  style="background-color: #84CC16;"
+                >
+                  <svg class="w-6 h-6" style="color: #FFFFFF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                  </svg>
+                </div>
+              </div>
+              
+              <!-- Content -->
+              <h2 class="md-title-large mb-2" style="color: #334155;">
+                Book Courts
+              </h2>
+              <p class="md-body-large mb-6" style="color: #64748B; line-height: 1.5;">
+                Find and book available courts near you
+              </p>
+              
+              <!-- Action CTA -->
+              <div 
+                class="md-button md-button-outlined w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2 flex items-center justify-center" 
+                style="border-color: #84CC16; color: #84CC16; background-color: transparent;"
+              >
+                <span class="md-label-large font-medium">Browse Courts</span>
+              </div>
+            </div>
+          </RouterLink>
+
+          <!-- My Sessions Card -->
+          <RouterLink 
+            :to="{ name: 'PlayerSessions' }"
+            class="md-card group cursor-pointer transition-all duration-200 hover:shadow-md-elevation-2 focus-within:shadow-md-elevation-2 md:col-span-2 lg:col-span-1" 
+            role="button" 
+            aria-label="View your game sessions"
+            style="background-color: #FFFFFF;"
+          >
+            <div class="p-6">
+              <!-- Icon Container -->
+              <div class="mb-4">
+                <div 
+                  class="w-12 h-12 rounded-full flex items-center justify-center" 
+                  style="background-color: #64748B;"
+                >
+                  <svg class="w-6 h-6" style="color: #FFFFFF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <!-- Content -->
+              <h2 class="md-title-large mb-2" style="color: #334155;">
+                My Sessions
+              </h2>
+              <p class="md-body-large mb-6" style="color: #64748B; line-height: 1.5;">
+                View your upcoming and past games
+              </p>
+              
+              <!-- Action CTA -->
+              <div 
+                class="md-button md-button-text w-full min-h-[44px] touch-target focus-visible:outline-2 focus-visible:outline-offset-2 flex items-center justify-center" 
+                style="color: #334155; background-color: transparent;"
+              >
+                <span class="md-label-large font-medium">View Sessions</span>
+              </div>
+            </div>
+          </RouterLink>
+        </div>
+
+        <!-- Quick Stats Section -->
+        <section class="mt-8" aria-labelledby="stats-heading">
+          <h2 id="stats-heading" class="md-title-large mb-4" style="color: #334155;">
+            Quick Stats
+          </h2>
+          
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+            <div 
+              class="p-4 text-center rounded-xl" 
+              style="background-color: #FFFFFF; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);"
+            >
+              <div class="md-headline-large mb-1" style="color: #FDE047; font-weight: 500;">
+                0
+              </div>
+              <div class="md-body-large" style="color: #64748B;">
+                Games Played
+              </div>
+            </div>
+            
+            <div 
+              class="p-4 text-center rounded-xl" 
+              style="background-color: #FFFFFF; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);"
+            >
+              <div class="md-headline-large mb-1" style="color: #84CC16; font-weight: 500;">
+                0
+              </div>
+              <div class="md-body-large" style="color: #64748B;">
+                Partners Found
+              </div>
+            </div>
+            
+            <div 
+              class="p-4 text-center rounded-xl" 
+              style="background-color: #FFFFFF; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);"
+            >
+              <div class="md-headline-large mb-1" style="color: #334155; font-weight: 500;">
+                0
+              </div>
+              <div class="md-body-large" style="color: #64748B;">
+                Courts Booked
+              </div>
+            </div>
+            
+            <div 
+              class="p-4 text-center rounded-xl col-span-2 lg:col-span-1" 
+              style="background-color: #FFFFFF; box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15), 0px 1px 2px 0px rgba(0, 0, 0, 0.30);"
+            >
+              <div class="md-headline-large mb-1" style="color: #84CC16; font-weight: 500;">
+                0%
+              </div>
+              <div class="md-body-large" style="color: #64748B;">
+                Attendance Rate
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-xl font-semibold mb-4">My Sessions</h2>
-        <p class="text-subtle mb-4">View your upcoming and past games</p>
-        <button
-          class="bg-text text-white px-4 py-2 rounded-lg font-medium hover:bg-gray-700 transition-colors"
-        >
-          View Sessions
-        </button>
-      </div>
-    </div>
+    </main>
   </div>
 </template>
 
 <script setup lang="ts">
-// Player dashboard functionality will be implemented in future tasks
+// Player dashboard with RouterLink navigation
 </script>

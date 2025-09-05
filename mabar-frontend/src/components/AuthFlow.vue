@@ -167,18 +167,16 @@ const handleAuthSuccess = () => {
 }
 
 const handleRoleSelected = (role: 'player' | 'venue_owner') => {
-  if (role === 'player') {
-    router.push('/onboarding/player')
-  } else {
-    router.push('/onboarding/venue-owner')
-  }
+  // Role selection redirect is handled by the watcher below
+  // No need to manually redirect here as it causes competing redirects
+  console.log('🎯 Role selected:', role, '- redirect will be handled by watcher')
 }
 
 // Watch for users who have a role but haven't completed onboarding
 watch(
-  () => authStore.user,
-  (user) => {
-    if (user && user.role && !authStore.hasCompletedOnboarding) {
+  () => [authStore.user, authStore.hasCompletedOnboarding],
+  ([user, hasCompletedOnboarding]) => {
+    if (user && user.role && !hasCompletedOnboarding) {
       console.log('🔄 Auto-redirecting to onboarding for role:', user.role)
       if (user.role === 'player') {
         router.push('/onboarding/player')
