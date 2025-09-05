@@ -363,7 +363,7 @@ const selectRole = async (role: 'player' | 'venue_owner') => {
   }
 
   .role-card-content {
-    @apply space-x-3;
+    @apply gap-3;
   }
 
   .role-feature-tag {

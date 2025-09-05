@@ -22,7 +22,7 @@
           role="navigation"
           aria-label="Main navigation"
         >
-          <ul class="flex space-x-2">
+          <ul class="flex gap-2">
             <li v-if="user?.role === 'player'">
               <router-link
                 to="/dashboard"
@@ -55,7 +55,7 @@
         </nav>
 
         <!-- User Menu -->
-        <div class="flex items-center space-x-4">
+        <div class="flex items-center" style="gap: 16px;">
           <!-- Theme Switcher -->
           <ThemeSwitcher />
 
