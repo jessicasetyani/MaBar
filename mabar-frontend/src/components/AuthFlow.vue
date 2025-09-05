@@ -189,4 +189,20 @@ watch(
   },
   { immediate: true }
 )
+
+// Watch for users who have completed onboarding and should go to dashboard
+watch(
+  () => [authStore.user, authStore.hasCompletedOnboarding],
+  ([user, hasCompletedOnboarding]) => {
+    if (user && user.role && hasCompletedOnboarding) {
+      console.log('🎯 Auto-redirecting completed user to dashboard for role:', user.role)
+      if (user.role === 'player') {
+        router.push('/dashboard')
+      } else if (user.role === 'venue_owner') {
+        router.push('/venue-dashboard')
+      }
+    }
+  },
+  { immediate: true }
+)
 </script>
