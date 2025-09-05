@@ -772,7 +772,6 @@ const handleSubmit = async () => {
 
   try {
     console.log('🚀 Starting player onboarding submission...')
-    console.log('📋 Form data:', formData.value)
 
     // Save player profile data
     console.log('💾 Saving player profile...')
@@ -818,7 +817,7 @@ const goToDashboard = () => {
 
 <style scoped>
 /* Material Design 3 Color System - MaBar Theme */
-:root {
+.min-h-screen {
   --md-sys-color-primary: #FDE047; /* MaBar Yellow */
   --md-sys-color-on-primary: #334155; /* Charcoal */
   --md-sys-color-secondary: #84CC16; /* Padel Green */
