@@ -142,26 +142,52 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const checkSession = () => {
+  const checkSession = async () => {
+    console.log('🔍 [AUTH] Checking session...')
     const currentUser = Parse.User.current()
     if (currentUser) {
-      // Get onboarding status from user or localStorage backup
-      const onboardingStatus =
-        currentUser.get('onboardingStatus') ||
-        localStorage.getItem('mabar_onboarding_status') ||
-        null
+      console.log('✅ [AUTH] Current user found:', currentUser.get('email'))
+      try {
+        // Fetch fresh user data from server to get latest onboardingStatus
+        console.log('🔄 [AUTH] Fetching fresh user data...')
+        await currentUser.fetch()
+        
+        const userData = {
+          id: currentUser.id || '',
+          email: currentUser.get('email'),
+          role: currentUser.get('role') || null,
+          onboardingStatus: currentUser.get('onboardingStatus') || null,
+        }
+        
+        console.log('✅ [AUTH] Fresh user data:', userData)
+        user.value = userData
+      } catch (error) {
+        console.warn('⚠️ [AUTH] Failed to fetch fresh user data, using cached data:', error)
+        // Fallback to cached data with localStorage backup
+        const onboardingStatus =
+          currentUser.get('onboardingStatus') ||
+          localStorage.getItem('mabar_onboarding_status') ||
+          null
 
-      user.value = {
-        id: currentUser.id || '',
-        email: currentUser.get('email'),
-        role: currentUser.get('role') || null,
-        onboardingStatus: onboardingStatus as 'pending' | 'completed' | null,
+        const userData = {
+          id: currentUser.id || '',
+          email: currentUser.get('email'),
+          role: currentUser.get('role') || null,
+          onboardingStatus: onboardingStatus as 'pending' | 'completed' | null,
+        }
+        
+        console.log('📦 [AUTH] Using cached user data:', userData)
+        user.value = userData
       }
     } else {
+      console.log('❌ [AUTH] No current user, checking localStorage...')
       // Check for mock user in localStorage
       const mockUser = localStorage.getItem('mabar_mock_user')
       if (mockUser) {
+        console.log('📱 [AUTH] Found mock user in localStorage')
         user.value = JSON.parse(mockUser)
+      } else {
+        console.log('🚫 [AUTH] No user found')
       }
     }
   }
@@ -201,7 +227,13 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isAuthenticated = computed(() => !!user.value)
   const hasCompletedOnboarding = computed(() => {
-    return user.value?.onboardingStatus === 'completed'
+    const result = user.value?.onboardingStatus === 'completed'
+    console.log('🧐 [AUTH] hasCompletedOnboarding check:', {
+      userExists: !!user.value,
+      onboardingStatus: user.value?.onboardingStatus,
+      result
+    })
+    return result
   })
 
   return {

@@ -48,7 +48,9 @@ app.use(router)
 
 // Initialize auth session
 const authStore = useAuthStore()
-authStore.checkSession()
+authStore.checkSession().catch(error => {
+  console.warn('Failed to check session:', error)
+})
 
 // Test auth flow in development
 if (import.meta.env.DEV) {

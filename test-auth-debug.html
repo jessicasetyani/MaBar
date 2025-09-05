@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Debug Test</title>
+</head>
+<body>
+    <h1>MaBar Auth Debug Test</h1>
+    <div id="debug-output"></div>
+    
+    <script src="https://unpkg.com/parse@5.3.0/dist/parse.min.js"></script>
+    <script>
+        // Initialize Parse with your credentials
+        Parse.initialize(
+            'YOUR_APP_ID', // Replace with actual app ID
+            'YOUR_JS_KEY'  // Replace with actual JS key
+        );
+        Parse.serverURL = 'https://parseapi.back4app.com';
+        
+        async function debugAuth() {
+            const output = document.getElementById('debug-output');
+            
+            try {
+                output.innerHTML += '<p>🔍 Testing auth logic...</p>';
+                
+                // Login
+                const user = await Parse.User.logIn('venue@mabar.com', 'venue123');
+                output.innerHTML += `<p>✅ Login successful: ${user.get('email')}</p>`;
+                output.innerHTML += `<p>   Role: ${user.get('role')}</p>`;
+                output.innerHTML += `<p>   Onboarding Status: ${user.get('onboardingStatus')}</p>`;
+                
+                // Test checkSession logic
+                const currentUser = Parse.User.current();
+                if (currentUser) {
+                    output.innerHTML += '<p>✅ Current user found</p>';
+                    
+                    // Fetch fresh data
+                    await currentUser.fetch();
+                    output.innerHTML += '<p>✅ Fresh data fetched</p>';
+                    output.innerHTML += `<p>   Fresh Role: ${currentUser.get('role')}</p>`;
+                    output.innerHTML += `<p>   Fresh Onboarding Status: ${currentUser.get('onboardingStatus')}</p>`;
+                    
+                    // Test computed logic
+                    const hasCompletedOnboarding = currentUser.get('onboardingStatus') === 'completed';
+                    const hasRole = !!currentUser.get('role');
+                    
+                    output.innerHTML += `<p>   Has Role: ${hasRole}</p>`;
+                    output.innerHTML += `<p>   Has Completed Onboarding: ${hasCompletedOnboarding}</p>`;
+                    output.innerHTML += `<p>   Should Show Dashboard: ${hasRole && hasCompletedOnboarding}</p>`;
+                    
+                    if (hasRole && hasCompletedOnboarding) {
+                        const expectedRoute = currentUser.get('role') === 'venue_owner' ? '/venue-dashboard' : '/dashboard';
+                        output.innerHTML += `<p>   Expected Route: ${expectedRoute}</p>`;
+                    }
+                } else {
+                    output.innerHTML += '<p>❌ No current user found</p>';
+                }
+                
+            } catch (error) {
+                output.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Run the test
+        debugAuth();
+    </script>
+</body>
+</html>
