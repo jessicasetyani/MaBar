@@ -101,13 +101,11 @@ async function setupSchema() {
 
     // Create PlayerProfile class schema
     const PlayerProfileSchema = new Parse.Schema('PlayerProfile');
-    
+
     PlayerProfileSchema.addPointer('user', '_User');
-    PlayerProfileSchema.addString('skillLevel');
-    PlayerProfileSchema.addArray('preferredTimes');
-    PlayerProfileSchema.addArray('preferredLocations');
-    PlayerProfileSchema.addString('playingStyle');
-    PlayerProfileSchema.addObject('preferences');
+    PlayerProfileSchema.addObject('personalInfo'); // Add personalInfo object field
+    PlayerProfileSchema.addObject('preferences'); // Keep preferences object field
+    PlayerProfileSchema.addString('status', { defaultValue: 'active' }); // Add status field
     PlayerProfileSchema.addNumber('gamesPlayed', { defaultValue: 0 });
     PlayerProfileSchema.addNumber('rating', { defaultValue: 0 });
 
@@ -124,7 +122,14 @@ async function setupSchema() {
       console.log('✅ PlayerProfile schema created');
     } catch (error) {
       if (error.code === 103) {
-        console.log('ℹ️  PlayerProfile schema already exists');
+        console.log('ℹ️  PlayerProfile schema already exists, attempting to update...');
+        try {
+          await PlayerProfileSchema.update();
+          console.log('✅ PlayerProfile schema updated');
+        } catch (updateError) {
+          console.error('❌ PlayerProfile schema update error:', updateError);
+          throw updateError;
+        }
       } else {
         console.error('❌ PlayerProfile schema error:', error);
         throw error;
