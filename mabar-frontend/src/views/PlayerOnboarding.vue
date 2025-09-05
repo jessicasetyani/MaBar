@@ -677,6 +677,22 @@ const calculateAge = (dateOfBirth: string): number => {
   return age
 }
 
+// Pure validation function for computed properties (no side effects)
+const isValidAge = (dateOfBirth: string): boolean => {
+  if (!dateOfBirth) return false
+
+  const age = calculateAge(dateOfBirth)
+  if (age < 13) return false
+
+  // Check if date is in the future
+  const today = new Date()
+  const birthDate = new Date(dateOfBirth)
+  if (birthDate > today) return false
+
+  return true
+}
+
+// Validation function with side effects for event handlers
 const validateAge = () => {
   const dateOfBirth = formData.value.personalInfo.dateOfBirth
 
