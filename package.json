@@ -2,6 +2,7 @@
   "name": "mabar",
   "version": "2.0.0-beta",
   "description": "Smart Padel Matchmaking Platform",
+  "private": true,
   "main": "index.js",
   "scripts": {
     "dev": "cd mabar-frontend && npm run dev",
@@ -19,8 +20,5 @@
   },
   "keywords": ["padel", "matchmaking", "pwa", "vue", "back4app"],
   "author": "MaBar Team",
-  "license": "MIT",
-  "devDependencies": {
-    "parse": "^4.2.0"
-  }
+  "license": "MIT"
 }
