@@ -742,7 +742,7 @@ const isStepValid = computed(() => {
         validatePhoneNumber(formData.value.personalInfo.phone) &&
         formData.value.personalInfo.dateOfBirth &&
         !ageError.value &&
-        validateAge()
+        isValidAge(formData.value.personalInfo.dateOfBirth)
       )
     case 2:
       return formData.value.preferences.skillLevel.trim()
@@ -752,51 +752,9 @@ const isStepValid = computed(() => {
 })
 
 const nextStep = () => {
-  if (currentStep.value < 3) {
-    // Validate current step before proceeding
-    if (currentStep.value === 1) {
-      // Validate all step 1 fields
-      let hasErrors = false
-
-      // Check name
-      if (!formData.value.personalInfo.name.trim()) {
-        error.value = 'Please enter your full name to continue.'
-        hasErrors = true
-      }
-
-      // Check phone
-      else if (!formData.value.personalInfo.phone.trim()) {
-        error.value = 'Please enter your phone number to continue.'
-        hasErrors = true
-      }
-      else if (!validatePhone()) {
-        hasErrors = true
-      }
-
-      // Check date of birth
-      else if (!formData.value.personalInfo.dateOfBirth) {
-        error.value = 'Please select your date of birth to continue.'
-        hasErrors = true
-      }
-      else if (!validateAge()) {
-        hasErrors = true
-      }
-
-      if (!hasErrors) {
-        error.value = null
-        currentStep.value++
-      }
-    }
-    else if (currentStep.value === 2) {
-      // Validate step 2 fields
-      if (!formData.value.preferences.skillLevel.trim()) {
-        error.value = 'Please select your skill level to continue.'
-        return
-      }
-
-      error.value = null
-      currentStep.value++
-    }
+  if (isStepValid.value) {
+    error.value = null
+    currentStep.value++
   }
 }
 
@@ -815,11 +773,6 @@ const handleSubmit = async () => {
   try {
     console.log('🚀 Starting player onboarding submission...')
     console.log('📋 Form data:', formData.value)
-
-    // Validate form data before submission
-    if (!formData.value.preferences.skillLevel) {
-      throw new Error('Please select your skill level to continue.')
-    }
 
     // Save player profile data
     console.log('💾 Saving player profile...')
