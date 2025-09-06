@@ -18,10 +18,10 @@
               border: none;
               border-radius: 12px;
             "
-            @mouseenter="$event.target.style.backgroundColor = '#F8FAFC'"
-            @mouseleave="$event.target.style.backgroundColor = 'transparent'"
-            @focus="$event.target.style.backgroundColor = '#F8FAFC'; $event.target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3)'"
-            @blur="$event.target.style.backgroundColor = 'transparent'; $event.target.style.boxShadow = 'none'"
+            @mouseenter="handleBackButtonHover"
+            @mouseleave="handleBackButtonLeave"
+            @focus="handleBackButtonFocus"
+            @blur="handleBackButtonBlur"
             aria-label="Go back to dashboard"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -191,10 +191,10 @@
                 'hover:bg-gray-50 hover:border-gray-300': !isLoading
               }"
               :disabled="isLoading"
-              @mouseenter="$event.target.style.backgroundColor = isLoading ? '#FFFFFF' : '#F8FAFC'"
-              @mouseleave="$event.target.style.backgroundColor = '#FFFFFF'"
-              @focus="$event.target.style.borderColor = '#FDE047'; $event.target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3)'"
-              @blur="$event.target.style.borderColor = '#E5E7EB'; $event.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'"
+              @mouseenter="(event) => handleSuggestionHover(event, isLoading)"
+              @mouseleave="handleSuggestionLeave"
+              @focus="handleSuggestionFocus"
+              @blur="handleSuggestionBlur"
             >
               {{ suggestion }}
             </button>
@@ -207,7 +207,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
-import { GeminiService, type UserProfile } from '../services/gemini'
+import { createGeminiService, type UserProfile, type IAIService } from '@mabar/ai-services'
 import SessionCard from '../components/SessionCard.vue'
 
 interface SessionData {
@@ -244,6 +244,34 @@ const quickSuggestions = [
 ]
 
 let messageId = 0
+
+// Initialize AI service
+let aiService: IAIService | null = null
+
+const initializeAIService = () => {
+  try {
+    // Get API key from environment
+    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY
+
+    if (!apiKey) {
+      console.warn('No Gemini API key found in environment variables')
+      return null
+    }
+
+    aiService = createGeminiService(apiKey, {
+      model: 'gemini-pro',
+      temperature: 0.7,
+      maxTokens: 2048,
+      timeout: 30000
+    })
+
+    console.log('✅ AI Service initialized successfully')
+    return aiService
+  } catch (error) {
+    console.error('❌ Failed to initialize AI service:', error)
+    return null
+  }
+}
 
 const scrollToBottom = async () => {
   await nextTick()
@@ -303,19 +331,83 @@ const sendMessage = async () => {
       playingStyle: 'competitive'
     }
 
-    const response = await GeminiService.getMatchmakingRecommendations(
-      userMessage,
-      userProfile,
-      'en' // TODO: Support user's preferred language
-    )
+    try {
+      // Initialize AI service if not already done
+      if (!aiService) {
+        aiService = initializeAIService()
+      }
 
-    if (response.success && response.data) {
-      // Format the AI recommendations into a readable response
-      const aiResponse = formatGeminiResponse(response.data)
-      addMessage(aiResponse, false)
-    } else {
-      // Fallback to mock response if AI service fails
-      console.warn('Gemini API failed, using fallback:', response.error)
+      if (aiService) {
+        console.log('🤖 Processing user query with AI service:', userMessage)
+
+        // Step 1: Analyze user intent
+        const intent = await aiService.analyzeIntent(
+          userMessage,
+          userProfile,
+          'en' // TODO: Support user's preferred language
+        )
+
+        console.log('📝 Intent analysis:', intent)
+
+        // Step 2: Handle based on intent type
+        if (intent.type === 'matchmaking') {
+          // For matchmaking, we would normally query the database
+          // For now, we'll simulate some data and generate a response
+          const mockData = {
+            courts: [
+              { name: 'Jakarta Padel Center', rating: 4.5, available: true },
+              { name: 'Elite Padel Club', rating: 4.7, available: true }
+            ],
+            players: [
+              { name: 'Ahmad Rizki', skillLevel: 'intermediate', available: true },
+              { name: 'Sari Dewi', skillLevel: 'intermediate', available: true }
+            ]
+          }
+
+          // Generate natural language response
+          const response = await aiService.generateResponse({
+            data: mockData,
+            context: {
+              originalMessage: userMessage,
+              userProfile,
+              language: 'en'
+            },
+            options: {
+              tone: 'friendly',
+              length: 'medium',
+              includeEmojis: true
+            }
+          })
+
+          addMessage(response, false)
+        } else {
+          // For casual messages, generate a simple response
+          const response = await aiService.generateResponse({
+            data: { type: intent.type },
+            context: {
+              originalMessage: userMessage,
+              userProfile,
+              language: 'en'
+            },
+            options: {
+              tone: 'friendly',
+              length: 'short',
+              includeEmojis: true
+            }
+          })
+
+          addMessage(response, false)
+        }
+
+        console.log('✅ AI response processed successfully')
+      } else {
+        // Fallback to mock response if AI service is not available
+        console.warn('AI service not available, using fallback')
+        const mockResponse = generateMockResponse(userMessage)
+        addMessageWithCards(mockResponse.text, mockResponse.sessionCards, false)
+      }
+    } catch (error) {
+      console.error('Error processing AI query:', error)
       const mockResponse = generateMockResponse(userMessage)
       addMessageWithCards(mockResponse.text, mockResponse.sessionCards, false)
     }
@@ -340,42 +432,71 @@ const handleEnter = (event: KeyboardEvent) => {
   }
 }
 
-
-
-const formatGeminiResponse = (data: any): string => {
-  try {
-    if (!data.recommendations || !Array.isArray(data.recommendations)) {
-      return 'I found some options for you, but the response format was unexpected. Please try asking again.'
-    }
-
-    let formattedResponse = ''
-
-    // Add reasoning if available
-    if (data.reasoning) {
-      formattedResponse += `${data.reasoning}<br><br>`
-    }
-
-    // Format recommendations
-    data.recommendations.forEach((rec: any, index: number) => {
-      if (rec.message) {
-        formattedResponse += `${rec.message}<br>`
-        if (index < data.recommendations.length - 1) {
-          formattedResponse += '<br>'
-        }
-      }
-    })
-
-    // Add confidence score if available
-    if (data.confidence_score && data.confidence_score > 0.7) {
-      formattedResponse += '<br><br><em>High confidence match</em>'
-    }
-
-    return formattedResponse || 'I found some options for you! Let me know if you need more specific recommendations.'
-  } catch (error) {
-    console.error('Error formatting Gemini response:', error)
-    return 'I found some options for you, but had trouble formatting the response. Please try asking again.'
+// Event handlers for back button with proper TypeScript typing
+const handleBackButtonHover = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.backgroundColor = '#F8FAFC'
   }
 }
+
+const handleBackButtonLeave = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.backgroundColor = 'transparent'
+  }
+}
+
+const handleBackButtonFocus = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.backgroundColor = '#F8FAFC'
+    target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3)'
+  }
+}
+
+const handleBackButtonBlur = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.backgroundColor = 'transparent'
+    target.style.boxShadow = 'none'
+  }
+}
+
+// Event handlers for suggestion buttons with proper TypeScript typing
+const handleSuggestionHover = (event: Event, isLoading: boolean) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.backgroundColor = isLoading ? '#FFFFFF' : '#F8FAFC'
+  }
+}
+
+const handleSuggestionLeave = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.backgroundColor = '#FFFFFF'
+  }
+}
+
+const handleSuggestionFocus = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.borderColor = '#FDE047'
+    target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3)'
+  }
+}
+
+const handleSuggestionBlur = (event: Event) => {
+  const target = event.target as HTMLElement
+  if (target) {
+    target.style.borderColor = '#E5E7EB'
+    target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+  }
+}
+
+
+
+
 
 /**
  * Fallback response generator for when Gemini AI service is unavailable
@@ -466,13 +587,73 @@ const generateMockResponse = (userMessage: string) => {
     }
   }
   
+  // Handle short messages or unclear input
+  if (message.length <= 2) {
+    return {
+      text: `Hi there! Your message seems quite short. I'm here to help you with padel-related queries.<br><br>
+      Try asking something like:<br>
+      • "Find me a partner for tonight"<br>
+      • "Show available courts tomorrow"<br>
+      • "Book a court this weekend"`,
+      sessionCards: [
+        {
+          type: 'no-availability' as const,
+          data: {
+            message: 'Need help getting started?'
+          }
+        }
+      ]
+    }
+  }
+
+  // Handle greetings
+  if (message.includes('hello') || message.includes('hi') || message.includes('hey') ||
+      message.includes('halo') || message.includes('hai')) {
+    return {
+      text: `Hello! I'm your AI padel assistant. I can help you:<br><br>
+      • Find available courts and venues<br>
+      • Match you with compatible players<br>
+      • Organize games and sessions<br><br>
+      What would you like to do today?`,
+      sessionCards: [
+        {
+          type: 'no-availability' as const,
+          data: {
+            message: 'Ready to play some padel?'
+          }
+        }
+      ]
+    }
+  }
+
+  // Handle help requests
+  if (message.includes('help') || message.includes('bantuan') || message.includes('what can you do')) {
+    return {
+      text: `I'm MaBar AI! Here's how I can help you:<br><br>
+      🏟️ <strong>Find Courts:</strong> "Show courts tomorrow evening"<br>
+      👥 <strong>Find Partners:</strong> "Find intermediate players"<br>
+      📅 <strong>Book Sessions:</strong> "Book a court this weekend"<br>
+      🎯 <strong>Match Making:</strong> "Find me a game tonight"<br><br>
+      Just tell me what you're looking for!`,
+      sessionCards: [
+        {
+          type: 'no-availability' as const,
+          data: {
+            message: 'Ready to get started?'
+          }
+        }
+      ]
+    }
+  }
+
+  // Default response for unclear messages
   return {
-    text: `I understand you're looking for padel options! Based on our current data:<br><br>
-    • <strong>8 approved venues</strong> in Jakarta area<br>
-    • <strong>31 active players</strong> ready to play<br>
-    • <strong>30+ sessions</strong> happening this week<br><br>
-    
-    Could you be more specific about what you're looking for?`,
+    text: `I'd love to help you with padel! However, I'm not sure exactly what you're looking for.<br><br>
+    Try being more specific, like:<br>
+    • "Find courts in Jakarta tomorrow"<br>
+    • "Looking for intermediate players"<br>
+    • "Want to play this evening"<br><br>
+    What can I help you find today?`,
     sessionCards: [
       {
         type: 'no-availability' as const,
@@ -485,6 +666,10 @@ const generateMockResponse = (userMessage: string) => {
 }
 
 onMounted(() => {
+  // Initialize AI service
+  initializeAIService()
+
+  // Add welcome message
   addMessage('Hi! I\'m your AI padel assistant. I can help you find players, book courts, and organize games. What would you like to do today?', false)
 })
 </script>

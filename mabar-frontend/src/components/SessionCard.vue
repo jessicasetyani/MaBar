@@ -16,11 +16,11 @@
       <!-- Players -->
       <div class="players-section">
         <div class="players-header">
-          <span class="players-label">Players ({{ data.players.length }}/4)</span>
+          <span class="players-label">Players ({{ data.players?.length || 0 }}/4)</span>
           <span v-if="data.openSlots" class="open-slots">{{ data.openSlots }} spot{{ data.openSlots > 1 ? 's' : '' }} left</span>
         </div>
         <div class="players-list">
-          <div v-for="player in data.players" :key="player.name" class="player-item">
+          <div v-for="player in (data.players || [])" :key="player.name" class="player-item">
             <div class="player-avatar">{{ player.name.charAt(0) }}</div>
             <div class="player-info">
               <span class="player-name">{{ player.name }}</span>
@@ -101,6 +101,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
+
 interface Player {
   name: string
   skillLevel: string
@@ -144,7 +146,6 @@ const cardClasses = computed(() => ({
 </script>
 
 <script lang="ts">
-import { computed } from 'vue'
 export default {
   name: 'SessionCard'
 }

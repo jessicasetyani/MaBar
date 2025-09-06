@@ -156,6 +156,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '../stores/auth'
+import ThemeSwitcher from './ThemeSwitcher.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()

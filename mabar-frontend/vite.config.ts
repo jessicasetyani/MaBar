@@ -65,7 +65,7 @@ VitePWA({
     },
   },
   optimizeDeps: {
-    include: ['parse'],
+    include: ['parse', '@mabar/ai-services'],
   },
   envDir: '../', // Look for .env files in the parent directory
   server: {
