@@ -41,10 +41,10 @@
       </div>
     </header>
 
-    <!-- Chat Container with proper height calculation -->
-    <main class="flex flex-col" style="height: calc(100vh - 120px);">
-      <!-- Messages Area with 8dp grid spacing -->
-      <div ref="messagesContainer" class="flex-1 overflow-y-auto" style="padding: 24px 16px;">
+    <!-- Chat Container with full height and fixed input -->
+    <main class="flex flex-col" style="height: 100vh; position: relative;">
+      <!-- Messages Area with proper spacing -->
+      <div ref="messagesContainer" class="flex-1 overflow-y-auto" style="padding: 24px 16px; padding-bottom: 120px;">
         <div class="max-w-4xl mx-auto" style="display: flex; flex-direction: column; gap: 24px;">
           <div v-for="message in messages" :key="message.id" class="flex" :class="message.isUser ? 'justify-end' : 'justify-start'">
 
@@ -67,7 +67,19 @@
                   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
                 "
               >
-                <p class="md-body-large leading-relaxed" style="color: #334155; line-height: 1.6; margin: 0;" v-html="message.text"></p>
+                <p v-if="message.text" class="md-body-large leading-relaxed" style="color: #334155; line-height: 1.6; margin: 0;" v-html="message.text"></p>
+                
+                <!-- Session Cards -->
+                <div v-if="message.sessionCards" class="session-cards-container" style="margin-top: 12px;">
+                  <SessionCard
+                    v-for="(card, index) in message.sessionCards"
+                    :key="index"
+                    :type="card.type"
+                    :data="card.data"
+                    @join-session="handleJoinSession"
+                    @create-session="handleCreateSession"
+                  />
+                </div>
               </div>
             </div>
 
@@ -119,10 +131,10 @@
         </div>
       </div>
 
-      <!-- Input Area with proper 8dp spacing -->
-      <div class="border-t" style="border-color: #64748B; background-color: #FFFFFF; padding: 24px 16px;">
+      <!-- Input Area fixed at bottom with no gaps -->
+      <div class="border-t" style="border-color: #64748B; background-color: #FFFFFF; padding: 16px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;">
         <div class="max-w-4xl mx-auto">
-          <div class="flex items-end" style="gap: 16px;">
+          <div class="flex items-center" style="gap: 16px;">
             <div class="flex-1">
               <textarea
                 v-model="currentMessage"
@@ -134,36 +146,21 @@
                 :disabled="isLoading"
               ></textarea>
             </div>
-            <!-- Send Button - Material Design 3 compliant with proper send icon -->
-            <button
+            <!-- Send Icon Button - Borderless Material Design 3 -->
+            <IconButton
               @click="sendMessage"
               :disabled="!currentMessage.trim() || isLoading"
-              class="flex items-center justify-center transition-all duration-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-opacity-50"
-              style="
-                min-width: 44px;
-                min-height: 44px;
-                background-color: #FDE047;
-                color: #334155;
-                border: none;
-                border-radius: 12px;
-                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-              "
+              variant="text"
+              size="lg"
+              ariaLabel="Send message"
+              class="flex-shrink-0"
               :class="{ 'opacity-50 cursor-not-allowed': !currentMessage.trim() || isLoading }"
-              @focus="$event.target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3), 0 1px 3px 0 rgba(0, 0, 0, 0.1)'"
-              @blur="$event.target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'"
-              @mouseenter="!isLoading && ($event.target.style.backgroundColor = '#FACC15')"
-              @mouseleave="$event.target.style.backgroundColor = '#FDE047'"
-              aria-label="Send message"
-            >
-              <!-- Paper Plane Send Icon pointing right -->
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-              </svg>
-            </button>
+              :icon-svg="`<svg class='w-5 h-5' fill='currentColor' viewBox='0 0 24 24'><path d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/></svg>`"
+            />
           </div>
 
           <!-- Quick Actions with Material Design 3 styling and 8dp spacing -->
-          <div class="flex flex-wrap" style="gap: 8px; margin-top: 16px;">
+          <div class="flex flex-wrap" style="gap: 8px; margin-top: 8px;">
             <button
               v-for="suggestion in quickSuggestions"
               :key="suggestion"
@@ -202,12 +199,29 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
+import { GeminiService, type UserProfile } from '../services/gemini'
+import SessionCard from '../components/SessionCard.vue'
+import IconButton from '../components/ui/IconButton.vue'
+
+interface SessionData {
+  venue?: string
+  time?: string
+  date?: string
+  cost?: string
+  players?: Array<{ name: string; skillLevel: string }>
+  openSlots?: number
+  suggestedTime?: string
+  suggestedDate?: string
+  estimatedCost?: string
+  message?: string
+}
 
 interface Message {
   id: number
-  text: string
+  text?: string
   isUser: boolean
   timestamp: Date
+  sessionCards?: Array<{ type: 'existing-session' | 'create-new' | 'no-availability'; data: SessionData }>
 }
 
 const messages = ref<Message[]>([])
@@ -241,25 +255,68 @@ const addMessage = (text: string, isUser: boolean) => {
   scrollToBottom()
 }
 
+const addMessageWithCards = (text: string, sessionCards: Array<{ type: 'existing-session' | 'create-new' | 'no-availability'; data: SessionData }>, isUser: boolean) => {
+  messages.value.push({
+    id: messageId++,
+    text,
+    sessionCards,
+    isUser,
+    timestamp: new Date()
+  })
+  scrollToBottom()
+}
+
+const handleJoinSession = (sessionData: SessionData) => {
+  const confirmationText = `You're about to join a session at ${sessionData.venue} on ${sessionData.date} at ${sessionData.time}. Cost: ${sessionData.cost}. Confirm?`
+  addMessage(confirmationText, false)
+  // TODO: Implement actual booking logic
+}
+
+const handleCreateSession = (sessionData: SessionData) => {
+  const confirmationText = `You're about to create a new session at ${sessionData.venue || sessionData.suggestedTime}. Estimated cost: ${sessionData.estimatedCost}. Confirm?`
+  addMessage(confirmationText, false)
+  // TODO: Implement session creation logic
+}
+
 const sendMessage = async () => {
   if (!currentMessage.value.trim() || isLoading.value) return
 
   const userMessage = currentMessage.value.trim()
   currentMessage.value = ''
-  
+
   addMessage(userMessage, true)
   isLoading.value = true
 
   try {
-    // TODO: Replace with actual Gemini API call via Back4App Cloud Function
-    await new Promise(resolve => setTimeout(resolve, 1500)) // Simulate API delay
-    
-    // Mock AI response based on user input
-    let aiResponse = generateMockResponse(userMessage)
-    
-    addMessage(aiResponse, false)
+    // Use real Gemini AI integration via Back4App Cloud Function
+    const userProfile: UserProfile = {
+      skillLevel: 'intermediate', // TODO: Get from user's actual profile
+      preferredTime: 'evening',
+      location: 'Jakarta',
+      playingStyle: 'competitive'
+    }
+
+    const response = await GeminiService.getMatchmakingRecommendations(
+      userMessage,
+      userProfile,
+      'en' // TODO: Support user's preferred language
+    )
+
+    if (response.success && response.data) {
+      // Format the AI recommendations into a readable response
+      const aiResponse = formatGeminiResponse(response.data)
+      addMessage(aiResponse, false)
+    } else {
+      // Fallback to mock response if AI service fails
+      console.warn('Gemini API failed, using fallback:', response.error)
+      const mockResponse = generateMockResponse(userMessage)
+      addMessageWithCards(mockResponse.text, mockResponse.sessionCards, false)
+    }
   } catch (error) {
-    addMessage('Sorry, I encountered an error. Please try again.', false)
+    console.error('AI Chat Error:', error)
+    // Fallback to mock response on any error
+    const fallbackResponse = generateMockResponse(userMessage)
+    addMessageWithCards(fallbackResponse.text, fallbackResponse.sessionCards, false)
   } finally {
     isLoading.value = false
   }
@@ -276,57 +333,148 @@ const handleEnter = (event: KeyboardEvent) => {
   }
 }
 
-const generateMockResponse = (userMessage: string): string => {
+
+
+const formatGeminiResponse = (data: any): string => {
+  try {
+    if (!data.recommendations || !Array.isArray(data.recommendations)) {
+      return 'I found some options for you, but the response format was unexpected. Please try asking again.'
+    }
+
+    let formattedResponse = ''
+
+    // Add reasoning if available
+    if (data.reasoning) {
+      formattedResponse += `${data.reasoning}<br><br>`
+    }
+
+    // Format recommendations
+    data.recommendations.forEach((rec: any, index: number) => {
+      if (rec.message) {
+        formattedResponse += `${rec.message}<br>`
+        if (index < data.recommendations.length - 1) {
+          formattedResponse += '<br>'
+        }
+      }
+    })
+
+    // Add confidence score if available
+    if (data.confidence_score && data.confidence_score > 0.7) {
+      formattedResponse += '<br><br><em>High confidence match</em>'
+    }
+
+    return formattedResponse || 'I found some options for you! Let me know if you need more specific recommendations.'
+  } catch (error) {
+    console.error('Error formatting Gemini response:', error)
+    return 'I found some options for you, but had trouble formatting the response. Please try asking again.'
+  }
+}
+
+/**
+ * Fallback response generator for when Gemini AI service is unavailable
+ * This function provides basic pattern-matching responses to ensure the chat
+ * interface remains functional even when the AI service fails or is down.
+ * Used as a reliability fallback in the sendMessage() function.
+ */
+const generateMockResponse = (userMessage: string) => {
   const message = userMessage.toLowerCase()
   
   if (message.includes('partner') || message.includes('player')) {
-    return `I found several players who match your preferences:<br><br>
-    <strong>🏆 Ahmad Rizki</strong> - Intermediate level<br>
-    Available: Tonight 7-9 PM<br>
-    Preferred area: Jakarta Selatan<br><br>
-    
-    <strong>🎾 Sari Dewi</strong> - Beginner level<br>
-    Available: Tonight 8-10 PM<br>
-    Preferred area: Jakarta Pusat<br><br>
-    
-    Would you like me to help you contact any of these players?`
+    return {
+      text: 'I found several players who match your preferences:',
+      sessionCards: [
+        {
+          type: 'existing-session' as const,
+          data: {
+            venue: 'Jakarta Padel Center',
+            time: '7:00 PM',
+            date: 'Tonight',
+            cost: 'Rp 175K each',
+            players: [
+              { name: 'Ahmad Rizki', skillLevel: 'Intermediate' },
+              { name: 'Sari Dewi', skillLevel: 'Intermediate' },
+              { name: 'Budi Santoso', skillLevel: 'Advanced' }
+            ],
+            openSlots: 1
+          }
+        },
+        {
+          type: 'create-new' as const,
+          data: {
+            venue: 'Elite Padel Club',
+            suggestedTime: '8:00 PM',
+            suggestedDate: 'Tonight',
+            estimatedCost: 'Rp 200K each'
+          }
+        }
+      ]
+    }
   }
   
   if (message.includes('court') || message.includes('book')) {
-    return `Here are available courts for your request:<br><br>
-    <strong>🏟️ Jakarta Padel Center</strong><br>
-    Court 2: Tomorrow 7:00-8:30 PM - Rp 175,000<br>
-    Court 4: Tomorrow 8:30-10:00 PM - Rp 175,000<br><br>
-    
-    <strong>🏟️ Elite Padel Club</strong><br>
-    Court 1: Tomorrow 6:00-7:30 PM - Rp 200,000<br><br>
-    
-    Would you like me to help you book any of these courts?`
+    return {
+      text: 'Here are available courts for your request:',
+      sessionCards: [
+        {
+          type: 'create-new' as const,
+          data: {
+            venue: 'Jakarta Padel Center',
+            suggestedTime: '7:00 PM',
+            suggestedDate: 'Tomorrow',
+            estimatedCost: 'Rp 175K each'
+          }
+        },
+        {
+          type: 'create-new' as const,
+          data: {
+            venue: 'Elite Padel Club',
+            suggestedTime: '6:00 PM',
+            suggestedDate: 'Tomorrow',
+            estimatedCost: 'Rp 200K each'
+          }
+        }
+      ]
+    }
   }
   
   if (message.includes('weekend') || message.includes('saturday') || message.includes('sunday')) {
-    return `Great! Here are weekend options:<br><br>
-    <strong>Saturday Options:</strong><br>
-    • 3 players available for morning sessions<br>
-    • Jakarta Padel Center has 2 courts free<br>
-    • Weekend rate: Rp 225,000/session<br><br>
-    
-    <strong>Sunday Options:</strong><br>
-    • 5 players available for afternoon<br>
-    • Multiple venues available<br><br>
-    
-    What time works best for you?`
+    return {
+      text: 'Great! Here are weekend options:',
+      sessionCards: [
+        {
+          type: 'existing-session' as const,
+          data: {
+            venue: 'Jakarta Padel Center',
+            time: '9:00 AM',
+            date: 'Saturday',
+            cost: 'Rp 225K each',
+            players: [
+              { name: 'Maya Sari', skillLevel: 'Intermediate' },
+              { name: 'Andi Wijaya', skillLevel: 'Beginner' }
+            ],
+            openSlots: 2
+          }
+        }
+      ]
+    }
   }
   
-  return `I understand you're looking for padel options! Based on our current data:<br><br>
-  • <strong>8 approved venues</strong> in Jakarta area<br>
-  • <strong>31 active players</strong> ready to play<br>
-  • <strong>30+ sessions</strong> happening this week<br><br>
-  
-  Could you be more specific about what you're looking for? For example:<br>
-  • "Find me a partner for tomorrow evening"<br>
-  • "Show me courts available this weekend"<br>
-  • "I want to play with intermediate players"`
+  return {
+    text: `I understand you're looking for padel options! Based on our current data:<br><br>
+    • <strong>8 approved venues</strong> in Jakarta area<br>
+    • <strong>31 active players</strong> ready to play<br>
+    • <strong>30+ sessions</strong> happening this week<br><br>
+    
+    Could you be more specific about what you're looking for?`,
+    sessionCards: [
+      {
+        type: 'no-availability' as const,
+        data: {
+          message: 'Need help finding the right match?'
+        }
+      }
+    ]
+  }
 }
 
 onMounted(() => {
@@ -365,20 +513,21 @@ button:hover:not(:disabled) {
   transition: transform 0.2s ease;
 }
 
-/* Send button specific styles */
-button[aria-label="Send message"] {
-  border: none !important;
-  background: transparent !important;
-}
 
-button[aria-label="Send message"]:hover:not(:disabled) {
-  opacity: 0.8;
-  transform: none;
-}
 
 /* Smooth scrolling for messages */
 .overflow-y-auto {
   scroll-behavior: smooth;
+}
+
+/* Prevent gaps during scrolling */
+main {
+  overflow: hidden;
+}
+
+/* Ensure input area stays fixed at bottom */
+.border-t.flex-shrink-0 {
+  margin-top: auto;
 }
 
 /* Ensure proper spacing and layout */

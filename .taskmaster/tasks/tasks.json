@@ -871,5 +871,103 @@
       "updated": "2025-08-30T21:15:22.022Z",
       "description": "Tasks for master context"
     }
+  },
+  "matchmaking-ai": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Setup Vue.js Project with Tailwind CSS",
+        "description": "Initialize Vue.js project with Tailwind CSS styling for the chat interface",
+        "details": "Create Vue 3 project using Vite with TypeScript support. Install Tailwind CSS v3.4.0 with PostCSS and Autoprefixer. Configure project structure with components directory for chat bubbles and card components. Set up responsive design breakpoints for mobile-first approach.",
+        "testStrategy": "Verify Vue.js project initialization, Tailwind CSS installation, and responsive design testing across mobile and desktop viewports",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Implement Chat Interface Components",
+        "description": "Build reusable chat bubble and card components for the AI conversation flow",
+        "status": "pending",
+        "dependencies": [
+          1
+        ],
+        "priority": "high",
+        "details": "Create chat-specific Vue components: ChatBubble.vue (for user and AI messages), SessionCard.vue (for displaying match recommendations), and ChatWidget.vue (main container). Integrate with existing UI patterns and basic components (buttons, modals, etc.). Use Tailwind for styling with smooth animations for message transitions. Implement scroll behavior and message history persistence.",
+        "testStrategy": "Component unit testing with Vitest, visual regression testing for chat bubbles and cards, and mobile responsiveness testing",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Integrate Gemini API with Back4App Cloud Code",
+        "description": "Set up secure Gemini API integration using Back4App Cloud Functions",
+        "details": "Create Back4App Cloud Function that acts as proxy to Gemini API (gemini-pro model). Implement environment variables for API key security. Create structured request/response format with session context. Handle rate limiting and error responses. Use axios for HTTP requests with proper error handling.",
+        "testStrategy": "Test Cloud Function deployment, API response validation, error handling scenarios, and security testing for API key exposure",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Implement Natural Language Processing Layer",
+        "description": "Build custom parsing layer to extract structured data from user queries",
+        "details": "Create parsing service that extracts: date/time, location, skill level, budget from user messages. Use regex patterns combined with Gemini's entity extraction. Implement fallback for ambiguous queries with clarification questions. Support both English and Bahasa Indonesia parsing with language detection.",
+        "testStrategy": "Test parsing accuracy with sample queries in both languages, edge case handling, and language detection reliability",
+        "priority": "medium",
+        "dependencies": [
+          3
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Connect to Session Search and Creation API",
+        "description": "Integrate chat flow with existing session management backend",
+        "details": "Create service layer to call MaBar's session search API with parsed filters. Implement session creation API integration for when no matches found. Handle API responses and transform into chat-friendly format. Add error handling for network issues and backend failures.",
+        "testStrategy": "Integration testing with session APIs, error scenario testing, and response transformation validation",
+        "priority": "medium",
+        "dependencies": [
+          4
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Implement Multi-Language Support",
+        "description": "Add comprehensive English and Bahasa Indonesia support throughout chat flow",
+        "details": "Integrate Vue I18n for frontend localization. Create translation files for all UI elements and common responses. Implement language detection based on user input. Ensure Gemini responses maintain language consistency. Add language switching capability in chat settings.",
+        "testStrategy": "Language detection accuracy testing, translation completeness verification, and cross-language consistency testing",
+        "priority": "medium",
+        "dependencies": [
+          5
+        ],
+        "status": "pending",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Add Session Commitment and Confirmation Flow",
+        "description": "Implement booking confirmation and commitment enforcement",
+        "details": "Create confirmation dialog component with session summary. Implement booking API call with user confirmation. Add commitment deadline enforcement using Back4App scheduled jobs. Send booking confirmation messages and update user profile. Handle cancellation scenarios gracefully.",
+        "testStrategy": "Booking flow integration testing, commitment deadline validation, and cancellation scenario testing",
+        "priority": "medium",
+        "dependencies": [
+          6
+        ],
+        "status": "pending",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-09-06T09:07:18.330Z",
+      "updated": "2025-09-06T09:18:58.881Z",
+      "description": "Tasks for matchmaking-ai context"
+    }
   }
 }
