@@ -3,6 +3,16 @@ export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      width: {
+        '14': '3.5rem',
+        '16': '4rem',
+        '20': '5rem',
+      },
+      height: {
+        '14': '3.5rem',
+        '16': '4rem',
+        '20': '5rem',
+      },
       colors: {
         // Material Design 3 System Colors
         'md-sys-color-primary': 'var(--md-sys-color-primary)',
@@ -98,12 +108,16 @@ export default {
       },
       spacing: {
         'xs': '4px',
-        'sm': '8px', 
+        'sm': '8px',
         'md': '12px',
         'lg': '16px',
         'xl': '24px',
         '2xl': '32px',
         '3xl': '48px',
+        // Add missing width/height utilities for compatibility
+        '14': '3.5rem',
+        '16': '4rem',
+        '20': '5rem',
       },
       opacity: {
         '38': '0.38',
