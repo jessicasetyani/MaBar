@@ -160,7 +160,7 @@
                 class="w-6 h-6 transition-all duration-200"
                 fill="currentColor"
                 viewBox="0 0 24 24"
-                :class="{ 'text-gray-400': !currentMessage.trim() || isLoading, 'text-blue-600': currentMessage.trim() && !isLoading }"
+                :class="{ 'send-icon-disabled': !currentMessage.trim() || isLoading, 'send-icon-enabled': currentMessage.trim() && !isLoading }"
               >
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
               </svg>
@@ -544,8 +544,13 @@ textarea:focus {
   transform: scale(1.1);
 }
 
-.send-icon-button:hover:not(:disabled) svg {
-  opacity: 0.8;
+.send-icon-button:hover:not(:disabled) .send-icon-enabled {
+  color: #FACC15 !important; /* Slightly darker yellow on hover */
+  opacity: 0.9;
+}
+
+.send-icon-button:hover:not(:disabled) .send-icon-disabled {
+  opacity: 0.5; /* Reduce opacity further on hover for disabled state */
 }
 
 /* Active state for better feedback */
@@ -567,6 +572,16 @@ textarea:focus {
 
 .send-icon-button:disabled svg {
   opacity: 0.3;
+}
+
+/* MaBar Color Palette for Send Icon */
+.send-icon-enabled {
+  color: #FDE047 !important; /* MaBar Yellow - Primary Color */
+}
+
+.send-icon-disabled {
+  color: #64748B !important; /* Slate Gray - Subtle Color for disabled state */
+  opacity: 0.7; /* Additional opacity for better disabled indication */
 }
 
 button:focus {
