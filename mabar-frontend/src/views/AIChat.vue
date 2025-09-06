@@ -141,22 +141,30 @@
                 @keydown.enter.prevent="handleEnter"
                 placeholder="Ask me to find players or courts... (e.g., 'Find me a partner for tomorrow evening')"
                 class="w-full rounded-2xl resize-none transition-colors focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                style="background-color: #FEFCE8; border: 2px solid #64748B; color: #334155; padding: 16px; focus:border-color: #FDE047; focus:ring-color: #FDE047;"
+                style="background-color: #FEFCE8; border: 2px solid #64748B; color: #334155; padding: 16px;"
                 rows="2"
                 :disabled="isLoading"
               ></textarea>
             </div>
-            <!-- Send Icon Button - Borderless Material Design 3 -->
-            <IconButton
+            <!-- Modern Minimalist Send Icon - Transparent Background -->
+            <button
               @click="sendMessage"
               :disabled="!currentMessage.trim() || isLoading"
-              variant="text"
-              size="lg"
-              ariaLabel="Send message"
-              class="flex-shrink-0"
-              :class="{ 'opacity-50 cursor-not-allowed': !currentMessage.trim() || isLoading }"
-              :icon-svg="`<svg class='w-5 h-5' fill='currentColor' viewBox='0 0 24 24'><path d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/></svg>`"
-            />
+              class="send-icon-button flex items-center justify-center flex-shrink-0 transition-all duration-200"
+              :class="{ 'opacity-30 cursor-not-allowed': !currentMessage.trim() || isLoading }"
+              aria-label="Send message"
+              type="button"
+            >
+              <!-- Paper Plane Send Icon -->
+              <svg
+                class="w-6 h-6 transition-all duration-200"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                :class="{ 'text-gray-400': !currentMessage.trim() || isLoading, 'text-blue-600': currentMessage.trim() && !isLoading }"
+              >
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+              </svg>
+            </button>
           </div>
 
           <!-- Quick Actions with Material Design 3 styling and 8dp spacing -->
@@ -201,7 +209,6 @@
 import { ref, nextTick, onMounted } from 'vue'
 import { GeminiService, type UserProfile } from '../services/gemini'
 import SessionCard from '../components/SessionCard.vue'
-import IconButton from '../components/ui/IconButton.vue'
 
 interface SessionData {
   venue?: string
@@ -503,6 +510,65 @@ textarea:focus {
   box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.2) !important;
 }
 
+/* Input area fixed positioning styles */
+.border-t {
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Modern Minimalist Send Button Styles */
+.send-icon-button {
+  /* Completely transparent background */
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+
+  /* Maintain 48px touch target for accessibility */
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  min-height: 48px;
+
+  /* Remove any default button styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Smooth transitions for hover effects */
+  transition: all 0.2s ease;
+}
+
+/* Hover effects - subtle opacity and scale changes */
+.send-icon-button:hover:not(:disabled) {
+  transform: scale(1.1);
+}
+
+.send-icon-button:hover:not(:disabled) svg {
+  opacity: 0.8;
+}
+
+/* Active state for better feedback */
+.send-icon-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Focus state for accessibility */
+.send-icon-button:focus {
+  outline: 2px solid rgba(59, 130, 246, 0.5) !important;
+  outline-offset: 2px;
+}
+
+/* Disabled state styling */
+.send-icon-button:disabled {
+  cursor: not-allowed;
+  transform: none;
+}
+
+.send-icon-button:disabled svg {
+  opacity: 0.3;
+}
+
 button:focus {
   box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.3) !important;
 }
@@ -525,10 +591,7 @@ main {
   overflow: hidden;
 }
 
-/* Ensure input area stays fixed at bottom */
-.border-t.flex-shrink-0 {
-  margin-top: auto;
-}
+
 
 /* Ensure proper spacing and layout */
 .flex {
