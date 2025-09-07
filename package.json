@@ -17,7 +17,17 @@
     "task:next": "taskmaster next-task",
     "task:done": "taskmaster set-status"
   },
-  "keywords": ["padel", "matchmaking", "pwa", "vue", "back4app"],
+  "keywords": [
+    "padel",
+    "matchmaking",
+    "pwa",
+    "vue",
+    "back4app"
+  ],
   "author": "MaBar Team",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "parse": "^3.5.1"
+  }
 }

@@ -207,8 +207,10 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
-import { createGeminiService, type UserProfile, type IAIService } from '@mabar/ai-services'
+import { GoogleGenAI } from '@google/genai'
 import SessionCard from '../components/SessionCard.vue'
+import Parse from '../services/back4app'
+import { env } from '../config/env'
 
 interface SessionData {
   venue?: string
@@ -244,34 +246,6 @@ const quickSuggestions = [
 ]
 
 let messageId = 0
-
-// Initialize AI service
-let aiService: IAIService | null = null
-
-const initializeAIService = () => {
-  try {
-    // Get API key from environment
-    const apiKey = import.meta.env.VITE_GOOGLE_API_KEY || import.meta.env.VITE_GEMINI_API_KEY
-
-    if (!apiKey) {
-      console.warn('No Gemini API key found in environment variables')
-      return null
-    }
-
-    aiService = createGeminiService(apiKey, {
-      model: 'gemini-pro',
-      temperature: 0.7,
-      maxTokens: 2048,
-      timeout: 30000
-    })
-
-    console.log('✅ AI Service initialized successfully')
-    return aiService
-  } catch (error) {
-    console.error('❌ Failed to initialize AI service:', error)
-    return null
-  }
-}
 
 const scrollToBottom = async () => {
   await nextTick()
@@ -323,101 +297,98 @@ const sendMessage = async () => {
   isLoading.value = true
 
   try {
-    // Use real Gemini AI integration via Back4App Cloud Function
-    const userProfile: UserProfile = {
-      skillLevel: 'intermediate', // TODO: Get from user's actual profile
-      preferredTime: 'evening',
-      location: 'Jakarta',
-      playingStyle: 'competitive'
+    console.log('🤖 Processing AI request directly:', userMessage)
+
+    // Initialize Google GenAI
+    const ai = new GoogleGenAI({
+      apiKey: env.GOOGLE_API_KEY,
+    })
+    
+    const model = 'gemini-2.5-flash-lite'
+    const contents = [{
+      role: 'user' as const,
+      parts: [{
+        text: `You are MaBar AI, a padel matchmaking assistant. Analyze this request and provide a helpful response: "${userMessage}"
+        
+        Respond with natural language that helps the user find padel courts or players in Jakarta.`
+      }]
+    }]
+
+    const response = await ai.models.generateContent({
+      model,
+      contents,
+    })
+    
+    const aiText = response.text
+    console.log('📝 Gemini AI response:', aiText)
+
+    if (aiText) {
+      // Add AI response
+      addMessage(aiText, false)
+
+      // Query Back4App database directly for courts/players
+      await queryDatabaseAndAddCards(userMessage)
+
+      console.log('✅ AI response processed successfully')
+    } else {
+      addMessage('Sorry, I encountered an issue processing your request. Please try again.', false)
     }
 
-    try {
-      // Initialize AI service if not already done
-      if (!aiService) {
-        aiService = initializeAIService()
-      }
-
-      if (aiService) {
-        console.log('🤖 Processing user query with AI service:', userMessage)
-
-        // Step 1: Analyze user intent
-        const intent = await aiService.analyzeIntent(
-          userMessage,
-          userProfile,
-          'en' // TODO: Support user's preferred language
-        )
-
-        console.log('📝 Intent analysis:', intent)
-
-        // Step 2: Handle based on intent type
-        if (intent.type === 'matchmaking') {
-          // For matchmaking, we would normally query the database
-          // For now, we'll simulate some data and generate a response
-          const mockData = {
-            courts: [
-              { name: 'Jakarta Padel Center', rating: 4.5, available: true },
-              { name: 'Elite Padel Club', rating: 4.7, available: true }
-            ],
-            players: [
-              { name: 'Ahmad Rizki', skillLevel: 'intermediate', available: true },
-              { name: 'Sari Dewi', skillLevel: 'intermediate', available: true }
-            ]
-          }
-
-          // Generate natural language response
-          const response = await aiService.generateResponse({
-            data: mockData,
-            context: {
-              originalMessage: userMessage,
-              userProfile,
-              language: 'en'
-            },
-            options: {
-              tone: 'friendly',
-              length: 'medium',
-              includeEmojis: true
-            }
-          })
-
-          addMessage(response, false)
-        } else {
-          // For casual messages, generate a simple response
-          const response = await aiService.generateResponse({
-            data: { type: intent.type },
-            context: {
-              originalMessage: userMessage,
-              userProfile,
-              language: 'en'
-            },
-            options: {
-              tone: 'friendly',
-              length: 'short',
-              includeEmojis: true
-            }
-          })
-
-          addMessage(response, false)
-        }
-
-        console.log('✅ AI response processed successfully')
-      } else {
-        // Fallback to mock response if AI service is not available
-        console.warn('AI service not available, using fallback')
-        const mockResponse = generateMockResponse(userMessage)
-        addMessageWithCards(mockResponse.text, mockResponse.sessionCards, false)
-      }
-    } catch (error) {
-      console.error('Error processing AI query:', error)
-      const mockResponse = generateMockResponse(userMessage)
-      addMessageWithCards(mockResponse.text, mockResponse.sessionCards, false)
-    }
   } catch (error) {
-    console.error('AI Chat Error:', error)
-    // Fallback to mock response on any error
-    const fallbackResponse = generateMockResponse(userMessage)
-    addMessageWithCards(fallbackResponse.text, fallbackResponse.sessionCards, false)
+    console.error('Error calling Gemini API:', error)
+    addMessage('Sorry, I encountered an issue processing your request. Please try again.', false)
   } finally {
     isLoading.value = false
+  }
+}
+
+const queryDatabaseAndAddCards = async (userMessage: string) => {
+  try {
+    console.log('🔍 Querying Back4App database for venues...')
+    
+    // Query venues from Back4App
+    const Venue = Parse.Object.extend('Venue')
+    const venueQuery = new Parse.Query(Venue)
+    venueQuery.equalTo('isActive', true)
+    venueQuery.limit(3)
+    const venues = await venueQuery.find()
+
+    console.log('📊 Database query result:', {
+      venuesFound: venues.length,
+      venues: venues.map(v => ({ 
+        id: v.id, 
+        name: v.get('name'), 
+        isActive: v.get('isActive'),
+        pricing: v.get('pricing')
+      }))
+    })
+
+    if (venues.length > 0) {
+      const sessionCards = venues.map(venue => ({
+        type: 'create-new' as const,
+        data: {
+          venue: venue.get('name') || 'Padel Court',
+          suggestedTime: '7:00 PM',
+          suggestedDate: 'Tonight',
+          estimatedCost: `Rp ${venue.get('pricing')?.hourlyRate || 175000} each`
+        }
+      }))
+      
+      console.log('🎯 Adding session cards:', sessionCards.length)
+      addMessageWithCards('', sessionCards, false)
+    } else {
+      console.log('⚠️ No venues found in database')
+      // Try querying all venues to see what's there
+      const allVenuesQuery = new Parse.Query(Venue)
+      const allVenues = await allVenuesQuery.find()
+      console.log('📋 All venues in database:', allVenues.length, allVenues.map(v => ({
+        id: v.id,
+        name: v.get('name'),
+        isActive: v.get('isActive')
+      })))
+    }
+  } catch (error) {
+    console.error('❌ Error querying database:', error)
   }
 }
 
@@ -666,9 +637,6 @@ const generateMockResponse = (userMessage: string) => {
 }
 
 onMounted(() => {
-  // Initialize AI service
-  initializeAIService()
-
   // Add welcome message
   addMessage('Hi! I\'m your AI padel assistant. I can help you find players, book courts, and organize games. What would you like to do today?', false)
 })
