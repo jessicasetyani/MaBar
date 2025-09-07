@@ -245,7 +245,8 @@ const selectRole = async (role: 'player' | 'venue_owner') => {
 }
 
 .role-card-content {
-  @apply flex items-start space-x-4 relative z-10;
+  @apply flex items-start relative z-10;
+  gap: 16px;
 }
 
 .role-text-content {
@@ -253,7 +254,9 @@ const selectRole = async (role: 'player' | 'venue_owner') => {
 }
 
 .role-card-arrow {
-  @apply absolute top-6 right-6 opacity-60;
+  @apply absolute opacity-60;
+  top: 24px;
+  right: 24px;
   transition: all var(--md-sys-motion-duration-short2)
     var(--md-sys-motion-easing-standard);
 }
@@ -363,7 +366,7 @@ const selectRole = async (role: 'player' | 'venue_owner') => {
   }
 
   .role-card-content {
-    @apply space-x-3;
+    @apply gap-3;
   }
 
   .role-feature-tag {

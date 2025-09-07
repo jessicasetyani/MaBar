@@ -7,7 +7,7 @@
         <div
           class="flex justify-between items-center h-14 border-b border-slate-100"
         >
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center" style="gap: 16px;">
             <h1 class="text-xl font-semibold text-slate-900">
               {{ venueOwnerData?.venueDetails?.name || 'Venue Dashboard' }}
             </h1>
@@ -18,14 +18,14 @@
               ✓ Verified
             </span>
           </div>
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center" style="gap: 16px;">
             <span class="text-sm text-slate-600">{{ user?.email }}</span>
           </div>
         </div>
 
         <!-- Tab Navigation Row -->
         <div class="flex items-center h-12">
-          <nav class="flex space-x-8">
+          <nav class="flex gap-8">
             <button
               @click="activeTab = 'calendar'"
               :class="[
@@ -118,7 +118,7 @@
             <!-- Calendar -->
             <div v-else>
               <!-- Action Buttons -->
-              <div class="flex justify-end items-center mb-4 space-x-2">
+              <div class="flex justify-end items-center mb-4 gap-2">
                 <!-- Debug Test Button -->
                 <button
                   @click="testModal"
@@ -215,7 +215,7 @@
                   >
                     <!-- Enhanced Modal Header -->
                     <div class="enhanced-modal-header">
-                      <div class="flex items-center space-x-3">
+                      <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center shadow-sm">
                           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />

@@ -106,7 +106,7 @@
     </div>
 
     <!-- Terms and Privacy -->
-    <div class="flex items-start space-x-3 p-4 md-surface-variant rounded-lg">
+    <div class="flex items-start gap-3 p-4 md-surface-variant rounded-lg">
       <input
         id="terms"
         v-model="acceptTerms"

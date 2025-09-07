@@ -23,6 +23,8 @@
     "@fullcalendar/list": "^6.1.19",
     "@fullcalendar/timegrid": "^6.1.19",
     "@fullcalendar/vue3": "^6.1.19",
+    "@google/genai": "^1.17.0",
+    "@mabar/ai-services": "file:../ai-services",
     "@playwright/test": "^1.55.0",
     "events": "^3.3.0",
     "parse": "^6.1.1",

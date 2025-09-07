@@ -3,13 +3,13 @@
     <!-- Calendar Header Skeleton -->
     <div class="mb-6">
       <div class="flex justify-between items-center mb-4">
-        <div class="flex space-x-2">
+        <div class="flex gap-2">
           <div class="h-8 w-16 bg-slate-200 rounded animate-pulse"></div>
           <div class="h-8 w-16 bg-slate-200 rounded animate-pulse"></div>
           <div class="h-8 w-20 bg-slate-200 rounded animate-pulse"></div>
         </div>
         <div class="h-8 w-32 bg-slate-200 rounded animate-pulse"></div>
-        <div class="flex space-x-2">
+        <div class="flex gap-2">
           <div class="h-8 w-24 bg-slate-200 rounded animate-pulse"></div>
           <div class="h-8 w-20 bg-slate-200 rounded animate-pulse"></div>
           <div class="h-8 w-16 bg-slate-200 rounded animate-pulse"></div>
@@ -50,7 +50,7 @@
 
     <!-- Loading Message -->
     <div class="text-center mt-4">
-      <div class="inline-flex items-center space-x-2 text-slate-600">
+      <div class="inline-flex items-center gap-2 text-slate-600">
         <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
           <circle
             class="opacity-25"

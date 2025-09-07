@@ -6,7 +6,7 @@
     role="alert"
     :aria-live="type === 'error' ? 'assertive' : 'polite'"
   >
-    <div class="flex items-start space-x-3">
+    <div class="flex items-start gap-3">
       <div class="flex-shrink-0">
         <component :is="iconComponent" class="icon-md" />
       </div>

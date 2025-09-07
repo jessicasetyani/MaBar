@@ -11,7 +11,8 @@
     <!-- List Item Skeleton -->
     <div
       v-else-if="type === 'list-item'"
-      class="flex items-center space-x-4 p-4"
+      class="flex items-center p-4"
+      style="gap: 16px;"
     >
       <div class="skeleton h-12 w-12 rounded-full"></div>
       <div class="flex-1">

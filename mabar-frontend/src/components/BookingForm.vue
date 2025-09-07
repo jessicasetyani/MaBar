@@ -5,7 +5,7 @@
       <div
         class="bg-gradient-to-br from-yellow-50 via-orange-50 to-yellow-50 rounded-xl p-5 border-2 border-yellow-200 shadow-sm"
       >
-        <div class="flex items-start space-x-3 mb-4">
+        <div class="flex items-start gap-3 mb-4">
           <div
             class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-xl flex items-center justify-center shadow-sm"
           >
@@ -206,7 +206,7 @@
         <!-- Booking Summary Display - Following Google Calendar Style -->
         <div v-if="formData.startTime && formData.endTime" class="mt-6">
           <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-            <div class="flex items-start space-x-3">
+            <div class="flex items-start gap-3">
               <!-- Clock Icon -->
               <div class="flex-shrink-0 mt-1">
                 <div
@@ -247,7 +247,7 @@
         <!-- Time Adjustment Feedback Message -->
         <div v-if="timeAdjustmentMessage" class="mt-4 mb-4">
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div class="flex items-start space-x-3">
+            <div class="flex items-start gap-3">
               <div class="flex-shrink-0">
                 <svg
                   class="w-5 h-5 text-blue-600 mt-0.5"
@@ -414,7 +414,7 @@
       class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-200"
     >
       <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center space-x-2">
+        <div class="flex items-center gap-2">
           <div
             class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center"
           >
@@ -429,7 +429,7 @@
             <p class="text-xs text-blue-600">{{ getSlotsSummary() }}</p>
           </div>
         </div>
-        <div class="flex space-x-2">
+        <div class="flex gap-2">
           <button
             v-if="selectedSlots.length > 1"
             type="button"
@@ -472,7 +472,7 @@
           :key="slot.id"
           class="flex justify-between items-center text-sm bg-white rounded-lg p-3 border border-blue-100 hover:border-blue-200 transition-colors"
         >
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center gap-3">
             <div
               class="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600"
             >
@@ -516,7 +516,7 @@
         v-if="batchMode && selectedSlots.length > 1"
         class="mt-4 pt-3 border-t border-blue-200"
       >
-        <div class="flex items-center space-x-2 text-xs text-blue-700">
+        <div class="flex items-center gap-2 text-xs text-blue-700">
           <svg
             class="w-4 h-4"
             fill="none"

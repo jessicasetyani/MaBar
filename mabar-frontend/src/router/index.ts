@@ -4,32 +4,44 @@ import { useAuthStore } from '../stores/auth'
 const routes = [
   {
     path: '/',
+    name: 'Home',
     component: () => import('../components/AuthFlow.vue'),
     meta: { requiresGuest: true },
   },
   {
     path: '/onboarding/player',
+    name: 'PlayerOnboarding',
     component: () => import('../views/PlayerOnboarding.vue'),
     meta: { requiresAuth: true, requiresRole: 'player' },
   },
   {
     path: '/onboarding/venue-owner',
+    name: 'VenueOnboarding',
     component: () => import('../views/VenueOnboarding.vue'),
     meta: { requiresAuth: true, requiresRole: 'venue_owner' },
   },
   {
     path: '/dashboard',
+    name: 'PlayerDashboard',
     component: () => import('../views/PlayerDashboard.vue'),
     meta: { requiresAuth: true, requiresRole: 'player' },
   },
   {
     path: '/venue-dashboard',
+    name: 'VenueDashboard',
     component: () => import('../views/VenueDashboard.vue'),
     meta: { requiresAuth: true, requiresRole: 'venue_owner' },
   },
   {
     path: '/profile',
+    name: 'PlayerProfile',
     component: () => import('../views/PlayerOnboarding.vue'), // Placeholder for now
+    meta: { requiresAuth: true, requiresRole: 'player' },
+  },
+  {
+    path: '/ai-chat',
+    name: 'PlayerMatching',
+    component: () => import('../views/AIChat.vue'),
     meta: { requiresAuth: true, requiresRole: 'player' },
   },
 ]
@@ -40,8 +52,18 @@ export const router = createRouter({
 })
 
 // Navigation guards for role-based routing
-router.beforeEach((to, _from, next) => {
+router.beforeEach(async (to, _from, next) => {
   const authStore = useAuthStore()
+
+  // Wait for session check to complete if it's still loading
+  if (authStore.isLoading) {
+    try {
+      await authStore.checkSession()
+    } catch (error) {
+      console.warn('Session check failed during navigation:', error)
+    }
+  }
+
   const { user, isAuthenticated, hasCompletedOnboarding } = authStore
 
   // Check if route requires authentication

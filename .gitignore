@@ -1,373 +1,22 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-dev-debug.log
-
-# Dependency directories
+# Dependencies
 node_modules/
-jspm_packages/
 
-# =============================================================================
-# SECURITY: ENVIRONMENT VARIABLES AND SECRETS
-# =============================================================================
-# ALL environment files containing secrets must be excluded
-
-# Environment variables - ALL .env files and variants
+# Environment variables
 .env
 .env.*
 *.env
-*.env.*
-.env.local
-.env.development
-.env.development.local
-.env.test
-.env.test.local
-.env.production
-.env.production.local
-.env.staging
-.env.staging.local
-backend/.env*
-frontend/.env*
+!.env.example
 
-# Backup files with potential secrets
-*.backup
-*.backup.*
-.env.backup*
-*.bak
-*.orig
-*.save
-*.swp
-*.tmp
-
-# Secret management files
-.secrets/
-secrets/
-*.key
-*.pem
-*.p12
-*.pfx
-*.crt
-*.cer
-
-# Configuration files that may contain secrets
-config.json
-config.*.json
-settings.json
-settings.*.json
-
-# API key files
-api-keys.json
-keys.json
-credentials.json
-service-account.json
-
-# Database connection files
-database.json
-db-config.json
-connection-string.txt
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-*.lcov
-
-# nyc test coverage
-.nyc_output
-
-# Grunt intermediate storage
-.grunt
-
-# Bower dependency directory
-bower_components
-
-# node-waf configuration
-.lock-wscript
-
-# Compiled binary addons
-build/Release
-
-# Dependency directories
-node_modules/
-jspm_packages/
-
-# TypeScript cache
-*.tsbuildinfo
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# parcel-bundler cache
-.cache
-.parcel-cache
-
-# Next.js build output
-.next
-out
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-/dist
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
-tmp/
-temp/
-
-# Editor directories and files
-.idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*~
-
-# OS specific files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Windows
-*.lnk
-
-# Linux
-*~
-
-# FUSE hidden files (temporary files created when binaries are deleted while in use)
-.fuse_hidden*
-
-# =============================================================================
-# BACK4APP CLOUD FUNCTIONS SPECIFIC
-# =============================================================================
-# Cloud function build artifacts
-cloud/dist/
-cloud/build/
-cloud/.cache/
-
-# Cloud function logs
-cloud/logs/
-cloud/*.log
-
-# =============================================================================
-# TASK MASTER AI - EXCLUDE GENERATED CONTENT, KEEP CONFIGURATION
-# =============================================================================
-# Task Master generated files (keep config but exclude generated content)
-.taskmaster/state.json
-.taskmaster/reports/
-!.taskmaster/tasks/
-!.taskmaster/config.json
-!.taskmaster/docs/
-!.taskmaster/templates/
-
-# =============================================================================
-# AI TOOLS AND ASSISTANTS - EXCLUDE FROM VERSION CONTROL
-# =============================================================================
-# This section excludes all AI development tools, assistants, and related
-# infrastructure that are used locally but not needed for application deployment
-# or for other developers to run the project.
-
-# AI Agent temporary files
-*.tmp
-*.temp
-*.ai-temp
-*.ai-cache
-
-# MCP (Model Context Protocol) Tools and Configuration
-.mcp/
-mcp-tools/
-mcp-server/
-mcp-client/
-.mcp-*
-*-mcp/
-mcp_*
-mcp.json
-mcp-config.json
-.mcp.json
-
-# AI Assistant Configuration and Cache
-.augment/
-augment-*
-.cursor/
-cursor-*
-.copilot/
-copilot-*
-.codeium/
-codeium-*
-.tabnine/
-tabnine-*
-.ai-assistant/
-ai-assistant-*
-.claude/
-claude-*
-.chatgpt/
-chatgpt-*
-
-# AI Tool State and Session Files
-.ai-state/
-.ai-session/
-.ai-context/
-.ai-memory/
-ai-state.json
-ai-session.json
-ai-context.json
-ai-memory.json
-.assistant-state
-.assistant-session
-.assistant-context
-
-# AI Model Downloads and Local Services
-models/
-.models/
-ai-models/
-.ai-models/
-llm-models/
-.llm-models/
-huggingface/
-.huggingface/
-transformers_cache/
-.transformers_cache/
-ollama/
-.ollama/
-local-ai/
-.local-ai/
-
-# AI Tool Cache and Temporary Directories
-.ai-cache/
-ai-cache/
-.assistant-cache/
-assistant-cache/
-.llm-cache/
-llm-cache/
-.embedding-cache/
-embedding-cache/
-.vector-cache/
-vector-cache/
-
-# AI Configuration Files
-.aiconfig
-.ai-config
-ai-config.json
-.assistant-config
-assistant-config.json
-.llm-config
-llm-config.json
-.embedding-config
-embedding-config.json
-
-# AI Tool Logs and Debug Files
-ai-debug.log
-assistant-debug.log
-llm-debug.log
-mcp-debug.log
-.ai-logs/
-ai-logs/
-.assistant-logs/
-assistant-logs/
-
-# AI Tool Workspaces and Projects
-.ai-workspace/
-ai-workspace/
-.assistant-workspace/
-assistant-workspace/
-.ai-project/
-ai-project/
-
-# Vector Databases and Embeddings (local AI storage)
-.chroma/
-chroma/
-.pinecone/
-pinecone/
-.weaviate/
-weaviate/
-.qdrant/
-qdrant/
-.faiss/
-faiss/
-embeddings/
-.embeddings/
-vector-db/
-.vector-db/
-
-# AI Tool Plugin and Extension Directories
-.ai-plugins/
-ai-plugins/
-.ai-extensions/
-ai-extensions/
-.assistant-plugins/
-assistant-plugins/
-
-# =============================================================================
-# DEVELOPMENT ARTIFACTS AND BUILD OUTPUTS
-# =============================================================================
 # Build outputs
-build/
 dist/
+build/
 out/
-.next/
-.nuxt/
-.cache/
-.parcel-cache/
 
-# Backup files
-*.bak
-*.backup
-*~
-*.orig
-*.rej
-
-# Lock files (keep package-lock.json but exclude others)
-yarn.lock
-pnpm-lock.yaml
-
-# Test coverage
-coverage/
-.nyc_output/
-*.lcov
-
-# Logs and debugging
+# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
+pnpm-debug.log*
 logs/
 
 # Runtime data
@@ -376,110 +25,71 @@ pids/
 *.seed
 *.pid.lock
 
-# =============================================================================
-# MABAR PROJECT SPECIFIC
-# =============================================================================
-# Upload directories
+# Coverage
+coverage/
+.nyc_output/
+*.lcov
+
+# Cache directories
+.cache/
+.parcel-cache/
+.npm/
+.eslintcache
+*.tsbuildinfo
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.backup
+*~
+*.orig
+*.rej
+*.swp
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*.lnk
+
+# Editor directories
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# MaBar specific
 cloud/uploads/
 mabar-frontend/uploads/
 uploads/
-
-# Generated QR codes
 qr-codes/
 *.qr.png
 *.qr.jpg
+venue-images/
+profile-images/
+user-uploads/
 
-# Database dumps
+# Database files
 *.dump
 *.sql
 *.db
 *.sqlite
 *.sqlite3
 
-# Venue images and user uploads
-venue-images/
-profile-images/
-user-uploads/
+# Task Master
+.taskmaster/state.json
+.taskmaster/reports/
 
-# Python (if any Python scripts are added)
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-
-# Virtual environments
-venv/
-ENV/
-env/
-.venv/
-
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# pipenv
-Pipfile.lock
-
-# PEP 582
-__pypackages__/
-
-# Celery stuff
-celerybeat-schedule
-celerybeat.pid
-
-# SageMath parsed files
-*.sage.py
-
-# Spyder project settings
-.spyderproject
-.spyproject
-
-# Rope project settings
-.ropeproject
-
-# mkdocs documentation
-/site
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-.idea
-.vscode
-# OS specific
-
-# Task files - Keep task definitions but exclude temporary files
-# .taskmaster/tasks/tasks.json  # Keep this - main task database
-# .taskmaster/tasks/*.md        # Keep these - individual task files
-.taskmaster/tasks/*.tmp
-.taskmaster/tasks/*.temp
-.taskmaster/tasks/.*.swp 
-
-# Amazon Q - exclude everything except rules
+# Amazon Q (keep rules only)
 .amazonq/
 !.amazonq/rules/
-
-# Environment variables
-
-# Task files
-# tasks.json
-# tasks/ 

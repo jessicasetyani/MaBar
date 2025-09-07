@@ -19,20 +19,22 @@ MaBar solves the fragmented discovery problem in Jakarta's Padel community by pr
 
 ### Key Features
 
-- 🤖 **AI Chat Interface** - Natural language matchmaking using Google Gemini
+- 🤖 **AI Chat Interface** - Client-side natural language processing with Google Gemini 2.5 Flash Lite
 - 👥 **Player Profiles** - Skill assessment and preference management
-- 🏟️ **Venue Management** - Court booking and schedule management
+- 🏟️ **Venue Management** - Direct database queries for real-time court availability
 - 📱 **PWA Support** - Mobile-first responsive design
 - 🔐 **Secure Authentication** - Back4App-powered user management
+- ⚡ **Real-time Data** - Direct Parse database integration without cloud functions
 
 ## 🏗️ Architecture
 
-### Frontend-Only PWA Architecture
+### Frontend-First AI Architecture
 - **Framework**: Vue.js 3 with TypeScript
 - **Build Tool**: Vite for rapid development
 - **State Management**: Pinia for reactive state
 - **Styling**: Tailwind CSS with custom design system
-- **Backend**: Back4App (Parse Server) as BaaS
+- **AI Processing**: Google Gemini API (client-side)
+- **Database**: Back4App (Parse Server) as DBaaS only
 
 ### Project Structure
 
@@ -41,15 +43,12 @@ MaBar/
 ├── mabar-frontend/          # Vue.js PWA application
 │   ├── src/
 │   │   ├── components/      # Reusable UI components
-│   │   ├── views/          # Page-level components
+│   │   ├── views/          # Page-level components (AIChat.vue)
 │   │   ├── stores/         # Pinia state management
-│   │   ├── services/       # API and external services
+│   │   ├── services/       # Back4App Parse SDK integration
 │   │   ├── router/         # Vue Router configuration
 │   │   └── config/         # Environment configuration
-├── cloud/                   # Back4App Cloud Functions
-│   ├── main.js             # Gemini API integration
-│   └── package.json        # Cloud function dependencies
-├── scripts/                 # Development and deployment scripts
+├── scripts/                 # Database seeding and utilities
 ├── .taskmaster/            # Task management and project planning
 └── docs/                   # Additional documentation
 ```
@@ -81,18 +80,20 @@ MaBar/
 
    ```bash
    # Copy environment template
-   cp mabar-frontend/.env.example mabar-frontend/.env
+   cp .env.example .env
 
-   # Edit with your Back4App credentials
-   nano mabar-frontend/.env
+   # Edit with your credentials
+   nano .env
    ```
 
 4. **Configure Environment Variables**
 
    ```env
-   # mabar-frontend/.env
+   # .env (project root)
    VITE_BACK4APP_APP_ID=your_back4app_application_id
    VITE_BACK4APP_JAVASCRIPT_KEY=your_back4app_javascript_key
+   VITE_BACK4APP_MASTER_KEY=your_back4app_master_key
+   VITE_GOOGLE_API_KEY=your_gemini_api_key
    ```
 
 5. **Start Development Server**
@@ -141,51 +142,55 @@ MaBar follows a strict color palette and design principles:
 
 ### Back4App Integration
 
-MaBar uses Back4App as a Backend-as-a-Service (BaaS) providing:
+MaBar uses Back4App purely as Database-as-a-Service (DBaaS) providing:
 
 - **Database**: MongoDB-backed Parse Server
 - **Authentication**: Built-in user management
-- **Cloud Functions**: Serverless function execution
+- **Direct Queries**: Frontend queries database directly
 - **Real-time**: Live queries and subscriptions
 
-### Cloud Functions
+### Database Schema
 
-Located in `/cloud/main.js`:
+Key collections:
 
-- **getMatchmakingRecommendations**: AI-powered matchmaking via Gemini API
-- **healthCheck**: Service health monitoring
-- **Rate limiting**: 10 requests/minute per user
+- **Venue**: Court information, pricing, availability
+- **PlayerProfile**: User skills, preferences, history
+- **Booking**: Session bookings and scheduling
+- **User**: Authentication and profile data
 
-### Deployment
+### Database Seeding
 
-Deploy cloud functions to Back4App:
+Add test data for development:
 
 ```bash
-# Install Back4App CLI
-npm install -g back4app-cli
-
-# Login and deploy
-b4a login
-b4a deploy cloud/
+# Add sample venues for testing
+node scripts/add-test-venues.js
 ```
 
 ## 🤖 AI Integration
 
-### Google Gemini API
+### Google Gemini API (Client-Side)
 
-The AI matchmaking system uses Google Gemini Pro for:
+The AI matchmaking system uses Google Gemini 2.5 Flash Lite for:
 
-- Natural language query processing
-- Player compatibility analysis
-- Venue recommendations
+- Natural language query processing (frontend)
+- Real-time response generation
+- Venue and player recommendations
 - Multi-language support (English/Bahasa Indonesia)
+
+### Architecture Benefits
+
+- **No Cloud Functions**: Simplified deployment and maintenance
+- **Direct Database Access**: Faster queries without API overhead
+- **Real-time Processing**: Immediate AI responses
+- **Cost Effective**: Reduced server-side processing costs
 
 ### Security
 
-- API keys stored securely in Back4App environment
-- Rate limiting prevents abuse
+- Environment-based API key management
+- Parse ACL for database security
 - Input validation and sanitization
-- Structured error handling
+- Rate limiting through Gemini API quotas
 
 ## 📱 User Experience
 
