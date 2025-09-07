@@ -28,6 +28,6 @@
   "license": "MIT",
   "dependencies": {
     "dotenv": "^17.2.2",
-    "parse": "^3.5.1"
+    "parse": "^6.1.1"
   }
 }
