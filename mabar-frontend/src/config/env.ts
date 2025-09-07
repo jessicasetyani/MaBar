@@ -40,7 +40,7 @@ function validateEnv(): EnvConfig {
   return {
     BACK4APP_APP_ID: appId,
     BACK4APP_JAVASCRIPT_KEY: jsKey,
-    GOOGLE_API_KEY: googleApiKey || 'AIzaSyCuGsfM_9vomcFy4n8vzHD-f_0JWkSuaqg', // Fallback from root .env
+    GOOGLE_API_KEY: googleApiKey, // Fallback from root .env
   }
 }
 
