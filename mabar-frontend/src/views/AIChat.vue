@@ -450,9 +450,17 @@ const handleSuggestionBlur = (event: Event) => {
 
 
 
-onMounted(() => {
-  // Add welcome message
-  addMessage('Hi! I\'m your AI padel assistant. I can help you find players, book courts, and organize games. What would you like to do today?', false)
+onMounted(async () => {
+  // Let AI greet naturally by sending a greeting trigger
+  try {
+    const greetingResponse = await AIMatchmakingService.processMatchmakingRequest('Hello')
+    if (greetingResponse.text) {
+      addMessage(greetingResponse.text, false)
+    }
+  } catch (error) {
+    console.error('Error generating AI greeting:', error)
+    addMessage('Hi! I\'m your AI padel assistant. What can I help you with today?', false)
+  }
 })
 </script>
 
