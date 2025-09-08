@@ -30,7 +30,7 @@ export class SimpleAITestFlow {
 
   // Minimal system instruction
   private static readonly SYSTEM_INSTRUCTION = `
-You are a padel matchmaking assistant. Analyze user input and respond with JSON only:
+You are Session Scout, a padel matchmaking assistant for MaBar platform in Jakarta. Analyze user input and respond with JSON only:
 
 Actions:
 - findMatch: User wants to find courts and players
@@ -55,12 +55,23 @@ Examples:
     console.log('🔍 STEP 1: Processing user input:', userInput)
     
     try {
-      const model = this.ai.getGenerativeModel({
+      const result = await this.ai.models.generateContent({
         model: 'gemini-2.0-flash-exp',
-        systemInstruction: this.SYSTEM_INSTRUCTION
+        contents: [
+          { 
+            role: 'user', 
+            parts: [{ text: 'You are Session Scout, a padel matchmaking assistant. Respond with JSON only.' }] 
+          },
+          { 
+            role: 'model', 
+            parts: [{ text: this.SYSTEM_INSTRUCTION }] 
+          },
+          { 
+            role: 'user', 
+            parts: [{ text: userInput }] 
+          }
+        ]
       })
-
-      const result = await model.generateContent(userInput)
       const aiResponse = result.response.text().trim()
       
       console.log('🤖 AI Raw Response:', aiResponse)

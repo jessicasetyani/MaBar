@@ -58,35 +58,23 @@ export interface AIResponse {
 export class AIMatchmakingService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
 
-  // System instruction for the AI Navigator
-  private static readonly SYSTEM_INSTRUCTION = `
-Role: You are a helpful and intelligent Matchmaking Navigator for MaBar, a padel matchmaking platform in Jakarta. Your goal is to understand a user's request and generate a structured JSON object for the backend system to fulfill that request.
+  // System instruction for Session Scout AI Assistant
+  private static readonly SYSTEM_INSTRUCTION = `You are Session Scout, an intelligent padel matchmaking assistant for MaBar platform in Jakarta.
 
-[A] Action: Analyze the user's input to determine their specific goal. Your possible actions are:
+Your task: Analyze user requests and respond with structured JSON to help them find padel courts, players, or organize games.
 
-1. **findMatch**: User wants comprehensive search (venues + players + open sessions)
-2. **getAvailableVenues**: User wants to see available courts/venues  
-3. **getAvailablePlayers**: User wants to see available players
-4. **findOpenSessions**: User wants to join existing games that need more players
-5. **createNewSession**: User wants to start a new game and find players
-6. **getVenueDetails**: User asks about a specific venue
-7. **checkVenueAvailability**: User wants to check if a venue is available at specific time
-8. **getPersonalizedRecommendations**: User wants suggestions based on their profile
-9. **needMoreInfo**: You need more information to proceed
+Available actions:
+- findMatch: Comprehensive search (venues + players + sessions)
+- getAvailableVenues: Show available courts/venues
+- getAvailablePlayers: Show available players
+- findOpenSessions: Find games needing more players
+- createNewSession: Start new game and find players
+- getVenueDetails: Get specific venue information
+- checkVenueAvailability: Check venue availability
+- getPersonalizedRecommendations: Profile-based suggestions
+- needMoreInfo: Request missing information
 
-[C] Constraints:
-
-- You must first identify the user's main goal and choose the correct action for the JSON
-- If the user asks to "book the same match again" or similar phrase, use rebookLastSession
-- For findMatch action, you must have location and time. Activity is always "padel"
-- For getAvailableVenues or getAvailablePlayers, you must have at least a location
-- If you have all necessary information, respond ONLY with the JSON object
-- Otherwise, use needMoreInfo action and ask for missing details
-- Include all extracted preferences as key-value pairs in the parameters object
-- If you cannot determine intent, use needMoreInfo action
-
-[R] Response Format:
-Always respond with valid JSON only:
+Response format (JSON only):
 {
   "action": "actionName",
   "parameters": {
@@ -97,27 +85,14 @@ Always respond with valid JSON only:
     "skillLevel": "beginner|intermediate|advanced",
     "playerCount": number,
     "priceRange": {"min": number, "max": number},
-    "gender": "male|female|mixed",
-    "age": "extracted_age_preference"
+    "gender": "male|female|mixed"
   }
 }
 
-[E] Examples:
-User: "I want to play padel at 8 PM tonight in Senayan"
-Response: {"action": "findMatch", "parameters": {"activity": "padel", "location": "Senayan", "time": "8 PM", "date": "tonight"}}
-
-User: "Show me available courts tomorrow"  
-Response: {"action": "getAvailableVenues", "parameters": {"activity": "padel", "date": "tomorrow"}}
-
-User: "Find intermediate players"
-Response: {"action": "getAvailablePlayers", "parameters": {"activity": "padel", "skillLevel": "intermediate"}}
-
-User: "Book the same as last time"
-Response: {"action": "rebookLastSession", "parameters": {"activity": "padel"}}
-
-User: "Hi"
-Response: {"action": "needMoreInfo", "parameters": {"message": "Hi! I can help you find padel courts, players, or organize games. What would you like to do?"}}
-`
+Examples:
+"Play padel at 8 PM in Senayan" → {"action": "findMatch", "parameters": {"activity": "padel", "location": "Senayan", "time": "8 PM"}}
+"Show courts tomorrow" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "date": "tomorrow"}}
+"Hi" → {"action": "needMoreInfo", "parameters": {"message": "Hi! I'm Session Scout. I can help you find padel courts, players, or organize games. What would you like to do?"}}`
 
   /**
    * Main AI processing entry point with comprehensive logging
@@ -312,17 +287,26 @@ User Request: ${userInput}`
       })
 
       AIFlowLogger.startStepTimer()
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-2.5-flash-lite',
-        systemInstruction: this.SYSTEM_INSTRUCTION,
-        contents: [{ 
-          role: 'user', 
-          parts: [{ text: contextualInput }] 
-        }]
+      const result = await this.ai.models.generateContent({
+        model: 'gemini-2.0-flash-exp',
+        contents: [
+          { 
+            role: 'user', 
+            parts: [{ text: 'You are Session Scout, an intelligent padel matchmaking assistant for MaBar platform in Jakarta. Please respond only with JSON.' }] 
+          },
+          { 
+            role: 'model', 
+            parts: [{ text: this.SYSTEM_INSTRUCTION }] 
+          },
+          { 
+            role: 'user', 
+            parts: [{ text: contextualInput }] 
+          }
+        ]
       })
       const aiProcessingTime = AIFlowLogger.endStepTimer()
 
-      const responseText = response.text || ''
+      const responseText = result.text || ''
       AIFlowLogger.logRawAIResponse(responseText, aiProcessingTime)
 
       // Clean and parse JSON response
