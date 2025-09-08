@@ -147,7 +147,7 @@
               <textarea
                 v-model="currentMessage"
                 @keydown.enter.prevent="handleEnter"
-                placeholder="Ask me to find players or courts... (e.g., 'Find me a partner for tomorrow evening')"
+                :placeholder="currentPlaceholder"
                 class="w-full rounded-2xl resize-none transition-colors focus:outline-none focus:ring-2 focus:ring-opacity-50"
                 style="background-color: #FEFCE8; border: 2px solid #64748B; color: #334155; padding: 16px;"
                 rows="2"
@@ -250,6 +250,7 @@ const messages = ref<Message[]>([])
 const currentMessage = ref('')
 const isLoading = ref(false)
 const messagesContainer = ref<HTMLElement>()
+const currentPlaceholder = ref('')
 
 const quickSuggestions = [
   'Find players for weekend morning',
@@ -354,16 +355,8 @@ const sendMessage = async () => {
   } catch (error) {
     console.error('❌ Error in AI matchmaking:', error)
     
-    // Fallback to basic response
-    const fallbackResponse = AIMatchmakingService.handleInsufficientInput(userMessage)
-    
-    if (fallbackResponse.text) {
-      addMessage(fallbackResponse.text, false)
-    }
-    
-    if (fallbackResponse.sessionCards) {
-      addMessageWithCards('', fallbackResponse.sessionCards, false)
-    }
+    // Fallback response
+    addMessage('Sorry, I encountered an issue. Please try again with more specific details.', false)
   } finally {
     isLoading.value = false
   }
@@ -450,17 +443,9 @@ const handleSuggestionBlur = (event: Event) => {
 
 
 
-onMounted(async () => {
-  // Let AI greet naturally by sending a greeting trigger
-  try {
-    const greetingResponse = await AIMatchmakingService.processMatchmakingRequest('Hello')
-    if (greetingResponse.text) {
-      addMessage(greetingResponse.text, false)
-    }
-  } catch (error) {
-    console.error('Error generating AI greeting:', error)
-    addMessage('Hi! I\'m your AI padel assistant. What can I help you with today?', false)
-  }
+onMounted(() => {
+  // Option 3: Clear and action-focused placeholder
+  currentPlaceholder.value = "Ask me to find courts, players, or organize games..."
 })
 </script>
 
