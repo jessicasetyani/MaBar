@@ -3,7 +3,7 @@
 ## Files Removed
 
 ### Temporary Test Files
-- `add-test-venues.html` - Browser-based venue creation (replaced by script)
+- `test-*.html` files - Browser-based test interfaces (replaced by Vue components)
 - `debug-cloud-function.html` - Cloud function debugging page
 - `test-add-venues.js` - Browser console script
 - `test-auth-debug.html` - Authentication debugging page
