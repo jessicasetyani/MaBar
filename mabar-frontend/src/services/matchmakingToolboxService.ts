@@ -496,9 +496,43 @@ export class MatchmakingToolboxService {
       const query = new Parse.Query(Venue)
       query.equalTo('isActive', true)
       
-      if (filters.location) {
-        query.matches('address.area', new RegExp(filters.location, 'i'))
+      // Location filtering
+      if (filters.location && filters.location !== 'Jakarta') {
+        const locationQuery = Parse.Query.or(
+          new Parse.Query(Venue).matches('address.area', new RegExp(filters.location, 'i')),
+          new Parse.Query(Venue).matches('address.city', new RegExp(filters.location, 'i')),
+          new Parse.Query(Venue).matches('name', new RegExp(filters.location, 'i'))
+        )
+        query = Parse.Query.and(query, locationQuery)
       }
+      
+      // Price range filtering
+      if (filters.priceRange) {
+        if (filters.priceRange.min) {
+          query.greaterThanOrEqualTo('pricing.hourlyRate', filters.priceRange.min)
+        }
+        if (filters.priceRange.max) {
+          query.lessThanOrEqualTo('pricing.hourlyRate', filters.priceRange.max)
+        }
+      }
+      
+      // Facilities filtering
+      if (filters.facilities && filters.facilities.length > 0) {
+        query.containsAll('facilities', filters.facilities)
+      }
+      
+      // Rating filtering (optional)
+      if (filters.minRating) {
+        query.greaterThanOrEqualTo('rating', filters.minRating)
+      }
+      
+      // Court count filtering (optional)
+      if (filters.minCourts) {
+        query.greaterThanOrEqualTo('courtCount', filters.minCourts)
+      }
+      
+      query.ascending('pricing.hourlyRate')
+      query.limit(20)
       
       const results = await query.find()
       return results.map(venue => ({
