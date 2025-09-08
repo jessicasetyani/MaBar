@@ -134,48 +134,13 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
     const sessionId = AIFlowLogger.startSession(userInput)
     
     try {
-      // Step 1: Get user preferences (optional context)
-      AIFlowLogger.logStep('step-1-start', 'processing', {
-        message: '👤 Step 1: Getting user preferences and context'
-      })
-      
-      AIFlowLogger.startStepTimer()
+      // Ensure conversation is initialized
+      await this.initializeConversation()
+
+      // Get user preferences and process AI request
       const userPreferences = await this.getUserPreferences()
-      const step1Duration = AIFlowLogger.endStepTimer()
-      
-      AIFlowLogger.logUserPreferences(
-        userPreferences, 
-        userPreferences ? 'profile' : 'none'
-      )
-
-      // Step 2: Get AI analysis with system instruction and user context
-      AIFlowLogger.logStep('step-2-start', 'processing', {
-        message: '🤖 Step 2: AI analyzing user input and generating request'
-      })
-      
-      AIFlowLogger.startStepTimer()
       const aiRequest = await this.getAIAnalysis(userInput, userPreferences)
-      const step2Duration = AIFlowLogger.endStepTimer()
-      
-      AIFlowLogger.logStep('step-2-complete', 'output', {
-        aiRequest,
-        processingTime: step2Duration,
-        message: '✅ AI analysis completed successfully'
-      }, {
-        duration: step2Duration,
-        success: true
-      })
-
-      // Step 3: Execute the requested action using our toolbox
-      AIFlowLogger.logStep('step-3-start', 'processing', {
-        message: '🔧 Step 3: Executing toolbox action based on AI request'
-      })
-      
-      AIFlowLogger.startStepTimer()
       const response = await this.executeToolboxAction(aiRequest)
-      const step3Duration = AIFlowLogger.endStepTimer()
-      
-      AIFlowLogger.logFinalResponse(response, true)
       
       // End logging session
       const completedLog = AIFlowLogger.endSession()
@@ -189,13 +154,6 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
 
     } catch (error) {
       AIFlowLogger.logError('main-process', error, { userInput })
-      AIFlowLogger.logFinalResponse({
-        text: 'Sorry, I encountered an issue processing your request. Please try again with more specific details.',
-        sessionCards: [{
-          type: 'no-availability',
-          data: { message: 'Service temporarily unavailable' }
-        }]
-      }, false)
       
       // End logging session with error
       const completedLog = AIFlowLogger.endSession()
@@ -224,25 +182,11 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) {
-        AIFlowLogger.logStep('user-auth-check', 'processing', {
-          authenticated: false,
-          message: '👤 No authenticated user - no preferences available'
-        })
         return null
       }
 
-      AIFlowLogger.logStep('user-auth-check', 'processing', {
-        authenticated: true,
-        userId: currentUser.id,
-        message: '👤 Authenticated user found, fetching profile'
-      })
-
       const playerProfile = await PlayerService.getPlayerProfile()
       if (!playerProfile) {
-        AIFlowLogger.logStep('profile-fetch', 'processing', {
-          profileFound: false,
-          message: '👤 No player profile found - no preferences available'
-        })
         return null
       }
 
@@ -260,12 +204,6 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
         gameType: preferences.gameType
       }
 
-      AIFlowLogger.logStep('profile-fetch', 'processing', {
-        profileFound: true,
-        preferencesCount: Object.keys(userPreferences).filter(key => userPreferences[key as keyof UserPreferences] !== undefined).length,
-        message: '✅ User preferences loaded successfully'
-      })
-      
       return userPreferences
 
     } catch (error) {
@@ -396,12 +334,6 @@ User Request: ${userInput}`
   private static async executeToolboxAction(aiRequest: AIRequest): Promise<AIResponse> {
     const { action, parameters } = aiRequest
     
-    AIFlowLogger.logStep('toolbox-action-start', 'processing', {
-      action,
-      parameters,
-      message: `🔧 Starting toolbox action: ${action}`
-    })
-    
     const startTime = performance.now()
 
     try {
@@ -444,6 +376,7 @@ User Request: ${userInput}`
           response = MatchmakingToolboxService.needMoreInfo(parameters)
           break
         
+
         default:
           response = {
             text: 'I\'m not sure how to help with that. Could you try asking differently?',
@@ -453,15 +386,7 @@ User Request: ${userInput}`
             }]
           }
       }
-      
-      AIFlowLogger.logToolboxExecution(action, parameters, startTime)
-      
-      AIFlowLogger.logStep('toolbox-action-complete', 'output', {
-        action,
-        response,
-        success: true,
-        message: `✅ Toolbox action completed: ${action}`
-      })
+
       
       return response
       
