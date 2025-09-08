@@ -44,6 +44,11 @@ const routes = [
     component: () => import('../views/AIChat.vue'),
     meta: { requiresAuth: true, requiresRole: 'player' },
   },
+  {
+    path: '/ai-test',
+    name: 'AITest',
+    component: () => import('../components/SimpleAITest.vue'),
+  },
 ]
 
 export const router = createRouter({
