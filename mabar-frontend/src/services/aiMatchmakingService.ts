@@ -996,4 +996,73 @@ User Request: ${userInput}`
       }]
     }
   }
+
+  // =============================================================================
+  // DIRECT DATABASE QUERY METHODS
+  // =============================================================================
+
+  private static async queryVenues(filters: any) {
+    try {
+      const Venue = Parse.Object.extend('Venue')
+      const query = new Parse.Query(Venue)
+      query.equalTo('isActive', true)
+      
+      if (filters.location) {
+        query.matches('address.area', new RegExp(filters.location, 'i'))
+      }
+      
+      const results = await query.find()
+      return results.map(venue => ({
+        id: venue.id,
+        name: venue.get('name') || 'Padel Court',
+        pricing: venue.get('pricing') || { hourlyRate: 175000 },
+        address: venue.get('address') || { city: 'Jakarta', area: 'Central' },
+        facilities: venue.get('facilities') || [],
+        rating: venue.get('rating') || 4.0
+      }))
+    } catch (error) {
+      console.error('❌ Error querying venues:', error)
+      return []
+    }
+  }
+
+  private static async queryPlayers(filters: any) {
+    try {
+      const searchCriteria: any = {}
+      if (filters.skillLevel) searchCriteria.skillLevel = filters.skillLevel
+      if (filters.location) searchCriteria.preferredAreas = [filters.location]
+      
+      const playerProfiles = await PlayerService.searchPlayers(searchCriteria)
+      return playerProfiles.map(profile => {
+        const personalInfo = profile.get('personalInfo') || {}
+        const preferences = profile.get('preferences') || {}
+        return {
+          id: profile.id,
+          name: personalInfo.name || 'Player',
+          skillLevel: preferences.skillLevel || 'Intermediate'
+        }
+      })
+    } catch (error) {
+      console.error('❌ Error querying players:', error)
+      return []
+    }
+  }
+
+  private static async executeComprehensiveQuery(filters: any) {
+    try {
+      const [venues, players] = await Promise.all([
+        this.queryVenues(filters),
+        this.queryPlayers(filters)
+      ])
+      
+      return {
+        venues,
+        players,
+        totalResults: venues.length + players.length
+      }
+    } catch (error) {
+      console.error('❌ Error in comprehensive query:', error)
+      return { venues: [], players: [], totalResults: 0 }
+    }
+  }
 }
