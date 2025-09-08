@@ -178,12 +178,16 @@ export class PlayerService {
   }
 
   /**
-   * Search players by preferences (areas, times, skill level)
+   * Search players by preferences (areas, times, skill level, gender)
    */
   static async searchPlayers(searchCriteria: {
     skillLevel?: string
     preferredAreas?: string[]
     playingTimes?: string[]
+    gender?: string
+    age?: number
+    ageRange?: { min?: number; max?: number }
+    gameType?: string
   }): Promise<Parse.Object[]> {
     try {
       const PlayerProfile = Parse.Object.extend('PlayerProfile')
@@ -202,6 +206,31 @@ export class PlayerService {
       // Filter by playing times (if any match)
       if (searchCriteria.playingTimes && searchCriteria.playingTimes.length > 0) {
         query.containedIn('preferences.playingTimes', searchCriteria.playingTimes)
+      }
+      
+      // Filter by gender
+      if (searchCriteria.gender) {
+        query.equalTo('personalInfo.gender', searchCriteria.gender)
+      }
+      
+      // Filter by age
+      if (searchCriteria.age) {
+        query.equalTo('personalInfo.age', searchCriteria.age)
+      }
+      
+      // Filter by age range
+      if (searchCriteria.ageRange) {
+        if (searchCriteria.ageRange.min) {
+          query.greaterThanOrEqualTo('personalInfo.age', searchCriteria.ageRange.min)
+        }
+        if (searchCriteria.ageRange.max) {
+          query.lessThanOrEqualTo('personalInfo.age', searchCriteria.ageRange.max)
+        }
+      }
+      
+      // Filter by game type preference
+      if (searchCriteria.gameType) {
+        query.equalTo('preferences.gameType', searchCriteria.gameType)
       }
       
       query.equalTo('status', 'active')
