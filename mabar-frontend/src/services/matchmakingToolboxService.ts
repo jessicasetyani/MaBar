@@ -552,8 +552,53 @@ export class MatchmakingToolboxService {
   private static async queryPlayers(filters: any) {
     try {
       const searchCriteria: any = {}
-      if (filters.skillLevel) searchCriteria.skillLevel = filters.skillLevel
-      if (filters.location) searchCriteria.preferredAreas = [filters.location]
+      
+      // Skill level filtering
+      if (filters.skillLevel) {
+        searchCriteria.skillLevel = filters.skillLevel
+      }
+      
+      // Location filtering
+      if (filters.location && filters.location !== 'Jakarta') {
+        searchCriteria.preferredAreas = [filters.location]
+      }
+      
+      // Playing times filtering
+      if (filters.time) {
+        const timeMapping = {
+          'morning': ['Morning (6-12 PM)'],
+          'afternoon': ['Afternoon (12-6 PM)'],
+          'evening': ['Evening (6-10 PM)'],
+          'night': ['Night (10 PM-12 AM)']
+        }
+        
+        const timeKey = Object.keys(timeMapping).find(key => 
+          filters.time.toLowerCase().includes(key)
+        )
+        
+        if (timeKey) {
+          searchCriteria.playingTimes = timeMapping[timeKey as keyof typeof timeMapping]
+        }
+      }
+      
+      // Gender filtering
+      if (filters.gender && filters.gender !== 'mixed') {
+        searchCriteria.gender = filters.gender
+      }
+      
+      // Age filtering
+      if (filters.age) {
+        if (typeof filters.age === 'number') {
+          searchCriteria.age = filters.age
+        } else if (filters.age.min || filters.age.max) {
+          searchCriteria.ageRange = filters.age
+        }
+      }
+      
+      // Game type filtering
+      if (filters.gameType) {
+        searchCriteria.gameType = filters.gameType
+      }
       
       const playerProfiles = await PlayerService.searchPlayers(searchCriteria)
       return playerProfiles.map(profile => {
@@ -562,7 +607,9 @@ export class MatchmakingToolboxService {
         return {
           id: profile.id,
           name: personalInfo.name || 'Player',
-          skillLevel: preferences.skillLevel || 'Intermediate'
+          skillLevel: preferences.skillLevel || 'Intermediate',
+          preferredAreas: preferences.preferredAreas || [],
+          playingTimes: preferences.playingTimes || []
         }
       })
     } catch (error) {
