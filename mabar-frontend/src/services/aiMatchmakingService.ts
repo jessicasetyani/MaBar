@@ -1,8 +1,7 @@
 import { GoogleGenAI } from '@google/genai'
 import { env } from '../config/env'
-import { MatchmakingQueryService } from './matchmakingQueryService'
 import { PlayerService } from './playerService'
-import { BookingService } from './bookingService'
+import { MatchmakingToolboxService } from './matchmakingToolboxService'
 import Parse from './back4app'
 import { AIFlowLogger } from './aiFlowLogger'
 
@@ -416,39 +415,39 @@ User Request: ${userInput}`
       
       switch (action) {
         case 'getAvailableVenues':
-          response = await this.toolbox_getAvailableVenues(parameters)
+          response = await MatchmakingToolboxService.getAvailableVenues(parameters)
           break
         
         case 'getAvailablePlayers':
-          response = await this.toolbox_getAvailablePlayers(parameters)
+          response = await MatchmakingToolboxService.getAvailablePlayers(parameters)
           break
         
         case 'findOpenSessions':
-          response = await this.toolbox_findOpenSessions(parameters)
+          response = await MatchmakingToolboxService.findOpenSessions(parameters)
           break
         
         case 'createNewSession':
-          response = await this.toolbox_createNewSession(parameters)
+          response = await MatchmakingToolboxService.createNewSession(parameters)
           break
         
         case 'getVenueDetails':
-          response = await this.toolbox_getVenueDetails(parameters)
+          response = await MatchmakingToolboxService.getVenueDetails(parameters)
           break
         
         case 'checkVenueAvailability':
-          response = await this.toolbox_checkVenueAvailability(parameters)
-          break
-        
-        case 'findMatch':
-          response = await this.toolbox_findMatch(parameters)
+          response = await MatchmakingToolboxService.checkVenueAvailability(parameters)
           break
         
         case 'getPersonalizedRecommendations':
-          response = await this.toolbox_getPersonalizedRecommendations(parameters)
+          response = await MatchmakingToolboxService.getPersonalizedRecommendations(parameters)
+          break
+        
+        case 'findMatch':
+          response = await MatchmakingToolboxService.findMatch(parameters)
           break
         
         case 'needMoreInfo':
-          response = this.toolbox_needMoreInfo(parameters)
+          response = MatchmakingToolboxService.needMoreInfo(parameters)
           break
         
         default:
@@ -503,7 +502,7 @@ User Request: ${userInput}`
         date: params.date
       }
 
-      const venues = await MatchmakingQueryService.queryVenues(filters)
+      const venues = await this.queryVenues(filters)
       
       if (venues.length === 0) {
         return {
@@ -558,7 +557,7 @@ User Request: ${userInput}`
         timeSlot: params.time
       }
 
-      const players = await MatchmakingQueryService.queryPlayers(filters)
+      const players = await this.queryPlayers(filters)
       
       if (players.length === 0) {
         return {
@@ -686,7 +685,7 @@ User Request: ${userInput}`
       }
 
       // Execute comprehensive search
-      const results = await MatchmakingQueryService.executeComprehensiveQuery(filters)
+      const results = await this.executeComprehensiveQuery(filters)
       
       if (results.totalResults === 0) {
         return {
@@ -836,7 +835,7 @@ User Request: ${userInput}`
       }
 
       // Find suitable venue first
-      const venues = await MatchmakingQueryService.queryVenues({
+      const venues = await this.queryVenues({
         location: params.location,
         priceRange: params.priceRange
       })
