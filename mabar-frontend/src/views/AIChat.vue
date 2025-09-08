@@ -41,10 +41,10 @@
       </div>
     </header>
 
-    <!-- Chat Container with full height and fixed input -->
-    <main class="flex flex-col" style="height: 100vh; position: relative;">
+    <!-- Chat Container with proper height calculation -->
+    <main class="flex flex-col" style="height: calc(100vh - 120px); position: relative;">
       <!-- Messages Area with proper spacing -->
-      <div ref="messagesContainer" class="flex-1 overflow-y-auto" style="padding: 24px 16px; padding-bottom: 120px;">
+      <div ref="messagesContainer" class="flex-1 overflow-y-auto" style="padding: 24px 16px; padding-bottom: 24px;">
         <div class="max-w-4xl mx-auto" style="display: flex; flex-direction: column; gap: 24px;">
           <div v-for="message in messages" :key="message.id" class="flex" :class="message.isUser ? 'justify-end' : 'justify-start'">
 
@@ -71,14 +71,22 @@
                 
                 <!-- Session Cards -->
                 <div v-if="message.sessionCards" class="session-cards-container" style="margin-top: 12px;">
-                  <SessionCard
-                    v-for="(card, index) in message.sessionCards"
-                    :key="index"
-                    :type="card.type"
-                    :data="card.data"
-                    @join-session="handleJoinSession"
-                    @create-session="handleCreateSession"
-                  />
+                  <template v-for="(card, index) in message.sessionCards" :key="index">
+                    <SessionCard
+                      v-if="card.type !== 'no-availability'"
+                      :type="card.type"
+                      :data="card.data"
+                      @join-session="handleJoinSession"
+                      @create-session="handleCreateSession"
+                    />
+                    <NoMatchCard
+                      v-else
+                      :message="card.data.message"
+                      @create-session="() => handleCreateSession(card.data)"
+                      @modify-search="handleModifySearch"
+                      @show-popular="handleShowPopular"
+                    />
+                  </template>
                 </div>
               </div>
             </div>
@@ -131,8 +139,8 @@
         </div>
       </div>
 
-      <!-- Input Area fixed at bottom with no gaps -->
-      <div class="border-t" style="border-color: #64748B; background-color: #FFFFFF; padding: 16px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;">
+      <!-- Input Area fixed at bottom with proper spacing -->
+      <div class="border-t" style="border-color: #64748B; background-color: #FFFFFF; padding: 16px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);">
         <div class="max-w-4xl mx-auto">
           <div class="flex items-center" style="gap: 16px;">
             <div class="flex-1">
@@ -207,18 +215,24 @@
 
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue'
-import { GoogleGenAI } from '@google/genai'
 import SessionCard from '../components/SessionCard.vue'
-import Parse from '../services/back4app'
-import { env } from '../config/env'
+
+import NoMatchCard from '../components/NoMatchCard.vue'
+import { AIMatchmakingService } from '../services/aiMatchmakingService'
+import { AIFlowTester } from '../services/testAIFlow'
+import { DatabaseConnectionTest } from '../services/testDatabaseConnection'
 
 interface SessionData {
+  sessionId?: string
   venue?: string
+  address?: string
   time?: string
   date?: string
   cost?: string
   players?: Array<{ name: string; skillLevel: string }>
   openSlots?: number
+  totalCourts?: number
+  status?: 'available' | 'joining' | 'full' | 'pending'
   suggestedTime?: string
   suggestedDate?: string
   estimatedCost?: string
@@ -231,6 +245,7 @@ interface Message {
   isUser: boolean
   timestamp: Date
   sessionCards?: Array<{ type: 'existing-session' | 'create-new' | 'no-availability'; data: SessionData }>
+  showNoMatch?: boolean
 }
 
 const messages = ref<Message[]>([])
@@ -239,10 +254,10 @@ const isLoading = ref(false)
 const messagesContainer = ref<HTMLElement>()
 
 const quickSuggestions = [
-  'Find me a partner for tonight',
-  'Show available courts tomorrow',
-  'Find intermediate players',
-  'Book a court this weekend'
+  'Find players for weekend morning',
+  'Book court tomorrow evening', 
+  'Find players for weekend',
+  'Find advanced players at midnight'
 ]
 
 let messageId = 0
@@ -281,10 +296,32 @@ const handleJoinSession = (sessionData: SessionData) => {
   // TODO: Implement actual booking logic
 }
 
-const handleCreateSession = (sessionData: SessionData) => {
-  const confirmationText = `You're about to create a new session at ${sessionData.venue || sessionData.suggestedTime}. Estimated cost: ${sessionData.estimatedCost}. Confirm?`
+const handleCreateSession = (sessionData?: SessionData) => {
+  const venue = sessionData?.venue || 'your preferred venue'
+  const time = sessionData?.suggestedTime || sessionData?.time || 'your preferred time'
+  const cost = sessionData?.estimatedCost || sessionData?.cost || 'Rp 175,000 per hour'
+  
+  const confirmationText = `Great! I'll help you create a new session at ${venue} for ${time}. Estimated cost: ${cost}. Would you like me to set this up and notify other players?`
   addMessage(confirmationText, false)
   // TODO: Implement session creation logic
+}
+
+const handleModifySearch = () => {
+  const suggestionText = `Let's try a different approach! You can:<br><br>
+  • Try a different time (e.g., "tomorrow evening" instead of "tonight")<br>
+  • Expand your location (e.g., "anywhere in Jakarta" instead of specific area)<br>
+  • Be flexible with skill level (e.g., "any skill level" instead of "advanced only")<br><br>
+  What would you like to adjust?`
+  addMessage(suggestionText, false)
+}
+
+const handleShowPopular = () => {
+  const popularText = `Here are some popular session times and locations in Jakarta:<br><br>
+  • <strong>Weekday evenings (6-8 PM)</strong> - Most active time for after-work games<br>
+  • <strong>Weekend mornings (9-11 AM)</strong> - Popular for longer sessions<br>
+  • <strong>Senayan & Kemang areas</strong> - Highest concentration of courts and players<br><br>
+  Would you like me to search for sessions during these popular times?`
+  addMessage(popularText, false)
 }
 
 const sendMessage = async () => {
@@ -297,100 +334,44 @@ const sendMessage = async () => {
   isLoading.value = true
 
   try {
-    console.log('🤖 Processing AI request directly:', userMessage)
+    console.log('🤖 Processing AI matchmaking request:', userMessage)
 
-    // Initialize Google GenAI
-    const ai = new GoogleGenAI({
-      apiKey: env.GOOGLE_API_KEY,
-    })
+    // Use the new AI matchmaking service
+    const aiResponse = await AIMatchmakingService.processMatchmakingRequest(userMessage)
     
-    const model = 'gemini-2.5-flash-lite'
-    const contents = [{
-      role: 'user' as const,
-      parts: [{
-        text: `You are MaBar AI, a padel matchmaking assistant. Analyze this request and provide a helpful response: "${userMessage}"
-        
-        Respond with natural language that helps the user find padel courts or players in Jakarta.`
-      }]
-    }]
+    console.log('📝 AI matchmaking response:', aiResponse)
 
-    const response = await ai.models.generateContent({
-      model,
-      contents,
-    })
-    
-    const aiText = response.text
-    console.log('📝 Gemini AI response:', aiText)
-
-    if (aiText) {
-      // Add AI response
-      addMessage(aiText, false)
-
-      // Query Back4App database directly for courts/players
-      await queryDatabaseAndAddCards(userMessage)
-
-      console.log('✅ AI response processed successfully')
-    } else {
-      addMessage('Sorry, I encountered an issue processing your request. Please try again.', false)
+    // Add AI text response if provided
+    if (aiResponse.text) {
+      addMessage(aiResponse.text, false)
     }
 
+    // Add session cards if provided
+    if (aiResponse.sessionCards && aiResponse.sessionCards.length > 0) {
+      addMessageWithCards('', aiResponse.sessionCards, false)
+    }
+
+    console.log('✅ AI matchmaking response processed successfully')
+
   } catch (error) {
-    console.error('Error calling Gemini API:', error)
-    addMessage('Sorry, I encountered an issue processing your request. Please try again.', false)
+    console.error('❌ Error in AI matchmaking:', error)
+    
+    // Fallback to basic response
+    const fallbackResponse = AIMatchmakingService.handleInsufficientInput(userMessage)
+    
+    if (fallbackResponse.text) {
+      addMessage(fallbackResponse.text, false)
+    }
+    
+    if (fallbackResponse.sessionCards) {
+      addMessageWithCards('', fallbackResponse.sessionCards, false)
+    }
   } finally {
     isLoading.value = false
   }
 }
 
-const queryDatabaseAndAddCards = async (userMessage: string) => {
-  try {
-    console.log('🔍 Querying Back4App database for venues...')
-    
-    // Query venues from Back4App
-    const Venue = Parse.Object.extend('Venue')
-    const venueQuery = new Parse.Query(Venue)
-    venueQuery.equalTo('isActive', true)
-    venueQuery.limit(3)
-    const venues = await venueQuery.find()
 
-    console.log('📊 Database query result:', {
-      venuesFound: venues.length,
-      venues: venues.map(v => ({ 
-        id: v.id, 
-        name: v.get('name'), 
-        isActive: v.get('isActive'),
-        pricing: v.get('pricing')
-      }))
-    })
-
-    if (venues.length > 0) {
-      const sessionCards = venues.map(venue => ({
-        type: 'create-new' as const,
-        data: {
-          venue: venue.get('name') || 'Padel Court',
-          suggestedTime: '7:00 PM',
-          suggestedDate: 'Tonight',
-          estimatedCost: `Rp ${venue.get('pricing')?.hourlyRate || 175000} each`
-        }
-      }))
-      
-      console.log('🎯 Adding session cards:', sessionCards.length)
-      addMessageWithCards('', sessionCards, false)
-    } else {
-      console.log('⚠️ No venues found in database')
-      // Try querying all venues to see what's there
-      const allVenuesQuery = new Parse.Query(Venue)
-      const allVenues = await allVenuesQuery.find()
-      console.log('📋 All venues in database:', allVenues.length, allVenues.map(v => ({
-        id: v.id,
-        name: v.get('name'),
-        isActive: v.get('isActive')
-      })))
-    }
-  } catch (error) {
-    console.error('❌ Error querying database:', error)
-  }
-}
 
 const sendQuickMessage = (suggestion: string) => {
   currentMessage.value = suggestion
@@ -469,176 +450,27 @@ const handleSuggestionBlur = (event: Event) => {
 
 
 
-/**
- * Fallback response generator for when Gemini AI service is unavailable
- * This function provides basic pattern-matching responses to ensure the chat
- * interface remains functional even when the AI service fails or is down.
- * Used as a reliability fallback in the sendMessage() function.
- */
-const generateMockResponse = (userMessage: string) => {
-  const message = userMessage.toLowerCase()
-  
-  if (message.includes('partner') || message.includes('player')) {
-    return {
-      text: 'I found several players who match your preferences:',
-      sessionCards: [
-        {
-          type: 'existing-session' as const,
-          data: {
-            venue: 'Jakarta Padel Center',
-            time: '7:00 PM',
-            date: 'Tonight',
-            cost: 'Rp 175K each',
-            players: [
-              { name: 'Ahmad Rizki', skillLevel: 'Intermediate' },
-              { name: 'Sari Dewi', skillLevel: 'Intermediate' },
-              { name: 'Budi Santoso', skillLevel: 'Advanced' }
-            ],
-            openSlots: 1
-          }
-        },
-        {
-          type: 'create-new' as const,
-          data: {
-            venue: 'Elite Padel Club',
-            suggestedTime: '8:00 PM',
-            suggestedDate: 'Tonight',
-            estimatedCost: 'Rp 200K each'
-          }
-        }
-      ]
-    }
+
+
+onMounted(async () => {
+  // Test database connection on mount
+  console.log('🔌 Testing database connection on component mount...');
+  try {
+    await DatabaseConnectionTest.testEnvironmentVariables();
+    const dbConnected = await DatabaseConnectionTest.testConnection();
+    console.log('✅ Database connection status:', dbConnected ? 'Connected' : 'Failed');
+  } catch (error) {
+    console.error('❌ Database connection test failed:', error);
   }
   
-  if (message.includes('court') || message.includes('book')) {
-    return {
-      text: 'Here are available courts for your request:',
-      sessionCards: [
-        {
-          type: 'create-new' as const,
-          data: {
-            venue: 'Jakarta Padel Center',
-            suggestedTime: '7:00 PM',
-            suggestedDate: 'Tomorrow',
-            estimatedCost: 'Rp 175K each'
-          }
-        },
-        {
-          type: 'create-new' as const,
-          data: {
-            venue: 'Elite Padel Club',
-            suggestedTime: '6:00 PM',
-            suggestedDate: 'Tomorrow',
-            estimatedCost: 'Rp 200K each'
-          }
-        }
-      ]
-    }
-  }
-  
-  if (message.includes('weekend') || message.includes('saturday') || message.includes('sunday')) {
-    return {
-      text: 'Great! Here are weekend options:',
-      sessionCards: [
-        {
-          type: 'existing-session' as const,
-          data: {
-            venue: 'Jakarta Padel Center',
-            time: '9:00 AM',
-            date: 'Saturday',
-            cost: 'Rp 225K each',
-            players: [
-              { name: 'Maya Sari', skillLevel: 'Intermediate' },
-              { name: 'Andi Wijaya', skillLevel: 'Beginner' }
-            ],
-            openSlots: 2
-          }
-        }
-      ]
-    }
-  }
-  
-  // Handle short messages or unclear input
-  if (message.length <= 2) {
-    return {
-      text: `Hi there! Your message seems quite short. I'm here to help you with padel-related queries.<br><br>
-      Try asking something like:<br>
-      • "Find me a partner for tonight"<br>
-      • "Show available courts tomorrow"<br>
-      • "Book a court this weekend"`,
-      sessionCards: [
-        {
-          type: 'no-availability' as const,
-          data: {
-            message: 'Need help getting started?'
-          }
-        }
-      ]
-    }
-  }
-
-  // Handle greetings
-  if (message.includes('hello') || message.includes('hi') || message.includes('hey') ||
-      message.includes('halo') || message.includes('hai')) {
-    return {
-      text: `Hello! I'm your AI padel assistant. I can help you:<br><br>
-      • Find available courts and venues<br>
-      • Match you with compatible players<br>
-      • Organize games and sessions<br><br>
-      What would you like to do today?`,
-      sessionCards: [
-        {
-          type: 'no-availability' as const,
-          data: {
-            message: 'Ready to play some padel?'
-          }
-        }
-      ]
-    }
-  }
-
-  // Handle help requests
-  if (message.includes('help') || message.includes('bantuan') || message.includes('what can you do')) {
-    return {
-      text: `I'm MaBar AI! Here's how I can help you:<br><br>
-      🏟️ <strong>Find Courts:</strong> "Show courts tomorrow evening"<br>
-      👥 <strong>Find Partners:</strong> "Find intermediate players"<br>
-      📅 <strong>Book Sessions:</strong> "Book a court this weekend"<br>
-      🎯 <strong>Match Making:</strong> "Find me a game tonight"<br><br>
-      Just tell me what you're looking for!`,
-      sessionCards: [
-        {
-          type: 'no-availability' as const,
-          data: {
-            message: 'Ready to get started?'
-          }
-        }
-      ]
-    }
-  }
-
-  // Default response for unclear messages
-  return {
-    text: `I'd love to help you with padel! However, I'm not sure exactly what you're looking for.<br><br>
-    Try being more specific, like:<br>
-    • "Find courts in Jakarta tomorrow"<br>
-    • "Looking for intermediate players"<br>
-    • "Want to play this evening"<br><br>
-    What can I help you find today?`,
-    sessionCards: [
-      {
-        type: 'no-availability' as const,
-        data: {
-          message: 'Need help finding the right match?'
-        }
-      }
-    ]
-  }
-}
-
-onMounted(() => {
   // Add welcome message
   addMessage('Hi! I\'m your AI padel assistant. I can help you find players, book courts, and organize games. What would you like to do today?', false)
+  
+  // Expose test functions to window for console access
+  ;(window as any).testAIFlow = AIFlowTester.runCompleteTest
+  ;(window as any).testSingleInput = AIFlowTester.testSingleInput
+  ;(window as any).testDatabase = DatabaseConnectionTest.testConnection
+  console.log('🧪 Test functions available: testAIFlow(), testSingleInput("your input"), testDatabase()');
 })
 </script>
 
@@ -665,7 +497,17 @@ textarea:focus {
 
 /* Input area fixed positioning styles */
 .border-t {
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure main content doesn't overlap with fixed input */
+main {
+  margin-bottom: 140px; /* Space for fixed input area */
+}
+
+/* Adjust body to prevent scrolling issues */
+body {
+  overflow-x: hidden;
 }
 
 /* Modern Minimalist Send Button Styles */
@@ -754,9 +596,16 @@ button:hover:not(:disabled) {
   scroll-behavior: smooth;
 }
 
-/* Prevent gaps during scrolling */
+/* Prevent gaps during scrolling and ensure proper spacing */
 main {
   overflow: hidden;
+  padding-bottom: 0;
+}
+
+/* Ensure messages container has proper bottom spacing */
+.overflow-y-auto {
+  padding-bottom: 24px !important;
+  margin-bottom: 140px; /* Space for fixed input */
 }
 
 

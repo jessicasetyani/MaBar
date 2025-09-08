@@ -1,100 +1,79 @@
 <template>
-  <div class="session-card" :class="cardClasses">
-    <!-- Existing Session Card -->
-    <div v-if="type === 'existing-session'" class="card-content">
-      <!-- Header -->
-      <div class="card-header">
-        <div class="venue-info">
+  <div class="session-card" :class="sessionStatusClass">
+    <!-- Session Header -->
+    <div class="session-header">
+      <div class="session-main-info">
+        <div class="session-title-row">
           <h3 class="venue-name">{{ data.venue }}</h3>
-          <p class="session-time">{{ data.time }} • {{ data.date }}</p>
+          <div class="session-status-badge" :class="sessionStatusBadgeClass">
+            {{ sessionStatusText }}
+          </div>
         </div>
-        <div class="cost-badge">
-          {{ data.cost }}
-        </div>
+        <p class="session-details">
+          <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+          </svg>
+          {{ sessionTimeText }}
+        </p>
+        <p v-if="data.address" class="session-location">
+          <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          </svg>
+          {{ data.address }}
+        </p>
       </div>
+      <div class="session-actions">
+        <div class="price-display">{{ priceText }}</div>
+        <button v-if="data.address" @click="openDirections" class="directions-button">
+          <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+          </svg>
+          Directions
+        </button>
+      </div>
+    </div>
 
-      <!-- Players -->
-      <div class="players-section">
+    <!-- Session Content -->
+    <div class="session-content">
+      <!-- Available Courts Info -->
+      <div v-if="data.totalCourts && data.totalCourts > 1" class="courts-info">
+        <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
+        </svg>
+        {{ data.totalCourts }} courts available
+      </div>
+      
+      <!-- Players Section -->
+      <div v-if="hasPlayers" class="players-section">
         <div class="players-header">
-          <span class="players-label">Players ({{ data.players?.length || 0 }}/4)</span>
-          <span v-if="data.openSlots" class="open-slots">{{ data.openSlots }} spot{{ data.openSlots > 1 ? 's' : '' }} left</span>
+          <span class="players-title">Current Players</span>
+          <span class="availability-status" :class="availabilityStatusClass">
+            {{ availabilityStatusText }}
+          </span>
         </div>
-        <div class="players-list">
-          <div v-for="player in (data.players || [])" :key="player.name" class="player-item">
+        <div class="players-grid">
+          <div v-for="player in data.players" :key="player.name" class="player-card">
             <div class="player-avatar">{{ player.name.charAt(0) }}</div>
             <div class="player-info">
               <span class="player-name">{{ player.name }}</span>
-              <span class="player-level">{{ player.skillLevel }}</span>
+              <span class="player-skill">{{ player.skillLevel }}</span>
             </div>
+          </div>
+          <!-- Empty slots -->
+          <div v-for="n in (data.openSlots || 0)" :key="`empty-${n}`" class="empty-slot">
+            <div class="empty-avatar">+</div>
+            <span class="empty-text">Open spot</span>
           </div>
         </div>
       </div>
-
+      
       <!-- Action Button -->
       <button 
-        @click="$emit('join-session', data)"
-        class="action-button primary"
-        :disabled="!data.openSlots"
+        @click="handleSessionAction()"
+        class="session-action-button"
+        :class="actionButtonClass"
       >
-        {{ data.openSlots ? 'Join Game' : 'Full' }}
-      </button>
-    </div>
-
-    <!-- Create New Session Card -->
-    <div v-else-if="type === 'create-new'" class="card-content">
-      <!-- Header -->
-      <div class="card-header">
-        <div class="venue-info">
-          <h3 class="venue-name">{{ data.venue }}</h3>
-          <p class="session-time">{{ data.suggestedTime }} • {{ data.suggestedDate }}</p>
-        </div>
-        <div class="cost-badge">
-          {{ data.estimatedCost }}
-        </div>
-      </div>
-
-      <!-- Create Session Info -->
-      <div class="create-info">
-        <div class="create-icon">
-          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-          </svg>
-        </div>
-        <div class="create-text">
-          <p class="create-title">Create New Session</p>
-          <p class="create-subtitle">Be the first player and invite others</p>
-        </div>
-      </div>
-
-      <!-- Action Button -->
-      <button 
-        @click="$emit('create-session', data)"
-        class="action-button secondary"
-      >
-        Create New Session
-      </button>
-    </div>
-
-    <!-- No Availability Card -->
-    <div v-else-if="type === 'no-availability'" class="card-content">
-      <div class="no-availability">
-        <div class="no-availability-icon">
-          <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-        </div>
-        <div class="no-availability-text">
-          <p class="no-availability-title">{{ data.message || 'No sessions found' }}</p>
-          <p class="no-availability-subtitle">Would you like to create a new session instead?</p>
-        </div>
-      </div>
-
-      <!-- Action Button -->
-      <button 
-        @click="$emit('create-session', data)"
-        class="action-button secondary"
-      >
-        Create New Session
+        {{ actionButtonText }}
       </button>
     </div>
   </div>
@@ -108,14 +87,35 @@ interface Player {
   skillLevel: string
 }
 
-interface SessionData {
-  // Existing session
-  venue?: string
+interface Court {
+  name?: string
   time?: string
   date?: string
   cost?: string
   players?: Player[]
   openSlots?: number
+  available?: boolean
+}
+
+interface SessionData {
+  // Venue information
+  venue?: string
+  address?: string
+  area?: string
+  
+  // Single session/court
+  time?: string
+  date?: string
+  cost?: string
+  players?: Player[]
+  openSlots?: number
+  totalCourts?: number
+  
+  // Session status
+  status?: 'available' | 'joining' | 'full' | 'pending'
+  
+  // Multiple courts
+  courts?: Court[]
   
   // Create new session
   suggestedTime?: string
@@ -133,16 +133,100 @@ interface Props {
 
 const props = defineProps<Props>()
 
-defineEmits<{
+const emit = defineEmits<{
   'join-session': [data: SessionData]
   'create-session': [data: SessionData]
 }>()
 
-const cardClasses = computed(() => ({
-  'existing-session': props.type === 'existing-session',
-  'create-new': props.type === 'create-new',
-  'no-availability': props.type === 'no-availability'
+// Computed properties for better UX
+const hasPlayers = computed(() => props.data.players && props.data.players.length > 0)
+const isFull = computed(() => hasPlayers.value && (!props.data.openSlots || props.data.openSlots === 0))
+const canJoin = computed(() => hasPlayers.value && props.data.openSlots && props.data.openSlots > 0)
+
+const sessionStatusClass = computed(() => ({
+  'has-players': hasPlayers.value,
+  'is-full': isFull.value,
+  'can-join': canJoin.value
 }))
+
+const sessionStatusBadgeClass = computed(() => ({
+  'status-available': !hasPlayers.value,
+  'status-joining': canJoin.value,
+  'status-full': isFull.value
+}))
+
+const sessionStatusText = computed(() => {
+  if (isFull.value) return 'Full'
+  if (canJoin.value) return `${props.data.openSlots} spots open`
+  if (props.data.totalCourts && props.data.totalCourts > 1) return `${props.data.totalCourts} courts available`
+  return 'Available'
+})
+
+const sessionTimeText = computed(() => {
+  const time = props.data.time || props.data.suggestedTime
+  const date = props.data.date || props.data.suggestedDate
+  
+  // Show clear weekend options with actual dates
+  if (time?.includes('Anytime') || time?.includes('All day')) {
+    const today = new Date()
+    const saturday = new Date(today)
+    saturday.setDate(today.getDate() + (6 - today.getDay()))
+    const sunday = new Date(saturday)
+    sunday.setDate(saturday.getDate() + 1)
+    
+    const satDate = saturday.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    const sunDate = sunday.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    
+    return `All day • ${satDate} or ${sunDate}`
+  }
+  
+  return `${time} • ${date}`
+})
+
+const priceText = computed(() => {
+  const price = props.data.cost || props.data.estimatedCost
+  return price
+})
+
+const availabilityStatusClass = computed(() => ({
+  'status-open': canJoin.value,
+  'status-full': isFull.value
+}))
+
+const availabilityStatusText = computed(() => {
+  if (isFull.value) return 'Session Full'
+  return `${props.data.openSlots} spots available`
+})
+
+const actionButtonClass = computed(() => ({
+  'action-join': canJoin.value,
+  'action-create': !hasPlayers.value,
+  'action-full': isFull.value
+}))
+
+const actionButtonText = computed(() => {
+  if (isFull.value) return 'Session Full'
+  if (canJoin.value) return `Join Session (${props.data.openSlots} spots left)`
+  return 'Create New Session'
+})
+
+const openDirections = () => {
+  if (props.data.address) {
+    const encodedAddress = encodeURIComponent(`${props.data.venue}, ${props.data.address}`)
+    const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`
+    window.open(mapsUrl, '_blank')
+  }
+}
+
+const handleSessionAction = () => {
+  if (isFull.value) return
+  
+  if (canJoin.value) {
+    emit('join-session', props.data)
+  } else {
+    emit('create-session', props.data)
+  }
+}
 </script>
 
 <script lang="ts">
@@ -152,101 +236,261 @@ export default {
 </script>
 
 <style scoped>
+/* Session Card */
 .session-card {
   background-color: #FFFFFF;
-  border: 1px solid #E5E7EB;
+  border: 2px solid #E5E7EB;
   border-radius: 16px;
-  padding: 20px;
-  margin: 12px 0;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  margin: 16px 0;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   transition: all 0.2s ease;
+  overflow: hidden;
 }
 
 .session-card:hover {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.card-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.session-card.can-join {
+  border-color: #84CC16;
+  background-color: #FEFCE8;
 }
 
-/* Header */
-.card-header {
+.session-card.is-full {
+  border-color: #64748B;
+  background-color: #F8FAFC;
+  opacity: 0.8;
+}
+
+/* Session Header */
+.session-header {
+  padding: 20px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E5E7EB;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 16px;
 }
 
-.venue-info {
+.session-main-info {
   flex: 1;
+}
+
+.session-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .venue-name {
   font-size: 18px;
   font-weight: 600;
   color: #334155;
-  margin: 0 0 4px 0;
+  margin: 0;
   line-height: 1.3;
 }
 
-.session-time {
-  font-size: 14px;
-  color: #64748B;
-  margin: 0;
+.session-status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.cost-badge {
+.session-status-badge.status-available {
+  background-color: #DBEAFE;
+  color: #1E40AF;
+}
+
+.session-status-badge.status-joining {
+  background-color: #DCFCE7;
+  color: #166534;
+}
+
+.session-status-badge.status-full {
+  background-color: #F1F5F9;
+  color: #64748B;
+}
+
+.session-details,
+.session-location {
+  font-size: 14px;
+  color: #64748B;
+  margin: 0 0 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.session-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.price-display {
   background-color: #FDE047;
   color: #334155;
-  padding: 8px 16px;
-  border-radius: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.directions-button {
+  background-color: transparent;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.directions-button:hover {
+  background-color: #F8FAFC;
+  color: #334155;
+}
+
+/* Session Content */
+.session-content {
+  padding: 20px;
+}
+
+.courts-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748B;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: #F8FAFC;
+  border-radius: 8px;
+}
+
+/* Courts List */
+.courts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.court-item {
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+  background-color: #FEFCE8;
+}
+
+.single-court {
+  /* No additional styling needed, inherits from courts-section */
+}
+
+/* Court Header */
+.court-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.court-info {
+  flex: 1;
+}
+
+.court-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.court-time {
+  font-size: 14px;
+  color: #64748B;
+  display: block;
+}
+
+.court-price {
+  background-color: #FDE047;
+  color: #334155;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 /* Players Section */
 .players-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .players-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
 }
 
-.players-label {
+.players-title {
   font-size: 14px;
   font-weight: 600;
   color: #334155;
 }
 
-.open-slots {
+.availability-status {
   font-size: 12px;
-  color: #84CC16;
   font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
 }
 
-.players-list {
-  display: flex;
-  flex-wrap: wrap;
+.availability-status.status-open {
+  background-color: #DCFCE7;
+  color: #166534;
+}
+
+.availability-status.status-full {
+  background-color: #F1F5F9;
+  color: #64748B;
+}
+
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
-.player-item {
+.player-card {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding: 12px;
   background-color: #FEFCE8;
-  padding: 8px 12px;
-  border-radius: 12px;
   border: 1px solid #E5E7EB;
+  border-radius: 12px;
 }
 
 .player-avatar {
@@ -263,102 +507,52 @@ export default {
 }
 
 .player-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex: 1;
 }
 
 .player-name {
   font-size: 14px;
   font-weight: 500;
   color: #334155;
+  display: block;
 }
 
-.player-level {
+.player-skill {
   font-size: 12px;
   color: #64748B;
 }
 
-/* Create Session */
-.create-info {
+.empty-slot {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background-color: #FEFCE8;
+  gap: 10px;
+  padding: 12px;
+  background-color: #F8FAFC;
+  border: 2px dashed #D1D5DB;
   border-radius: 12px;
-  border: 1px solid #E5E7EB;
 }
 
-.create-icon {
-  width: 48px;
-  height: 48px;
-  background-color: #FDE047;
-  color: #334155;
-  border-radius: 12px;
+.empty-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #E5E7EB;
+  color: #64748B;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-}
-
-.create-text {
-  flex: 1;
-}
-
-.create-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
-  color: #334155;
-  margin: 0 0 4px 0;
 }
 
-.create-subtitle {
-  font-size: 14px;
+.empty-text {
+  font-size: 12px;
   color: #64748B;
-  margin: 0;
+  font-style: italic;
 }
 
-/* No Availability */
-.no-availability {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 16px;
-  text-align: left;
-}
-
-.no-availability-icon {
-  width: 48px;
-  height: 48px;
-  background-color: #64748B;
-  color: #FFFFFF;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.no-availability-text {
-  flex: 1;
-}
-
-.no-availability-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #334155;
-  margin: 0 0 4px 0;
-}
-
-.no-availability-subtitle {
-  font-size: 14px;
-  color: #64748B;
-  margin: 0;
-}
-
-/* Action Buttons */
-.action-button {
+/* Session Action Button */
+.session-action-button {
   width: 100%;
   padding: 16px;
   border-radius: 12px;
@@ -368,64 +562,64 @@ export default {
   cursor: pointer;
   transition: all 0.2s ease;
   min-height: 52px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
-.action-button.primary {
+.session-action-button.action-join {
+  background-color: #84CC16;
+  color: #FFFFFF;
+}
+
+.session-action-button.action-join:hover {
+  background-color: #65A30D;
+  transform: translateY(-1px);
+}
+
+.session-action-button.action-create {
   background-color: #FDE047;
   color: #334155;
 }
 
-.action-button.primary:hover:not(:disabled) {
+.session-action-button.action-create:hover {
   background-color: #FACC15;
   transform: translateY(-1px);
 }
 
-.action-button.primary:disabled {
+.session-action-button.action-full {
   background-color: #E5E7EB;
   color: #64748B;
   cursor: not-allowed;
 }
 
-.action-button.secondary {
-  background-color: #84CC16;
-  color: #FFFFFF;
-}
-
-.action-button.secondary:hover {
-  background-color: #65A30D;
-  transform: translateY(-1px);
-}
-
-.action-button:focus {
+.session-action-button:focus {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.3);
+  box-shadow: 0 0 0 3px rgba(132, 204, 22, 0.3);
 }
 
 /* Responsive */
 @media (max-width: 640px) {
-  .session-card {
+  .venue-header {
     padding: 16px;
-  }
-  
-  .card-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
   
-  .cost-badge {
+  .courts-section {
+    padding: 16px;
+  }
+  
+  .court-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .court-price {
     align-self: flex-start;
   }
   
-  .players-list {
-    flex-direction: column;
-  }
-  
-  .player-item {
-    justify-content: flex-start;
+  .directions-button {
+    align-self: flex-start;
   }
 }
 </style>
