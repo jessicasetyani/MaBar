@@ -263,11 +263,24 @@ export class MatchmakingToolboxService {
         })
       }
 
-      if (results.players.length > 0) {
+      if (results.sessions && results.sessions.length > 0) {
         sessionCards.push({
           type: 'existing-session' as const,
           data: {
-            venue: 'Join Players',
+            sessionId: results.sessions[0].id,
+            venue: `Open Session - ${results.sessions[0].timeSlot}`,
+            time: results.sessions[0].timeSlot,
+            date: results.sessions[0].date,
+            players: results.sessions[0].currentPlayers.map(name => ({ name, skillLevel: results.sessions[0].skillLevel || 'Unknown' })),
+            openSlots: results.sessions[0].openSlots,
+            cost: `Rp ${results.sessions[0].pricePerPlayer.toLocaleString()}/player`
+          }
+        })
+      } else if (results.players.length > 0) {
+        sessionCards.push({
+          type: 'existing-session' as const,
+          data: {
+            venue: 'Available Players',
             players: results.players.slice(0, 3).map(player => ({
               name: player.name,
               skillLevel: player.skillLevel
@@ -280,8 +293,12 @@ export class MatchmakingToolboxService {
         })
       }
 
+      const resultText = results.sessions?.length > 0 
+        ? `Great! I found ${results.totalResults} options including ${results.sessions.length} open sessions:`
+        : `Great! I found ${results.totalResults} options for your padel match:`
+      
       return {
-        text: `Great! I found ${results.totalResults} options for your padel match:`,
+        text: resultText,
         sessionCards: sessionCards.slice(0, 3)
       }
     } catch (error) {
