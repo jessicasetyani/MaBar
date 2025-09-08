@@ -620,19 +620,27 @@ export class MatchmakingToolboxService {
 
   private static async executeComprehensiveQuery(filters: any) {
     try {
-      const [venues, players] = await Promise.all([
+      // Execute parallel queries for better performance
+      const [venues, players, openSessions] = await Promise.all([
         this.queryVenues(filters),
-        this.queryPlayers(filters)
+        this.queryPlayers(filters),
+        SessionService.queryOpenSessions({
+          skillLevel: filters.skillLevel,
+          location: filters.location,
+          timeSlot: filters.time,
+          date: filters.date
+        })
       ])
       
       return {
         venues,
         players,
-        totalResults: venues.length + players.length
+        sessions: openSessions,
+        totalResults: venues.length + players.length + openSessions.length
       }
     } catch (error) {
       console.error('❌ Error in comprehensive query:', error)
-      return { venues: [], players: [], totalResults: 0 }
+      return { venues: [], players: [], sessions: [], totalResults: 0 }
     }
   }
 }
