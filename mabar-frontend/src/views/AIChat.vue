@@ -253,10 +253,10 @@ const messagesContainer = ref<HTMLElement>()
 const currentPlaceholder = ref('')
 
 const quickSuggestions = [
-  'Find players for weekend morning',
-  'Book court tomorrow evening', 
-  'Find players for weekend',
-  'Find advanced players at midnight'
+  'Show me courts in Senayan',
+  'Find players tonight 7 PM',
+  'Book court tomorrow morning',
+  'I want to play padel'
 ]
 
 let messageId = 0
