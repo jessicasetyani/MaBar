@@ -57,9 +57,13 @@ export interface AIResponse {
 
 export class AIMatchmakingService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
+  private static conversationHistory: any[] = []
+  private static isInitialized = false
 
-  // System instruction for Session Scout AI Assistant
-  private static readonly SYSTEM_INSTRUCTION = `You are Session Scout, an intelligent padel matchmaking assistant for MaBar platform in Jakarta.
+
+
+  // System instruction for the AI Assistant (internal Session Scout logic)
+  private static readonly SYSTEM_INSTRUCTION = `You are Matchmaking AI assistant, an intelligent padel matchmaking assistant for MaBar platform in Jakarta.
 
 Your task: Analyze user requests and respond with structured JSON to help them find padel courts, players, or organize games.
 
@@ -89,10 +93,38 @@ Response format (JSON only):
   }
 }
 
-Examples:
+IMPORTANT: Consider conversation context. If this is the FIRST message and unclear, ask for clarification. If there's conversation history or clear intent, proceed with smart defaults.
+
+First message examples (no conversation history):
 "Play padel at 8 PM in Senayan" → {"action": "findMatch", "parameters": {"activity": "padel", "location": "Senayan", "time": "8 PM"}}
 "Show courts tomorrow" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "date": "tomorrow"}}
-"Hi" → {"action": "needMoreInfo", "parameters": {"message": "Hi! I'm Session Scout. I can help you find padel courts, players, or organize games. What would you like to do?"}}`
+"I want to play padel" → {"action": "getPersonalizedRecommendations", "parameters": {"activity": "padel"}}
+"Tonight" → {"action": "needMoreInfo", "parameters": {"message": "What would you like to do tonight? Find courts, players, or organize a game?"}}
+"Hi" → {"action": "needMoreInfo", "parameters": {"message": "What would you like to do? Find courts, players, or organize a game?"}}
+"asdf" → {"action": "needMoreInfo", "parameters": {"message": "I didn't understand that. What would you like to do?"}}
+
+Follow-up message examples (with conversation history):
+Previous: "I want to play padel" → Current: "Tonight" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "tonight"}}
+Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "location": "Senayan"}}`
+
+
+
+  /**
+   * Initialize AI conversation (call once when chat opens)
+   */
+  static async initializeConversation(): Promise<void> {
+    if (this.isInitialized) return
+    
+    try {
+      // Initialize empty conversation history - we'll use the 3-message pattern for each request
+      this.conversationHistory = []
+      this.isInitialized = true
+      
+    } catch (error) {
+      AIFlowLogger.logError('conversation-init', error)
+      throw error
+    }
+  }
 
   /**
    * Main AI processing entry point with comprehensive logging
@@ -262,52 +294,43 @@ User Profile Context (use if relevant):
 
 User Request: ${userInput}`
         contextualInput = preferencesContext
-        
-        AIFlowLogger.logStep('context-building', 'processing', {
-          originalInput: userInput,
-          contextualInput,
-          hasPreferences: true,
-          message: '🔧 Built contextual input with user preferences'
-        })
-      } else {
-        AIFlowLogger.logStep('context-building', 'processing', {
-          originalInput: userInput,
-          contextualInput,
-          hasPreferences: false,
-          message: '🔧 Using original input without preferences context'
-        })
       }
 
-      // Log AI thinking process (simulated)
-      AIFlowLogger.logAIThinking({
-        userIntent: 'Analyzing...',
-        extractedParameters: 'Processing...',
-        confidence: 85,
-        reasoning: 'Analyzing user input to determine intent and extract parameters'
-      })
+      // Always use the 3-message pattern to maintain AI identity and context
+      const conversationContents = [
+        { 
+          role: 'user', 
+          parts: [{ text: 'You are Session Scout, an intelligent padel matchmaking assistant for MaBar platform in Jakarta. Please respond only with JSON.' }] 
+        },
+        { 
+          role: 'model', 
+          parts: [{ text: this.SYSTEM_INSTRUCTION }] 
+        },
+        // Add conversation history if exists
+        ...this.conversationHistory,
+        // Add current user input
+        { 
+          role: 'user', 
+          parts: [{ text: contextualInput }] 
+        }
+      ]
 
-      AIFlowLogger.startStepTimer()
+      // Log AI interaction with message contents and API URL
+      AIFlowLogger.logAICall(conversationContents, 'gemini-2.0-flash-exp')
+      
       const result = await this.ai.models.generateContent({
         model: 'gemini-2.0-flash-exp',
-        contents: [
-          { 
-            role: 'user', 
-            parts: [{ text: 'You are Session Scout, an intelligent padel matchmaking assistant for MaBar platform in Jakarta. Please respond only with JSON.' }] 
-          },
-          { 
-            role: 'model', 
-            parts: [{ text: this.SYSTEM_INSTRUCTION }] 
-          },
-          { 
-            role: 'user', 
-            parts: [{ text: contextualInput }] 
-          }
-        ]
+        contents: conversationContents
       })
-      const aiProcessingTime = AIFlowLogger.endStepTimer()
-
+      
       const responseText = result.text || ''
-      AIFlowLogger.logRawAIResponse(responseText, aiProcessingTime)
+      AIFlowLogger.logAIResponse(responseText)
+
+      // Store this interaction in conversation history for next request
+      this.conversationHistory.push(
+        { role: 'user', parts: [{ text: contextualInput }] },
+        { role: 'model', parts: [{ text: responseText }] }
+      )
 
       // Clean and parse JSON response
       const jsonText = responseText.replace(/```json\n?|\n?```/g, '').trim()
@@ -323,37 +346,25 @@ User Request: ${userInput}`
         if (!aiRequest.action || !aiRequest.parameters) {
           throw new Error('Invalid AI response structure: missing action or parameters')
         }
-        
-        AIFlowLogger.logParsedAIRequest(aiRequest, true)
-        
-        // Log AI decision
-        AIFlowLogger.logAIDecision({
-          action: aiRequest.action,
-          parameters: aiRequest.parameters,
-          reasoning: `AI determined the user wants to ${aiRequest.action} with the provided parameters`,
-          alternatives: ['needMoreInfo', 'getPersonalizedRecommendations']
-        })
+
         
       } catch (parseErr) {
         parseSuccess = false
         parseError = parseErr instanceof Error ? parseErr.message : String(parseErr)
         
-        AIFlowLogger.logParsedAIRequest(null, false, parseError)
-        
-        // Fallback to needMoreInfo if parsing fails
-        aiRequest = {
+        // Fallback based on conversation context
+        aiRequest = this.conversationHistory.length === 0 ? {
           action: 'needMoreInfo',
           parameters: {
-            message: 'I need more information to help you. Could you tell me what you\'d like to do? (find courts, find players, or organize a game)'
+            message: 'What would you like to do? Find courts, players, or organize a game?'
+          }
+        } : {
+          action: 'getPersonalizedRecommendations',
+          parameters: {
+            activity: 'padel'
           }
         }
-        
-        AIFlowLogger.logAIDecision({
-          action: aiRequest.action,
-          parameters: aiRequest.parameters,
-          reasoning: 'Fallback to needMoreInfo due to parsing error',
-          alternatives: []
-        })
+
       }
 
       return aiRequest
@@ -361,20 +372,19 @@ User Request: ${userInput}`
     } catch (error) {
       AIFlowLogger.logError('ai-analysis', error, { userInput, userPreferences })
       
-      // Fallback to needMoreInfo if AI fails
-      const fallbackRequest = {
+      // Fallback based on conversation context
+      const fallbackRequest = this.conversationHistory.length === 0 ? {
         action: 'needMoreInfo' as const,
         parameters: {
-          message: 'I need more information to help you. Could you tell me what you\'d like to do? (find courts, find players, or organize a game)'
+          message: 'What would you like to do? Find courts, players, or organize a game?'
+        }
+      } : {
+        action: 'getPersonalizedRecommendations' as const,
+        parameters: {
+          activity: 'padel'
         }
       }
-      
-      AIFlowLogger.logAIDecision({
-        action: fallbackRequest.action,
-        parameters: fallbackRequest.parameters,
-        reasoning: 'Fallback to needMoreInfo due to AI service error',
-        alternatives: []
-      })
+
       
       return fallbackRequest
     }
