@@ -22,23 +22,9 @@ try {
 }
 
 import './services/back4app'
-import { testBack4AppConnection } from './utils/testConnection'
 import { useAuthStore } from './stores/auth'
 import { router } from './router'
 import { registerSW } from 'virtual:pwa-register'
-
-// Test Back4App connection on startup
-testBack4AppConnection()
-  .then((result) => {
-    if (result.success) {
-      console.log('✅ Back4App:', result.message)
-    } else {
-      console.warn('⚠️ Back4App:', result.message)
-    }
-  })
-  .catch((error) => {
-    console.error('❌ Back4App connection test failed:', error)
-  })
 
 // Initialize app asynchronously to handle session check
 async function initializeApp() {
@@ -54,14 +40,7 @@ async function initializeApp() {
     console.warn('Failed to check session:', error)
   })
 
-  // Test auth flow in development
-  if (import.meta.env.DEV) {
-    import('./utils/authTest').then(({ testAuthFlow }) => {
-      testAuthFlow().then((result) => {
-        console.log('🧪 Auth Test Result:', result)
-      })
-    })
-  }
+
 
   // Register service worker only in production
   if ('serviceWorker' in navigator && import.meta.env.PROD) {

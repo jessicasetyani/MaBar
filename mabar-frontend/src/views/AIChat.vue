@@ -219,8 +219,6 @@ import SessionCard from '../components/SessionCard.vue'
 
 import NoMatchCard from '../components/NoMatchCard.vue'
 import { AIMatchmakingService } from '../services/aiMatchmakingService'
-import { AIFlowTester } from '../services/testAIFlow'
-import { DatabaseConnectionTest } from '../services/testDatabaseConnection'
 
 interface SessionData {
   sessionId?: string
@@ -452,25 +450,9 @@ const handleSuggestionBlur = (event: Event) => {
 
 
 
-onMounted(async () => {
-  // Test database connection on mount
-  console.log('🔌 Testing database connection on component mount...');
-  try {
-    await DatabaseConnectionTest.testEnvironmentVariables();
-    const dbConnected = await DatabaseConnectionTest.testConnection();
-    console.log('✅ Database connection status:', dbConnected ? 'Connected' : 'Failed');
-  } catch (error) {
-    console.error('❌ Database connection test failed:', error);
-  }
-  
+onMounted(() => {
   // Add welcome message
   addMessage('Hi! I\'m your AI padel assistant. I can help you find players, book courts, and organize games. What would you like to do today?', false)
-  
-  // Expose test functions to window for console access
-  ;(window as any).testAIFlow = AIFlowTester.runCompleteTest
-  ;(window as any).testSingleInput = AIFlowTester.testSingleInput
-  ;(window as any).testDatabase = DatabaseConnectionTest.testConnection
-  console.log('🧪 Test functions available: testAIFlow(), testSingleInput("your input"), testDatabase()');
 })
 </script>
 
