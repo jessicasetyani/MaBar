@@ -379,8 +379,8 @@ User Request: ${userInput}`
           response = await MatchmakingToolboxService.createNewSession(parameters)
           break
         
-        case 'getVenueDetails':
-          response = await MatchmakingToolboxService.getVenueDetails(parameters)
+        case 'findMatch':
+          response = await MatchmakingToolboxService.findMatch(parameters)
           break
         
         case 'getUserBookings':
@@ -395,11 +395,7 @@ User Request: ${userInput}`
           response = await MatchmakingToolboxService.getPersonalizedRecommendations(parameters)
           break
         
-        case 'modifyBooking':
-          response = await MatchmakingToolboxService.modifyBooking(parameters)
-          break
-        
-        case 'checkBookingStatus':
+        case 'getVenueDetails':
           response = await MatchmakingToolboxService.getVenueDetails(parameters)
           break
         
@@ -407,19 +403,26 @@ User Request: ${userInput}`
           response = await MatchmakingToolboxService.checkVenueAvailability(parameters)
           break
         
-        case 'getPersonalizedRecommendations':
-          response = await MatchmakingToolboxService.getPersonalizedRecommendations(parameters)
+        case 'modifyBooking':
+          response = await MatchmakingToolboxService.modifyBooking(parameters)
           break
         
-        case 'findMatch':
-          response = await MatchmakingToolboxService.findMatch(parameters)
+        case 'cancelBooking':
+          response = await MatchmakingToolboxService.cancelBooking(parameters)
+          break
+        
+        case 'deleteBooking':
+          response = await MatchmakingToolboxService.deleteBooking(parameters)
+          break
+        
+        case 'checkBookingStatus':
+          response = await MatchmakingToolboxService.checkBookingStatus(parameters)
           break
         
         case 'needMoreInfo':
           response = MatchmakingToolboxService.needMoreInfo(parameters)
           break
         
-
         default:
           response = {
             text: 'I\'m not sure how to help with that. Could you try asking differently?',
