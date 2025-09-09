@@ -135,28 +135,12 @@ Remember to use the exact JSON format specified in your system prompt.`
   private static createFallbackResponse(request: PresenterRequest): PresenterResponse {
     const { rawData, toolboxAction } = request
 
-    // Handle needMoreInfo - no session cards needed
+    // Handle needMoreInfo - let AI generate dynamic response based on persona
     if (toolboxAction === 'needMoreInfo' || (rawData && rawData.needsMoreInfo)) {
-      // Adapt greeting based on user skill level
-      const userSkillLevel = request.searchCriteria?.skillLevel || rawData?.userSkillLevel
-      let greetingText = ""
-      
-      switch (userSkillLevel) {
-        case 'beginner':
-          greetingText = "Hey! 🏓 I'm here to help you find great padel games. What's up?"
-          break
-        case 'intermediate':
-          greetingText = "Hi there! Looking for courts or players today?"
-          break
-        case 'advanced':
-          greetingText = "Hello! What can I find for you?"
-          break
-        default:
-          greetingText = "Hi! What brings you here today?"
-      }
-      
+      // Let the AI Presenter generate dynamic greeting - no static fallback
+      // This allows for varied, contextual responses based on user profile
       return {
-        text: greetingText,
+        text: "Hey! Let's find you an awesome padel game!", // Simple fallback only if AI fails
         sessionCards: [] // No cards for needMoreInfo
       }
     }
