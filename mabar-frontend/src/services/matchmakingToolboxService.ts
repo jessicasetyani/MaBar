@@ -802,11 +802,7 @@ export class MatchmakingToolboxService {
   static needMoreInfo(params: any): AIResponse {
     console.log('🔧 [TOOLBOX] needMoreInfo called with params:', params)
     
-    const message = params.message || `Hi! I'm MaBar AI Assistant. I can help you find padel courts, players, or organize games. What would you like to do?
-
-• Are you looking for **players** to join you, or **available courts** to book?
-• What **time** works for you? (e.g., "tonight at 7 PM", "Saturday morning")  
-• Which **area** do you prefer? (e.g., "Senayan", "Kemang", "anywhere in Jakarta")`
+    const message = params.message || `Hello there! I'm MaBar, your AI assistant for all things padel. Whether you're looking to find a court, team up with other players, or set up a new game, I'm here to help.<br><br>To get started, could you tell me a bit more about what you have in mind?<br><br>• Are you searching for <strong>players</strong> to join you, or do you need to <strong>book a court</strong>?<br>• What <strong>time</strong> are you thinking of playing? (e.g., "this evening at 7 PM", "Saturday morning")<br>• Is there a specific <strong>area</strong> you'd prefer? (e.g., "Senayan", "Kemang", "anywhere in Jakarta")`
 
     const response = {
       text: message,
