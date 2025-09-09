@@ -2,6 +2,8 @@ import { GoogleGenAI } from '@google/genai'
 import { env } from '../config/env'
 import { PlayerService } from './playerService'
 import { MatchmakingToolboxService } from './matchmakingToolboxService'
+import { AIPresenterService } from './aiPresenterService'
+import type { PresenterRequest } from './aiPresenterService'
 import Parse from './back4app'
 import { AIFlowLogger } from './aiFlowLogger'
 
@@ -60,64 +62,160 @@ export class AIMatchmakingService {
   private static conversationHistory: any[] = []
   private static isInitialized = false
 
-  // System instruction for the AI Assistant (MaBar AI logic)
-  private static readonly SYSTEM_INSTRUCTION = `You are MaBar AI, an intelligent padel matchmaking assistant for MaBar platform in Jakarta.
+  // System instruction for the Logic AI (appears as MaBar AI Assistant)
+  private static readonly SESSION_SCOUT_SYSTEM_PROMPT = `You are MaBar Logic AI - the intelligent problem-solving brain behind MaBar padel platform in Jakarta.
 
-Your task: Analyze user requests and respond with structured JSON to help them find padel courts, players, or organize games.
+🎯 YOUR MISSION: Be a responsible AI that truly understands user problems and finds the best solutions through smart multi-level thinking.
 
-Available actions:
-- findMatch: Comprehensive search (venues + players + sessions)
-- getAvailableVenues: Show available courts/venues
-- getAvailablePlayers: Show available players
-- findOpenSessions: Find games needing more players
-- createNewSession: Start new game and find players
-- getVenueDetails: Get specific venue information
-- checkVenueAvailability: Check venue availability
-- getPersonalizedRecommendations: Profile-based suggestions
-- needMoreInfo: Request missing information
+🧠 PROBLEM-SOLVING APPROACH:
+1. **Understand the REAL user need** (not just keywords)
+2. **Think through multiple solution paths**
+3. **Choose the most helpful action**
+4. **Plan for fallbacks if primary solution fails**
+5. **Consider user context and preferences**
 
-Response format (JSON only):
+📋 AVAILABLE TOOLBOX ACTIONS:
+- **findMatch**: Comprehensive search (venues + players + sessions) - USE when user wants complete solution
+- **getAvailableVenues**: Show courts/venues - USE for venue browsing or location-specific requests
+- **getAvailablePlayers**: Show players - USE when user needs playing partners
+- **findOpenSessions**: Find games needing players - USE when user wants to join existing games
+- **createNewSession**: Start new game - USE when user wants to organize/host
+- **getVenueDetails**: Specific venue info - USE for detailed venue questions
+- **checkVenueAvailability**: Real-time availability - USE for booking confirmation
+- **getPersonalizedRecommendations**: AI suggestions - USE for "recommend me" or profile-based requests
+- **getUserBookings**: User's bookings - USE for "my bookings" or booking management
+- **getBookingHistory**: Past games - USE for "my history" or statistics requests
+- **modifyBooking**: Change bookings - USE for booking modifications
+- **needMoreInfo**: Clarification needed - USE ONLY for unclear/ambiguous requests
+
+🎯 SMART DECISION LOGIC:
+
+**BOOKING MANAGEMENT REQUESTS:**
+- "my bookings" / "upcoming games" → getUserBookings
+- "booking history" / "past games" → getBookingHistory  
+- "change my booking" / "modify reservation" → modifyBooking
+- "is my booking confirmed" → checkBookingStatus
+
+**RECOMMENDATION REQUESTS:**
+- "recommend me" / "suggest" / "what should I play" → getPersonalizedRecommendations
+- "I'm free [time]" / "any suggestions" → getPersonalizedRecommendations
+- "help me find" (without specific criteria) → getPersonalizedRecommendations
+
+**VENUE/COURT REQUESTS:**
+- "show courts" / "available venues" → getAvailableVenues
+- "courts in [area]" / "venues near [location]" → getAvailableVenues
+- "cheap courts" / "premium venues" → getAvailableVenues (with price filter)
+
+**PLAYER/PARTNER REQUESTS:**
+- "find players" / "looking for partners" → getAvailablePlayers
+- "who's available" / "players tonight" → getAvailablePlayers
+
+**GAME/SESSION REQUESTS:**
+- "join a game" / "existing sessions" → findOpenSessions
+- "organize a game" / "create session" → createNewSession
+- "play [time] at [venue]" → findMatch (comprehensive search)
+
+**COMPLEX REQUESTS (use findMatch):**
+- Multiple criteria: "play padel tonight in Senayan with intermediate players"
+- Complete solutions: "I want to play padel tomorrow evening"
+- When user needs venues + players + sessions
+
+🔍 PARAMETER EXTRACTION INTELLIGENCE:
+
+**Location Intelligence:**
+- "Senayan" / "SCBD" / "Sudirman" → "Senayan"
+- "Kemang" / "South Jakarta" → "Kemang"
+- "PIK" / "Pantai Indah Kapuk" → "PIK"
+- "Gading" / "Kelapa Gading" / "North Jakarta" → "Kelapa Gading"
+- "BSD" / "Tangerang" → "BSD"
+- "Jakarta" / "anywhere" / unspecified → "Jakarta"
+
+**Time Intelligence:**
+- "now" / "right now" → current time + "urgent: true"
+- "tonight" → today + "evening"
+- "tomorrow morning" → tomorrow + "morning"
+- "weekend" → "Saturday" or "Sunday"
+- "next week" → add 7 days
+
+**Skill Level Intelligence:**
+- "beginner" / "new" / "learning" → "beginner"
+- "intermediate" / "decent" / "okay" → "intermediate"
+- "advanced" / "good" / "experienced" → "advanced"
+- "pro" / "professional" / "expert" → "professional"
+
+**Price Intelligence:**
+- "cheap" / "budget" → {"min": 100000, "max": 160000}
+- "affordable" / "reasonable" → {"min": 150000, "max": 200000}
+- "premium" / "luxury" → {"min": 200000, "max": 300000}
+
+**Group Size Intelligence:**
+- "doubles" / "4 people" → playerCount: 4
+- "singles" / "1v1" → playerCount: 2
+- "8 people" → playerCount: 8, multiCourt: true
+
+🚨 CRITICAL RESPONSIBILITY RULES:
+
+1. **NEVER use needMoreInfo** if user mentions: courts, venues, booking, playing, padel, game, session, players
+2. **ALWAYS provide a solution** - think of alternatives if primary request seems impossible
+3. **USE SMART DEFAULTS** - don't ask for obvious information:
+   - location: "Jakarta" (if not specified)
+   - activity: "padel" (always)
+   - time: "flexible" (if not specified)
+   - skillLevel: use user profile or "any"
+4. **CONTEXT AWARENESS** - use conversation history and user profile
+5. **FALLBACK PLANNING** - if specific request might fail, choose action that provides alternatives
+
+📝 RESPONSE FORMAT (JSON only):
 {
   "action": "actionName",
   "parameters": {
     "activity": "padel",
     "location": "extracted_location",
-    "time": "extracted_time",
+    "time": "extracted_time", 
     "date": "extracted_date",
-    "skillLevel": "beginner|intermediate|advanced",
+    "skillLevel": "beginner|intermediate|advanced|professional|any",
     "playerCount": number,
     "priceRange": {"min": number, "max": number},
-    "gender": "male|female|mixed"
+    "gender": "male|female|mixed|any",
+    "urgent": boolean,
+    "multiCourt": boolean,
+    "facilities": ["equipment", "showers", "parking"],
+    "gameType": "casual|competitive|training|social"
   }
 }
 
-CRITICAL RULES:
-1. NEVER use needMoreInfo if the user mentions courts, venues, booking, or playing
-2. ALWAYS use getAvailableVenues for court/venue requests
-3. ALWAYS use getAvailablePlayers for player requests
-4. ALWAYS apply smart defaults: location="Jakarta", activity="padel"
-5. Only use needMoreInfo for greetings (hi, hello) or gibberish (asdf, xyz)
+💡 SMART EXAMPLES:
 
-First message examples (no conversation history):
-"Play padel at 8 PM in Senayan" → {"action": "findMatch", "parameters": {"activity": "padel", "location": "Senayan", "time": "8 PM"}}
-"Show courts tomorrow" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "date": "tomorrow"}}
-"Book court tomorrow evening" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "date": "tomorrow", "time": "evening", "location": "Jakarta"}}
-"Find courts for weekend" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "date": "weekend", "location": "Jakarta"}}
-"Show me venues" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "location": "Jakarta"}}
-"Find players for weekend" → {"action": "getAvailablePlayers", "parameters": {"activity": "padel", "date": "weekend"}}
-"I want to play padel" → {"action": "getPersonalizedRecommendations", "parameters": {"activity": "padel"}}
-"Tonight" → {"action": "needMoreInfo", "parameters": {"message": "What would you like to do tonight? Find courts, players, or organize a game?"}}
-"Hi" → {"action": "needMoreInfo", "parameters": {"message": "What would you like to do? Find courts, players, or organize a game?"}}
+**RESPONSIBLE PROBLEM SOLVING:**
+"Play padel tonight" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "tonight", "location": "Jakarta"}} 
+// Logic: User wants complete solution, use comprehensive search
 
-Smart defaults to use:
-- location: "Jakarta" (if not specified)
-- activity: "padel" (always)
-- time: "flexible" (if not specified)
+"My bookings" → {"action": "getUserBookings", "parameters": {"activity": "padel"}}
+// Logic: Clear booking management request
 
-Follow-up message examples (with conversation history):
-Previous: "I want to play padel" → Current: "Tonight" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "tonight", "location": "Jakarta"}}
-Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "location": "Senayan"}}`
+"Recommend me a game" → {"action": "getPersonalizedRecommendations", "parameters": {"activity": "padel"}}
+// Logic: User wants AI suggestions based on profile
 
+"Courts in Senayan" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "location": "Senayan"}}
+// Logic: Specific venue browsing request
+
+"Find players tonight" → {"action": "getAvailablePlayers", "parameters": {"activity": "padel", "time": "tonight"}}
+// Logic: User needs playing partners
+
+"Join a game" → {"action": "findOpenSessions", "parameters": {"activity": "padel", "location": "Jakarta"}}
+// Logic: User wants to join existing sessions
+
+**EDGE CASE HANDLING:**
+"Play padel at 3 AM" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "time": "3 AM", "location": "Jakarta", "showAlternatives": true}}
+// Logic: Unusual time, but still try to help with alternatives
+
+"Expensive courts" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "priceRange": {"min": 200000, "max": 300000}, "location": "Jakarta"}}
+// Logic: User wants premium venues
+
+"Need 8 people" → {"action": "createNewSession", "parameters": {"activity": "padel", "playerCount": 8, "multiCourt": true, "location": "Jakarta"}}
+// Logic: Large group needs special handling
+
+🎯 REMEMBER: Your job is to be the intelligent problem-solver that understands what users REALLY need and finds the best path to help them, not just match keywords to actions.`
 
 
   /**
@@ -142,7 +240,7 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
    */
   static async processMatchmakingRequest(userInput: string): Promise<AIResponse> {
     // Start logging session
-    const sessionId = AIFlowLogger.startSession(userInput)
+    AIFlowLogger.startSession(userInput)
     
     try {
       // Ensure conversation is initialized
@@ -151,10 +249,15 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
       // Get user preferences and process AI request
       const userPreferences = await this.getUserPreferences()
       const aiRequest = await this.getAIAnalysis(userInput, userPreferences)
-      const response = await this.executeToolboxAction(aiRequest)
+      const toolboxResponse = await this.executeToolboxAction(aiRequest)
+      console.log('🔧 [TOOLBOX] Raw Response:', toolboxResponse)
+      
+      // Use Presenter Assistant to format the final response
+      const response = await this.presentResults(userInput, aiRequest.action, toolboxResponse, aiRequest.parameters)
+      console.log('🎨 [PRESENTER] Final UI Response:', response)
       
       // End logging session
-      const completedLog = AIFlowLogger.endSession()
+      AIFlowLogger.endSession()
       
       // Add session log to response for debugging (optional)
       // if (env.NODE_ENV === 'development') {
@@ -167,7 +270,7 @@ Previous: "Show me options" → Current: "Senayan area" → {"action": "getAvail
       AIFlowLogger.logError('main-process', error, { userInput })
       
       // End logging session with error
-      const completedLog = AIFlowLogger.endSession()
+      AIFlowLogger.endSession()
       
       const errorResponse: AIResponse = {
         text: 'Sorry, I encountered an issue processing your request. Please try again with more specific details.',
@@ -249,11 +352,11 @@ User Request: ${userInput}`
       const conversationContents = [
         { 
           role: 'user', 
-          parts: [{ text: 'You are MaBar AI, an intelligent padel matchmaking assistant for MaBar platform in Jakarta. Please respond only with JSON.' }] 
+          parts: [{ text: 'You are MaBar AI Assistant, helping users find padel courts and players in Jakarta. Please respond only with JSON.' }] 
         },
         { 
           role: 'model', 
-          parts: [{ text: this.SYSTEM_INSTRUCTION }] 
+          parts: [{ text: this.SESSION_SCOUT_SYSTEM_PROMPT }] 
         },
         // Add conversation history if exists
         ...this.conversationHistory,
@@ -268,11 +371,12 @@ User Request: ${userInput}`
       AIFlowLogger.logAICall(conversationContents, 'gemini-2.0-flash-exp')
       
       const result = await this.ai.models.generateContent({
-        model: 'gemini-2.0-flash-exp',
+        model: 'gemini-2.5-flash-lite',
         contents: conversationContents
       })
       
       const responseText = result.text || ''
+      console.log('🧠 [LOGIC AI] Raw API Response:', responseText)
       AIFlowLogger.logAIResponse(responseText)
 
       // Store this interaction in conversation history for next request
@@ -283,11 +387,13 @@ User Request: ${userInput}`
 
       // Clean and parse JSON response
       const jsonText = responseText.replace(/```json\n?|\n?```/g, '').trim()
+      console.log('🧠 [LOGIC AI] Cleaned JSON:', jsonText)
       
       let aiRequest: AIRequest
       
       try {
         aiRequest = JSON.parse(jsonText) as AIRequest
+        console.log('🧠 [LOGIC AI] Parsed Request:', aiRequest)
         
         // Validate the response structure
         if (!aiRequest.action || !aiRequest.parameters) {
@@ -332,6 +438,50 @@ User Request: ${userInput}`
   }
 
   /**
+   * Present results using the AI Presenter Assistant
+   */
+  private static async presentResults(
+    userOriginalRequest: string, 
+    toolboxAction: string, 
+    toolboxResponse: AIResponse,
+    searchCriteria: any
+  ): Promise<AIResponse> {
+    try {
+      // If toolbox already has a well-formatted response, use Presenter to enhance it
+      const userPreferences = await this.getUserPreferences()
+      const presenterRequest: PresenterRequest = {
+        userOriginalRequest,
+        toolboxAction,
+        rawData: {
+          ...toolboxResponse,
+          userSkillLevel: userPreferences?.skillLevel
+        },
+        searchCriteria: {
+          ...searchCriteria,
+          skillLevel: userPreferences?.skillLevel || searchCriteria?.skillLevel
+        }
+      }
+      console.log('🎨 [PRESENTER] Input Request:', presenterRequest)
+
+      const presentedResponse = await AIPresenterService.presentResults(presenterRequest)
+      console.log('🎨 [PRESENTER] Output Response:', presentedResponse)
+      
+      // Return the enhanced response from Presenter Assistant
+      return {
+        text: presentedResponse.text,
+        sessionCards: presentedResponse.sessionCards,
+        needsMoreInfo: presentedResponse.needsMoreInfo
+      }
+
+    } catch (error) {
+      AIFlowLogger.logError('presenter-service', error, { userOriginalRequest, toolboxAction })
+      
+      // Fallback to original toolbox response if presenter fails
+      return toolboxResponse
+    }
+  }
+
+  /**
    * Execute the toolbox action based on AI request
    */
   private static async executeToolboxAction(aiRequest: AIRequest): Promise<AIResponse> {
@@ -358,6 +508,26 @@ User Request: ${userInput}`
           break
         
         case 'getVenueDetails':
+          response = await MatchmakingToolboxService.getVenueDetails(parameters)
+          break
+        
+        case 'getUserBookings':
+          response = await MatchmakingToolboxService.getUserBookings(parameters)
+          break
+        
+        case 'getBookingHistory':
+          response = await MatchmakingToolboxService.getBookingHistory(parameters)
+          break
+        
+        case 'getPersonalizedRecommendations':
+          response = await MatchmakingToolboxService.getPersonalizedRecommendations(parameters)
+          break
+        
+        case 'modifyBooking':
+          response = await MatchmakingToolboxService.modifyBooking(parameters)
+          break
+        
+        case 'checkBookingStatus':
           response = await MatchmakingToolboxService.getVenueDetails(parameters)
           break
         

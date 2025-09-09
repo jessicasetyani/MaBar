@@ -218,7 +218,7 @@ import { ref, nextTick, onMounted } from 'vue'
 import SessionCard from '../components/SessionCard.vue'
 
 import NoMatchCard from '../components/NoMatchCard.vue'
-import { AIMatchmakingService } from '../services/aiMatchmakingService'
+import { AICoordinatorService } from '../services/aiCoordinatorService'
 
 interface SessionData {
   sessionId?: string
@@ -289,20 +289,42 @@ const addMessageWithCards = (text: string, sessionCards: Array<{ type: 'existing
   scrollToBottom()
 }
 
-const handleJoinSession = (sessionData: SessionData) => {
-  const confirmationText = `You're about to join a session at ${sessionData.venue} on ${sessionData.date} at ${sessionData.time}. Cost: ${sessionData.cost}. Confirm?`
-  addMessage(confirmationText, false)
-  // TODO: Implement actual booking logic
+const handleJoinSession = async (sessionData: SessionData) => {
+  const interactionData = `join_session:${sessionData.sessionId || sessionData.venue}`
+  
+  try {
+    const aiResponse = await AICoordinatorService.processUserInput(interactionData, 'card-interaction')
+    
+    if (aiResponse.text) {
+      addMessage(aiResponse.text, false)
+    }
+    
+    if (aiResponse.sessionCards) {
+      addMessageWithCards('', aiResponse.sessionCards, false)
+    }
+  } catch (error) {
+    console.error('❌ Error handling join session:', error)
+    addMessage('Sorry, I encountered an issue processing your request.', false)
+  }
 }
 
-const handleCreateSession = (sessionData?: SessionData) => {
-  const venue = sessionData?.venue || 'your preferred venue'
-  const time = sessionData?.suggestedTime || sessionData?.time || 'your preferred time'
-  const cost = sessionData?.estimatedCost || sessionData?.cost || 'Rp 175,000 per hour'
+const handleCreateSession = async (sessionData?: SessionData) => {
+  const interactionData = `create_session:${sessionData?.venue || 'new_venue'}`
   
-  const confirmationText = `Great! I'll help you create a new session at ${venue} for ${time}. Estimated cost: ${cost}. Would you like me to set this up and notify other players?`
-  addMessage(confirmationText, false)
-  // TODO: Implement session creation logic
+  try {
+    const aiResponse = await AICoordinatorService.processUserInput(interactionData, 'card-interaction')
+    
+    if (aiResponse.text) {
+      addMessage(aiResponse.text, false)
+    }
+    
+    if (aiResponse.sessionCards) {
+      addMessageWithCards('', aiResponse.sessionCards, false)
+    }
+  } catch (error) {
+    console.error('❌ Error handling create session:', error)
+    addMessage('Sorry, I encountered an issue processing your request.', false)
+  }
 }
 
 const handleModifySearch = () => {
@@ -333,12 +355,12 @@ const sendMessage = async () => {
   isLoading.value = true
 
   try {
-    console.log('🤖 Processing AI matchmaking request:', userMessage)
+    console.log('🤖 Processing MaBar AI Assistant request:', userMessage)
 
-    // Use the new AI matchmaking service
-    const aiResponse = await AIMatchmakingService.processMatchmakingRequest(userMessage)
+    // Use the unified AI coordinator
+    const aiResponse = await AICoordinatorService.processUserInput(userMessage, 'text')
     
-    console.log('📝 AI matchmaking response:', aiResponse)
+    console.log('📝 MaBar AI Assistant response:', aiResponse)
 
     // Add AI text response if provided
     if (aiResponse.text) {
