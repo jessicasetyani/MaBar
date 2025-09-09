@@ -61,6 +61,7 @@ Comprehensive test cases for the MaBar AI matchmaking system covering various us
 **User Input:** "Find players in Bogor tonight"
 **Expected AI Response:**
 - "No active players found in Bogor area"
+- because Bogor is not in the active areas (out of scope)
 - Suggest expanding search to nearby areas
 - Offer to create session and invite players
 - Show popular areas with active players

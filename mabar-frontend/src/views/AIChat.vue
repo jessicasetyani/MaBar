@@ -242,7 +242,7 @@ interface Message {
   text?: string
   isUser: boolean
   timestamp: Date
-  sessionCards?: Array<{ type: 'existing-session' | 'create-new' | 'no-availability'; data: SessionData }>
+  sessionCards?: Array<{ type: 'existing-session' | 'create-new' | 'no-availability' | 'user-booking' | 'join-confirmation'; data: SessionData }>
   showNoMatch?: boolean
 }
 
@@ -253,7 +253,7 @@ const messagesContainer = ref<HTMLElement>()
 const currentPlaceholder = ref('')
 
 const quickSuggestions = [
-  'Show me courts in Senayan',
+  'Show me available courts',
   'Find players tonight 7 PM',
   'Book court tomorrow morning',
   'I want to play padel'
@@ -278,7 +278,7 @@ const addMessage = (text: string, isUser: boolean) => {
   scrollToBottom()
 }
 
-const addMessageWithCards = (text: string, sessionCards: Array<{ type: 'existing-session' | 'create-new' | 'no-availability'; data: SessionData }>, isUser: boolean) => {
+const addMessageWithCards = (text: string, sessionCards: Array<{ type: 'existing-session' | 'create-new' | 'no-availability' | 'user-booking' | 'join-confirmation'; data: SessionData }>, isUser: boolean) => {
   messages.value.push({
     id: messageId++,
     text,
@@ -336,13 +336,21 @@ const handleModifySearch = () => {
   addMessage(suggestionText, false)
 }
 
-const handleShowPopular = () => {
-  const popularText = `Here are some popular session times and locations in Jakarta:<br><br>
-  • <strong>Weekday evenings (6-8 PM)</strong> - Most active time for after-work games<br>
-  • <strong>Weekend mornings (9-11 AM)</strong> - Popular for longer sessions<br>
-  • <strong>Senayan & Kemang areas</strong> - Highest concentration of courts and players<br><br>
-  Would you like me to search for sessions during these popular times?`
-  addMessage(popularText, false)
+const handleShowPopular = async () => {
+  try {
+    const aiResponse = await AICoordinatorService.processUserInput('show popular sessions and venues', 'text')
+    
+    if (aiResponse.text) {
+      addMessage(aiResponse.text, false)
+    }
+    
+    if (aiResponse.sessionCards) {
+      addMessageWithCards('', aiResponse.sessionCards, false)
+    }
+  } catch (error) {
+    console.error('❌ Error handling show popular:', error)
+    addMessage('Sorry, I encountered an issue getting popular sessions.', false)
+  }
 }
 
 const sendMessage = async () => {

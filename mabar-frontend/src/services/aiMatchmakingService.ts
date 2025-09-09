@@ -23,6 +23,7 @@ export type AIAction =
   | 'cancelBooking'          // → Cancel/unbook bookings (user)
   | 'deleteBooking'          // → Delete bookings (admin)
   | 'checkBookingStatus'     // → Booking confirmation
+  | 'joinSession'            // → Join existing session
   | 'needMoreInfo'           // → Only for unclear requests
 
 export interface AIRequest {
@@ -57,7 +58,7 @@ export interface UserPreferences {
 export interface AIResponse {
   text: string
   sessionCards?: Array<{
-    type: 'existing-session' | 'create-new' | 'no-availability'
+    type: 'existing-session' | 'create-new' | 'no-availability' | 'user-booking' | 'join-confirmation'
     data: any
   }>
   needsMoreInfo?: boolean
@@ -74,19 +75,23 @@ export class AIMatchmakingService {
 🎯 YOUR ROLE: Understand what users really need and choose the best tool to help them.
 
 🧰 AVAILABLE TOOLS:
-findMatch, getAvailableVenues, getAvailablePlayers, findOpenSessions, createNewSession, getVenueDetails, checkVenueAvailability, getPersonalizedRecommendations, getUserBookings, getBookingHistory, modifyBooking, cancelBooking, deleteBooking, checkBookingStatus, needMoreInfo
+findMatch, getAvailableVenues, getAvailablePlayers, findOpenSessions, createNewSession, getVenueDetails, checkVenueAvailability, getPersonalizedRecommendations, getUserBookings, getBookingHistory, modifyBooking, cancelBooking, deleteBooking, checkBookingStatus, joinSession, needMoreInfo
 
 🧠 THINK DYNAMICALLY:
 - What is the user's core need?
 - Which tool best solves their problem?
 - What parameters would be most helpful?
 - Use smart defaults when information is missing
+- For greetings or unclear requests, use needMoreInfo
 
 📝 RESPOND: {"action": "toolName", "parameters": {relevant_params}}
 
 💡 EXAMPLES:
+"hi" → {"action": "needMoreInfo", "parameters": {}}
+"hello" → {"action": "needMoreInfo", "parameters": {}}
 "I want to play padel tonight" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "tonight"}}
-"Show me my bookings" → {"action": "getUserBookings", "parameters": {"activity": "padel"}}
+"Join this session" → {"action": "joinSession", "parameters": {"sessionId": "extracted_from_context"}}
+"Show me my bookings" → {"action": "getUserBookings", "parameters": {}}
 "Find courts in Senayan" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "location": "Senayan"}}`
 
 
@@ -273,17 +278,10 @@ User Request: ${userInput}`
         }
         
       } catch (parseErr) {
-        // Fallback based on conversation context
-        aiRequest = this.conversationHistory.length === 0 ? {
+        // Always fallback to needMoreInfo for parsing errors
+        aiRequest = {
           action: 'needMoreInfo',
-          parameters: {
-            message: 'What would you like to do? Find courts, players, or organize a game?'
-          }
-        } : {
-          action: 'getPersonalizedRecommendations',
-          parameters: {
-            activity: 'padel'
-          }
+          parameters: {}
         }
       }
 
@@ -292,17 +290,10 @@ User Request: ${userInput}`
     } catch (error) {
       AIFlowLogger.logError('ai-analysis', error, { userInput, userPreferences })
       
-      // Fallback based on conversation context
-      const fallbackRequest = this.conversationHistory.length === 0 ? {
+      // Always fallback to needMoreInfo for errors
+      const fallbackRequest = {
         action: 'needMoreInfo' as const,
-        parameters: {
-          message: 'What would you like to do? Find courts, players, or organize a game?'
-        }
-      } : {
-        action: 'getPersonalizedRecommendations' as const,
-        parameters: {
-          activity: 'padel'
-        }
+        parameters: {}
       }
       
       return fallbackRequest
@@ -409,6 +400,18 @@ User Request: ${userInput}`
         
         case 'cancelBooking':
           response = await MatchmakingToolboxService.cancelBooking(parameters)
+          break
+        
+        case 'deleteBooking':
+          response = await MatchmakingToolboxService.deleteBooking(parameters)
+          break
+        
+        case 'checkBookingStatus':
+          response = await MatchmakingToolboxService.checkBookingStatus(parameters)
+          break
+        
+        case 'joinSession':
+          response = await MatchmakingToolboxService.joinSession(parameters)
           break
         
         case 'deleteBooking':
