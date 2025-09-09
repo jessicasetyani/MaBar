@@ -18,10 +18,13 @@ export interface ConversationContext {
 export interface AIResponse {
   text: string
   sessionCards?: Array<{
-    type: 'existing-session' | 'create-new' | 'no-availability'
+    type: 'existing-session' | 'create-new' | 'no-availability' | 'user-booking' | 'join-confirmation'
     data: any
   }>
   needsMoreInfo?: boolean
+  // Internal context fields (not exposed to UI)
+  _aiAction?: string
+  _searchCriteria?: any
 }
 
 export class AICoordinatorService {
@@ -72,30 +75,20 @@ export class AICoordinatorService {
     // Step 1: Logic AI analyzes input and executes toolbox
     const logicResponse = await AIMatchmakingService.processMatchmakingRequest(userInput)
     
-    // Store toolbox action for context
-    this.conversationContext.lastToolboxAction = 'findMatch' // This should come from logic AI
-    this.conversationContext.lastSearchCriteria = {} // This should come from logic AI
-
-    // Step 2: If toolbox returns raw data, use Presenter AI to format it
-    if (logicResponse.sessionCards && logicResponse.sessionCards.length > 0) {
-      const presenterRequest: PresenterRequest = {
-        userOriginalRequest: userInput,
-        toolboxAction: this.conversationContext.lastToolboxAction || 'findMatch',
-        rawData: logicResponse,
-        searchCriteria: this.conversationContext.lastSearchCriteria
-      }
-
-      const presentedResponse = await AIPresenterService.presentResults(presenterRequest)
-      
-      return {
-        text: presentedResponse.text,
-        sessionCards: presentedResponse.sessionCards,
-        needsMoreInfo: presentedResponse.needsMoreInfo
-      }
+    // Store toolbox action and search criteria from AI analysis (no longer hardcoded)
+    if (logicResponse._aiAction) {
+      this.conversationContext.lastToolboxAction = logicResponse._aiAction
+    }
+    if (logicResponse._searchCriteria) {
+      this.conversationContext.lastSearchCriteria = logicResponse._searchCriteria
     }
 
-    // Return logic response if no formatting needed
-    return logicResponse
+    // Return the response (already formatted by the presenter in AIMatchmakingService)
+    return {
+      text: logicResponse.text,
+      sessionCards: logicResponse.sessionCards,
+      needsMoreInfo: logicResponse.needsMoreInfo
+    }
   }
 
   /**

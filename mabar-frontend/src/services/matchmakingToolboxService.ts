@@ -39,7 +39,7 @@ export class MatchmakingToolboxService {
       console.error('❌ [TOOLBOX] Error in getAvailableVenues:', error)
       return {
         data: [],
-        error: error.message,
+        error: (error as Error).message,
         isEmpty: true
       }
     }
@@ -63,18 +63,18 @@ export class MatchmakingToolboxService {
       console.error('❌ [TOOLBOX] Error in getAvailablePlayers:', error)
       return {
         data: [],
-        error: error.message,
+        error: (error as Error).message,
         isEmpty: true
       }
     }
   }
 
   /**
-   * Toolbox: Find open sessions to join
+   * Toolbox: Find open sessions to join - Returns raw data only
    */
-  static async findOpenSessions(params: any): Promise<AIResponse> {
+  static async findOpenSessions(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] findOpenSessions called with params:', params)
-    
+
     try {
       const filters = {
         skillLevel: params.skillLevel,
@@ -86,75 +86,47 @@ export class MatchmakingToolboxService {
       const sessions = await SessionService.queryOpenSessions(filters)
       console.log('📊 [TOOLBOX] queryOpenSessions returned:', sessions.length, 'sessions')
       console.log('📋 [TOOLBOX] Session details from DB:', sessions)
-      
-      if (sessions.length === 0) {
-        const response = {
-          text: 'No open sessions found. Would you like me to help you create a new game?',
-          sessionCards: [{
-            type: 'create-new' as const,
-            data: {
-              venue: 'Start New Game',
-              ...(params.time && { suggestedTime: params.time }),
-              ...(params.date && { suggestedDate: params.date }),
-              message: 'Create a session and invite others to join!'
-            }
-          }]
-        }
-        console.log('📤 [TOOLBOX] findOpenSessions response (no sessions):', response)
-        return response
-      }
 
-      const sessionCards = sessions.slice(0, 3).map(session => ({
-        type: 'existing-session' as const,
+      return {
         data: {
-          sessionId: session.id,
-          venue: `Session at ${session.timeSlot}`,
-          time: session.timeSlot,
-          date: session.date,
-          players: session.currentPlayers.map(name => ({ name, skillLevel: session.skillLevel || 'Unknown' })),
-          openSlots: session.openSlots,
-          cost: `Rp ${session.pricePerPlayer.toLocaleString()}/player`
-        }
-      }))
-
-      const response = {
-        text: `Found ${sessions.length} open sessions you can join:`,
-        sessionCards
+          sessions,
+          searchParams: params,
+          totalCount: sessions.length
+        },
+        isEmpty: sessions.length === 0
       }
-      console.log('📤 [TOOLBOX] findOpenSessions response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in findOpenSessions:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t find open sessions right now.',
-        sessionCards: [{
-          type: 'no-availability' as const,
-          data: { message: 'Service error' }
-        }]
+      return {
+        data: {
+          sessions: [],
+          searchParams: params,
+          totalCount: 0
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] findOpenSessions error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Create new session
+   * Toolbox: Create new session - Returns raw data only
    */
-  static async createNewSession(params: any): Promise<AIResponse> {
+  static async createNewSession(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] createNewSession called with params:', params)
-    
+
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) {
-        const response = {
-          text: 'You need to be logged in to create a session.',
-          sessionCards: [{
-            type: 'no-availability' as const,
-            data: { message: 'Authentication required' }
-          }]
+        return {
+          data: {
+            requiresAuth: true,
+            venues: [],
+            searchParams: params
+          },
+          error: 'Authentication required',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] createNewSession response (no auth):', response)
-        return response
       }
 
       const venues = await this.queryVenues({
@@ -164,48 +136,29 @@ export class MatchmakingToolboxService {
       console.log('📊 [TOOLBOX] queryVenues for createNewSession returned:', venues.length, 'venues')
       console.log('📋 [TOOLBOX] Venue details for createNewSession:', venues)
 
-      if (venues.length === 0) {
-        const response = {
-          text: 'No venues available for your criteria.',
-          sessionCards: [{
-            type: 'no-availability' as const,
-            data: { message: 'No venues found' }
-          }]
-        }
-        console.log('📤 [TOOLBOX] createNewSession response (no venues):', response)
-        return response
+      return {
+        data: {
+          venues,
+          searchParams: params,
+          user: {
+            id: currentUser.id,
+            username: currentUser.get('username')
+          },
+          totalCount: venues.length
+        },
+        isEmpty: venues.length === 0
       }
-
-      const selectedVenue = venues[0]
-      const pricePerPlayer = Math.round(selectedVenue.pricing.hourlyRate / 4)
-
-      const response = {
-        text: `Ready to create your session at ${selectedVenue.name}:`,
-        sessionCards: [{
-          type: 'create-new' as const,
-          data: {
-            venue: selectedVenue.name,
-            address: `${selectedVenue.address.area}, ${selectedVenue.address.city}`,
-            ...(params.time && { suggestedTime: params.time }),
-            ...(params.date && { suggestedDate: params.date }),
-            estimatedCost: `Rp ${pricePerPlayer.toLocaleString()}/player`,
-            message: 'Create session and find 3 more players!'
-          }
-        }]
-      }
-      console.log('📤 [TOOLBOX] createNewSession response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in createNewSession:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t create a new session right now.',
-        sessionCards: [{
-          type: 'no-availability' as const,
-          data: { message: 'Service error' }
-        }]
+      return {
+        data: {
+          venues: [],
+          searchParams: params,
+          totalCount: 0
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] createNewSession error response:', errorResponse)
-      return errorResponse
     }
   }
 
@@ -232,100 +185,104 @@ export class MatchmakingToolboxService {
       console.error('❌ [TOOLBOX] Error in findMatch:', error)
       return {
         data: { venues: [], players: [], sessions: [], totalResults: 0 },
-        error: error.message,
+        error: (error as Error).message,
         isEmpty: true
       }
     }
   }
 
   /**
-   * Toolbox: Get venue details
+   * Toolbox: Get venue details - Returns raw data only
    */
-  static async getVenueDetails(params: any): Promise<AIResponse> {
+  static async getVenueDetails(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] getVenueDetails called with params:', params)
-    
+
     try {
       if (!params.venueId && !params.venueName) {
-        const response = {
-          text: 'Please specify which venue you want details for.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Venue not specified' } }]
+        return {
+          data: {
+            venue: null,
+            searchParams: params
+          },
+          error: 'Venue not specified',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] getVenueDetails response (no venue specified):', response)
-        return response
       }
 
       const Venue = Parse.Object.extend('Venue')
       const query = new Parse.Query(Venue)
-      
+
       if (params.venueId) {
         query.equalTo('objectId', params.venueId)
       } else {
         query.matches('name', new RegExp(params.venueName, 'i'))
       }
-      
+
       const venue = await query.first()
       console.log('📊 [TOOLBOX] venue query returned:', venue ? 'found' : 'not found')
-      if (venue) {
-        console.log('📋 [TOOLBOX] Venue details from DB:', {
-          id: venue.id,
-          name: venue.get('name'),
-          address: venue.get('address'),
-          pricing: venue.get('pricing'),
-          rating: venue.get('rating'),
-          facilities: venue.get('facilities')
-        })
-      }
-      
+
       if (!venue) {
-        const response = {
-          text: 'Venue not found.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Venue not found' } }]
+        return {
+          data: {
+            venue: null,
+            searchParams: params
+          },
+          error: 'Venue not found',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] getVenueDetails response (venue not found):', response)
-        return response
       }
 
-      const response = {
-        text: `Here are the details for ${venue.get('name')}:`,
-        sessionCards: [{
-          type: 'create-new' as const,
-          data: {
-            venue: venue.get('name'),
-            address: `${venue.get('address')?.area}, ${venue.get('address')?.city}`,
-            cost: `Rp ${venue.get('pricing')?.hourlyRate?.toLocaleString()}/hour`,
-            rating: venue.get('rating') || 4.0,
-            facilities: venue.get('facilities') || [],
-            description: venue.get('description') || 'Professional padel court'
-          }
-        }]
+      const venueData = {
+        id: venue.id,
+        name: venue.get('name'),
+        address: venue.get('address'),
+        pricing: venue.get('pricing'),
+        rating: venue.get('rating'),
+        facilities: venue.get('facilities'),
+        description: venue.get('description'),
+        courtCount: venue.get('courtCount'),
+        isActive: venue.get('isActive')
       }
-      console.log('📤 [TOOLBOX] getVenueDetails response:', response)
-      return response
+
+      console.log('📋 [TOOLBOX] Venue details from DB:', venueData)
+
+      return {
+        data: {
+          venue: venueData,
+          searchParams: params
+        },
+        isEmpty: false
+      }
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in getVenueDetails:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t get venue details right now.',
-        sessionCards: [{ type: 'no-availability' as const, data: { message: 'Service error' } }]
+      return {
+        data: {
+          venue: null,
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] getVenueDetails error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Check venue availability
+   * Toolbox: Check venue availability - Returns raw data only
    */
-  static async checkVenueAvailability(params: any): Promise<AIResponse> {
+  static async checkVenueAvailability(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] checkVenueAvailability called with params:', params)
-    
+
     try {
       if (!params.venueId || !params.date || !params.time) {
-        const response = {
-          text: 'Please specify venue, date, and time to check availability.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Missing information' } }]
+        return {
+          data: {
+            isAvailable: false,
+            searchParams: params,
+            missingInfo: true
+          },
+          error: 'Missing venue, date, or time information',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] checkVenueAvailability response (missing info):', response)
-        return response
       }
 
       const requestDate = new Date(params.date)
@@ -335,62 +292,66 @@ export class MatchmakingToolboxService {
       const query = new Parse.Query(Booking)
       query.equalTo('venueId', params.venueId)
       query.equalTo('status', 'confirmed')
-      
+
       const startOfDay = new Date(requestDate)
       startOfDay.setHours(0, 0, 0, 0)
       const endOfDay = new Date(requestDate)
       endOfDay.setHours(23, 59, 59, 999)
-      
+
       query.greaterThanOrEqualTo('startTime', startOfDay)
       query.lessThanOrEqualTo('startTime', endOfDay)
-      
+
       const bookings = await query.find()
       const isAvailable = bookings.length === 0
       console.log('📊 [TOOLBOX] availability check returned:', bookings.length, 'bookings, available:', isAvailable)
 
-      const response = {
-        text: isAvailable ? 
-          `Great! The venue is available for ${timeSlot} on ${params.date}.` :
-          `Sorry, the venue is not available for ${timeSlot} on ${params.date}.`,
-        sessionCards: [{
-          type: isAvailable ? 'create-new' as const : 'no-availability' as const,
-          data: {
-            venue: 'Availability Check',
-            time: timeSlot,
-            date: params.date,
-            available: isAvailable,
-            message: isAvailable ? 'Available for booking!' : 'Try a different time'
-          }
-        }]
+      return {
+        data: {
+          isAvailable,
+          venueId: params.venueId,
+          date: params.date,
+          time: timeSlot,
+          conflictingBookings: bookings.map(booking => ({
+            id: booking.id,
+            title: booking.get('title'),
+            startTime: booking.get('startTime'),
+            endTime: booking.get('endTime')
+          })),
+          searchParams: params
+        },
+        isEmpty: false
       }
-      console.log('📤 [TOOLBOX] checkVenueAvailability response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in checkVenueAvailability:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t check availability right now.',
-        sessionCards: [{ type: 'no-availability' as const, data: { message: 'Service error' } }]
+      return {
+        data: {
+          isAvailable: false,
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] checkVenueAvailability error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Get personalized recommendations
+   * Toolbox: Get personalized recommendations - Returns raw data only
    */
-  static async getPersonalizedRecommendations(params: any): Promise<AIResponse> {
+  static async getPersonalizedRecommendations(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] getPersonalizedRecommendations called with params:', params)
-    
+
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) {
-        const response = {
-          text: 'Please log in to get personalized recommendations.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Authentication required' } }]
+        return {
+          data: {
+            requiresAuth: true,
+            recommendations: null,
+            searchParams: params
+          },
+          error: 'Authentication required',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] getPersonalizedRecommendations response (no auth):', response)
-        return response
       }
 
       const playerProfile = await PlayerService.getPlayerProfile()
@@ -400,6 +361,7 @@ export class MatchmakingToolboxService {
       }
 
       const preferences = playerProfile.get('preferences') || {}
+      const personalInfo = playerProfile.get('personalInfo') || {}
       const personalizedFilters = {
         ...params,
         skillLevel: preferences.skillLevel || params.skillLevel,
@@ -416,56 +378,50 @@ export class MatchmakingToolboxService {
         totalResults: results.totalResults
       })
       console.log('📋 [TOOLBOX] Personalized venues from DB:', results.venues)
-      
-      if (results.totalResults === 0) {
-        const response = {
-          text: 'No personalized matches found. Try expanding your preferences.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'No matches' } }]
-        }
-        console.log('📤 [TOOLBOX] getPersonalizedRecommendations response (no results):', response)
-        return response
-      }
 
-      const response = {
-        text: `Based on your profile, here are ${results.totalResults} personalized recommendations:`,
-        sessionCards: results.venues.slice(0, 2).map(venue => ({
-          type: 'create-new' as const,
-          data: {
-            venue: venue.name,
-            address: `${venue.address.area}, ${venue.address.city}`,
-            cost: `Rp ${venue.pricing.hourlyRate.toLocaleString()}/hour`,
-            reason: `Matches your ${preferences.skillLevel} skill level and ${preferences.preferredAreas?.[0]} area preference`
-          }
-        }))
+      return {
+        data: {
+          recommendations: results,
+          userProfile: {
+            preferences,
+            personalInfo
+          },
+          personalizedFilters,
+          searchParams: params
+        },
+        isEmpty: results.totalResults === 0
       }
-      console.log('📤 [TOOLBOX] getPersonalizedRecommendations response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in getPersonalizedRecommendations:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t get personalized recommendations right now.',
-        sessionCards: [{ type: 'no-availability' as const, data: { message: 'Service error' } }]
+      return {
+        data: {
+          recommendations: null,
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] getPersonalizedRecommendations error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Get user bookings
+   * Toolbox: Get user bookings - Returns raw data only
    */
-  static async getUserBookings(params: any): Promise<AIResponse> {
+  static async getUserBookings(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] getUserBookings called with params:', params)
-    
+
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) {
-        const response = {
-          text: 'Please log in to view your bookings.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Authentication required' } }]
+        return {
+          data: {
+            requiresAuth: true,
+            bookings: [],
+            searchParams: params
+          },
+          error: 'Authentication required',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] getUserBookings response (no auth):', response)
-        return response
       }
 
       const Booking = Parse.Object.extend('Booking')
@@ -476,62 +432,67 @@ export class MatchmakingToolboxService {
       query.greaterThan('startTime', new Date())
       query.ascending('startTime')
       query.limit(10)
-      
+
       const bookings = await query.find()
       console.log('📊 [TOOLBOX] getUserBookings returned:', bookings.length, 'bookings')
-      
-      if (bookings.length === 0) {
-        const response = {
-          text: 'You have no upcoming bookings. Ready to book your next game?'
-        }
-        console.log('📤 [TOOLBOX] getUserBookings response (no bookings):', response)
-        return response
-      }
 
-      const sessionCards = bookings.slice(0, 3).map(booking => ({
-        type: 'user-booking' as const,
-        data: {
-          bookingId: booking.id,
-          venue: booking.get('title') || 'Padel Court',
-          time: booking.get('startTime')?.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-          date: booking.get('startTime')?.toLocaleDateString(),
-          status: booking.get('status'),
-          cost: `Rp ${booking.get('price')?.toLocaleString()}`
-        }
+      const bookingData = bookings.map(booking => ({
+        id: booking.id,
+        title: booking.get('title'),
+        venueId: booking.get('venueId'),
+        startTime: booking.get('startTime'),
+        endTime: booking.get('endTime'),
+        court: booking.get('court'),
+        players: booking.get('players'),
+        status: booking.get('status'),
+        price: booking.get('price'),
+        paymentStatus: booking.get('paymentStatus')
       }))
 
-      const response = {
-        text: `You have ${bookings.length} upcoming booking${bookings.length > 1 ? 's' : ''}:`,
-        sessionCards
+      return {
+        data: {
+          bookings: bookingData,
+          totalCount: bookings.length,
+          user: {
+            id: currentUser.id,
+            username: currentUser.get('username'),
+            email: currentUser.get('email')
+          },
+          searchParams: params
+        },
+        isEmpty: bookings.length === 0
       }
-      console.log('📤 [TOOLBOX] getUserBookings response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in getUserBookings:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t fetch your bookings right now.',
-        sessionCards: [{ type: 'no-availability' as const, data: { message: 'Service error' } }]
+      return {
+        data: {
+          bookings: [],
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] getUserBookings error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Get booking history
+   * Toolbox: Get booking history - Returns raw data only
    */
-  static async getBookingHistory(params: any): Promise<AIResponse> {
+  static async getBookingHistory(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] getBookingHistory called with params:', params)
-    
+
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) {
-        const response = {
-          text: 'Please log in to view your booking history.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Authentication required' } }]
+        return {
+          data: {
+            requiresAuth: true,
+            bookings: [],
+            searchParams: params
+          },
+          error: 'Authentication required',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] getBookingHistory response (no auth):', response)
-        return response
       }
 
       const Booking = Parse.Object.extend('Booking')
@@ -541,201 +502,260 @@ export class MatchmakingToolboxService {
       query.lessThan('startTime', new Date())
       query.descending('startTime')
       query.limit(10)
-      
+
       const bookings = await query.find()
       console.log('📊 [TOOLBOX] getBookingHistory returned:', bookings.length, 'bookings')
-      
-      if (bookings.length === 0) {
-        const response = {
-          text: 'No booking history found. Start playing to build your game history!'
-        }
-        console.log('📤 [TOOLBOX] getBookingHistory response (no history):', response)
-        return response
-      }
 
-      const response = {
-        text: `Here are your ${bookings.length} recent games:`,
-        sessionCards: bookings.slice(0, 3).map(booking => ({
-          type: 'user-booking' as const,
-          data: {
-            bookingId: booking.id,
-            venue: booking.get('venueName') || 'Padel Court',
-            time: booking.get('timeSlot'),
-            date: booking.get('date'),
-            status: 'completed',
-            cost: `Rp ${booking.get('totalCost')?.toLocaleString()}`
-          }
-        }))
+      const bookingData = bookings.map(booking => ({
+        id: booking.id,
+        title: booking.get('title'),
+        venueName: booking.get('venueName'),
+        venueId: booking.get('venueId'),
+        startTime: booking.get('startTime'),
+        endTime: booking.get('endTime'),
+        timeSlot: booking.get('timeSlot'),
+        date: booking.get('date'),
+        court: booking.get('court'),
+        players: booking.get('players'),
+        status: booking.get('status'),
+        price: booking.get('price'),
+        totalCost: booking.get('totalCost'),
+        paymentStatus: booking.get('paymentStatus')
+      }))
+
+      return {
+        data: {
+          bookings: bookingData,
+          totalCount: bookings.length,
+          user: {
+            id: currentUser.id,
+            username: currentUser.get('username'),
+            email: currentUser.get('email')
+          },
+          searchParams: params
+        },
+        isEmpty: bookings.length === 0
       }
-      console.log('📤 [TOOLBOX] getBookingHistory response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in getBookingHistory:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t fetch your booking history right now.',
-        sessionCards: [{ type: 'no-availability' as const, data: { message: 'Service error' } }]
+      return {
+        data: {
+          bookings: [],
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] getBookingHistory error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Modify booking
+   * Toolbox: Modify booking - Returns raw data only
    */
-  static async modifyBooking(params: any): Promise<AIResponse> {
+  static async modifyBooking(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] modifyBooking called with params:', params)
-    
-    const response = {
-      text: 'Booking modifications are not yet available through chat. Please contact the venue directly or use the booking management page.'
+
+    return {
+      data: {
+        available: false,
+        feature: 'modifyBooking',
+        message: 'Booking modifications are not yet available through chat',
+        searchParams: params
+      },
+      error: 'Feature not implemented',
+      isEmpty: true
     }
-    console.log('📤 [TOOLBOX] modifyBooking response:', response)
-    return response
   }
 
   /**
-   * Toolbox: Cancel booking
+   * Toolbox: Cancel booking - Returns raw data only
    */
-  static async cancelBooking(params: any): Promise<AIResponse> {
+  static async cancelBooking(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] cancelBooking called with params:', params)
-    
-    const response = {
-      text: 'Booking cancellations are not yet available through chat. Please contact the venue directly or use the booking management page.'
+
+    return {
+      data: {
+        available: false,
+        feature: 'cancelBooking',
+        message: 'Booking cancellations are not yet available through chat',
+        searchParams: params
+      },
+      error: 'Feature not implemented',
+      isEmpty: true
     }
-    console.log('📤 [TOOLBOX] cancelBooking response:', response)
-    return response
   }
 
   /**
-   * Toolbox: Delete booking
+   * Toolbox: Delete booking - Returns raw data only
    */
-  static async deleteBooking(params: any): Promise<AIResponse> {
+  static async deleteBooking(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] deleteBooking called with params:', params)
-    
-    const response = {
-      text: 'Booking deletion requires admin privileges and is not available through chat.'
+
+    return {
+      data: {
+        available: false,
+        feature: 'deleteBooking',
+        message: 'Booking deletion requires admin privileges',
+        searchParams: params
+      },
+      error: 'Feature not implemented',
+      isEmpty: true
     }
-    console.log('📤 [TOOLBOX] deleteBooking response:', response)
-    return response
   }
 
   /**
-   * Toolbox: Check booking status
+   * Toolbox: Check booking status - Returns raw data only
    */
-  static async checkBookingStatus(params: any): Promise<AIResponse> {
+  static async checkBookingStatus(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] checkBookingStatus called with params:', params)
-    
+
     try {
       if (!params.bookingId) {
-        const response = {
-          text: 'Please provide a booking ID to check status.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Booking ID required' } }]
+        return {
+          data: {
+            booking: null,
+            searchParams: params
+          },
+          error: 'Booking ID required',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] checkBookingStatus response (no ID):', response)
-        return response
       }
 
       const Booking = Parse.Object.extend('Booking')
       const query = new Parse.Query(Booking)
       query.equalTo('objectId', params.bookingId)
-      
+
       const booking = await query.first()
       console.log('📊 [TOOLBOX] checkBookingStatus returned:', booking ? 'found' : 'not found')
-      
+
       if (!booking) {
-        const response = {
-          text: 'Booking not found. Please check your booking ID.',
-          sessionCards: [{ type: 'no-availability' as const, data: { message: 'Booking not found' } }]
+        return {
+          data: {
+            booking: null,
+            bookingId: params.bookingId,
+            searchParams: params
+          },
+          error: 'Booking not found',
+          isEmpty: true
         }
-        console.log('📤 [TOOLBOX] checkBookingStatus response (not found):', response)
-        return response
       }
 
-      const response = {
-        text: `Your booking status: ${booking.get('status')}`,
-        sessionCards: [{
-          type: 'user-booking' as const,
-          data: {
-            bookingId: booking.id,
-            venue: booking.get('venueName') || 'Padel Court',
-            time: booking.get('timeSlot'),
-            date: booking.get('date'),
-            status: booking.get('status'),
-            cost: `Rp ${booking.get('totalCost')?.toLocaleString()}`
-          }
-        }]
+      const bookingData = {
+        id: booking.id,
+        title: booking.get('title'),
+        venueName: booking.get('venueName'),
+        venueId: booking.get('venueId'),
+        startTime: booking.get('startTime'),
+        endTime: booking.get('endTime'),
+        timeSlot: booking.get('timeSlot'),
+        date: booking.get('date'),
+        court: booking.get('court'),
+        players: booking.get('players'),
+        status: booking.get('status'),
+        price: booking.get('price'),
+        totalCost: booking.get('totalCost'),
+        paymentStatus: booking.get('paymentStatus')
       }
-      console.log('📤 [TOOLBOX] checkBookingStatus response:', response)
-      return response
+
+      return {
+        data: {
+          booking: bookingData,
+          searchParams: params
+        },
+        isEmpty: false
+      }
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in checkBookingStatus:', error)
-      const errorResponse = {
-        text: 'Sorry, I couldn\'t check the booking status right now.',
-        sessionCards: [{ type: 'no-availability' as const, data: { message: 'Service error' } }]
+      return {
+        data: {
+          booking: null,
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
-      console.log('📤 [TOOLBOX] checkBookingStatus error response:', errorResponse)
-      return errorResponse
     }
   }
 
   /**
-   * Toolbox: Join session confirmation
+   * Toolbox: Join session confirmation - Returns raw data only
    */
-  static async joinSession(params: any): Promise<AIResponse> {
+  static async joinSession(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] joinSession called with params:', params)
-    
+
     try {
       const currentUser = Parse.User.current()
       if (!currentUser) {
         return {
-          text: 'Please log in to join sessions.'
+          data: {
+            requiresAuth: true,
+            sessionJoined: false,
+            searchParams: params
+          },
+          error: 'Authentication required',
+          isEmpty: true
         }
       }
 
       const sessionId = params.sessionId || params.id
       if (!sessionId) {
         return {
-          text: 'Session information is missing. Please try selecting the session again.'
+          data: {
+            sessionJoined: false,
+            missingSessionId: true,
+            searchParams: params
+          },
+          error: 'Session ID required',
+          isEmpty: true
         }
       }
 
       // Here you would implement actual join logic
-      // For now, return confirmation card
-      const response = {
-        text: 'Great! I\'m processing your request to join this session.',
-        sessionCards: [{
-          type: 'join-confirmation' as const,
-          data: {
-            sessionId: sessionId,
-            venue: params.venue || 'Padel Session',
-            time: params.time,
-            date: params.date,
-            status: 'joining',
-            message: 'Joining session... You\'ll receive confirmation shortly.'
-          }
-        }]
+      // For now, return confirmation data
+      return {
+        data: {
+          sessionJoined: true,
+          sessionId: sessionId,
+          venue: params.venue,
+          time: params.time,
+          date: params.date,
+          status: 'joining',
+          user: {
+            id: currentUser.id,
+            username: currentUser.get('username')
+          },
+          searchParams: params
+        },
+        isEmpty: false
       }
-      console.log('📤 [TOOLBOX] joinSession response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in joinSession:', error)
       return {
-        text: 'Sorry, I couldn\'t process your join request right now. Please try again.'
+        data: {
+          sessionJoined: false,
+          searchParams: params
+        },
+        error: (error as Error).message,
+        isEmpty: true
       }
     }
   }
 
   /**
-   * Toolbox: Need more information
+   * Toolbox: Need more information - Returns raw data only
    */
-  static needMoreInfo(params: any): AIResponse {
+  static needMoreInfo(params: any): ToolboxResponse {
     console.log('🔧 [TOOLBOX] needMoreInfo called with params:', params)
-    
-    const message = params.message || `Hello there! I'm MaBar, your AI assistant for all things padel. Whether you're looking to find a court, team up with other players, or set up a new game, I'm here to help.<br><br>To get started, could you tell me a bit more about what you have in mind?<br><br>• Are you searching for <strong>players</strong> to join you, or do you need to <strong>book a court</strong>?<br>• What <strong>time</strong> are you thinking of playing? (e.g., "this evening at 7 PM", "Saturday morning")<br>• Is there a specific <strong>area</strong> you'd prefer? (e.g., "Senayan", "Kemang", "anywhere in Jakarta")`
+
+    const defaultMessage = `Hello there! I'm MaBar, your AI assistant for all things padel. Whether you're looking to find a court, team up with other players, or set up a new game, I'm here to help.<br><br>To get started, could you tell me a bit more about what you have in mind?<br><br>• Are you searching for <strong>players</strong> to join you, or do you need to <strong>book a court</strong>?<br>• What <strong>time</strong> are you thinking of playing? (e.g., "this evening at 7 PM", "Saturday morning")<br>• Is there a specific <strong>area</strong> you'd prefer? (e.g., "Senayan", "Kemang", "anywhere in Jakarta")`
 
     const response = {
-      text: message,
-      needsMoreInfo: true
+      data: {
+        needsMoreInfo: true,
+        message: params.message || defaultMessage,
+        searchParams: params
+      },
+      isEmpty: false
     }
     console.log('📤 [TOOLBOX] needMoreInfo response:', response)
     return response
@@ -748,9 +768,9 @@ export class MatchmakingToolboxService {
   private static async queryVenues(filters: any) {
     try {
       const Venue = Parse.Object.extend('Venue')
-      const query = new Parse.Query(Venue)
+      let query = new Parse.Query(Venue)
       query.equalTo('isActive', true)
-      
+
       if (filters.location && filters.location !== 'Jakarta') {
         const locationQuery = Parse.Query.or(
           new Parse.Query(Venue).matches('address.area', new RegExp(filters.location, 'i')),

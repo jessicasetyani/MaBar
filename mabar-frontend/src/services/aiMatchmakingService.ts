@@ -62,37 +62,85 @@ export interface AIResponse {
     data: any
   }>
   needsMoreInfo?: boolean
+  // Add context for coordinator
+  _aiAction?: string
+  _searchCriteria?: any
+}
+
+// Enhanced conversation context management
+export interface UserRequirements {
+  activity?: string
+  time?: string
+  location?: string
+  playerCount?: number
+  skillLevel?: string
+  venueType?: string
+  priceRange?: string
+  date?: string
+  duration?: string
+}
+
+export interface ConversationMessage {
+  role: 'user' | 'assistant'
+  content: string
+  timestamp: Date
+  extractedInfo?: Partial<UserRequirements>
+}
+
+export interface ConversationContext {
+  userRequirements: UserRequirements
+  messages: ConversationMessage[]
+  lastAction?: string
+  isComplete: boolean
 }
 
 export class AIMatchmakingService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
-  private static conversationHistory: any[] = []
+  private static conversationContext: ConversationContext = {
+    userRequirements: {},
+    messages: [],
+    lastAction: undefined,
+    isComplete: false
+  }
   private static isInitialized = false
 
   // System instruction for the Logic AI (appears as MaBar AI Assistant)
-  private static readonly SESSION_SCOUT_SYSTEM_PROMPT = `You are MaBar Logic AI - an intelligent problem solver for padel matchmaking.
+  private static readonly SESSION_SCOUT_SYSTEM_PROMPT = `You are MaBar Logic AI - an intelligent problem solver for padel matchmaking with CONVERSATION CONTEXT AWARENESS.
 
-🎯 YOUR ROLE: Understand what users really need and choose the best tool to help them.
+🎯 YOUR ROLE: Understand what users really need and choose the best tool to help them, considering ALL previously provided information.
 
 🧰 AVAILABLE TOOLS:
 findMatch, getAvailableVenues, getAvailablePlayers, findOpenSessions, createNewSession, getVenueDetails, checkVenueAvailability, getPersonalizedRecommendations, getUserBookings, getBookingHistory, modifyBooking, cancelBooking, deleteBooking, checkBookingStatus, joinSession, needMoreInfo
 
-🧠 THINK DYNAMICALLY:
-- What is the user's core need?
-- Which tool best solves their problem?
-- What parameters would be most helpful?
-- Use smart defaults when information is missing
-- For greetings or unclear requests, use needMoreInfo
+🧠 CONTEXT-AWARE THINKING:
+- ALWAYS check the CONVERSATION CONTEXT section for previously provided information
+- DO NOT ask for information that was already provided (time, location, activity, etc.)
+- If user provided "tonight" earlier, DO NOT ask "when would you like to play?"
+- If user provided "jakarta barat" earlier, DO NOT ask "where would you like to play?"
+- Use accumulated information to make informed decisions
+- Only use needMoreInfo if truly essential information is missing
+- Combine all available context to choose the best action
 
-📝 RESPOND: {"action": "toolName", "parameters": {relevant_params}}
+🔄 CONVERSATION FLOW LOGIC:
+1. FIRST: Check if CONVERSATION CONTEXT contains sufficient information
+2. If user asks "show courts/venues/available" + activity known → use getAvailableVenues
+3. If activity + (time OR location) are known → use findMatch or getAvailableVenues
+4. If only greeting/unclear → use needMoreInfo
+5. If specific request (bookings, venues) → use specific tool
+6. NEVER re-ask for information already in context
+7. ACCUMULATE context across messages - don't reset!
 
-💡 EXAMPLES:
-"hi" → {"action": "needMoreInfo", "parameters": {}}
-"hello" → {"action": "needMoreInfo", "parameters": {}}
-"I want to play padel tonight" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "tonight"}}
-"Join this session" → {"action": "joinSession", "parameters": {"sessionId": "extracted_from_context"}}
-"Show me my bookings" → {"action": "getUserBookings", "parameters": {}}
-"Find courts in Senayan" → {"action": "getAvailableVenues", "parameters": {"activity": "padel", "location": "Senayan"}}`
+📝 RESPOND: {"action": "toolName", "parameters": {relevant_params_including_context}}
+
+💡 CONTEXT-AWARE EXAMPLES:
+Context: activity=padel, time=tonight + "jakarta barat" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "tonight", "location": "jakarta barat"}}
+Context: activity=padel, time=7PM + "kedoya" → {"action": "findMatch", "parameters": {"activity": "padel", "time": "7PM", "location": "kedoya"}}
+Context: activity=padel + "show courts" → {"action": "getAvailableVenues", "parameters": {"activity": "padel"}}
+Context: activity=padel + "show available courts" → {"action": "getAvailableVenues", "parameters": {"activity": "padel"}}
+Context: activity=padel, location=senayan + "what time?" → {"action": "needMoreInfo", "parameters": {"missing": "time"}}
+No context + "hi" → {"action": "needMoreInfo", "parameters": {}}
+
+🚨 CRITICAL: If conversation context shows user already provided time/location/activity, USE that information instead of asking again!`
 
 
   /**
@@ -100,16 +148,176 @@ findMatch, getAvailableVenues, getAvailablePlayers, findOpenSessions, createNewS
    */
   static async initializeConversation(): Promise<void> {
     if (this.isInitialized) return
-    
+
     try {
-      // Initialize empty conversation history - we'll use the 3-message pattern for each request
-      this.conversationHistory = []
+      // Initialize conversation context
+      this.conversationContext = {
+        userRequirements: {},
+        messages: [],
+        lastAction: undefined,
+        isComplete: false
+      }
       this.isInitialized = true
-      
+
     } catch (error) {
       AIFlowLogger.logError('conversation-init', error)
       throw error
     }
+  }
+
+  /**
+   * Extract user requirements from a message
+   */
+  private static extractUserRequirements(message: string): Partial<UserRequirements> {
+    const extracted: Partial<UserRequirements> = {}
+    const lowerMessage = message.toLowerCase()
+
+    // Extract activity
+    if (lowerMessage.includes('padel') || lowerMessage.includes('play')) {
+      extracted.activity = 'padel'
+    }
+
+    // Extract time information (enhanced to capture specific times like "7PM")
+    const timePatterns = [
+      { pattern: /(\d{1,2})\s*(pm|am)/i, value: 'specific_time' },
+      { pattern: /tonight|this evening|malam ini/i, value: 'tonight' },
+      { pattern: /tomorrow|besok/i, value: 'tomorrow' },
+      { pattern: /morning|pagi/i, value: 'morning' },
+      { pattern: /afternoon|siang/i, value: 'afternoon' },
+      { pattern: /evening|sore/i, value: 'evening' },
+      { pattern: /weekend|akhir pekan/i, value: 'weekend' },
+      { pattern: /(\d{1,2}):(\d{2})/i, value: 'specific_time' }, // Handle 7:00 format
+      { pattern: /at\s+(\d{1,2})/i, value: 'specific_time' } // Handle "at 7" format
+    ]
+
+    for (const { pattern, value } of timePatterns) {
+      if (pattern.test(message)) {
+        if (value === 'specific_time') {
+          const match = pattern.exec(message)
+          extracted.time = match?.[0] || value
+        } else {
+          extracted.time = value
+        }
+        break
+      }
+    }
+
+    // Extract location information
+    const locationPatterns = [
+      /jakarta\s*(barat|timur|selatan|utara|pusat)?/i,
+      /senayan/i,
+      /kemang/i,
+      /sudirman/i,
+      /menteng/i,
+      /kelapa gading/i,
+      /pondok indah/i,
+      /bsd/i,
+      /tangerang/i
+    ]
+
+    for (const pattern of locationPatterns) {
+      const match = pattern.exec(message)
+      if (match) {
+        extracted.location = match[0]
+        break
+      }
+    }
+
+    // Extract player count
+    const playerRegex = /(\d+)\s*(player|orang|people)/i
+    const playerMatch = playerRegex.exec(message)
+    if (playerMatch) {
+      extracted.playerCount = parseInt(playerMatch[1])
+    }
+
+    // Extract skill level
+    const skillPatterns = [
+      { pattern: /beginner|pemula|newbie/i, value: 'beginner' },
+      { pattern: /intermediate|menengah/i, value: 'intermediate' },
+      { pattern: /advanced|mahir|expert/i, value: 'advanced' }
+    ]
+
+    for (const { pattern, value } of skillPatterns) {
+      if (pattern.test(message)) {
+        extracted.skillLevel = value
+        break
+      }
+    }
+
+    return extracted
+  }
+
+  /**
+   * Update conversation context with new user message and extracted information
+   */
+  private static updateConversationContext(userMessage: string, aiResponse?: string): void {
+    const extractedInfo = this.extractUserRequirements(userMessage)
+
+    // Add user message to conversation
+    this.conversationContext.messages.push({
+      role: 'user',
+      content: userMessage,
+      timestamp: new Date(),
+      extractedInfo
+    })
+
+    // Merge extracted information with existing requirements
+    this.conversationContext.userRequirements = {
+      ...this.conversationContext.userRequirements,
+      ...extractedInfo
+    }
+
+    // Add AI response if provided
+    if (aiResponse) {
+      this.conversationContext.messages.push({
+        role: 'assistant',
+        content: aiResponse,
+        timestamp: new Date()
+      })
+    }
+
+    console.log('📝 [CONTEXT] Updated user requirements:', this.conversationContext.userRequirements)
+  }
+
+  /**
+   * Build context summary for AI analysis
+   */
+  private static buildContextSummary(): string {
+    const reqs = this.conversationContext.userRequirements
+    const parts: string[] = []
+
+    if (Object.keys(reqs).length === 0) {
+      return ''
+    }
+
+    parts.push('🔍 CONVERSATION CONTEXT - Information already provided by user:')
+
+    if (reqs.activity) parts.push(`✅ Activity: ${reqs.activity}`)
+    if (reqs.time) parts.push(`✅ Time: ${reqs.time}`)
+    if (reqs.location) parts.push(`✅ Location: ${reqs.location}`)
+    if (reqs.playerCount) parts.push(`✅ Player count: ${reqs.playerCount}`)
+    if (reqs.skillLevel) parts.push(`✅ Skill level: ${reqs.skillLevel}`)
+    if (reqs.venueType) parts.push(`✅ Venue type: ${reqs.venueType}`)
+    if (reqs.priceRange) parts.push(`✅ Price range: ${reqs.priceRange}`)
+    if (reqs.date) parts.push(`✅ Date: ${reqs.date}`)
+    if (reqs.duration) parts.push(`✅ Duration: ${reqs.duration}`)
+
+    parts.push('')
+    parts.push('🚨 CRITICAL INSTRUCTION: Do NOT ask for information marked with ✅ above!')
+    parts.push('🎯 USE the provided context to make informed decisions!')
+
+    // Add decision guidance
+    const hasActivity = !!reqs.activity
+    const hasTime = !!reqs.time
+    const hasLocation = !!reqs.location
+
+    if (hasActivity && (hasTime || hasLocation)) {
+      parts.push('💡 SUFFICIENT INFO: You have enough context to proceed with findMatch or getAvailableVenues!')
+    } else if (hasActivity && !hasTime && !hasLocation) {
+      parts.push('💡 MISSING: Need either time OR location to proceed')
+    }
+
+    return parts.join('\n')
   }
 
   /**
@@ -154,7 +362,9 @@ findMatch, getAvailableVenues, getAvailablePlayers, findOpenSessions, createNewS
         sessionCards: [{
           type: 'no-availability' as const,
           data: { message: 'Service temporarily unavailable' }
-        }]
+        }],
+        _aiAction: 'needMoreInfo',
+        _searchCriteria: {}
       }
       
       // Add session log to error response for debugging
@@ -208,6 +418,12 @@ findMatch, getAvailableVenues, getAvailablePlayers, findOpenSessions, createNewS
    */
   private static async getAIAnalysis(userInput: string, userPreferences?: UserPreferences | null): Promise<AIRequest> {
     try {
+      // Update conversation context with new user message
+      this.updateConversationContext(userInput)
+
+      // Build context summary from accumulated information
+      const contextSummary = this.buildContextSummary()
+
       // Build context with user preferences if available
       let contextualInput = userInput
       if (userPreferences) {
@@ -221,26 +437,40 @@ User Profile Context (use if relevant):
 - Budget Range: ${userPreferences.budgetRange ? `Rp ${userPreferences.budgetRange.min}-${userPreferences.budgetRange.max}` : 'not specified'}
 - Game Type: ${userPreferences.gameType || 'not specified'}
 
-User Request: ${userInput}`
+${contextSummary}
+
+Current User Message: ${userInput}`
         contextualInput = preferencesContext
+      } else if (contextSummary) {
+        contextualInput = `${contextSummary}
+
+Current User Message: ${userInput}`
       }
+
+      // Build conversation history for AI context
+      const conversationHistory = this.conversationContext.messages
+        .slice(-6) // Keep last 6 messages for context
+        .map(msg => ({
+          role: msg.role === 'assistant' ? 'model' : msg.role, // Fix: Convert 'assistant' to 'model' for Gemini API
+          parts: [{ text: msg.content }]
+        }))
 
       // Always use the 3-message pattern to maintain AI identity and context
       const conversationContents = [
-        { 
-          role: 'user', 
-          parts: [{ text: 'You are MaBar AI Assistant, helping users find padel courts and players in Jakarta. Please respond only with JSON.' }] 
+        {
+          role: 'user',
+          parts: [{ text: 'You are MaBar AI Assistant, helping users find padel courts and players in Jakarta. Please respond only with JSON.' }]
         },
-        { 
-          role: 'model', 
-          parts: [{ text: this.SESSION_SCOUT_SYSTEM_PROMPT }] 
+        {
+          role: 'model',
+          parts: [{ text: this.SESSION_SCOUT_SYSTEM_PROMPT }]
         },
         // Add conversation history if exists
-        ...this.conversationHistory,
-        // Add current user input
-        { 
-          role: 'user', 
-          parts: [{ text: contextualInput }] 
+        ...conversationHistory,
+        // Add current user input with context
+        {
+          role: 'user',
+          parts: [{ text: contextualInput }]
         }
       ]
 
@@ -256,11 +486,14 @@ User Request: ${userInput}`
       console.log('🧠 [LOGIC AI] Raw API Response:', responseText)
       AIFlowLogger.logAIResponse(responseText)
 
-      // Store this interaction in conversation history for next request
-      this.conversationHistory.push(
-        { role: 'user', parts: [{ text: contextualInput }] },
-        { role: 'model', parts: [{ text: responseText }] }
-      )
+      // Store AI response in conversation context (don't extract info from AI response)
+      if (responseText) {
+        this.conversationContext.messages.push({
+          role: 'assistant',
+          content: responseText,
+          timestamp: new Date()
+        })
+      }
 
       // Clean and parse JSON response
       const jsonText = responseText.replace(/```json\n?|\n?```/g, '').trim()
@@ -304,19 +537,21 @@ User Request: ${userInput}`
    * Present results using the AI Presenter Assistant
    */
   private static async presentResults(
-    userOriginalRequest: string, 
-    toolboxAction: string, 
-    toolboxResponse: AIResponse,
+    userOriginalRequest: string,
+    toolboxAction: string,
+    toolboxResponse: AIResponse & { _toolboxData?: any; _isEmpty?: boolean; _error?: string },
     searchCriteria: any
   ): Promise<AIResponse> {
     try {
-      // If toolbox already has a well-formatted response, use Presenter to enhance it
+      // Extract raw data from the toolbox response
       const userPreferences = await this.getUserPreferences()
       const presenterRequest: PresenterRequest = {
         userOriginalRequest,
         toolboxAction,
         rawData: {
-          ...toolboxResponse,
+          data: toolboxResponse._toolboxData,
+          isEmpty: toolboxResponse._isEmpty,
+          error: toolboxResponse._error,
           userSkillLevel: userPreferences?.skillLevel
         },
         searchCriteria: {
@@ -328,129 +563,136 @@ User Request: ${userInput}`
 
       const presentedResponse = await AIPresenterService.presentResults(presenterRequest)
       console.log('🎨 [PRESENTER] Output Response:', presentedResponse)
-      
-      // Return the enhanced response from Presenter Assistant
+
+      // Return the enhanced response from Presenter Assistant with AI context
       return {
         text: presentedResponse.text,
         sessionCards: presentedResponse.sessionCards,
-        needsMoreInfo: presentedResponse.needsMoreInfo
+        needsMoreInfo: presentedResponse.needsMoreInfo,
+        _aiAction: toolboxAction,
+        _searchCriteria: searchCriteria
       }
 
     } catch (error) {
       AIFlowLogger.logError('presenter-service', error, { userOriginalRequest, toolboxAction })
-      
-      // Fallback to original toolbox response if presenter fails
-      return toolboxResponse
+
+      // Fallback response if presenter fails
+      return {
+        text: 'Sorry, I encountered an issue processing your request. Please try again.',
+        sessionCards: [{
+          type: 'no-availability',
+          data: { message: 'Presenter service error' }
+        }],
+        _aiAction: toolboxAction,
+        _searchCriteria: searchCriteria
+      }
     }
   }
 
   /**
    * Execute the toolbox action based on AI request
+   * Now all toolbox methods return ToolboxResponse, so we convert to AIResponse format
    */
   private static async executeToolboxAction(aiRequest: AIRequest): Promise<AIResponse> {
     const { action, parameters } = aiRequest
 
     try {
-      let response: AIResponse
-      
+      let toolboxResult: any
+
       switch (action) {
         case 'getAvailableVenues':
-          const venuesResult = await MatchmakingToolboxService.getAvailableVenues(parameters)
-          response = { text: '', data: venuesResult.data, isEmpty: venuesResult.isEmpty }
+          toolboxResult = await MatchmakingToolboxService.getAvailableVenues(parameters)
           break
-        
+
         case 'getAvailablePlayers':
-          const playersResult = await MatchmakingToolboxService.getAvailablePlayers(parameters)
-          response = { text: '', data: playersResult.data, isEmpty: playersResult.isEmpty }
+          toolboxResult = await MatchmakingToolboxService.getAvailablePlayers(parameters)
           break
-        
+
         case 'findOpenSessions':
-          response = await MatchmakingToolboxService.findOpenSessions(parameters)
+          toolboxResult = await MatchmakingToolboxService.findOpenSessions(parameters)
           break
-        
+
         case 'createNewSession':
-          response = await MatchmakingToolboxService.createNewSession(parameters)
+          toolboxResult = await MatchmakingToolboxService.createNewSession(parameters)
           break
-        
+
         case 'findMatch':
-          const matchResult = await MatchmakingToolboxService.findMatch(parameters)
-          response = { text: '', data: matchResult.data, isEmpty: matchResult.isEmpty }
+          toolboxResult = await MatchmakingToolboxService.findMatch(parameters)
           break
-        
+
         case 'getUserBookings':
-          response = await MatchmakingToolboxService.getUserBookings(parameters)
+          toolboxResult = await MatchmakingToolboxService.getUserBookings(parameters)
           break
-        
+
         case 'getBookingHistory':
-          response = await MatchmakingToolboxService.getBookingHistory(parameters)
+          toolboxResult = await MatchmakingToolboxService.getBookingHistory(parameters)
           break
-        
+
         case 'getPersonalizedRecommendations':
-          response = await MatchmakingToolboxService.getPersonalizedRecommendations(parameters)
+          toolboxResult = await MatchmakingToolboxService.getPersonalizedRecommendations(parameters)
           break
-        
+
         case 'getVenueDetails':
-          response = await MatchmakingToolboxService.getVenueDetails(parameters)
+          toolboxResult = await MatchmakingToolboxService.getVenueDetails(parameters)
           break
-        
+
         case 'checkVenueAvailability':
-          response = await MatchmakingToolboxService.checkVenueAvailability(parameters)
+          toolboxResult = await MatchmakingToolboxService.checkVenueAvailability(parameters)
           break
-        
+
         case 'modifyBooking':
-          response = await MatchmakingToolboxService.modifyBooking(parameters)
+          toolboxResult = await MatchmakingToolboxService.modifyBooking(parameters)
           break
-        
+
         case 'cancelBooking':
-          response = await MatchmakingToolboxService.cancelBooking(parameters)
+          toolboxResult = await MatchmakingToolboxService.cancelBooking(parameters)
           break
-        
+
         case 'deleteBooking':
-          response = await MatchmakingToolboxService.deleteBooking(parameters)
+          toolboxResult = await MatchmakingToolboxService.deleteBooking(parameters)
           break
-        
+
         case 'checkBookingStatus':
-          response = await MatchmakingToolboxService.checkBookingStatus(parameters)
+          toolboxResult = await MatchmakingToolboxService.checkBookingStatus(parameters)
           break
-        
+
         case 'joinSession':
-          response = await MatchmakingToolboxService.joinSession(parameters)
+          toolboxResult = await MatchmakingToolboxService.joinSession(parameters)
           break
-        
-        case 'deleteBooking':
-          response = await MatchmakingToolboxService.deleteBooking(parameters)
-          break
-        
-        case 'checkBookingStatus':
-          response = await MatchmakingToolboxService.checkBookingStatus(parameters)
-          break
-        
+
         case 'needMoreInfo':
-          response = MatchmakingToolboxService.needMoreInfo(parameters)
+          toolboxResult = MatchmakingToolboxService.needMoreInfo(parameters)
           break
-        
+
         default:
-          response = {
-            text: 'I\'m not sure how to help with that. Could you try asking differently?',
-            sessionCards: [{
-              type: 'no-availability',
-              data: { message: 'Unknown request type' }
-            }]
+          // Return a ToolboxResponse-like structure for unknown actions
+          toolboxResult = {
+            data: { message: 'Unknown request type' },
+            error: 'Unknown action',
+            isEmpty: true
           }
       }
-      
+
+      // Convert ToolboxResponse to AIResponse format for the presenter
+      // We'll pass the raw data through a special property that the presenter can access
+      const response: AIResponse & { _toolboxData?: any; _isEmpty?: boolean; _error?: string } = {
+        text: '',
+        _toolboxData: toolboxResult.data,
+        _isEmpty: toolboxResult.isEmpty,
+        _error: toolboxResult.error
+      }
+
       return response
-      
+
     } catch (error) {
       AIFlowLogger.logError('toolbox-execution', error, { action, parameters })
-      
+
       return {
-        text: `Sorry, I encountered an issue while ${action}. Please try again.`,
-        sessionCards: [{
-          type: 'no-availability',
-          data: { message: 'Toolbox execution error' }
-        }]
-      }
+        text: '',
+        _toolboxData: { message: 'Toolbox execution error' },
+        _error: (error as Error).message,
+        _isEmpty: true
+      } as AIResponse & { _toolboxData?: any; _isEmpty?: boolean; _error?: string }
     }
   }
 }

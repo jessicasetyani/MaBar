@@ -181,7 +181,9 @@ Remember to use the exact JSON format specified in your system prompt.`
           data: {
             venue: venue.name || 'Padel Court',
             address: venue.address ? `${venue.address.area}, ${venue.address.city}` : 'Jakarta',
-            cost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking'
+            estimatedCost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking',
+            suggestedTime: '7:00 PM',
+            suggestedDate: 'Tonight'
           }
         })))
       }
@@ -218,7 +220,9 @@ Remember to use the exact JSON format specified in your system prompt.`
             data: {
               venue: venue.name || 'Padel Court',
               address: venue.address ? `${venue.address.area}, ${venue.address.city}` : 'Jakarta',
-              cost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking'
+              estimatedCost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking',
+              suggestedTime: '7:00 PM',
+              suggestedDate: 'Tonight'
             }
           }))
         }

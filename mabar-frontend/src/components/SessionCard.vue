@@ -4,7 +4,7 @@
     <div class="session-header">
       <div class="session-main-info">
         <div class="session-title-row">
-          <h3 class="venue-name">{{ data.venue }}</h3>
+          <h3 class="venue-name">{{ data?.venue }}</h3>
           <div class="session-status-badge" :class="sessionStatusBadgeClass">
             {{ sessionStatusText }}
           </div>
@@ -15,16 +15,16 @@
           </svg>
           {{ sessionTimeText }}
         </p>
-        <p v-if="data.address" class="session-location">
+        <p v-if="data?.address" class="session-location">
           <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
           </svg>
-          {{ data.address }}
+          {{ data?.address }}
         </p>
       </div>
       <div class="session-actions">
         <div class="price-display">{{ priceText }}</div>
-        <button v-if="data.address" @click="openDirections" class="directions-button">
+        <button v-if="data?.address" @click="openDirections" class="directions-button">
           <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
           </svg>
@@ -36,13 +36,13 @@
     <!-- Session Content -->
     <div class="session-content">
       <!-- Available Courts Info -->
-      <div v-if="data.totalCourts && data.totalCourts > 1" class="courts-info">
+      <div v-if="data?.totalCourts && data?.totalCourts > 1" class="courts-info">
         <svg class="icon" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm0 2h12v8H4V6z" clip-rule="evenodd" />
         </svg>
-        {{ data.totalCourts }} courts available
+        {{ data?.totalCourts }} courts available
       </div>
-      
+
       <!-- Players Section -->
       <div v-if="hasPlayers" class="players-section">
         <div class="players-header">
@@ -52,7 +52,7 @@
           </span>
         </div>
         <div class="players-grid">
-          <div v-for="player in data.players" :key="player.name" class="player-card">
+          <div v-for="player in (data?.players || [])" :key="player.name" class="player-card">
             <div class="player-avatar">{{ player.name.charAt(0) }}</div>
             <div class="player-info">
               <span class="player-name">{{ player.name }}</span>
@@ -60,7 +60,7 @@
             </div>
           </div>
           <!-- Empty slots -->
-          <div v-for="n in (data.openSlots || 0)" :key="`empty-${n}`" class="empty-slot">
+          <div v-for="n in (data?.openSlots || 0)" :key="`empty-${n}`" class="empty-slot">
             <div class="empty-avatar">+</div>
             <span class="empty-text">Open spot</span>
           </div>
@@ -127,7 +127,7 @@ interface SessionData {
 }
 
 interface Props {
-  type: 'existing-session' | 'create-new' | 'no-availability'
+  type: 'existing-session' | 'create-new' | 'no-availability' | 'user-booking' | 'join-confirmation'
   data: SessionData
 }
 
@@ -138,10 +138,10 @@ const emit = defineEmits<{
   'create-session': [data: SessionData]
 }>()
 
-// Computed properties for better UX
-const hasPlayers = computed(() => props.data.players && props.data.players.length > 0)
-const isFull = computed(() => hasPlayers.value && (!props.data.openSlots || props.data.openSlots === 0))
-const canJoin = computed(() => hasPlayers.value && props.data.openSlots && props.data.openSlots > 0)
+// Computed properties for better UX (with null safety)
+const hasPlayers = computed(() => props.data?.players && props.data?.players.length > 0)
+const isFull = computed(() => hasPlayers.value && (!props.data?.openSlots || props.data?.openSlots === 0))
+const canJoin = computed(() => hasPlayers.value && props.data?.openSlots && props.data?.openSlots > 0)
 
 const sessionStatusClass = computed(() => ({
   'has-players': hasPlayers.value,
@@ -157,14 +157,14 @@ const sessionStatusBadgeClass = computed(() => ({
 
 const sessionStatusText = computed(() => {
   if (isFull.value) return 'Full'
-  if (canJoin.value) return `${props.data.openSlots} spots open`
-  if (props.data.totalCourts && props.data.totalCourts > 1) return `${props.data.totalCourts} courts available`
+  if (canJoin.value) return `${props.data?.openSlots} spots open`
+  if (props.data?.totalCourts && props.data?.totalCourts > 1) return `${props.data?.totalCourts} courts available`
   return 'Available'
 })
 
 const sessionTimeText = computed(() => {
-  const time = props.data.time || props.data.suggestedTime
-  const date = props.data.date || props.data.suggestedDate
+  const time = props.data?.time || props.data?.suggestedTime
+  const date = props.data?.date || props.data?.suggestedDate
   
   // Show clear weekend options with actual dates
   if (time?.includes('Anytime') || time?.includes('All day')) {
@@ -184,7 +184,7 @@ const sessionTimeText = computed(() => {
 })
 
 const priceText = computed(() => {
-  const price = props.data.cost || props.data.estimatedCost
+  const price = props.data?.cost || props.data?.estimatedCost
   return price
 })
 
@@ -195,7 +195,7 @@ const availabilityStatusClass = computed(() => ({
 
 const availabilityStatusText = computed(() => {
   if (isFull.value) return 'Session Full'
-  return `${props.data.openSlots} spots available`
+  return `${props.data?.openSlots} spots available`
 })
 
 const actionButtonClass = computed(() => ({
@@ -206,13 +206,13 @@ const actionButtonClass = computed(() => ({
 
 const actionButtonText = computed(() => {
   if (isFull.value) return 'Session Full'
-  if (canJoin.value) return `Join Session (${props.data.openSlots} spots left)`
+  if (canJoin.value) return `Join Session (${props.data?.openSlots} spots left)`
   return 'Create New Session'
 })
 
 const openDirections = () => {
-  if (props.data.address) {
-    const encodedAddress = encodeURIComponent(`${props.data.venue}, ${props.data.address}`)
+  if (props.data?.address) {
+    const encodedAddress = encodeURIComponent(`${props.data?.venue}, ${props.data?.address}`)
     const mapsUrl = `https://maps.google.com/maps?q=${encodedAddress}`
     window.open(mapsUrl, '_blank')
   }
