@@ -355,11 +355,13 @@ User Request: ${userInput}`
       
       switch (action) {
         case 'getAvailableVenues':
-          response = await MatchmakingToolboxService.getAvailableVenues(parameters)
+          const venuesResult = await MatchmakingToolboxService.getAvailableVenues(parameters)
+          response = { text: '', data: venuesResult.data, isEmpty: venuesResult.isEmpty }
           break
         
         case 'getAvailablePlayers':
-          response = await MatchmakingToolboxService.getAvailablePlayers(parameters)
+          const playersResult = await MatchmakingToolboxService.getAvailablePlayers(parameters)
+          response = { text: '', data: playersResult.data, isEmpty: playersResult.isEmpty }
           break
         
         case 'findOpenSessions':
@@ -371,7 +373,8 @@ User Request: ${userInput}`
           break
         
         case 'findMatch':
-          response = await MatchmakingToolboxService.findMatch(parameters)
+          const matchResult = await MatchmakingToolboxService.findMatch(parameters)
+          response = { text: '', data: matchResult.data, isEmpty: matchResult.isEmpty }
           break
         
         case 'getUserBookings':

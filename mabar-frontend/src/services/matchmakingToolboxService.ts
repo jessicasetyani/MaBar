@@ -210,9 +210,9 @@ export class MatchmakingToolboxService {
   }
 
   /**
-   * Toolbox: Find match (comprehensive search)
+   * Toolbox: Find match (comprehensive search) - Returns raw data only
    */
-  static async findMatch(params: any): Promise<AIResponse> {
+  static async findMatch(params: any): Promise<ToolboxResponse> {
     console.log('🔧 [TOOLBOX] findMatch called with params:', params)
     
     try {
@@ -224,43 +224,16 @@ export class MatchmakingToolboxService {
         totalResults: results.totalResults
       })
       
-      if (results.totalResults === 0) {
-        return {
-          text: 'No matches found for your criteria. Would you like me to help you create a new session?',
-          sessionCards: [{
-            type: 'no-availability' as const,
-            data: { message: 'No matches found for your search criteria' }
-          }]
-        }
-      }
-
-      const sessionCards = []
-
-      if (results.venues.length > 0) {
-        sessionCards.push({
-          type: 'create-new' as const,
-          data: {
-            venue: results.venues[0].name,
-            address: `${results.venues[0].address.area}, ${results.venues[0].address.city}`,
-            cost: `Rp ${results.venues[0].pricing.hourlyRate.toLocaleString()}/hour`
-          }
-        })
-      }
-
-      const resultText = `Great! I found ${results.totalResults} options for your padel match:`
-      
       return {
-        text: resultText,
-        sessionCards: sessionCards.slice(0, 3)
+        data: results,
+        isEmpty: results.totalResults === 0
       }
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in findMatch:', error)
       return {
-        text: 'Sorry, I encountered an issue finding matches. Please try again.',
-        sessionCards: [{
-          type: 'no-availability' as const,
-          data: { message: 'Search error' }
-        }]
+        data: { venues: [], players: [], sessions: [], totalResults: 0 },
+        error: error.message,
+        isEmpty: true
       }
     }
   }
