@@ -210,9 +210,9 @@ export class MatchmakingToolboxService {
   }
 
   /**
-   * Toolbox: Find match (comprehensive search) - Returns raw data only
+   * Toolbox: Find match (comprehensive search)
    */
-  static async findMatch(params: any): Promise<ToolboxResponse> {
+  static async findMatch(params: any): Promise<AIResponse> {
     console.log('🔧 [TOOLBOX] findMatch called with params:', params)
     
     try {
@@ -223,21 +223,15 @@ export class MatchmakingToolboxService {
         sessionsCount: results.sessions.length,
         totalResults: results.totalResults
       })
-      console.log('📋 [TOOLBOX] Detailed results from executeComprehensiveQuery:')
-      console.log('  🏟️ Venues:', results.venues)
-      console.log('  👥 Players:', results.players)
-      console.log('  🎮 Sessions:', results.sessions)
       
       if (results.totalResults === 0) {
-        const response = {
+        return {
           text: 'No matches found for your criteria. Would you like me to help you create a new session?',
           sessionCards: [{
             type: 'no-availability' as const,
             data: { message: 'No matches found for your search criteria' }
           }]
         }
-        console.log('📤 [TOOLBOX] findMatch response (no results):', response)
-        return response
       }
 
       const sessionCards = []
@@ -248,64 +242,26 @@ export class MatchmakingToolboxService {
           data: {
             venue: results.venues[0].name,
             address: `${results.venues[0].address.area}, ${results.venues[0].address.city}`,
-            cost: `Rp ${results.venues[0].pricing.hourlyRate.toLocaleString()}/hour`,
-            ...(params.time && { suggestedTime: params.time }),
-            ...(params.date && { suggestedDate: params.date })
+            cost: `Rp ${results.venues[0].pricing.hourlyRate.toLocaleString()}/hour`
           }
         })
       }
 
-      if (results.sessions && results.sessions.length > 0) {
-        sessionCards.push({
-          type: 'existing-session' as const,
-          data: {
-            sessionId: results.sessions[0].id,
-            venue: `Open Session - ${results.sessions[0].timeSlot}`,
-            time: results.sessions[0].timeSlot,
-            date: results.sessions[0].date,
-            players: results.sessions[0].currentPlayers.map(name => ({ name, skillLevel: results.sessions[0].skillLevel || 'Unknown' })),
-            openSlots: results.sessions[0].openSlots,
-            cost: `Rp ${results.sessions[0].pricePerPlayer.toLocaleString()}/player`
-          }
-        })
-      } else if (results.players.length > 0) {
-        sessionCards.push({
-          type: 'existing-session' as const,
-          data: {
-            venue: 'Available Players',
-            players: results.players.slice(0, 3).map(player => ({
-              name: player.name,
-              skillLevel: player.skillLevel
-            })),
-            openSlots: Math.max(1, 4 - results.players.length),
-            time: params.time || 'Flexible',
-            date: params.date || 'Flexible',
-            cost: 'To be shared'
-          }
-        })
-      }
-
-      const resultText = results.sessions?.length > 0 
-        ? `Great! I found ${results.totalResults} options including ${results.sessions.length} open sessions:`
-        : `Great! I found ${results.totalResults} options for your padel match:`
+      const resultText = `Great! I found ${results.totalResults} options for your padel match:`
       
-      const response = {
+      return {
         text: resultText,
         sessionCards: sessionCards.slice(0, 3)
       }
-      console.log('📤 [TOOLBOX] findMatch response:', response)
-      return response
     } catch (error) {
       console.error('❌ [TOOLBOX] Error in findMatch:', error)
-      const errorResponse = {
+      return {
         text: 'Sorry, I encountered an issue finding matches. Please try again.',
         sessionCards: [{
           type: 'no-availability' as const,
           data: { message: 'Search error' }
         }]
       }
-      console.log('📤 [TOOLBOX] findMatch error response:', errorResponse)
-      return errorResponse
     }
   }
 
