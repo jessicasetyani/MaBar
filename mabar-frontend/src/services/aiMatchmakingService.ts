@@ -9,15 +9,21 @@ import { AIFlowLogger } from './aiFlowLogger'
 
 // AI Action Types - Complete toolbox aligned with database
 export type AIAction = 
-  | 'getAvailableVenues'     // → Venue table
-  | 'getAvailablePlayers'    // → PlayerProfile table 
-  | 'findOpenSessions'       // → Session table (games needing players)
-  | 'findMatch'              // → Venue + PlayerProfile + Session tables
-  | 'getVenueDetails'        // → Venue table (by ID)
-  | 'checkVenueAvailability' // → Booking table (conflicts check)
-  | 'createNewSession'       // → Session table (start new game)
-  | 'getPersonalizedRecommendations' // → Multiple tables with user context
-  | 'needMoreInfo'           // → No database needed
+  | 'findMatch'              // → Complete search (venues + players + sessions)
+  | 'getAvailableVenues'     // → Show courts/venues
+  | 'getAvailablePlayers'    // → Show available players
+  | 'findOpenSessions'       // → Games needing players
+  | 'createNewSession'       // → Start new game
+  | 'getVenueDetails'        // → Specific venue info
+  | 'checkVenueAvailability' // → Real-time availability
+  | 'getPersonalizedRecommendations' // → AI suggestions
+  | 'getUserBookings'        // → User's bookings
+  | 'getBookingHistory'      // → Past games
+  | 'modifyBooking'          // → Change bookings
+  | 'cancelBooking'          // → Cancel/unbook bookings (user)
+  | 'deleteBooking'          // → Delete bookings (admin)
+  | 'checkBookingStatus'     // → Booking confirmation
+  | 'needMoreInfo'           // → Only for unclear requests
 
 export interface AIRequest {
   action: AIAction
