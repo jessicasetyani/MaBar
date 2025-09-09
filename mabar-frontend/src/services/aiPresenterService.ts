@@ -150,47 +150,84 @@ Remember to use the exact JSON format specified in your system prompt.`
   private static createFallbackResponse(request: PresenterRequest): PresenterResponse {
     const { rawData, toolboxAction } = request
 
-    // Handle needMoreInfo - let AI generate dynamic response based on persona
+    // Handle needMoreInfo
     if (toolboxAction === 'needMoreInfo' || (rawData && rawData.needsMoreInfo)) {
-      // Let the AI Presenter generate dynamic greeting - no static fallback
-      // This allows for varied, contextual responses based on user profile
       return {
-        text: "Hey! Let's find you an awesome padel game!", // Simple fallback only if AI fails
-        sessionCards: [] // No cards for needMoreInfo
+        text: "Hey! Let's find you an awesome padel game!",
+        sessionCards: []
       }
     }
 
-    // Determine response based on raw data structure
-    if (!rawData || (Array.isArray(rawData) && rawData.length === 0)) {
+    // Handle comprehensive findMatch data
+    if (rawData && rawData.venues && rawData.players && rawData.sessions) {
+      const { venues, players, sessions, totalResults } = rawData
+      
+      if (totalResults === 0) {
+        return {
+          text: "No matches found. Would you like to try different criteria?",
+          sessionCards: [{
+            type: 'no-availability',
+            data: { message: 'No results found' }
+          }]
+        }
+      }
+
+      const sessionCards = []
+      
+      // Add venue cards
+      if (venues && venues.length > 0) {
+        sessionCards.push(...venues.slice(0, 2).map(venue => ({
+          type: 'create-new' as const,
+          data: {
+            venue: venue.name || 'Padel Court',
+            address: venue.address ? `${venue.address.area}, ${venue.address.city}` : 'Jakarta',
+            cost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking'
+          }
+        })))
+      }
+      
+      // Add session cards
+      if (sessions && sessions.length > 0) {
+        sessionCards.push(...sessions.slice(0, 2).map(session => ({
+          type: 'existing-session' as const,
+          data: {
+            sessionId: session.id,
+            venue: `Session - ${session.timeSlot}`,
+            time: session.timeSlot,
+            date: session.date,
+            openSlots: session.openSlots,
+            cost: `Rp ${session.pricePerPlayer?.toLocaleString()}/player`
+          }
+        })))
+      }
+      
       return {
-        text: "Sorry, I couldn't find any matches for your request. Would you like to try different criteria?",
-        sessionCards: [{
-          type: 'no-availability',
-          data: { message: 'No results found' }
-        }]
+        text: `Found ${totalResults} options for you:`,
+        sessionCards: sessionCards.slice(0, 3)
       }
     }
 
+    // Handle array data (venues or players)
     if (Array.isArray(rawData) && rawData.length > 0) {
       // Handle venues
-      if (toolboxAction.includes('Venue') || rawData[0].pricing) {
+      if (rawData[0].pricing || toolboxAction.includes('Venue')) {
         return {
-          text: `I found ${rawData.length} venue${rawData.length > 1 ? 's' : ''} for you:`,
+          text: `Found ${rawData.length} venue${rawData.length > 1 ? 's' : ''}:`,
           sessionCards: rawData.slice(0, 3).map(venue => ({
             type: 'create-new' as const,
             data: {
               venue: venue.name || 'Padel Court',
               address: venue.address ? `${venue.address.area}, ${venue.address.city}` : 'Jakarta',
-              cost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price available on booking'
+              cost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking'
             }
           }))
         }
       }
 
       // Handle players
-      if (toolboxAction.includes('Player') || rawData[0].skillLevel) {
+      if (rawData[0].skillLevel || toolboxAction.includes('Player')) {
         return {
-          text: `Great! I found ${rawData.length} available player${rawData.length > 1 ? 's' : ''}:`,
+          text: `Found ${rawData.length} available player${rawData.length > 1 ? 's' : ''}:`,
           sessionCards: [{
             type: 'existing-session' as const,
             data: {
@@ -208,15 +245,12 @@ Remember to use the exact JSON format specified in your system prompt.`
       }
     }
 
-    // Generic fallback
+    // No data fallback
     return {
-      text: "I found some results for you. Let me know if you'd like more details!",
+      text: "Sorry, I couldn't find any matches. Would you like to try different criteria?",
       sessionCards: [{
-        type: 'create-new' as const,
-        data: {
-          venue: 'Search Results',
-          message: 'Results available - please specify what you need'
-        }
+        type: 'no-availability',
+        data: { message: 'No results found' }
       }]
     }
   }
