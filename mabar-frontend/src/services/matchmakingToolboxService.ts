@@ -984,13 +984,10 @@ export class MatchmakingToolboxService {
       ])
       
       return {
-        data: {
-          venues,
-          players,
-          sessions: openSessions,
-          totalResults: venues.length + players.length + openSessions.length
-        },
-        isEmpty: venues.length + players.length + openSessions.length === 0
+        venues,
+        players,
+        sessions: openSessions,
+        totalResults: venues.length + players.length + openSessions.length
       }
     } catch (error) {
       console.error('❌ Error in comprehensive query:', error)
