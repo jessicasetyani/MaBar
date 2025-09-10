@@ -627,19 +627,6 @@ Decide optimal presentation format and create engaging response.`
       return this.deduplicateCards(convertedCards)
     }
 
-    // Create optimized cards based on format using proper SessionCard types
-    const venues = findings.venues || []
-    const players = findings.players || []
-    const sessions = findings.sessions || []
-
-    if (format === 'cards') {
-      // Show all results as properly formatted SessionCards
-      return this.deduplicateCards(this.createCards(venues, players, sessions))
-    } else if (format === 'mixed') {
-      // Show top results as properly formatted SessionCards
-      return this.deduplicateCards(this.createCards(venues.slice(0, 3), players.slice(0, 2), sessions.slice(0, 2)))
-    }
-
     return []
   }
 
