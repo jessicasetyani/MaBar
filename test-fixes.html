@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test MaBar AI Fixes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #FEFCE8;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 2px solid #FDE047;
+        }
+        .test-result {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #84CC16;
+            color: white;
+        }
+        .error {
+            background-color: #ef4444;
+            color: white;
+        }
+        .info {
+            background-color: #64748B;
+            color: white;
+        }
+        button {
+            background-color: #FDE047;
+            color: #334155;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #fbbf24;
+        }
+    </style>
+</head>
+<body>
+    <h1>MaBar AI Bug Fixes Test</h1>
+    
+    <div class="test-section">
+        <h2>Fix 1: Context Persistence Bug</h2>
+        <p>This test verifies that conversation context is properly reset on page refresh.</p>
+        <div id="context-test-results"></div>
+        <button onclick="testContextReset()">Test Context Reset</button>
+        <button onclick="simulatePageRefresh()">Simulate Page Refresh</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Fix 2: Venue Display Bug</h2>
+        <p>This test verifies that venue names are properly displayed instead of "Unknown Venue".</p>
+        <div id="venue-test-results"></div>
+        <button onclick="testVenueDisplay()">Test Venue Display</button>
+    </div>
+
+    <div class="test-section">
+        <h2>Integration Test</h2>
+        <p>Test the complete flow: page refresh + venue search</p>
+        <div id="integration-test-results"></div>
+        <button onclick="runIntegrationTest()">Run Integration Test</button>
+    </div>
+
+    <script>
+        function addResult(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const result = document.createElement('div');
+            result.className = `test-result ${type}`;
+            result.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+            container.appendChild(result);
+        }
+
+        function testContextReset() {
+            addResult('context-test-results', 'Testing context reset...', 'info');
+            
+            // Check if localStorage has any AI conversation data
+            const storedData = localStorage.getItem('mabar-ai-conversation');
+            if (storedData) {
+                addResult('context-test-results', 'Found stored conversation data - this should be cleared on page load', 'error');
+            } else {
+                addResult('context-test-results', 'No stored conversation data found - context is clean', 'success');
+            }
+
+            // Test by navigating to the AI chat page
+            window.open('http://localhost:5174/ai-chat', '_blank');
+            addResult('context-test-results', 'Opened AI chat in new tab - check if context is reset', 'info');
+        }
+
+        function simulatePageRefresh() {
+            addResult('context-test-results', 'Simulating page refresh...', 'info');
+            
+            // Store some test data in localStorage
+            const testData = {
+                history: [{ role: 'user', content: 'test message' }],
+                accumulated: { date: 'today', time: 'flexible', location: 'kemang' },
+                timestamp: Date.now()
+            };
+            localStorage.setItem('mabar-ai-conversation', JSON.stringify(testData));
+            addResult('context-test-results', 'Added test conversation data to localStorage', 'info');
+            
+            // Refresh the AI chat page
+            setTimeout(() => {
+                window.location.href = 'http://localhost:5174/ai-chat';
+            }, 1000);
+        }
+
+        function testVenueDisplay() {
+            addResult('venue-test-results', 'Testing venue display...', 'info');
+            
+            // This would need to be integrated with the actual AI system
+            // For now, we'll just provide instructions
+            addResult('venue-test-results', 'Manual test required:', 'info');
+            addResult('venue-test-results', '1. Go to AI chat page', 'info');
+            addResult('venue-test-results', '2. Click "Show me available courts"', 'info');
+            addResult('venue-test-results', '3. Check if venue names show "Elite Padel Club" instead of "Unknown Venue"', 'info');
+            
+            window.open('http://localhost:5174/ai-chat', '_blank');
+        }
+
+        function runIntegrationTest() {
+            addResult('integration-test-results', 'Running integration test...', 'info');
+            addResult('integration-test-results', 'Step 1: Clearing any existing context', 'info');
+            localStorage.removeItem('mabar-ai-conversation');
+            
+            addResult('integration-test-results', 'Step 2: Opening AI chat page', 'info');
+            window.open('http://localhost:5174/ai-chat', '_blank');
+            
+            addResult('integration-test-results', 'Manual verification needed:', 'info');
+            addResult('integration-test-results', '1. Verify welcome message appears (fresh context)', 'info');
+            addResult('integration-test-results', '2. Click "Show me available courts"', 'info');
+            addResult('integration-test-results', '3. Verify venue shows "Elite Padel Club" not "Unknown Venue"', 'info');
+            addResult('integration-test-results', '4. Refresh page and verify context resets', 'info');
+        }
+
+        // Auto-run context test on page load
+        window.onload = function() {
+            addResult('context-test-results', 'Page loaded - checking initial state', 'info');
+            testContextReset();
+        };
+    </script>
+</body>
+</html>
