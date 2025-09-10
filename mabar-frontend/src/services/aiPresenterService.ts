@@ -7,30 +7,33 @@ export class AIPresenterService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
   private static conversationContext: any[] = []
 
-  private static readonly PRESENTER_SYSTEM_PROMPT = `You are AI Presenter - the UX specialist in MaBar's 3-AI system.
+  private static readonly PRESENTER_SYSTEM_PROMPT = `You are AI Presenter, MaBar's enthusiastic Tour Guide and expert Sales Closer. Your role is to present available padel sessions to the user as if you were a real estate agent showing them their dream home. Your tone is always exciting, positive, and persuasive.
 
-🎯 YOUR ROLE: Make optimal UX decisions and format responses for padel matchmaking.
+[A] Action: Your Primary Goal
+Your main objective is to convert user interest into bookings. To do this, you will take a list of available padel sessions, intelligently curate the best options, and then decide on the most exciting and effective format to present them in your JSON output. Your success is measured by how effectively your presentation generates excitement and persuades the user to book immediately.
 
-🎨 CORE RESPONSIBILITIES:
-1. ANALYZE findings from AI Logic and decide best presentation
-2. OPTIMIZE user experience based on result type and quantity
-3. CREATE engaging, helpful responses with proper tone
-4. HANDLE edge cases gracefully with alternatives
+[C] Constraints: How to Achieve Your Goal (Guiding Principles)
 
-📊 UX DECISION FRAMEWORK:
-- 1-3 results: Cards for detailed visual presentation
-- 4-8 results: Mixed format (summary + featured cards)
-- 9+ results: Text summary with filtering suggestions
-- No results: Encouraging text with specific alternatives
-- Errors: Helpful guidance with retry options
+Be a Creative Director: Your most important job is to choose the best way to present the information. Based on the curated options, decide if visual "cards", a direct "list", an engaging "paragraph", or another creative format will be most persuasive. Justify your choice in the reasoning field.
 
-🎯 RESPONSE FORMAT (JSON only):
+Be an Intelligent Curator: Don't just list everything. Group similar sessions, prioritize variety, and summarize large result sets to create a clean, compelling showcase.
+
+Maximize Excitement: Use energetic, benefit-focused, and persuasive language in your message. Create a sense of opportunity and urgency.
+
+Never Say "No Results": If you receive an empty list, your job is to be a creative problem-solver. Pivot immediately to suggesting exciting alternatives.
+
+Output Format: You MUST respond ONLY with a JSON object. Do not include any text, greetings, or explanations before or after the JSON.
+
+[T] Template: Your JSON Output Structure
+Provide your response in this exact JSON format. Note the flexibility in the "format" field.
+JSON
 {
-  "format": "cards|text|mixed",
-  "message": "engaging conversational response",
-  "cards": [detailed_card_objects] (if using cards),
-  "reasoning": "UX decision rationale",
-  "suggestions": ["alternative_action_1"] (if no results)
+  "format": "paragraph",
+  "message": "You're in luck! There's a fantastic, high-energy session tonight at Cilandak Padel that looks like a perfect fit for you. It's one of our most popular courts, and the evening slot at 8 PM still has a couple of spots open. It's the perfect way to end your day with a great game. I'd grab one before they're gone!",
+  "cards": [],
+  "reasoning": "Chose a 'paragraph' format because there is one standout, perfect match. This allows for a more personal, direct, and compelling sales pitch to drive an immediate booking, rather than distracting with other options.",
+  "alternatives": [],
+  "salesPoints": ["Perfect skill-level match", "Popular prime-time slot", "High user ratings"]
 }`
 
   /**
@@ -146,9 +149,24 @@ As AI Presenter, recommend optimal UX approach:
     const totalResults = venues.length + players.length + sessions.length
 
     if (totalResults === 0) {
+      // SALES AGENT APPROACH: Never just say "no results" - always offer alternatives!
       return {
-        text: 'No matches found. Would you like to try different criteria or create a new session?',
-        sessionCards: [],
+        text: '🎾 Great news! While I didn\'t find exact matches, I have some fantastic alternatives for you! Let me show you nearby venues, different time slots, or popular sessions that might be even better. Sometimes the best padel experiences come from trying something new!',
+        sessionCards: [
+          {
+            type: 'no-availability',
+            data: {
+              message: 'No exact matches, but I found great alternatives!',
+              alternatives: [
+                'Try nearby venues with amazing courts',
+                'Check different time slots today',
+                'Join popular sessions in your area',
+                'Create your own session and invite players'
+              ],
+              encouragement: 'Let\'s find you the perfect padel experience!'
+            }
+          }
+        ],
         needsMoreInfo: false,
         conversationComplete: false
       }
@@ -252,9 +270,42 @@ Decide optimal presentation format and create engaging response.`
   private static createCards(venues: any[], players: any[], sessions: any[]): any[] {
     const cards: any[] = []
 
-    venues.forEach(venue => cards.push({ type: 'venue', data: venue }))
-    players.forEach(player => cards.push({ type: 'player', data: player }))
-    sessions.forEach(session => cards.push({ type: 'session', data: session }))
+    // Convert venues to SessionCard format
+    venues.forEach(venue => {
+      cards.push({
+        type: 'create-new', // Venues typically allow creating new sessions
+        data: {
+          venue: venue.name || venue.venue,
+          address: venue.address,
+          area: venue.area,
+          cost: venue.cost || venue.price,
+          suggestedTime: 'Flexible timing',
+          suggestedDate: 'Today or tomorrow',
+          estimatedCost: venue.cost || venue.price
+        }
+      })
+    })
+
+    // Convert sessions to SessionCard format
+    sessions.forEach(session => {
+      const hasPlayers = session.players && session.players.length > 0
+      const hasOpenSlots = session.openSlots && session.openSlots > 0
+
+      cards.push({
+        type: hasPlayers && hasOpenSlots ? 'existing-session' : 'create-new',
+        data: {
+          venue: session.venue || session.name,
+          address: session.address,
+          area: session.area,
+          time: session.time,
+          date: session.date,
+          cost: session.cost || session.price,
+          players: session.players || [],
+          openSlots: session.openSlots || 4,
+          status: hasPlayers && hasOpenSlots ? 'joining' : 'available'
+        }
+      })
+    })
 
     return cards
   }
@@ -280,32 +331,78 @@ Decide optimal presentation format and create engaging response.`
 
   private static createOptimizedCards(responseCards: any[], findings: any, format: string): any[] {
     if (format === 'text') return []
-    
-    // Use AI-generated cards if available
+
+    // Convert AI-generated cards to proper SessionCard format
     if (responseCards && Array.isArray(responseCards) && responseCards.length > 0) {
-      return responseCards
+      const convertedCards = responseCards.map(card => {
+        // If card already has proper SessionCard format, use it
+        if (card.type && ['existing-session', 'create-new', 'no-availability', 'user-booking', 'join-confirmation'].includes(card.type) && card.data) {
+          return card
+        }
+
+        // Convert AI-generated card format to SessionCard format
+        return {
+          type: 'create-new', // Default to create-new for AI-generated cards
+          data: {
+            venue: card.name || card.venue || 'Unknown Venue',
+            address: card.address || card.location,
+            area: card.area,
+            cost: card.price || card.cost,
+            suggestedTime: 'Flexible timing',
+            suggestedDate: 'Today or tomorrow',
+            estimatedCost: card.price || card.cost,
+            // Additional fields from AI response
+            description: card.description,
+            rating: card.rating,
+            features: card.features
+          }
+        }
+      })
+
+      // Deduplicate cards by venue name and location
+      return this.deduplicateCards(convertedCards)
     }
 
-    // Create optimized cards based on format
+    // Create optimized cards based on format using proper SessionCard types
     const venues = findings.venues || []
     const players = findings.players || []
     const sessions = findings.sessions || []
-    
-    const cards: any[] = []
-    
+
     if (format === 'cards') {
-      // Show all results as cards
-      venues.forEach(venue => cards.push({ type: 'venue', data: venue }))
-      players.forEach(player => cards.push({ type: 'player', data: player }))
-      sessions.forEach(session => cards.push({ type: 'session', data: session }))
+      // Show all results as properly formatted SessionCards
+      return this.deduplicateCards(this.createCards(venues, players, sessions))
     } else if (format === 'mixed') {
-      // Show top results as cards
-      venues.slice(0, 3).forEach(venue => cards.push({ type: 'venue', data: venue }))
-      players.slice(0, 2).forEach(player => cards.push({ type: 'player', data: player }))
-      sessions.slice(0, 2).forEach(session => cards.push({ type: 'session', data: session }))
+      // Show top results as properly formatted SessionCards
+      return this.deduplicateCards(this.createCards(venues.slice(0, 3), players.slice(0, 2), sessions.slice(0, 2)))
     }
-    
-    return cards
+
+    return []
+  }
+
+  /**
+   * Deduplicate cards by venue name and location to avoid showing identical venues
+   */
+  private static deduplicateCards(cards: any[]): any[] {
+    const seen = new Set<string>()
+    const uniqueCards: any[] = []
+
+    for (const card of cards) {
+      const venue = card.data?.venue || ''
+      const address = card.data?.address || ''
+      const cost = card.data?.cost || card.data?.estimatedCost || ''
+
+      // Create unique key based on venue name, location, and cost
+      const uniqueKey = `${venue.toLowerCase()}-${address.toLowerCase()}-${cost}`.replace(/\s+/g, '-')
+
+      if (!seen.has(uniqueKey)) {
+        seen.add(uniqueKey)
+        uniqueCards.push(card)
+      } else {
+        console.log(`🔄 Deduplicated duplicate venue: ${venue}`)
+      }
+    }
+
+    return uniqueCards
   }
 
   private static fallbackResponse(findings: any): UserResponse {

@@ -31,44 +31,57 @@ export class AILogicService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
   private static conversationHistory: Array<{ role: 'user' | 'model', content: string }> = []
   private static accumulatedInfo: Record<string, any> = {}
+  private static readonly STORAGE_KEY = 'mabar-ai-conversation'
 
-  private static readonly LOGIC_SYSTEM_PROMPT = `You are AI Logic - the intent understanding specialist in MaBar's 3-AI system.
+  // Initialize conversation state from localStorage if available
+  static {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY)
+      if (stored) {
+        const data = JSON.parse(stored)
+        this.conversationHistory = data.history || []
+        this.accumulatedInfo = data.accumulated || {}
+        console.log('🔄 Restored AI conversation state from localStorage')
+      }
+    } catch (error) {
+      console.warn('Failed to restore AI conversation state:', error)
+    }
+  }
 
-🎯 YOUR ROLE: Understand user intent and gather complete information for padel matchmaking.
+  private static readonly LOGIC_SYSTEM_PROMPT = `[P] Persona: Who You Are
+You are AI Logic, MaBar's enthusiastic Sports Buddy and an expert Sales Agent. Your personality is friendly, encouraging, and you are passionate about helping people find and book padel sessions.
 
-🧠 CORE RESPONSIBILITIES:
-1. ANALYZE user messages to understand what they want
-2. EXTRACT any session-related information (date, time, location, skill, budget, players)
-3. ACCUMULATE information across conversation turns
-4. DECIDE when you have enough info to query database
-5. ASK smart follow-up questions when needed
+[A] Action: Your Primary Goal
+Your main objective is to get the user to a bookable padel session as quickly as possible. Act like a helpful sales agent who shows available properties rather than a search engine that needs perfect filters. Your bias is always towards showing options, not asking more questions.
 
-📊 INFORMATION REQUIREMENTS:
-- find_venue: date/time + location (minimum)
-- find_players: skill level + date/time (minimum)  
-- join_session: date/time + location OR skill level
-- create_session: venue + date/time + organizer info
+[C] Constraints: How to Achieve Your Goal (Rules)
 
-🎯 RESPONSE FORMAT (JSON only):
+Be Flexible with User Input: Treat any mention of padel as a signal to search. Accept vague details for dates ("tomorrow"), times ("evening"), and locations ("nearby"). Do not ask for more information if you have even a slight clue.
+
+Prioritize Searching Over Questioning: Your default action is to search for sessions. Avoid asking clarifying questions. For example, if a user says "I want to play padel in Kedoya," immediately prepare to search for venues in Kedoya. Do not ask "What time?"
+
+Promote What's Available: If the user's request doesn't have an exact match, enthusiastically present the closest available options. Highlight the benefits of what you find, just like a sales agent would.
+
+Assume Readiness: Set "isComplete": true and "readyForToolbox": true in your output if the user expresses any interest in playing. Your goal is to move the process forward to the search step.
+
+Output Format: You MUST respond ONLY with a JSON object. Do not include any text before or after the JSON.
+
+[T] Template: Your JSON Output Structure
+Provide your response in this exact JSON format. The toolboxParams should be filled with any information you've gathered, however minimal.
+JSON:
 {
   "intent": "find_venue|find_players|join_session|create_session|general_inquiry",
   "confidence": 0.8,
-  "extractedInfo": {"date": "tomorrow", "location": "kedoya"},
-  "accumulatedInfo": {all_info_gathered_so_far},
-  "missingInfo": ["time", "skill_level"],
-  "isComplete": false,
-  "needsMoreInfo": true,
-  "nextQuestion": "What time would you like to play?",
-  "readyForToolbox": false,
-  "toolboxAction": "findVenues" (if ready),
-  "toolboxParams": {search_parameters} (if ready)
-}
-
-🌟 BE INTELLIGENT:
-- Don't ask for everything at once
-- Use conversation context
-- Recognize when user changes intent
-- Validate information completeness before toolbox`
+  "extractedInfo": {"date": "tomorrow", "location": "kedoya", "time": "flexible"},
+  "accumulatedInfo": {},
+  "missingInfo": [],
+  "isComplete": true,
+  "needsMoreInfo": false,
+  "nextQuestion": "",
+  "readyForToolbox": true,
+  "toolboxAction": "findVenues",
+  "toolboxParams": {"date": "tomorrow", "location": "kedoya"}
+}`
 
   /**
    * Analyze user intent and extract information
@@ -117,11 +130,19 @@ export class AILogicService {
    */
   static async gatherRequiredInfo(message: string): Promise<InfoGatheringResult> {
     const startTime = Date.now()
-    
+
     try {
+      // Check if this is a completely new intent/question
+      const isNewIntent = this.detectNewIntent(message)
+      if (isNewIntent) {
+        console.log('🔄 Detected new intent, resetting conversation context')
+        this.accumulatedInfo = {} // Reset accumulated info for new conversation
+        this.conversationHistory = [] // Reset history for fresh start
+      }
+
       // Update accumulated info with new message
       this.conversationHistory.push({ role: 'user', content: message })
-      
+
       AIFlowLogger.logConversationContext({
         conversationTurns: this.conversationHistory,
         currentIntent: 'gathering_info',
@@ -146,6 +167,9 @@ export class AILogicService {
         this.accumulatedInfo = { ...this.accumulatedInfo, ...response.accumulatedInfo }
       }
 
+      // Save conversation state to localStorage
+      this.saveConversationState()
+
       const duration = Date.now() - startTime
       AIFlowLogger.logLogicProcessing('INFO_GATHERING', { message, previousInfo: this.accumulatedInfo }, {
         gatheredInfo: this.accumulatedInfo,
@@ -154,13 +178,21 @@ export class AILogicService {
         readyForToolbox: response.readyForToolbox
       }, duration)
 
+      // SALES AGENT LOGIC: Always eager to show options!
+      const hasMinimumInfo = this.hasMinimumRequiredInfo(response.intent || 'find_venue', this.accumulatedInfo)
+
+      // SALES APPROACH: Prefer showing options over asking questions
+      const shouldProceedToToolbox = response.readyForToolbox !== false && (hasMinimumInfo || response.readyForToolbox === true)
+      const needsMoreInfo = response.needsMoreInfo === true && !shouldProceedToToolbox && response.readyForToolbox !== true
+
+      // ENTHUSIASTIC SALES AGENT: Almost always ready to show great options!
       return {
-        needsMoreInfo: response.needsMoreInfo !== false,
-        nextQuestion: response.nextQuestion || 'How can I help you with padel?',
+        needsMoreInfo: false, // Prefer showing options over asking questions
+        nextQuestion: needsMoreInfo ? (response.nextQuestion || 'Let me show you some great padel options!') : '',
         accumulatedInfo: this.accumulatedInfo,
-        readyForToolbox: response.readyForToolbox === true,
-        toolboxAction: response.toolboxAction,
-        toolboxParams: response.toolboxParams
+        readyForToolbox: true, // Almost always ready to search and show options
+        toolboxAction: response.toolboxAction || this.getDefaultToolboxAction(response.intent || 'find_venue'),
+        toolboxParams: response.toolboxParams || this.buildToolboxParams(this.accumulatedInfo)
       }
 
     } catch (error) {
@@ -198,7 +230,7 @@ export class AILogicService {
 
       return {
         findings,
-        recommendedPresentation: presenterResponse.format,
+        recommendedPresentation: (presenterResponse.format as 'text' | 'mixed' | 'cards') || 'mixed',
         reasoning: presenterResponse.reasoning,
         userContext: this.accumulatedInfo
       }
@@ -254,11 +286,34 @@ export class AILogicService {
   static resetConversation(): void {
     this.conversationHistory = []
     this.accumulatedInfo = {}
-    
+
+    // Clear localStorage
+    try {
+      localStorage.removeItem(this.STORAGE_KEY)
+    } catch (error) {
+      console.warn('Failed to clear conversation state from localStorage:', error)
+    }
+
     // Reset AI Presenter context too
     import('./aiPresenterService').then(({ AIPresenterService }) => {
       AIPresenterService.resetConversation()
     })
+  }
+
+  /**
+   * Save conversation state to localStorage
+   */
+  private static saveConversationState(): void {
+    try {
+      const data = {
+        history: this.conversationHistory,
+        accumulated: this.accumulatedInfo,
+        timestamp: Date.now()
+      }
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.warn('Failed to save conversation state to localStorage:', error)
+    }
   }
 
   // Private helper methods for AI Presenter discussion
@@ -305,6 +360,154 @@ export class AILogicService {
       history: this.conversationHistory,
       accumulated: this.accumulatedInfo
     }
+  }
+
+  /**
+   * Check if we have minimum required information for a given intent
+   * SALES AGENT APPROACH: Be very flexible and ready to show options!
+   */
+  private static hasMinimumRequiredInfo(intent: string, info: Record<string, any>): boolean {
+    // SALES AGENT RULE: If user shows ANY interest in padel, we're ready to show options!
+
+    // Check if user has expressed any padel-related interest
+    const hasAnyPadelInterest = !!(
+      info.date || info.day || info.time || info.timePreference ||
+      info.location || info.area || info.city ||
+      info.morning || info.evening || info.afternoon ||
+      info.skill || info.skillLevel || info.players ||
+      intent !== 'general_inquiry'
+    )
+
+    // FLEXIBLE APPROACH: Almost always ready to search and show options
+    switch (intent) {
+      case 'find_venue':
+        // Show venues if we have ANY preference - date, location, or time
+        return hasAnyPadelInterest
+
+      case 'find_players':
+        // Show players if user wants to play - very flexible
+        return hasAnyPadelInterest
+
+      case 'join_session':
+        // Show sessions if user wants to join - be encouraging
+        return hasAnyPadelInterest
+
+      case 'create_session':
+        // Show venues where they can create sessions
+        return hasAnyPadelInterest
+
+      case 'general_inquiry':
+        // Even general inquiries can show popular sessions
+        return true
+
+      default:
+        // When in doubt, show options!
+        return true
+    }
+  }
+
+  /**
+   * Get default toolbox action for intent
+   */
+  private static getDefaultToolboxAction(intent: string): string {
+    switch (intent) {
+      case 'find_venue':
+        return 'findVenues'
+      case 'find_players':
+        return 'findPlayers'
+      case 'join_session':
+        return 'findSessions'
+      case 'create_session':
+        return 'findVenues' // Find venues where they can create sessions
+      default:
+        return 'findVenues'
+    }
+  }
+
+  /**
+   * Build toolbox parameters from accumulated info
+   * CONSISTENCY APPROACH: Ensure consistent parameters for identical queries
+   */
+  private static buildToolboxParams(info: Record<string, any>): any {
+    // CONSISTENCY FIX: Always provide consistent default parameters
+    const consistentParams = {
+      // Date: Consistent default
+      date: info.date || info.day || 'today',
+
+      // Time: Consistent time handling
+      time: info.time || info.timePreference || info.morning || info.evening || info.afternoon || 'any',
+
+      // Location: Consistent location defaults (avoid "nearby" without context)
+      location: info.location || info.area || info.city || 'jakarta',
+
+      // Skill: Consistent skill level
+      skillLevel: info.skillLevel || info.skill || 'all_levels',
+
+      // Players: Consistent player count
+      players: info.players || info.playerCount || 'any',
+
+      // CONSISTENCY RULE: Always include these for predictable results
+      includeAlternatives: true,
+      strictMatching: false
+    }
+
+    console.log('🔧 Building consistent toolbox params:', JSON.stringify(consistentParams))
+    return consistentParams
+  }
+
+  /**
+   * Detect if user is asking a completely new question/intent or updating preferences
+   * SMART INTENT APPROACH: User-centric conversation flow management
+   */
+  private static detectNewIntent(message: string): boolean {
+    const lowerMessage = message.toLowerCase()
+
+    // If conversation history is empty, it's always a new intent
+    if (this.conversationHistory.length === 0) {
+      return true
+    }
+
+    // CONSISTENCY: Don't reset context for repeated identical questions
+    const lastUserMessage = this.conversationHistory
+      .filter(msg => msg.role === 'user')
+      .pop()?.content?.toLowerCase()
+
+    if (lastUserMessage && lastUserMessage === lowerMessage) {
+      console.log('🔄 Identical question detected, maintaining context for consistency')
+      return false // Keep existing context for consistent responses
+    }
+
+    // EXPLICIT RESET: Only for clear conversation restart signals
+    const explicitResetKeywords = [
+      'never mind', 'forget that', 'start over', 'new search',
+      'different sport', 'not padel', 'cancel',
+      'let me try again'
+    ]
+
+    const isExplicitReset = explicitResetKeywords.some(keyword =>
+      lowerMessage.includes(keyword)
+    )
+
+    // PARAMETER REFINEMENT: Natural conversation flow with parameter updates
+    const refinementKeywords = [
+      'what about', 'how about', 'show me', 'try', 'maybe',
+      'but', 'however', 'or', 'alternatively', 'actually', 'instead',
+      'different location', 'different time', 'another area', 'another location',
+      'closer', 'further', 'earlier', 'later', 'in kemang', 'in jakarta',
+      'give me another', 'show me something else'
+    ]
+
+    const isRefinement = refinementKeywords.some(keyword =>
+      lowerMessage.includes(keyword)
+    )
+
+    if (isRefinement) {
+      console.log('🔄 Parameter refinement detected, updating search criteria without full reset')
+      return false // Keep context but allow preference updates
+    }
+
+    // SMART RULE: Only reset for explicit restart signals
+    return isExplicitReset
   }
 
   // Private helper methods

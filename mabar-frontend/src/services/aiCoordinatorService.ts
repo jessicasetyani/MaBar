@@ -6,24 +6,27 @@ import type { AIResponse } from './aiInterfaces'
 export class AICoordinatorService {
   /**
    * Main entry point - coordinates AI Logic and AI Presenter
+   * CONSISTENCY: Relies on smart intent detection rather than time-based caching
    */
   static async processUserInput(userInput: string, interactionType: 'text' | 'card-interaction' = 'text'): Promise<AIResponse> {
     const startTime = Date.now()
     AIFlowLogger.logUserInput(userInput)
-    
+
     try {
       if (interactionType === 'card-interaction') {
         const [action, data] = userInput.split(':')
         userInput = `User wants to ${action.replace('_', ' ')} for ${data}`
       }
 
+      // SMART CONSISTENCY: Let AI Logic handle consistency through intent detection
+      // This is more user-centric than arbitrary time-based caching
       const response = await this.processWithAIs(userInput)
-      
+
       const totalDuration = Date.now() - startTime
       AIFlowLogger.logFinalResponse(response, totalDuration)
-      
+
       return response
-      
+
     } catch (error) {
       console.error('❌ Coordinator Error:', error)
       return {
@@ -34,79 +37,88 @@ export class AICoordinatorService {
   }
 
   /**
-   * Process message using AI Logic and AI Presenter
+   * Process message using AI Logic (Sales Agent) and AI Presenter (Tour Guide)
+   * TWO-STAGE SALES PROCESS: Sales Agent → Tour Guide
    */
   private static async processWithAIs(message: string): Promise<AIResponse> {
     try {
-      // Step 1: AI Logic analyzes intent and gathers information
+      // STAGE 1: AI LOGIC (ENTHUSIASTIC SALES AGENT)
+      // Gathers customer preferences and gets excited about showing options
       const infoResult = await AILogicService.gatherRequiredInfo(message)
-      
-      if (infoResult.needsMoreInfo) {
-        // Need more information from user
+
+      // SALES AGENT APPROACH: Rarely ask for more info, prefer showing options
+      if (infoResult.needsMoreInfo && !infoResult.readyForToolbox) {
         return {
-          text: infoResult.nextQuestion,
+          text: infoResult.nextQuestion || "Let me show you some fantastic padel options available right now!",
           sessionCards: [],
-          needsMoreInfo: true
+          needsMoreInfo: false // Sales agents show options, don't ask endless questions
         }
       }
-      
+
+      // STAGE 2: EXECUTE SEARCH (FIND THE "HOUSES" TO SHOW)
       if (infoResult.readyForToolbox && infoResult.toolboxAction) {
-        // Step 2: Execute toolbox action
+        console.log('🏆 Sales Agent found customer preferences, searching for great options...')
+
         const findings = await AILogicService.executeToolboxAction(
           infoResult.toolboxAction,
           infoResult.toolboxParams
         )
-        
-        // Step 3: AI Logic discusses with AI Presenter (simplified for now)
+
+        // STAGE 3: AI LOGIC & AI PRESENTER COLLABORATION
+        // Sales Agent discusses with Tour Guide about how to present the "houses"
         const presentationStrategy = await AILogicService.discussWithPresenter(findings)
-        
-        // Step 4: Present results (AI Presenter logic will be implemented later)
+
+        // STAGE 4: AI PRESENTER (TOUR GUIDE) SHOWS THE OPTIONS
+        // Tour Guide provides detailed information and encourages booking
         return await this.presentResults(presentationStrategy)
       }
-      
-      // Fallback conversation
+
+      // ENTHUSIASTIC FALLBACK: Always ready to show something!
       return {
-        text: infoResult.nextQuestion,
+        text: "🎾 I'm excited to help you find amazing padel sessions! Let me show you what's available right now...",
         sessionCards: [],
-        needsMoreInfo: true
+        needsMoreInfo: false
       }
-      
+
     } catch (error) {
-      AIFlowLogger.logError('three-ai-system', error, { message })
+      AIFlowLogger.logError('sales-process-error', error as Error, { message })
       return {
-        text: 'I encountered an issue. Could you try rephrasing your request?',
+        text: '🎾 No worries! Let me help you find some great padel options. What kind of session interests you?',
         sessionCards: []
       }
     }
   }
 
   /**
-   * Present results using full AI Presenter Service with Gemini
+   * Present results using AI Presenter (Tour Guide) with sales focus
+   * TOUR GUIDE STAGE: Show the "houses" with enthusiasm and encourage booking
    */
   private static async presentResults(strategy: any): Promise<AIResponse> {
-    const { findings, recommendedPresentation, reasoning, userContext } = strategy
-    
+    const { findings, recommendedPresentation, userContext } = strategy
+
     try {
-      // Use full AI Presenter Service with Gemini integration
+      console.log('🏠 Tour Guide presenting options with sales enthusiasm...')
+
+      // AI PRESENTER (TOUR GUIDE) shows options like a property agent
       const userResponse = await AIPresenterService.formatResponse(
         findings,
         userContext || {},
-        recommendedPresentation
+        recommendedPresentation || 'cards' // Default to visual cards (like house photos)
       )
 
       AIFlowLogger.logFinalResponse(userResponse)
       return userResponse
 
     } catch (error) {
-      AIFlowLogger.logError('presentation-error', error as Error, { strategy })
-      
-      // Fallback to simple presentation
+      AIFlowLogger.logError('tour-guide-error', error as Error, { strategy })
+
+      // ENTHUSIASTIC FALLBACK: Even errors should be positive!
       const fallbackResponse = AIPresenterService.formatSimpleResponse(
         findings,
-        recommendedPresentation,
-        reasoning
+        'cards', // Always prefer visual presentation
+        'Showing you great options with enthusiasm!'
       )
-      
+
       return fallbackResponse
     }
   }
@@ -114,6 +126,7 @@ export class AICoordinatorService {
 
 
   static resetConversation(): void {
+    // Reset handled by smart intent detection in AILogicService
     AIFlowLogger.clearLogs()
     AILogicService.resetConversation()
     AIPresenterService.resetConversation()
