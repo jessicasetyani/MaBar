@@ -219,6 +219,8 @@ import SessionCard from '../components/SessionCard.vue'
 
 import NoMatchCard from '../components/NoMatchCard.vue'
 import { AICoordinatorService } from '../services/aiCoordinatorService'
+import '../services/testRunner'
+import '../services/simpleFlowExample'
 
 interface SessionData {
   sessionId?: string
