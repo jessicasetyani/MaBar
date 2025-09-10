@@ -64,18 +64,18 @@ Respond JSON:
     if (!dataRequest) return null
 
     try {
-      // Import services dynamically
-      const { VenueService } = await import('./venueService')
-      const { PlayerService } = await import('./playerService')
-      const { SessionService } = await import('./sessionService')
-
+      const { MatchmakingToolboxService } = await import('./matchmakingToolboxService')
+      
       switch (dataRequest.type) {
         case 'venues':
-          return await VenueService.searchVenues(dataRequest.params)
+          const venueResult = await MatchmakingToolboxService.getAvailableVenues(dataRequest.params)
+          return venueResult.data || []
         case 'players':
-          return await PlayerService.searchPlayers(dataRequest.params)
+          const playerResult = await MatchmakingToolboxService.getAvailablePlayers(dataRequest.params)
+          return playerResult.data || []
         case 'sessions':
-          return await SessionService.searchSessions(dataRequest.params)
+          const sessionResult = await MatchmakingToolboxService.findOpenSessions(dataRequest.params)
+          return sessionResult.data || []
         default:
           return null
       }
