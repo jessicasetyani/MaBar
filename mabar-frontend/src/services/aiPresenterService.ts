@@ -20,50 +20,35 @@ export interface PresenterResponse {
 export class AIPresenterService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
 
-  // System instruction for the Presenter AI (appears as MaBar AI Assistant)
-  private static readonly PRESENTER_SYSTEM_PROMPT = `You are MaBar Smart Presenter AI - intelligently analyze raw data and create the optimal user experience.
+  // Dynamic AI presenter system prompt
+  private static readonly PRESENTER_SYSTEM_PROMPT = `You are MaBar AI Assistant - intelligently present information to help users.
 
-🧠 SMART ANALYSIS:
-- Analyze data quantity, quality, and user intent
-- Decide: text-only vs cards vs combined response
-- Organize multiple results logically (group by area, time, skill level)
-- Prioritize most relevant options (max 4 cards)
-- Combine similar options when beneficial
+🧠 ANALYZE INTELLIGENTLY:
+- What did the user originally ask for?
+- What data do you have to work with?
+- What's the most helpful way to present this?
+- What should the user do next?
 
-🎯 DYNAMIC DECISION MAKING:
-- Single result: Show as card with details
-- 2-4 results: Show individual cards
-- 5+ results: Group/combine + show top options
-- No results: Text-only with suggestions
-- Greetings/questions: Text-only response
-- Join requests: Show confirmation card
+🎨 PRESENT DYNAMICALLY:
+- Think about the best format for this specific situation
+- Create appropriate UI cards when they add value
+- Use natural, conversational language
+- Adapt to the context and user's needs
 
-📱 SMART CARD LOGIC:
-- create-new: When user needs to book/create
-- existing-session: When user can join existing games
-- user-booking: For user's personal bookings
-- NO cards for: greetings, clarifications, simple confirmations
+📱 CARD TYPES AVAILABLE:
+- create-new: For booking new sessions
+- existing-session: For joining existing games
+- user-booking: For user's bookings
+- no-availability: When no matches found
 
-🎨 PRESENTATION INTELLIGENCE:
-- Group venues by area if 3+ in same location
-- Combine time slots if same venue has multiple
-- Show skill level matches prominently
-- Highlight cost-effective options
-- Present alternatives when exact match unavailable
+📝 RESPONSE FORMAT:
+{"text": "your natural response", "sessionCards": [cards_if_helpful] OR []}
 
-🗣️ ADAPTIVE COMMUNICATION:
-- Beginner: Encouraging, explanatory
-- Intermediate: Balanced, informative  
-- Advanced: Direct, efficient
-- Professional: Detailed, technical
-
-📝 RESPOND: {"text": "Smart contextual message", "sessionCards": [optimally_organized_cards] OR []}
-
-💡 SMART EXAMPLES:
-- "Hi" → {"text": "Welcome message", "sessionCards": []}
-- 1 venue found → {"text": "Perfect match!", "sessionCards": [venue_card]}
-- 6 venues found → {"text": "Great options! Here are the top 3 by location:", "sessionCards": [grouped_cards]}
-- Join request → {"text": "Joining session...", "sessionCards": [confirmation_card]}`
+🌟 BE INTELLIGENT:
+- Don't follow rigid rules - think about what's most helpful
+- Present information clearly and actionably
+- Ask follow-up questions when it makes sense
+- Always consider the user's original intent`
 
   /**
    * Main presentation method - transforms raw toolbox results into friendly responses
@@ -145,117 +130,12 @@ Remember to use the exact JSON format specified in your system prompt.`
   }
 
   /**
-   * Create a fallback response when AI processing fails
+   * Create a minimal fallback when AI completely fails
    */
   private static createFallbackResponse(request: PresenterRequest): PresenterResponse {
-    const { rawData, toolboxAction } = request
-
-    // Handle needMoreInfo
-    if (toolboxAction === 'needMoreInfo' || (rawData && rawData.needsMoreInfo)) {
-      return {
-        text: "Hey! Let's find you an awesome padel game!",
-        sessionCards: []
-      }
-    }
-
-    // Handle comprehensive findMatch data
-    if (rawData && rawData.venues && rawData.players && rawData.sessions) {
-      const { venues, players, sessions, totalResults } = rawData
-      
-      if (totalResults === 0) {
-        return {
-          text: "No matches found. Would you like to try different criteria?",
-          sessionCards: [{
-            type: 'no-availability',
-            data: { message: 'No results found' }
-          }]
-        }
-      }
-
-      const sessionCards = []
-      
-      // Add venue cards
-      if (venues && venues.length > 0) {
-        sessionCards.push(...venues.slice(0, 2).map(venue => ({
-          type: 'create-new' as const,
-          data: {
-            venue: venue.name || 'Padel Court',
-            address: venue.address ? `${venue.address.area}, ${venue.address.city}` : 'Jakarta',
-            estimatedCost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking',
-            suggestedTime: '7:00 PM',
-            suggestedDate: 'Tonight'
-          }
-        })))
-      }
-      
-      // Add session cards
-      if (sessions && sessions.length > 0) {
-        sessionCards.push(...sessions.slice(0, 2).map(session => ({
-          type: 'existing-session' as const,
-          data: {
-            sessionId: session.id,
-            venue: `Session - ${session.timeSlot}`,
-            time: session.timeSlot,
-            date: session.date,
-            openSlots: session.openSlots,
-            cost: `Rp ${session.pricePerPlayer?.toLocaleString()}/player`
-          }
-        })))
-      }
-      
-      return {
-        text: `Found ${totalResults} options for you:`,
-        sessionCards: sessionCards.slice(0, 3)
-      }
-    }
-
-    // Handle array data (venues or players)
-    if (Array.isArray(rawData) && rawData.length > 0) {
-      // Handle venues
-      if (rawData[0].pricing || toolboxAction.includes('Venue')) {
-        return {
-          text: `Found ${rawData.length} venue${rawData.length > 1 ? 's' : ''}:`,
-          sessionCards: rawData.slice(0, 3).map(venue => ({
-            type: 'create-new' as const,
-            data: {
-              venue: venue.name || 'Padel Court',
-              address: venue.address ? `${venue.address.area}, ${venue.address.city}` : 'Jakarta',
-              estimatedCost: venue.pricing ? `Rp ${venue.pricing.hourlyRate?.toLocaleString()}/hour` : 'Price on booking',
-              suggestedTime: '7:00 PM',
-              suggestedDate: 'Tonight'
-            }
-          }))
-        }
-      }
-
-      // Handle players
-      if (rawData[0].skillLevel || toolboxAction.includes('Player')) {
-        return {
-          text: `Found ${rawData.length} available player${rawData.length > 1 ? 's' : ''}:`,
-          sessionCards: [{
-            type: 'existing-session' as const,
-            data: {
-              venue: 'Available Players',
-              players: rawData.slice(0, 4).map(player => ({
-                name: player.name || 'Player',
-                skillLevel: player.skillLevel || 'Intermediate'
-              })),
-              openSlots: Math.max(0, 4 - rawData.length),
-              time: 'Flexible',
-              cost: 'To be shared'
-            }
-          }]
-        }
-      }
-    }
-
-    // No data fallback
     return {
-      text: "Sorry, I couldn't find any matches. Would you like to try different criteria?",
-      sessionCards: [{
-        type: 'no-availability',
-        data: { message: 'No results found' }
-      }]
+      text: "I'm having trouble processing that right now. Could you try rephrasing your request?",
+      sessionCards: []
     }
   }
 }

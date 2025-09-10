@@ -33,8 +33,9 @@ MaBar solves the fragmented discovery problem in Jakarta's Padel community by pr
 - **Build Tool**: Vite for rapid development
 - **State Management**: Pinia for reactive state
 - **Styling**: Tailwind CSS with custom design system
-- **AI Processing**: Google Gemini API (client-side)
+- **AI Processing**: Google Gemini API with multi-turn conversations
 - **Database**: Back4App (Parse Server) as DBaaS only
+- **AI Flow**: Unified conversation manager with intelligent context accumulation
 
 ### Project Structure
 
@@ -169,21 +170,36 @@ node scripts/add-test-venues.js
 
 ## 🤖 AI Integration
 
-### Google Gemini API (Client-Side)
+### Conversation Flow Classes
+
+- **AICoordinatorService**: Main entry point for all AI interactions
+- **AIConversationManager**: Core multi-turn conversation logic with Google Gemini
+- **AIFlowLogger**: Comprehensive logging system for debugging AI decisions
+
+### AI Decision Process
+
+1. **Information Gathering**: AI accumulates user preferences across multiple messages
+2. **Toolbox Execution**: AI decides when to query database (venues, players, sessions)
+3. **Smart Presentation**: AI analyzes results and formats appropriate UI response
+4. **Context Memory**: Maintains conversation history for natural interactions
+
+### Google Gemini API (Multi-Turn Conversations)
 
 The AI matchmaking system uses Google Gemini 2.5 Flash Lite for:
 
-- Natural language query processing (frontend)
-- Real-time response generation
-- Venue and player recommendations
-- Multi-language support (English/Bahasa Indonesia)
+- **Multi-turn conversations**: Proper conversation context and memory
+- **Dynamic information gathering**: Intelligently accumulates user preferences
+- **Smart toolbox integration**: AI decides when to query database
+- **Contextual presentation**: Adapts response format based on results
+- **Multi-language support**: English/Bahasa Indonesia
 
-### Architecture Benefits
+### AI Architecture Benefits
 
-- **No Cloud Functions**: Simplified deployment and maintenance
-- **Direct Database Access**: Faster queries without API overhead
-- **Real-time Processing**: Immediate AI responses
-- **Cost Effective**: Reduced server-side processing costs
+- **Intelligent Context**: Remembers conversation history and user preferences
+- **Dynamic Decision Making**: AI thinks about what information is needed
+- **Responsible AI**: Only provides data from database, no hallucinations
+- **Smart Presentation**: Adapts UI based on result quantity and quality
+- **Comprehensive Logging**: Full conversation flow tracking for debugging
 
 ### Security
 
