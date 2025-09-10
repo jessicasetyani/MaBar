@@ -220,10 +220,10 @@ export class AILogicService {
       
       switch (action) {
         case 'findVenues':
-          results = await MatchmakingToolboxService.searchVenues(params)
+          results = await MatchmakingToolboxService.getAvailableVenues(params)
           break
         case 'findPlayers':
-          results = await MatchmakingToolboxService.searchPlayers(params)
+          results = await MatchmakingToolboxService.getAvailablePlayers(params)
           break
         case 'findSessions':
           results = await MatchmakingToolboxService.findOpenSessions(params)
