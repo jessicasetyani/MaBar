@@ -29,16 +29,30 @@ Output Format: You MUST respond ONLY with a JSON object. Do not include any text
 Provide your response in this exact JSON format. Note the flexibility in the "format" field.
 JSON
 {
-  "format": "paragraph",
-  "message": "You're in luck! There's a fantastic, high-energy session tonight at Cilandak Padel that looks like a perfect fit for you. It's one of our most popular courts, and the evening slot at 8 PM still has a couple of spots open. It's the perfect way to end your day with a great game. I'd grab one before they're gone!",
-  "cards": [],
-  "reasoning": "Chose a 'paragraph' format because there is one standout, perfect match. This allows for a more personal, direct, and compelling sales pitch to drive an immediate booking, rather than distracting with other options.",
+  "format": "cards",
+  "message": "Great news! I found a fantastic selection of games for you. The courts at Cilandak are very popular, and I also found a great match in a nearby area you might love!",
+  "cards": [
+    {
+      "sessionId": "group-456",
+      "venueName": "Cilandak Padel Courts",
+      "time": "2025-09-11T20:00:00Z",
+      "salesPitch": "Multiple courts available for this popular evening slot. Perfect for you and your friends!"
+    },
+    {
+      "sessionId": "789",
+      "venueName": "Pondok Indah Padel",
+      "time": "2025-09-11T19:00:00Z",
+      "salesPitch": "A great alternative! This session is a perfect skill-level match and is filling up fast."
+    }
+  ],
+  "reasoning": "Summarized 15 results by grouping 10 similar sessions at Cilandak into one card and highlighting a unique, high-quality match at a different venue to provide variety.",
   "alternatives": [],
-  "salesPoints": ["Perfect skill-level match", "Popular prime-time slot", "High user ratings"]
+  "salesPoints": ["Multiple options at a popular venue", "Great alternative nearby"]
 }`
 
   /**
-   * Format final response for user using AI-powered UX decisions
+   * Format final response for user using AI-powered intelligent curation
+   * AI acts as intelligent curator and presentation director
    */
   static async formatResponse(
     findings: any,
@@ -596,7 +610,25 @@ Decide optimal presentation format and create engaging response.`
   private static createOptimizedCards(responseCards: any[], findings: any, format: string): any[] {
     if (format === 'text') return []
 
-    // Convert AI-generated cards to proper SessionCard format
+    // Always prioritize using actual database findings over AI-generated cards
+    // This fixes the "Unknown Venue" bug by ensuring we use real venue data
+    const venues = findings.venues || []
+    const players = findings.players || []
+    const sessions = findings.sessions || []
+
+    // If we have actual venue/session data from database, use it directly
+    if (venues.length > 0 || sessions.length > 0) {
+      if (format === 'cards') {
+        // Show all results as properly formatted SessionCards
+        return this.deduplicateCards(this.createCards(venues, players, sessions))
+      } else if (format === 'mixed') {
+        // Show top results as properly formatted SessionCards
+        return this.deduplicateCards(this.createCards(venues.slice(0, 3), players.slice(0, 2), sessions.slice(0, 2)))
+      }
+    }
+
+    // Fallback: Convert AI-generated cards to proper SessionCard format
+    // Only use this when we don't have database results
     if (responseCards && Array.isArray(responseCards) && responseCards.length > 0) {
       const convertedCards = responseCards.map(card => {
         // If card already has proper SessionCard format, use it
@@ -604,20 +636,31 @@ Decide optimal presentation format and create engaging response.`
           return card
         }
 
+        // Try to extract venue name from findings first, then from card
+        let venueName = 'Unknown Venue'
+        if (venues.length > 0) {
+          venueName = venues[0].name || venues[0].venue || venueName
+        } else {
+          venueName = card.name || card.venue || venueName
+        }
+
         // Convert AI-generated card format to SessionCard format
         return {
           type: 'create-new', // Default to create-new for AI-generated cards
           data: {
-            venue: card.name || card.venue || 'Unknown Venue',
-            address: card.address || card.location,
-            area: card.area,
-            cost: card.price || card.cost,
+            venue: venueName,
+            address: card.address || card.location || (venues[0]?.address ?
+              `${venues[0].address.area}, ${venues[0].address.city}` : undefined),
+            area: card.area || venues[0]?.address?.area,
+            cost: card.price || card.cost || (venues[0]?.pricing?.hourlyRate ?
+              `IDR ${venues[0].pricing.hourlyRate.toLocaleString()}/hour` : undefined),
             suggestedTime: 'Flexible timing',
             suggestedDate: 'Today or tomorrow',
-            estimatedCost: card.price || card.cost,
+            estimatedCost: card.price || card.cost || (venues[0]?.pricing?.hourlyRate ?
+              `IDR ${venues[0].pricing.hourlyRate.toLocaleString()}/hour` : undefined),
             // Additional fields from AI response
             description: card.description,
-            rating: card.rating,
+            rating: card.rating || venues[0]?.rating?.toString(),
             features: card.features
           }
         }
