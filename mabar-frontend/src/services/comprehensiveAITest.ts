@@ -6,6 +6,7 @@
 import { AICoordinatorService } from './aiCoordinatorService'
 import { AILogicService } from './aiLogicService'
 import { AIPresenterService } from './aiPresenterService'
+import { AIFlowLogger } from './aiFlowLogger'
 
 export interface TestScenario {
   name: string
@@ -283,6 +284,20 @@ export class ComprehensiveAITest {
    */
   static getConversationInfo(): any {
     return AICoordinatorService.getConversationInfo()
+  }
+
+  /**
+   * Export logs for analysis
+   */
+  static exportLogs(): string {
+    return AIFlowLogger.exportLogs()
+  }
+
+  /**
+   * Print flow summary
+   */
+  static printFlowSummary(): void {
+    AIFlowLogger.printFlowSummary()
   }
 
   /**
