@@ -1,141 +1,319 @@
 import { GoogleGenAI } from '@google/genai'
 import { env } from '../config/env'
-
-export interface PresenterRequest {
-  userOriginalRequest: string
-  toolboxAction: string
-  rawData: any
-  searchCriteria?: any
-}
-
-export interface PresenterResponse {
-  text: string
-  sessionCards?: Array<{
-    type: 'existing-session' | 'create-new' | 'no-availability' | 'user-booking' | 'join-confirmation'
-    data: any
-  }>
-  needsMoreInfo?: boolean
-}
+import { AIFlowLogger } from './aiFlowLogger'
+import type { PresentationPlan, UserResponse } from './aiInterfaces'
 
 export class AIPresenterService {
   private static ai = new GoogleGenAI({ apiKey: env.GOOGLE_API_KEY })
+  private static conversationContext: any[] = []
 
-  // Dynamic AI presenter system prompt
-  private static readonly PRESENTER_SYSTEM_PROMPT = `You are MaBar AI Assistant - intelligently present information to help users.
+  private static readonly PRESENTER_SYSTEM_PROMPT = `You are AI Presenter - the UX specialist in MaBar's 3-AI system.
 
-🧠 ANALYZE INTELLIGENTLY:
-- What did the user originally ask for?
-- What data do you have to work with?
-- What's the most helpful way to present this?
-- What should the user do next?
+🎯 YOUR ROLE: Make optimal UX decisions and format responses for padel matchmaking.
 
-🎨 PRESENT DYNAMICALLY:
-- Think about the best format for this specific situation
-- Create appropriate UI cards when they add value
-- Use natural, conversational language
-- Adapt to the context and user's needs
+🎨 CORE RESPONSIBILITIES:
+1. ANALYZE findings from AI Logic and decide best presentation
+2. OPTIMIZE user experience based on result type and quantity
+3. CREATE engaging, helpful responses with proper tone
+4. HANDLE edge cases gracefully with alternatives
 
-📱 CARD TYPES AVAILABLE:
-- create-new: For booking new sessions
-- existing-session: For joining existing games
-- user-booking: For user's bookings
-- no-availability: When no matches found
+📊 UX DECISION FRAMEWORK:
+- 1-3 results: Cards for detailed visual presentation
+- 4-8 results: Mixed format (summary + featured cards)
+- 9+ results: Text summary with filtering suggestions
+- No results: Encouraging text with specific alternatives
+- Errors: Helpful guidance with retry options
 
-📝 RESPONSE FORMAT:
-{"text": "your natural response", "sessionCards": [cards_if_helpful] OR []}
-
-🌟 BE INTELLIGENT:
-- Don't follow rigid rules - think about what's most helpful
-- Present information clearly and actionably
-- Ask follow-up questions when it makes sense
-- Always consider the user's original intent`
+🎯 RESPONSE FORMAT (JSON only):
+{
+  "format": "cards|text|mixed",
+  "message": "engaging conversational response",
+  "cards": [detailed_card_objects] (if using cards),
+  "reasoning": "UX decision rationale",
+  "suggestions": ["alternative_action_1"] (if no results)
+}`
 
   /**
-   * Main presentation method - transforms raw toolbox results into friendly responses
+   * Format final response for user using AI-powered UX decisions
    */
-  static async presentResults(request: PresenterRequest): Promise<PresenterResponse> {
+  static async formatResponse(
+    findings: any,
+    userContext: Record<string, any>,
+    logicRecommendation: string
+  ): Promise<UserResponse> {
     try {
-      const prompt = this.buildPresenterPrompt(request)
+      // Add to conversation context
+      this.conversationContext.push({ findings, userContext, logicRecommendation })
+      
+      const prompt = this.buildUXDecisionPrompt(findings, userContext, logicRecommendation)
       
       const result = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash-lite',
-        contents: [
-          { 
-            role: 'user', 
-            parts: [{ text: 'You are MaBar AI Assistant. Transform raw data into friendly responses. Respond only with JSON.' }] 
-          },
-          { 
-            role: 'model', 
-            parts: [{ text: this.PRESENTER_SYSTEM_PROMPT }] 
-          },
-          { 
-            role: 'user', 
-            parts: [{ text: prompt }] 
-          }
-        ]
+        contents: [{
+          role: 'user',
+          parts: [{ text: this.PRESENTER_SYSTEM_PROMPT + '\n\n' + prompt }]
+        }]
       })
 
-      const responseText = result.text || ''
-      console.log('🎨 [PRESENTER AI] Raw API Response:', responseText)
+      const response = this.parseResponse(result.text || '')
       
-      const jsonText = responseText.replace(/```json\n?|\n?```/g, '').trim()
-      console.log('🎨 [PRESENTER AI] Cleaned JSON:', jsonText)
+      AIFlowLogger.logAIThinking(response, {
+        service: 'AIPresenterService',
+        method: 'formatResponse',
+        uxDecision: response.format
+      })
       
-      try {
-        const presenterResponse = JSON.parse(jsonText) as PresenterResponse
-        console.log('🎨 [PRESENTER AI] Final Response:', presenterResponse)
-        return presenterResponse
-      } catch (parseError) {
-        console.log('❌ [PRESENTER AI] JSON Parse Error:', parseError)
-        // Fallback response if JSON parsing fails
-        return this.createFallbackResponse(request)
+      return {
+        text: response.message || 'Here are your results:',
+        sessionCards: this.createOptimizedCards(response.cards, findings, response.format),
+        needsMoreInfo: false,
+        conversationComplete: !response.suggestions?.length
       }
 
     } catch (error) {
-      console.error('❌ Error in AI Presenter:', error)
-      return this.createFallbackResponse(request)
+      AIFlowLogger.logError('ai-presenter-service', error as Error, { findings })
+      return this.fallbackResponse(findings)
     }
   }
 
   /**
-   * Build the prompt for the presenter based on the toolbox results
+   * Discuss presentation strategy with AI Logic
    */
-  private static buildPresenterPrompt(request: PresenterRequest): string {
-    const { userOriginalRequest, toolboxAction, rawData, searchCriteria } = request
-    
-    // Extract user skill level for tone adaptation
-    const userSkillLevel = searchCriteria?.skillLevel || rawData?.userSkillLevel || 'not specified'
+  static async discussWithLogic(
+    findings: any,
+    logicAnalysis: any
+  ): Promise<{ format: string, reasoning: string, needsMoreInfo?: boolean }> {
+    try {
+      const discussionPrompt = `AI Logic found these results and wants presentation advice:
 
-    return `
-**User's Original Request:** "${userOriginalRequest}"
+FINDINGS: ${JSON.stringify(findings, null, 2)}
+LOGIC ANALYSIS: ${JSON.stringify(logicAnalysis, null, 2)}
+CONVERSATION CONTEXT: ${JSON.stringify(this.conversationContext.slice(-2), null, 2)}
 
-**User Skill Level:** ${userSkillLevel} (Adapt tone accordingly: beginner=encouraging, intermediate=balanced, advanced=direct)
+As AI Presenter, recommend optimal UX approach:
+{
+  "format": "cards|text|mixed",
+  "reasoning": "detailed UX rationale",
+  "needsMoreInfo": boolean,
+  "suggestedQuestion": "if more info needed"
+}`
 
-**Toolbox Action Performed:** ${toolboxAction}
+      const result = await this.ai.models.generateContent({
+        model: 'gemini-2.5-flash-lite',
+        contents: [{
+          role: 'user',
+          parts: [{ text: discussionPrompt }]
+        }]
+      })
 
-**Raw Database Results:**
-${JSON.stringify(rawData, null, 2)}
+      const response = this.parseResponse(result.text || '')
+      
+      return {
+        format: response.format || 'mixed',
+        reasoning: response.reasoning || 'Default mixed presentation',
+        needsMoreInfo: response.needsMoreInfo || false
+      }
 
-**Search Criteria Used:**
-${searchCriteria ? JSON.stringify(searchCriteria, null, 2) : 'Not specified'}
-
-**Your Task:** Transform this raw data into a friendly, conversational response with appropriate session cards. Consider:
-- What the user was looking for
-- What results were found (or not found)
-- How to present this in the most helpful way
-- What actions the user can take next
-- IMPORTANT: Adapt your tone based on the user's skill level (see tone guidelines)
-
-Remember to use the exact JSON format specified in your system prompt.`
+    } catch (error) {
+      AIFlowLogger.logError('ai-presenter-discussion', error as Error, { findings })
+      return {
+        format: 'mixed',
+        reasoning: 'Fallback due to discussion error'
+      }
+    }
   }
 
   /**
-   * Create a minimal fallback when AI completely fails
+   * Simple presentation without AI (for communication protocol)
    */
-  private static createFallbackResponse(request: PresenterRequest): PresenterResponse {
+  static formatSimpleResponse(
+    findings: any,
+    format: 'cards' | 'text' | 'mixed',
+    reasoning: string
+  ): UserResponse {
+    if (findings.error) {
+      return {
+        text: 'I couldn\'t find what you\'re looking for. Could you try different criteria?',
+        sessionCards: [],
+        needsMoreInfo: false,
+        conversationComplete: false
+      }
+    }
+
+    const venues = findings.venues || []
+    const players = findings.players || []
+    const sessions = findings.sessions || []
+    const totalResults = venues.length + players.length + sessions.length
+
+    if (totalResults === 0) {
+      return {
+        text: 'No matches found. Would you like to try different criteria or create a new session?',
+        sessionCards: [],
+        needsMoreInfo: false,
+        conversationComplete: false
+      }
+    }
+
+    switch (format) {
+      case 'cards':
+        return {
+          text: `I found ${totalResults} result${totalResults > 1 ? 's' : ''} for you:`,
+          sessionCards: this.createCards(venues, players, sessions),
+          needsMoreInfo: false,
+          conversationComplete: true
+        }
+
+      case 'text':
+        return {
+          text: this.createTextSummary(venues, players, sessions),
+          sessionCards: [],
+          needsMoreInfo: false,
+          conversationComplete: true
+        }
+
+      case 'mixed':
+        return {
+          text: this.createTextSummary(venues, players, sessions),
+          sessionCards: this.createCards(venues.slice(0, 3), players.slice(0, 2), sessions.slice(0, 2)),
+          needsMoreInfo: false,
+          conversationComplete: true
+        }
+
+      default:
+        return this.fallbackResponse(findings)
+    }
+  }
+
+  /**
+   * Reset conversation context
+   */
+  static resetConversation(): void {
+    this.conversationContext = []
+  }
+
+
+
+  private static hasResults(findings: any): boolean {
+    return this.getTotalResults(findings) > 0
+  }
+
+  private static getTotalResults(findings: any): number {
+    return (findings.venues?.length || 0) + 
+           (findings.players?.length || 0) + 
+           (findings.sessions?.length || 0)
+  }
+
+  private static getResultTypes(findings: any): number {
+    return [findings.venues?.length > 0, findings.players?.length > 0, findings.sessions?.length > 0]
+      .filter(Boolean).length
+  }
+
+  // Private helper methods
+  private static buildUXDecisionPrompt(
+    findings: any,
+    userContext: any,
+    logicRecommendation: string
+  ): string {
+    const venues = findings.venues || []
+    const players = findings.players || []
+    const sessions = findings.sessions || []
+    const totalResults = venues.length + players.length + sessions.length
+    
+    return `Make UX decision for padel matchmaking results:
+
+FINDINGS SUMMARY:
+- Venues: ${venues.length}
+- Players: ${players.length} 
+- Sessions: ${sessions.length}
+- Total Results: ${totalResults}
+- Has Error: ${!!findings.error}
+
+USER CONTEXT: ${JSON.stringify(userContext, null, 2)}
+LOGIC RECOMMENDATION: ${logicRecommendation}
+CONVERSATION HISTORY: ${this.conversationContext.length} previous interactions
+
+DETAILED FINDINGS: ${JSON.stringify(findings, null, 2)}
+
+Decide optimal presentation format and create engaging response.`
+  }
+
+  private static parseResponse(responseText: string): any {
+    try {
+      const cleanJson = responseText.replace(/```json\n?|\n?```/g, '').trim()
+      return JSON.parse(cleanJson)
+    } catch (error) {
+      return {
+        format: 'text',
+        message: responseText || 'Here are your results:'
+      }
+    }
+  }
+
+  private static createCards(venues: any[], players: any[], sessions: any[]): any[] {
+    const cards: any[] = []
+
+    venues.forEach(venue => cards.push({ type: 'venue', data: venue }))
+    players.forEach(player => cards.push({ type: 'player', data: player }))
+    sessions.forEach(session => cards.push({ type: 'session', data: session }))
+
+    return cards
+  }
+
+  private static createTextSummary(venues: any[], players: any[], sessions: any[]): string {
+    const parts: string[] = []
+
+    if (venues.length > 0) {
+      const venueNames = venues.slice(0, 3).map(v => v.name).join(', ')
+      parts.push(`${venues.length} venue${venues.length > 1 ? 's' : ''}: ${venueNames}${venues.length > 3 ? '...' : ''}`)
+    }
+
+    if (players.length > 0) {
+      parts.push(`${players.length} available player${players.length > 1 ? 's' : ''}`)
+    }
+
+    if (sessions.length > 0) {
+      parts.push(`${sessions.length} open session${sessions.length > 1 ? 's' : ''}`)
+    }
+
+    return `I found ${parts.join(', ')}.`
+  }
+
+  private static createOptimizedCards(responseCards: any[], findings: any, format: string): any[] {
+    if (format === 'text') return []
+    
+    // Use AI-generated cards if available
+    if (responseCards && Array.isArray(responseCards) && responseCards.length > 0) {
+      return responseCards
+    }
+
+    // Create optimized cards based on format
+    const venues = findings.venues || []
+    const players = findings.players || []
+    const sessions = findings.sessions || []
+    
+    const cards: any[] = []
+    
+    if (format === 'cards') {
+      // Show all results as cards
+      venues.forEach(venue => cards.push({ type: 'venue', data: venue }))
+      players.forEach(player => cards.push({ type: 'player', data: player }))
+      sessions.forEach(session => cards.push({ type: 'session', data: session }))
+    } else if (format === 'mixed') {
+      // Show top results as cards
+      venues.slice(0, 3).forEach(venue => cards.push({ type: 'venue', data: venue }))
+      players.slice(0, 2).forEach(player => cards.push({ type: 'player', data: player }))
+      sessions.slice(0, 2).forEach(session => cards.push({ type: 'session', data: session }))
+    }
+    
+    return cards
+  }
+
+  private static fallbackResponse(findings: any): UserResponse {
     return {
-      text: "I'm having trouble processing that right now. Could you try rephrasing your request?",
-      sessionCards: []
+      text: 'I found some results for you. Let me know if you need more details.',
+      sessionCards: [],
+      needsMoreInfo: false,
+      conversationComplete: true
     }
   }
 }

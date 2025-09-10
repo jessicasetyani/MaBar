@@ -170,36 +170,41 @@ node scripts/add-test-venues.js
 
 ## 🤖 AI Integration
 
-### Conversation Flow Classes
+### 3-AI System Architecture
 
-- **AICoordinatorService**: Main entry point for all AI interactions
-- **AIConversationManager**: Core multi-turn conversation logic with Google Gemini
-- **AIFlowLogger**: Comprehensive logging system for debugging AI decisions
+- **AICoordinatorService**: Main entry point and orchestration
+- **AILogicService**: Intent understanding and information gathering with Google Gemini
+- **AIPresenterService**: UX decisions and response formatting with Google Gemini
+- **AIFlowLogger**: Comprehensive logging system for debugging
 
 ### AI Decision Process
 
-1. **Information Gathering**: AI accumulates user preferences across multiple messages
-2. **Toolbox Execution**: AI decides when to query database (venues, players, sessions)
-3. **Smart Presentation**: AI analyzes results and formats appropriate UI response
-4. **Context Memory**: Maintains conversation history for natural interactions
+1. **Intent Analysis**: AI Logic understands user intent and extracts information
+2. **Information Gathering**: Accumulates user preferences across conversation turns
+3. **Toolbox Execution**: AI Logic decides when to query database (venues, players, sessions)
+4. **UX Consultation**: AI Logic discusses with AI Presenter for optimal presentation
+5. **Smart Presentation**: AI Presenter formats response based on results and context
 
-### Google Gemini API (Multi-Turn Conversations)
+### Google Gemini Integration
 
-The AI matchmaking system uses Google Gemini 2.5 Flash Lite for:
+Both AI Logic and AI Presenter use Google Gemini 2.5 Flash Lite for:
 
 - **Multi-turn conversations**: Proper conversation context and memory
 - **Dynamic information gathering**: Intelligently accumulates user preferences
 - **Smart toolbox integration**: AI decides when to query database
-- **Contextual presentation**: Adapts response format based on results
+- **UX optimization**: AI Presenter makes intelligent formatting decisions
 - **Multi-language support**: English/Bahasa Indonesia
 
-### AI Architecture Benefits
+### AI Communication
 
-- **Intelligent Context**: Remembers conversation history and user preferences
-- **Dynamic Decision Making**: AI thinks about what information is needed
-- **Responsible AI**: Only provides data from database, no hallucinations
-- **Smart Presentation**: Adapts UI based on result quantity and quality
-- **Comprehensive Logging**: Full conversation flow tracking for debugging
+AIs communicate through **direct method calls** (no complex protocols):
+```typescript
+// AI Logic asks AI Presenter for UX advice
+const strategy = await AILogicService.discussWithPresenter(findings)
+
+// AI Presenter provides UX decision
+const decision = await AIPresenterService.discussWithLogic(findings, analysis)
+```
 
 ### Security
 
@@ -248,19 +253,17 @@ The AI matchmaking system uses Google Gemini 2.5 Flash Lite for:
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-### Development Workflow
+### AI Testing
 
-The project uses Task Master AI for project management:
+Use the comprehensive test system:
 
 ```bash
-# View current tasks
-npm run task:list
+# Run all AI tests
+import { ComprehensiveAITest } from './services/comprehensiveAITest'
+ComprehensiveAITest.runAllTests()
 
-# Get next task
-npm run task:next
-
-# Mark task complete
-npm run task:done --id=<task-id>
+# Quick validation
+ComprehensiveAITest.quickValidation()
 ```
 
 ## 📄 License
