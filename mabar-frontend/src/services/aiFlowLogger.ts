@@ -1,148 +1,222 @@
-export interface AIFlowLog {
-  sessionId: string
-  timestamp: Date
-  type: 'user-input' | 'ai-thinking' | 'toolbox-request' | 'toolbox-response' | 'ai-presentation' | 'final-response'
-  data: any
-  metadata?: any
+/**
+ * AI Flow Logger - Complete conversation and processing flow tracking
+ */
+
+export interface LogEntry {
+  timestamp: string
+  step: string
+  service: 'Coordinator' | 'Logic' | 'Presenter' | 'Database'
+  action: string
+  input?: any
+  output?: any
+  duration?: number
 }
 
 export class AIFlowLogger {
-  private static logs: AIFlowLog[] = []
-  private static currentSessionId: string | null = null
+  private static logs: LogEntry[] = []
+  private static stepCounter = 0
 
-  static startSession(userInput: string): string {
-    this.currentSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    
-    this.log('user-input', {
-      message: userInput,
-      sessionStart: true
-    })
-
-    console.log(`🚀 [AI FLOW] Starting session: ${this.currentSessionId}`)
-    console.log(`👤 [USER → AI] "${userInput}"`)
-    
-    return this.currentSessionId
+  /**
+   * Clear all logs for new conversation
+   */
+  static clearLogs(): void {
+    this.logs = []
+    this.stepCounter = 0
+    console.log('\n🧹 === NEW CONVERSATION STARTED ===\n')
   }
 
-  static logAIThinking(decision: any, context: any): void {
-    this.log('ai-thinking', {
-      decision,
-      context,
-      reasoning: decision.reasoning || 'AI processing user request'
-    })
-
-    console.log(`🧠 [AI THINKING] Mode: ${decision.mode || 'processing'}`)
-    console.log(`🧠 [AI THINKING] Reasoning: ${decision.reasoning || 'Analyzing user input'}`)
-    if (decision.accumulatedInfo && Object.keys(decision.accumulatedInfo).length > 0) {
-      console.log(`🧠 [AI THINKING] Extracted info: ${JSON.stringify(decision.accumulatedInfo)}`)
+  /**
+   * Log user input
+   */
+  static logUserInput(input: string): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: 'Coordinator',
+      action: 'USER_INPUT',
+      input: input
     }
-    if (decision.toolboxAction) {
-      console.log(`🧠 [AI THINKING] Will search: ${decision.toolboxAction}`)
-    } else {
-      console.log(`🧠 [AI THINKING] Will respond conversationally`)
-    }
+    this.logs.push(entry)
+    console.log(`📝 [${entry.step}] USER INPUT: "${input}"`)
   }
 
-  static logToolboxRequest(action: string, parameters: any): void {
-    this.log('toolbox-request', {
+  /**
+   * Log AI Logic processing
+   */
+  static logLogicProcessing(action: string, input: any, output: any, duration?: number): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: 'Logic',
       action,
-      parameters
-    })
-
-    console.log(`🔧 [AI → TOOLBOX] Requesting: ${action}`)
-    console.log(`🔧 [AI → TOOLBOX] Parameters: ${JSON.stringify(parameters)}`)
-  }
-
-  static logToolboxResponse(action: string, response: any): void {
-    this.log('toolbox-response', {
-      action,
-      response,
-      resultCount: response.totalResults || response.venues?.length || response.players?.length || 0
-    })
-
-    const resultCount = response.totalResults || response.venues?.length || response.players?.length || 0
-    console.log(`🔧 [TOOLBOX → AI] ${action} completed: ${resultCount} results`)
-    if (response.error) {
-      console.log(`🔧 [TOOLBOX → AI] Error: ${response.error}`)
+      input,
+      output,
+      duration
     }
-  }
-
-  static logAIPresentation(presentationDecision: any, finalResponse: any): void {
-    this.log('ai-presentation', {
-      presentationDecision,
-      finalResponse,
-      cardCount: finalResponse.sessionCards?.length || 0
-    })
-
-    console.log(`🎨 [AI PRESENTATION] Decision: ${presentationDecision.mode || 'format_response'}`)
-    console.log(`🎨 [AI PRESENTATION] Cards generated: ${finalResponse.sessionCards?.length || 0}`)
-    console.log(`🎨 [AI PRESENTATION] Message: "${finalResponse.text?.substring(0, 100)}..."`)
-  }
-
-  static logFinalResponse(response: any): void {
-    this.log('final-response', {
-      response,
-      hasText: !!response.text,
-      hasCards: !!(response.sessionCards && response.sessionCards.length > 0),
-      needsMoreInfo: response.needsMoreInfo
-    })
-
-    console.log(`🎯 [AI → USER] Response ready`)
-    console.log(`🎯 [AI → USER] Text: ${response.text ? 'Yes' : 'No'}`)
-    console.log(`🎯 [AI → USER] Cards: ${response.sessionCards?.length || 0}`)
-    console.log(`🎯 [AI → USER] Needs more info: ${response.needsMoreInfo || false}`)
-  }
-
-  static endSession(): void {
-    if (this.currentSessionId) {
-      console.log(`✅ [AI FLOW] Session completed: ${this.currentSessionId}`)
-      console.log(`📊 [AI FLOW] Total logs: ${this.logs.filter(l => l.sessionId === this.currentSessionId).length}`)
-      this.currentSessionId = null
-    }
-  }
-
-  static logError(phase: string, error: any, context?: any): void {
-    this.log('ai-thinking', {
-      error: true,
-      phase,
-      errorMessage: error.message,
-      context
-    })
-
-    console.error(`❌ [AI ERROR] Phase: ${phase}`)
-    console.error(`❌ [AI ERROR] Message: ${error.message}`)
-  }
-
-  private static log(type: AIFlowLog['type'], data: any, metadata?: any): void {
-    if (!this.currentSessionId) return
-
-    this.logs.push({
-      sessionId: this.currentSessionId,
-      timestamp: new Date(),
-      type,
-      data,
-      metadata
-    })
-
-    // Keep only last 100 logs for performance
-    if (this.logs.length > 100) {
-      this.logs = this.logs.slice(-100)
-    }
-  }
-
-  static getSessionLogs(sessionId?: string): AIFlowLog[] {
-    const targetSession = sessionId || this.currentSessionId
-    if (!targetSession) return []
+    this.logs.push(entry)
     
-    return this.logs.filter(log => log.sessionId === targetSession)
+    console.log(`🧠 [${entry.step}] AI LOGIC - ${action}`)
+    if (action === 'INTENT_ANALYSIS') {
+      console.log(`   Intent: ${output.intent}`)
+      console.log(`   Confidence: ${output.confidence}`)
+      console.log(`   Needs more info: ${output.needsMoreInfo}`)
+    } else if (action === 'INFO_GATHERING') {
+      console.log(`   Gathered info:`, JSON.stringify(output.gatheredInfo, null, 2))
+      console.log(`   Missing info: ${output.missingInfo.join(', ')}`)
+    } else if (action === 'TOOLBOX_EXECUTION') {
+      console.log(`   Tool used: ${output.toolUsed}`)
+      console.log(`   Query: ${JSON.stringify(output.query)}`)
+      console.log(`   Results: ${output.results?.length || 0} items`)
+    }
+    if (duration) console.log(`   Duration: ${duration}ms`)
   }
 
-  static getAllLogs(): AIFlowLog[] {
+  /**
+   * Log database queries
+   */
+  static logDatabaseQuery(query: any, results: any, duration?: number): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: 'Database',
+      action: 'QUERY',
+      input: query,
+      output: results,
+      duration
+    }
+    this.logs.push(entry)
+    
+    console.log(`💾 [${entry.step}] DATABASE QUERY`)
+    console.log(`   Query:`, JSON.stringify(query, null, 2))
+    console.log(`   Results: ${results?.length || 0} items found`)
+    if (results?.length > 0) {
+      console.log(`   Sample result:`, JSON.stringify(results[0], null, 2))
+    }
+    if (duration) console.log(`   Duration: ${duration}ms`)
+  }
+
+  /**
+   * Log AI communication between Logic and Presenter
+   */
+  static logAICommunication(from: string, to: string, message: any, response: any): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: from === 'Logic' ? 'Logic' : 'Presenter',
+      action: `COMMUNICATE_WITH_${to.toUpperCase()}`,
+      input: message,
+      output: response
+    }
+    this.logs.push(entry)
+    
+    console.log(`🤝 [${entry.step}] AI COMMUNICATION: ${from} → ${to}`)
+    console.log(`   Message:`, JSON.stringify(message, null, 2))
+    console.log(`   Response:`, JSON.stringify(response, null, 2))
+  }
+
+  /**
+   * Log AI Presenter processing
+   */
+  static logPresenterProcessing(action: string, input: any, output: any, duration?: number): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: 'Presenter',
+      action,
+      input,
+      output,
+      duration
+    }
+    this.logs.push(entry)
+    
+    console.log(`🎨 [${entry.step}] AI PRESENTER - ${action}`)
+    if (action === 'FORMAT_RESPONSE') {
+      console.log(`   Response text: "${output.text?.substring(0, 100)}..."`)
+      console.log(`   Cards generated: ${output.sessionCards?.length || 0}`)
+      console.log(`   Needs more info: ${output.needsMoreInfo}`)
+    } else if (action === 'UX_STRATEGY') {
+      console.log(`   Recommended format: ${output.recommendedPresentation}`)
+      console.log(`   Reasoning: ${output.reasoning}`)
+    }
+    if (duration) console.log(`   Duration: ${duration}ms`)
+  }
+
+  /**
+   * Log final response to user
+   */
+  static logFinalResponse(response: any, totalDuration?: number): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: 'Coordinator',
+      action: 'FINAL_RESPONSE',
+      output: response,
+      duration: totalDuration
+    }
+    this.logs.push(entry)
+    
+    console.log(`✅ [${entry.step}] FINAL RESPONSE TO USER`)
+    console.log(`   Text: "${response.text}"`)
+    console.log(`   Cards: ${response.sessionCards?.length || 0}`)
+    console.log(`   Needs more info: ${response.needsMoreInfo}`)
+    if (totalDuration) console.log(`   Total processing time: ${totalDuration}ms`)
+    console.log('\n' + '='.repeat(80) + '\n')
+  }
+
+  /**
+   * Log conversation context
+   */
+  static logConversationContext(context: any): void {
+    console.log(`📚 CONVERSATION CONTEXT:`)
+    console.log(`   Turn: ${context.conversationTurns?.length || 0}`)
+    console.log(`   Current intent: ${context.currentIntent}`)
+    console.log(`   Gathered info:`, JSON.stringify(context.gatheredInfo, null, 2))
+    console.log(`   Missing info: ${context.missingInfo?.join(', ') || 'none'}`)
+  }
+
+  /**
+   * Get all logs for debugging
+   */
+  static getAllLogs(): LogEntry[] {
     return [...this.logs]
   }
 
-  static clearLogs(): void {
-    this.logs = []
-    console.log('🧹 [AI FLOW] Logs cleared')
+  /**
+   * Print summary of conversation flow
+   */
+  static printFlowSummary(): void {
+    console.log('\n📊 CONVERSATION FLOW SUMMARY')
+    console.log('='.repeat(50))
+    
+    const serviceStats = this.logs.reduce((acc, log) => {
+      acc[log.service] = (acc[log.service] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+    
+    console.log('Service usage:')
+    Object.entries(serviceStats).forEach(([service, count]) => {
+      console.log(`  ${service}: ${count} operations`)
+    })
+    
+    const totalDuration = this.logs
+      .filter(log => log.duration)
+      .reduce((sum, log) => sum + (log.duration || 0), 0)
+    
+    console.log(`Total processing time: ${totalDuration}ms`)
+    console.log(`Total steps: ${this.logs.length}`)
+    console.log('='.repeat(50))
+  }
+
+  /**
+   * Export logs as JSON for analysis
+   */
+  static exportLogs(): string {
+    return JSON.stringify(this.logs, null, 2)
   }
 }

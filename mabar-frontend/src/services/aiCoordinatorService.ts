@@ -8,7 +8,8 @@ export class AICoordinatorService {
    * Main entry point - coordinates AI Logic and AI Presenter
    */
   static async processUserInput(userInput: string, interactionType: 'text' | 'card-interaction' = 'text'): Promise<AIResponse> {
-    AIFlowLogger.startSession(userInput)
+    const startTime = Date.now()
+    AIFlowLogger.logUserInput(userInput)
     
     try {
       if (interactionType === 'card-interaction') {
@@ -18,15 +19,13 @@ export class AICoordinatorService {
 
       const response = await this.processWithAIs(userInput)
       
-      AIFlowLogger.logFinalResponse(response)
-      AIFlowLogger.endSession()
+      const totalDuration = Date.now() - startTime
+      AIFlowLogger.logFinalResponse(response, totalDuration)
       
       return response
       
     } catch (error) {
-      AIFlowLogger.logError('ai-coordinator', error, { userInput })
-      AIFlowLogger.endSession()
-      
+      console.error('❌ Coordinator Error:', error)
       return {
         text: 'I encountered an issue. Could you try rephrasing your request?',
         sessionCards: []
@@ -115,6 +114,7 @@ export class AICoordinatorService {
 
 
   static resetConversation(): void {
+    AIFlowLogger.clearLogs()
     AILogicService.resetConversation()
     AIPresenterService.resetConversation()
   }
