@@ -74,7 +74,7 @@ export class AILogicService {
    * Analyze user intent and extract information
    */
   static async analyzeUserIntent(message: string): Promise<IntentAnalysis> {
-    AIFlowLogger.startSession(message)
+    const startTime = Date.now()
     
     try {
       const prompt = this.buildIntentAnalysisPrompt(message)
@@ -88,12 +88,9 @@ export class AILogicService {
       })
 
       const response = this.parseResponse(result.text || '')
+      const duration = Date.now() - startTime
       
-      AIFlowLogger.logAIThinking(response, { 
-        service: 'AILogicService',
-        method: 'analyzeUserIntent',
-        userInput: message 
-      })
+      AIFlowLogger.logLogicProcessing('INTENT_ANALYSIS', { message }, response, duration)
 
       return {
         intent: response.intent || 'general_inquiry',
@@ -104,7 +101,7 @@ export class AILogicService {
       }
 
     } catch (error) {
-      AIFlowLogger.logError('ai-logic-service', error, { message })
+      console.error('❌ AI Logic Intent Analysis Error:', error)
       return {
         intent: 'general_inquiry',
         confidence: 0.1,
@@ -119,9 +116,18 @@ export class AILogicService {
    * Gather required information through conversation
    */
   static async gatherRequiredInfo(message: string): Promise<InfoGatheringResult> {
+    const startTime = Date.now()
+    
     try {
       // Update accumulated info with new message
       this.conversationHistory.push({ role: 'user', content: message })
+      
+      AIFlowLogger.logConversationContext({
+        conversationTurns: this.conversationHistory,
+        currentIntent: 'gathering_info',
+        gatheredInfo: this.accumulatedInfo,
+        missingInfo: []
+      })
       
       const prompt = this.buildInfoGatheringPrompt(message)
       
@@ -140,11 +146,13 @@ export class AILogicService {
         this.accumulatedInfo = { ...this.accumulatedInfo, ...response.accumulatedInfo }
       }
 
-      AIFlowLogger.logAIThinking(response, {
-        service: 'AILogicService', 
-        method: 'gatherRequiredInfo',
-        accumulatedInfo: this.accumulatedInfo
-      })
+      const duration = Date.now() - startTime
+      AIFlowLogger.logLogicProcessing('INFO_GATHERING', { message, previousInfo: this.accumulatedInfo }, {
+        gatheredInfo: this.accumulatedInfo,
+        missingInfo: response.missingInfo || [],
+        needsMoreInfo: response.needsMoreInfo,
+        readyForToolbox: response.readyForToolbox
+      }, duration)
 
       return {
         needsMoreInfo: response.needsMoreInfo !== false,
@@ -156,7 +164,7 @@ export class AILogicService {
       }
 
     } catch (error) {
-      AIFlowLogger.logError('ai-logic-service', error, { message })
+      console.error('❌ AI Logic Info Gathering Error:', error)
       return {
         needsMoreInfo: true,
         nextQuestion: 'Could you tell me more about what you\'re looking for?',
@@ -186,14 +194,7 @@ export class AILogicService {
       const presenterResponse = await AIPresenterService.discussWithLogic(findings, logicAnalysis)
 
       // Log inter-AI discussion
-      AIFlowLogger.logAIThinking({
-        logicAnalysis,
-        presenterResponse,
-        interAIDiscussion: true
-      }, {
-        service: 'AILogicService',
-        method: 'discussWithPresenter'
-      })
+      AIFlowLogger.logAICommunication('Logic', 'Presenter', logicAnalysis, presenterResponse)
 
       return {
         findings,
@@ -212,7 +213,7 @@ export class AILogicService {
    * Execute toolbox action when ready
    */
   static async executeToolboxAction(action: string, params: any): Promise<any> {
-    AIFlowLogger.logToolboxRequest(action, params)
+    const startTime = Date.now()
     
     try {
       let results: any
@@ -231,11 +232,18 @@ export class AILogicService {
           results = { error: 'Unknown toolbox action' }
       }
 
-      AIFlowLogger.logToolboxResponse(results)
+      const duration = Date.now() - startTime
+      AIFlowLogger.logLogicProcessing('TOOLBOX_EXECUTION', { action, params }, {
+        toolUsed: action,
+        query: params,
+        results: results
+      }, duration)
+      
+      AIFlowLogger.logDatabaseQuery(params, results, duration)
       return results
 
     } catch (error) {
-      AIFlowLogger.logError('ai-logic-toolbox', error as Error, { action, params })
+      console.error('❌ AI Logic Toolbox Error:', error)
       return { error: 'Toolbox execution failed' }
     }
   }
