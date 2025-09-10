@@ -114,10 +114,6 @@ export default {
         'xl': '24px',
         '2xl': '32px',
         '3xl': '48px',
-        // Add missing width/height utilities for compatibility
-        '14': '3.5rem',
-        '16': '4rem',
-        '20': '5rem',
       },
       opacity: {
         '38': '0.38',
