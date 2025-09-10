@@ -125,22 +125,23 @@
         </div>
       </div>
 
-      <!-- Input Area fixed at bottom with proper spacing -->
-      <div class="border-t" style="border-color: #64748B; background-color: #FFFFFF; padding: 16px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);">
+      <!-- Input Area fixed at bottom with enhanced visibility -->
+      <div class="border-t" style="border-color: #64748B; background-color: #FFFFFF; padding: 20px; position: fixed; bottom: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.15);">
         <div class="max-w-4xl mx-auto">
           <div class="flex items-center" style="gap: 16px;">
             <div class="flex-1">
               <textarea
+                id="chat-input"
                 v-model="currentMessage"
                 @keydown.enter.prevent="handleEnter"
                 :placeholder="currentPlaceholder"
-                class="w-full rounded-2xl resize-none transition-colors focus:outline-none focus:ring-2 focus:ring-opacity-50"
-                style="background-color: #FEFCE8; border: 2px solid #64748B; color: #334155; padding: 16px;"
+                class="w-full rounded-2xl resize-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50 focus:shadow-lg"
+                style="background-color: #FEFCE8; border: 2px solid #64748B; color: #334155; padding: 16px; font-size: 16px; line-height: 1.5;"
                 rows="2"
                 :disabled="isLoading"
               ></textarea>
             </div>
-            <!-- Modern Minimalist Send Icon - Transparent Background -->
+            <!-- Send Button -->
             <button
               @click="sendMessage"
               :disabled="!currentMessage.trim() || isLoading"
@@ -223,7 +224,7 @@ const messages = ref<Message[]>([])
 const currentMessage = ref('')
 const isLoading = ref(false)
 const messagesContainer = ref<HTMLElement>()
-const currentPlaceholder = ref('')
+const currentPlaceholder = ref('Ask me anything about padel courts, players, or booking sessions...')
 
 const quickSuggestions = [
   'Show me available courts',
@@ -389,8 +390,16 @@ const handleEnter = (event: KeyboardEvent) => {
 
 
 onMounted(() => {
-  // Option 3: Clear and action-focused placeholder
+  // Set placeholder text
   currentPlaceholder.value = "Ask me to find courts, players, or organize games..."
+
+  // Add welcome message if no messages exist
+  if (messages.value.length === 0) {
+    addMessage(
+      "👋 Welcome to MaBar AI Matchmaking! I'm here to help you find players, book courts, and organize padel sessions. What would you like to do today?",
+      false
+    )
+  }
 })
 </script>
 
