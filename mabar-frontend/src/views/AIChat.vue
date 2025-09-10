@@ -7,21 +7,7 @@
           <!-- Back Navigation Button - Material Design 3 compliant -->
           <button
             @click="$router.push('/dashboard')"
-            class="flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50"
-            style="
-              min-width: 44px;
-              min-height: 44px;
-              width: 44px;
-              height: 44px;
-              background-color: transparent;
-              color: #334155;
-              border: none;
-              border-radius: 12px;
-            "
-            @mouseenter="handleBackButtonHover"
-            @mouseleave="handleBackButtonLeave"
-            @focus="handleBackButtonFocus"
-            @blur="handleBackButtonBlur"
+            class="back-button"
             aria-label="Go back to dashboard"
           >
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -163,7 +149,6 @@
               aria-label="Send message"
               type="button"
             >
-              <!-- Paper Plane Send Icon -->
               <svg
                 class="w-6 h-6 transition-all duration-200"
                 fill="currentColor"
@@ -175,37 +160,23 @@
             </button>
           </div>
 
-          <!-- Quick Actions with Material Design 3 styling and 8dp spacing -->
-          <div class="flex flex-wrap" style="gap: 8px; margin-top: 8px;">
-            <button
-              v-for="suggestion in quickSuggestions"
-              :key="suggestion"
-              @click="sendQuickMessage(suggestion)"
-              class="text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-opacity-50 hover:shadow-md"
-              style="
-                padding: 12px 24px;
-                background-color: #FFFFFF;
-                color: #334155;
-                border: 1px solid #E5E7EB;
-                border-radius: 12px;
-                min-height: 44px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-              "
-              :class="{
-                'opacity-50 cursor-not-allowed': isLoading,
-                'hover:bg-gray-50 hover:border-gray-300': !isLoading
-              }"
-              :disabled="isLoading"
-              @mouseenter="(event) => handleSuggestionHover(event, isLoading)"
-              @mouseleave="handleSuggestionLeave"
-              @focus="handleSuggestionFocus"
-              @blur="handleSuggestionBlur"
-            >
-              {{ suggestion }}
-            </button>
+          <!-- Quick Actions -->
+          <div class="mt-3">
+            <div class="flex flex-wrap" style="gap: 8px;">
+              <button
+                v-for="suggestion in quickSuggestions"
+                :key="suggestion"
+                @click="sendQuickMessage(suggestion)"
+                class="suggestion-button"
+                :class="{
+                  'suggestion-button--disabled': isLoading,
+                  'suggestion-button--enabled': !isLoading
+                }"
+                :disabled="isLoading"
+              >
+                {{ suggestion }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -401,73 +372,15 @@ const sendQuickMessage = (suggestion: string) => {
   sendMessage()
 }
 
+
+
 const handleEnter = (event: KeyboardEvent) => {
   if (!event.shiftKey) {
     sendMessage()
   }
 }
 
-// Event handlers for back button with proper TypeScript typing
-const handleBackButtonHover = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.backgroundColor = '#F8FAFC'
-  }
-}
 
-const handleBackButtonLeave = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.backgroundColor = 'transparent'
-  }
-}
-
-const handleBackButtonFocus = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.backgroundColor = '#F8FAFC'
-    target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3)'
-  }
-}
-
-const handleBackButtonBlur = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.backgroundColor = 'transparent'
-    target.style.boxShadow = 'none'
-  }
-}
-
-// Event handlers for suggestion buttons with proper TypeScript typing
-const handleSuggestionHover = (event: Event, isLoading: boolean) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.backgroundColor = isLoading ? '#FFFFFF' : '#F8FAFC'
-  }
-}
-
-const handleSuggestionLeave = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.backgroundColor = '#FFFFFF'
-  }
-}
-
-const handleSuggestionFocus = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.borderColor = '#FDE047'
-    target.style.boxShadow = '0 0 0 2px rgba(253, 224, 71, 0.3)'
-  }
-}
-
-const handleSuggestionBlur = (event: Event) => {
-  const target = event.target as HTMLElement
-  if (target) {
-    target.style.borderColor = '#E5E7EB'
-    target.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-  }
-}
 
 
 
