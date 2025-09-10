@@ -388,6 +388,11 @@ const handleEnter = (event: KeyboardEvent) => {
 
 
 onMounted(() => {
+  // Reset AI conversation context on page load to ensure fresh start
+  // This fixes the context persistence bug where previous conversation
+  // state was maintained across page refreshes
+  AICoordinatorService.resetConversation()
+
   // Set placeholder text
   currentPlaceholder.value = "Ask me to find courts, players, or organize games..."
 
