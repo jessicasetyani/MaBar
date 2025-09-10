@@ -48,9 +48,21 @@ JSON
     try {
       // Add to conversation context
       this.conversationContext.push({ findings, userContext, logicRecommendation })
-      
-      const prompt = this.buildUXDecisionPrompt(findings, userContext, logicRecommendation)
-      
+
+      // Extract raw database results for AI analysis
+      const venues = findings.data || findings.venues || []
+      const players = findings.players || []
+      const sessions = findings.sessions || []
+      const totalResults = venues.length + players.length + sessions.length
+
+      // Handle empty results
+      if (totalResults === 0) {
+        return this.handleNoResults()
+      }
+
+      // AI Presenter acts as intelligent curator and presentation director
+      const prompt = this.buildIntelligentCurationPrompt(findings, userContext, logicRecommendation)
+
       const result = await this.ai.models.generateContent({
         model: 'gemini-2.5-flash-lite',
         contents: [{
@@ -59,19 +71,22 @@ JSON
         }]
       })
 
-      const response = this.parseResponse(result.text || '')
-      
-      AIFlowLogger.logAIThinking(response, {
+      const aiResponse = this.parseResponse(result.text || '')
+
+      AIFlowLogger.logAIThinking(aiResponse, {
         service: 'AIPresenterService',
         method: 'formatResponse',
-        uxDecision: response.format
+        uxDecision: aiResponse.format
       })
-      
+
+      // Convert AI-curated response to SessionCards with preserved database integrity
+      const sessionCards = this.convertAICuratedResponseToCards(aiResponse, venues, players, sessions)
+
       return {
-        text: response.message || 'Here are your results:',
-        sessionCards: this.createOptimizedCards(response.cards, findings, response.format),
+        text: aiResponse.message || this.generateDefaultMessage(totalResults),
+        sessionCards: sessionCards,
         needsMoreInfo: false,
-        conversationComplete: !response.suggestions?.length
+        conversationComplete: true
       }
 
     } catch (error) {
@@ -228,6 +243,46 @@ As AI Presenter, recommend optimal UX approach:
   }
 
   // Private helper methods
+  private static buildIntelligentCurationPrompt(
+    findings: any,
+    userContext: any,
+    logicRecommendation: string
+  ): string {
+    const venues = findings.data || findings.venues || []
+    const players = findings.players || []
+    const sessions = findings.sessions || []
+    const totalResults = venues.length + players.length + sessions.length
+
+    return `Act as an intelligent curator and presentation director for padel matchmaking results.
+
+ANALYSIS DATA:
+- Raw Venues Found: ${venues.length}
+- Raw Players Found: ${players.length}
+- Raw Sessions Found: ${sessions.length}
+- Total Raw Results: ${totalResults}
+
+USER CONTEXT: ${JSON.stringify(userContext, null, 2)}
+LOGIC RECOMMENDATION: ${logicRecommendation}
+
+RAW DATABASE RESULTS: ${JSON.stringify(venues, null, 2)}
+
+CURATION INSTRUCTIONS:
+1. Analyze the raw database results intelligently
+2. Group similar venues/sessions to avoid overwhelming the user
+3. Prioritize results based on user context and preferences
+4. Decide optimal presentation format (cards, text, or mixed)
+5. Create curated cards with enhanced presentation data
+6. Add intelligent insights and recommendations
+
+Your response should include:
+- Intelligent curation decisions
+- Enhanced presentation with sales insights
+- Prioritized and organized results
+- Value-added context and recommendations
+
+Follow the JSON template from your system prompt exactly.`
+  }
+
   private static buildUXDecisionPrompt(
     findings: any,
     userContext: any,
@@ -237,12 +292,12 @@ As AI Presenter, recommend optimal UX approach:
     const players = findings.players || []
     const sessions = findings.sessions || []
     const totalResults = venues.length + players.length + sessions.length
-    
+
     return `Make UX decision for padel matchmaking results:
 
 FINDINGS SUMMARY:
 - Venues: ${venues.length}
-- Players: ${players.length} 
+- Players: ${players.length}
 - Sessions: ${sessions.length}
 - Total Results: ${totalResults}
 - Has Error: ${!!findings.error}
@@ -268,21 +323,229 @@ Decide optimal presentation format and create engaging response.`
     }
   }
 
+  /**
+   * Handle case when no results are found
+   */
+  private static handleNoResults(): UserResponse {
+    return {
+      text: '🎾 Great news! While I didn\'t find exact matches, I have some fantastic alternatives for you! Let me show you nearby venues, different time slots, or popular sessions that might be even better. Sometimes the best padel experiences come from trying something new!',
+      sessionCards: [
+        {
+          type: 'no-availability',
+          data: {
+            message: 'No exact matches, but I found great alternatives!',
+            alternatives: [
+              'Try nearby venues with amazing courts',
+              'Check different time slots today',
+              'Join popular sessions in your area',
+              'Create your own session and invite players'
+            ],
+            encouragement: 'Let\'s find you the perfect padel experience!'
+          }
+        }
+      ],
+      needsMoreInfo: false,
+      conversationComplete: false
+    }
+  }
+
+  /**
+   * Generate default message based on result count
+   */
+  private static generateDefaultMessage(totalResults: number): string {
+    if (totalResults === 1) {
+      return 'Perfect! I found an excellent option for you:'
+    } else if (totalResults <= 3) {
+      return `Great news! I found ${totalResults} fantastic options for you:`
+    } else {
+      return `Excellent! I found ${totalResults} amazing padel options for you:`
+    }
+  }
+
+  /**
+   * Convert AI-curated response to SessionCards while preserving database integrity
+   * This method bridges AI intelligence with raw database accuracy
+   */
+  private static convertAICuratedResponseToCards(
+    aiResponse: any,
+    venues: any[],
+    players: any[],
+    sessions: any[]
+  ): any[] {
+    const cards: any[] = []
+
+    // Handle different AI response formats
+    if (aiResponse.format === 'text') {
+      // For text format, create simple cards from raw database results
+      return this.createSimpleCardsFromDatabase(venues, players, sessions)
+    }
+
+    // For cards format, use AI curation but preserve database integrity
+    if (aiResponse.cards && Array.isArray(aiResponse.cards)) {
+      aiResponse.cards.forEach((aiCard: any) => {
+        // Find matching venue from raw database results to preserve data integrity
+        const matchingVenue = this.findMatchingVenue(aiCard, venues)
+
+        if (matchingVenue) {
+          // Use AI curation decisions but database facts
+          const enhancedCard = this.createEnhancedCard(aiCard, matchingVenue)
+          cards.push(enhancedCard)
+        } else {
+          // Fallback: create card from AI data but log the issue
+          console.warn('⚠️ AI card has no matching database venue:', aiCard)
+          const fallbackCard = this.createFallbackCard(aiCard, venues[0])
+          if (fallbackCard) cards.push(fallbackCard)
+        }
+      })
+    }
+
+    // If AI didn't provide cards or cards are empty, fall back to database results
+    if (cards.length === 0) {
+      console.log('🔄 AI provided no valid cards, using database results directly')
+      return this.createSimpleCardsFromDatabase(venues, players, sessions)
+    }
+
+    return this.deduplicateCards(cards)
+  }
+
+  /**
+   * Find matching venue from database results based on AI card information
+   */
+  private static findMatchingVenue(aiCard: any, venues: any[]): any | null {
+    if (!aiCard.venueName && !aiCard.sessionId) return null
+
+    // Try to match by venue name first
+    if (aiCard.venueName) {
+      const match = venues.find(venue =>
+        venue.name && venue.name.toLowerCase().includes(aiCard.venueName.toLowerCase())
+      )
+      if (match) return match
+    }
+
+    // If no name match, return first venue as fallback (AI might have grouped/renamed)
+    return venues.length > 0 ? venues[0] : null
+  }
+
+  /**
+   * Create enhanced card combining AI curation with database integrity
+   */
+  private static createEnhancedCard(aiCard: any, dbVenue: any): any {
+    // Use database facts, AI presentation enhancements
+    const venueName = dbVenue.name || aiCard.venueName || 'Padel Court'
+    const venueAddress = dbVenue.address ?
+      (typeof dbVenue.address === 'string' ? dbVenue.address : `${dbVenue.address.area}, ${dbVenue.address.city}`) :
+      undefined
+    const venueCost = dbVenue.pricing?.hourlyRate ?
+      `IDR ${dbVenue.pricing.hourlyRate.toLocaleString()}/hour` :
+      undefined
+
+    return {
+      type: 'create-new',
+      data: {
+        venue: venueName,                    // ← Database fact
+        address: venueAddress,               // ← Database fact
+        area: dbVenue.address?.area,         // ← Database fact
+        cost: venueCost,                     // ← Database fact
+        suggestedTime: aiCard.time || 'Flexible timing',     // ← AI enhancement
+        suggestedDate: 'Today or tomorrow',
+        estimatedCost: venueCost,            // ← Database fact
+        description: aiCard.salesPitch || dbVenue.description, // ← AI enhancement + DB fallback
+        rating: dbVenue.rating?.toString(),  // ← Database fact
+        // AI enhancements
+        aiInsights: aiCard.salesPitch,
+        aiRecommendation: true
+      }
+    }
+  }
+
+  /**
+   * Create fallback card when AI card has no database match
+   */
+  private static createFallbackCard(aiCard: any, fallbackVenue: any): any | null {
+    if (!fallbackVenue) return null
+
+    return {
+      type: 'create-new',
+      data: {
+        venue: fallbackVenue.name || 'Padel Court',
+        address: fallbackVenue.address ?
+          (typeof fallbackVenue.address === 'string' ? fallbackVenue.address : `${fallbackVenue.address.area}, ${fallbackVenue.address.city}`) :
+          undefined,
+        area: fallbackVenue.address?.area,
+        cost: fallbackVenue.pricing?.hourlyRate ?
+          `IDR ${fallbackVenue.pricing.hourlyRate.toLocaleString()}/hour` :
+          undefined,
+        suggestedTime: 'Flexible timing',
+        suggestedDate: 'Today or tomorrow',
+        estimatedCost: fallbackVenue.pricing?.hourlyRate ?
+          `IDR ${fallbackVenue.pricing.hourlyRate.toLocaleString()}/hour` :
+          undefined,
+        description: fallbackVenue.description,
+        rating: fallbackVenue.rating?.toString()
+      }
+    }
+  }
+
+  /**
+   * Create simple cards directly from database when AI processing fails
+   */
+  private static createSimpleCardsFromDatabase(venues: any[], players: any[], sessions: any[]): any[] {
+    const cards: any[] = []
+
+    venues.forEach(venue => {
+      const venueName = venue.name || 'Padel Court'
+      const venueAddress = venue.address ?
+        (typeof venue.address === 'string' ? venue.address : `${venue.address.area}, ${venue.address.city}`) :
+        undefined
+      const venueCost = venue.pricing?.hourlyRate ?
+        `IDR ${venue.pricing.hourlyRate.toLocaleString()}/hour` :
+        undefined
+
+      cards.push({
+        type: 'create-new',
+        data: {
+          venue: venueName,
+          address: venueAddress,
+          area: venue.address?.area,
+          cost: venueCost,
+          suggestedTime: 'Flexible timing',
+          suggestedDate: 'Today or tomorrow',
+          estimatedCost: venueCost,
+          description: venue.description,
+          rating: venue.rating?.toString()
+        }
+      })
+    })
+
+    return this.deduplicateCards(cards)
+  }
+
   private static createCards(venues: any[], players: any[], sessions: any[]): any[] {
     const cards: any[] = []
 
     // Convert venues to SessionCard format
     venues.forEach(venue => {
+      // Handle venue data structure from database
+      const venueName = venue.name || venue.venue || 'Padel Court'
+      const venueAddress = venue.address ?
+        (typeof venue.address === 'string' ? venue.address : `${venue.address.area}, ${venue.address.city}`) :
+        undefined
+      const venueCost = venue.pricing?.hourlyRate ?
+        `IDR ${venue.pricing.hourlyRate.toLocaleString()}/hour` :
+        (venue.cost || venue.price)
+
       cards.push({
         type: 'create-new', // Venues typically allow creating new sessions
         data: {
-          venue: venue.name || venue.venue,
-          address: venue.address,
-          area: venue.area,
-          cost: venue.cost || venue.price,
+          venue: venueName,
+          address: venueAddress,
+          area: venue.address?.area || venue.area,
+          cost: venueCost,
           suggestedTime: 'Flexible timing',
           suggestedDate: 'Today or tomorrow',
-          estimatedCost: venue.cost || venue.price
+          estimatedCost: venueCost,
+          description: venue.description,
+          rating: venue.rating?.toString()
         }
       })
     })
