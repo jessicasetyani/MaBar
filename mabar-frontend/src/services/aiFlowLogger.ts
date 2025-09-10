@@ -68,7 +68,9 @@ export class AIFlowLogger {
     } else if (action === 'TOOLBOX_EXECUTION') {
       console.log(`   Tool used: ${output.toolUsed}`)
       console.log(`   Query: ${JSON.stringify(output.query)}`)
-      console.log(`   Results: ${output.results?.length || 0} items`)
+      // Handle toolbox response structure: {data: [], isEmpty: boolean}
+      const resultCount = output.results?.data?.length || output.results?.length || 0
+      console.log(`   Results: ${resultCount} items`)
     }
     if (duration) console.log(`   Duration: ${duration}ms`)
   }
@@ -91,9 +93,12 @@ export class AIFlowLogger {
     
     console.log(`💾 [${entry.step}] DATABASE QUERY`)
     console.log(`   Query:`, JSON.stringify(query, null, 2))
-    console.log(`   Results: ${results?.length || 0} items found`)
-    if (results?.length > 0) {
-      console.log(`   Sample result:`, JSON.stringify(results[0], null, 2))
+    // Handle toolbox response structure: {data: [], isEmpty: boolean}
+    const resultCount = results?.data?.length || results?.length || 0
+    console.log(`   Results: ${resultCount} items found`)
+    const dataArray = results?.data || results
+    if (dataArray?.length > 0) {
+      console.log(`   Sample result:`, JSON.stringify(dataArray[0], null, 2))
     }
     if (duration) console.log(`   Duration: ${duration}ms`)
   }
