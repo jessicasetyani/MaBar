@@ -44,6 +44,15 @@
             </li>
             <li v-if="user?.role === 'player'">
               <router-link
+                to="/ai-chat"
+                class="md-navigation-item"
+                :class="{ active: $route.path === '/ai-chat' }"
+              >
+                AI Matchmaking
+              </router-link>
+            </li>
+            <li v-if="user?.role === 'player'">
+              <router-link
                 to="/profile"
                 class="md-navigation-item"
                 :class="{ active: $route.path === '/profile' }"
@@ -136,6 +145,15 @@
           :class="{ active: $route.path === '/venue-dashboard' }"
         >
           Dashboard
+        </router-link>
+        <router-link
+          v-if="user?.role === 'player'"
+          to="/ai-chat"
+          @click="mobileMenuOpen = false"
+          class="md-navigation-item block w-full text-left"
+          :class="{ active: $route.path === '/ai-chat' }"
+        >
+          AI Matchmaking
         </router-link>
         <router-link
           v-if="user?.role === 'player'"
