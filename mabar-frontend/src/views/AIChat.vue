@@ -429,7 +429,9 @@ textarea:focus {
 
 /* Ensure main content doesn't overlap with fixed input */
 main {
-  margin-bottom: 140px; /* Space for fixed input area */
+  margin-bottom: 160px; /* Space for enhanced fixed input area */
+  overflow: hidden;
+  padding-bottom: 0;
 }
 
 /* Adjust body to prevent scrolling issues */
@@ -506,34 +508,18 @@ body {
   opacity: 0.7; /* Additional opacity for better disabled indication */
 }
 
-button:focus {
-  box-shadow: 0 0 0 3px rgba(253, 224, 71, 0.3) !important;
-}
-
-/* Hover effects with subtle animation */
-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  transition: transform 0.2s ease;
-}
+/* Global button focus removed - handled by individual components */
 
 
 
-/* Smooth scrolling for messages */
+/* Smooth scrolling for messages and proper spacing */
 .overflow-y-auto {
   scroll-behavior: smooth;
-}
-
-/* Prevent gaps during scrolling and ensure proper spacing */
-main {
-  overflow: hidden;
-  padding-bottom: 0;
-}
-
-/* Ensure messages container has proper bottom spacing */
-.overflow-y-auto {
   padding-bottom: 24px !important;
-  margin-bottom: 140px; /* Space for fixed input */
+  margin-bottom: 160px; /* Space for enhanced fixed input */
 }
+
+/* Removed duplicate main selector - merged above */
 
 
 
@@ -557,5 +543,97 @@ main {
 /* Remove any default margins from paragraphs in chat bubbles */
 p {
   margin: 0;
+}
+
+/* ========================================
+   Material Design 3 Button Components
+   ======================================== */
+
+/* Back Button - Material Design 3 compliant */
+.back-button {
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  width: 44px;
+  height: 44px;
+
+  /* Styling */
+  background-color: transparent;
+  color: var(--md-sys-color-on-surface, #334155);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+
+  /* Transitions - Material Design 3 motion */
+  transition: all var(--md-sys-motion-duration-short2, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.back-button:hover {
+  background-color: var(--md-sys-color-surface-variant, #F8FAFC);
+  transform: scale(1.05);
+}
+
+.back-button:focus {
+  outline: none;
+  background-color: var(--md-sys-color-surface-variant, #F8FAFC);
+  box-shadow: 0 0 0 2px rgba(253, 224, 71, 0.3);
+}
+
+.back-button:active {
+  transform: scale(0.95);
+  background-color: var(--md-sys-color-surface-variant, #F8FAFC);
+}
+
+/* Suggestion Button - Material Design 3 compliant */
+.suggestion-button {
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  min-height: 44px;
+
+  /* Typography */
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+
+  /* Styling */
+  background-color: var(--md-sys-color-primary, #FDE047);
+  color: var(--md-sys-color-on-primary, #334155);
+  border: 2px solid var(--md-sys-color-primary, #FDE047);
+  border-radius: 12px;
+  cursor: pointer;
+
+  /* Shadow */
+  box-shadow: var(--md-sys-elevation-level1, 0 2px 4px 0 rgba(0, 0, 0, 0.1));
+
+  /* Transitions - Material Design 3 motion */
+  transition: all var(--md-sys-motion-duration-short2, 200ms) var(--md-sys-motion-easing-standard, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.suggestion-button--enabled:hover {
+  background-color: var(--md-sys-color-primary-container, #FACC15);
+  box-shadow: var(--md-sys-elevation-level2, 0 4px 8px 0 rgba(0, 0, 0, 0.15));
+  transform: translateY(-1px) scale(1.02);
+}
+
+.suggestion-button--enabled:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(253, 224, 71, 0.3), var(--md-sys-elevation-level2, 0 4px 8px 0 rgba(0, 0, 0, 0.15));
+}
+
+.suggestion-button--enabled:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--md-sys-elevation-level1, 0 2px 4px 0 rgba(0, 0, 0, 0.1));
+}
+
+.suggestion-button--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
 }
 </style>
