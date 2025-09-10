@@ -133,7 +133,7 @@ export class AIFlowLogger {
       duration
     }
     this.logs.push(entry)
-    
+
     console.log(`🎨 [${entry.step}] AI PRESENTER - ${action}`)
     if (action === 'FORMAT_RESPONSE') {
       console.log(`   Response text: "${output.text?.substring(0, 100)}..."`)
@@ -144,6 +144,61 @@ export class AIFlowLogger {
       console.log(`   Reasoning: ${output.reasoning}`)
     }
     if (duration) console.log(`   Duration: ${duration}ms`)
+  }
+
+  /**
+   * Log errors with context
+   */
+  static logError(context: string, error: Error, additionalData?: any): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: 'Coordinator',
+      action: 'ERROR',
+      input: { context, additionalData },
+      output: {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      }
+    }
+    this.logs.push(entry)
+
+    console.error(`❌ [${entry.step}] ERROR in ${context}:`, error.message)
+    if (additionalData) {
+      console.error(`   Additional data:`, JSON.stringify(additionalData, null, 2))
+    }
+    if (error.stack) {
+      console.error(`   Stack trace:`, error.stack)
+    }
+  }
+
+  /**
+   * Log AI thinking processes and decisions
+   */
+  static logAIThinking(response: any, context?: any): void {
+    this.stepCounter++
+    const entry: LogEntry = {
+      timestamp: new Date().toISOString(),
+      step: `${this.stepCounter}`,
+      service: context?.service || 'Logic',
+      action: 'AI_THINKING',
+      input: context,
+      output: response
+    }
+    this.logs.push(entry)
+
+    console.log(`🤔 [${entry.step}] AI THINKING - ${context?.method || 'processing'}`)
+    if (context?.uxDecision) {
+      console.log(`   UX Decision: ${context.uxDecision}`)
+    }
+    if (response.reasoning) {
+      console.log(`   Reasoning: ${response.reasoning}`)
+    }
+    if (response.confidence) {
+      console.log(`   Confidence: ${response.confidence}`)
+    }
   }
 
   /**
